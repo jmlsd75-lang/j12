@@ -41,9 +41,10 @@ margin-top:40px;
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
 <button id="loginBtn">LOGIN</button>
-<script type="module">
+  <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
 apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
@@ -54,6 +55,30 @@ messagingSenderId: "167159607898",
 appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+document.getElementById("loginBtn").onclick = async function(){
+
+try{
+const result = await signInWithPopup(auth, provider);
+
+const user = result.user;
+
+document.body.innerHTML = `
+<h1>WELCOME</h1>
+<h2>${user.displayName}</h2>
+`;
+
+}catch(error){
+alert(error.message);
+}
+
+}
+
+</script>
 
 initializeApp(firebaseConfig);
   
