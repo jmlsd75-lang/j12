@@ -1,89 +1,290 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome to Firebase Hosting</title>
+<head>
+<meta charset="UTF-8">
+<title>Menu</title>
 
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/12.10.0/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/12.10.0/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-messaging-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-analytics-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-remote-config-compat.js"></script>
-    <script defer src="/__/firebase/12.10.0/firebase-performance-compat.js"></script>
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+<style>
+body{
+margin:0;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+font-family:Arial, sans-serif;
+background:#f4f4f4;
+}
 
-    <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="message">
-      <h2>Welcome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
-    </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
+.container{
+text-align:center;
+}
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const loadEl = document.querySelector('#load');
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // The Firebase SDK is initialized and available here!
-        //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-        // firebase.firestore().doc('/foo/bar').get().then(() => { });
-        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
-        // firebase.messaging().requestPermission().then(() => { });
-        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        // firebase.analytics(); // call to activate
-        // firebase.analytics().logEvent('tutorial_completed');
-        // firebase.performance(); // call to activate
-        //
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+button{
+padding:15px 30px;
+margin:10px;
+font-size:18px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+color:white;
+}
 
-        try {
-          let app = firebase.app();
-          let features = [
-            'auth', 
-            'database', 
-            'firestore',
-            'functions',
-            'messaging', 
-            'storage', 
-            'analytics', 
-            'remoteConfig',
-            'performance',
-          ].filter(feature => typeof app[feature] === 'function');
-          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e) {
-          console.error(e);
-          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
-        }
-      });
-    </script>
-  </body>
+.business{background:#4CAF50;}
+.exit{background:#f44336;}
+
+.addTransaction{background:#2196F3;}
+.viewMenuBtn{background:#FF9800;}
+.backMain{background:#9E9E9E;}
+
+.inBtn{background:#009688;}
+.outBtn{background:#E91E63;}
+
+.cashBtn{background:#8BC34A;}
+.creditBtn{background:#673AB7;}
+.bankBtn{background:#3F51B5;}
+
+.okBtn{background:#00BCD4;}
+.cancelBtn{background:#795548;}
+
+.listBtn{background:#607D8B;}
+.cashBookBtn{background:#009688;}
+.ledgerBtn{background:#CDDC39;}
+.balanceBtn{background:#9C27B0;}
+.incomeBtn{background:#FF5722;}
+.backViewBtn{background:#3F51B5;}
+
+.backListBtn{background:#795548;}
+
+.row{
+display:flex;
+justify-content:center;
+gap:10px;
+flex-wrap:wrap;
+}
+</style>
+</head>
+
+<body>
+
+<!-- MAIN MENU -->
+<div class="container" id="menu">
+<button class="business" onclick="business()">Business</button>
+<button class="exit" onclick="exitApp()">Exit</button>
+</div>
+
+<!-- TRANSACTION SCREEN -->
+<div class="container" id="transaction" style="display:none;">
+<button class="addTransaction" onclick="addTransaction()">Add New Transaction</button>
+<br>
+<button class="viewMenuBtn" onclick="openView()">View</button>
+<br>
+<button class="backMain" onclick="back()">Back</button>
+</div>
+
+<!-- ADD FORM -->
+<div class="container" id="addForm" style="display:none;">
+<h2>Add Transaction</h2>
+
+<input type="text" id="detail" placeholder="Enter Detail" oninput="showAmount()">
+<br><br>
+
+<input type="number" id="amount" placeholder="Enter Amount" style="display:none;" oninput="showType()">
+<br><br>
+
+<div id="type" style="display:none;">
+<p>Choose</p>
+<div class="row">
+<button class="inBtn" onclick="showMethod('in')">In</button>
+<button class="outBtn" onclick="showMethod('out')">Out</button>
+</div>
+</div>
+
+<br>
+
+<div id="method" style="display:none;">
+<p>Payment</p>
+<div class="row">
+<button class="cashBtn" onclick="showEnd('cash')">Cash</button>
+<button class="creditBtn" onclick="showEnd('credit')">Credit</button>
+<button class="bankBtn" onclick="showEnd('bank')">Bank</button>
+</div>
+</div>
+
+<br>
+
+<div id="endButtons" style="display:none;">
+<div class="row">
+<button class="okBtn" onclick="saveTransaction()">OK</button>
+<button class="cancelBtn" onclick="cancelTransaction()">Cancel</button>
+</div>
+</div>
+</div>
+
+<!-- VIEW MENU -->
+<div class="container" id="viewMenu" style="display:none;">
+<button class="listBtn" onclick="showList()">List</button>
+<br>
+<button class="cashBookBtn" onclick="openCashBook()">Cash Book</button>
+<br>
+<button class="ledgerBtn" onclick="comingSoon()">Ledgers</button>
+<br>
+<button class="balanceBtn" onclick="comingSoon()">Balance Sheet</button>
+<br>
+<button class="incomeBtn" onclick="comingSoon()">Income Statement</button>
+<br>
+<button class="backViewBtn" onclick="backToTransaction()">Back</button>
+</div>
+
+<!-- LIST -->
+<div class="container" id="listScreen" style="display:none;">
+<h3>Transactions</h3>
+
+<table border="1" cellpadding="8">
+<tr>
+<th>S/N</th>
+<th>Date</th>
+<th>Detail</th>
+<th>Amount</th>
+</tr>
+
+<tbody id="listData"></tbody>
+</table>
+
+<br>
+<button class="backListBtn" onclick="backToView()">Back</button>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+authDomain: "my-project-66803-95cb3.firebaseapp.com",
+projectId: "my-project-66803-95cb3",
+storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+messagingSenderId: "167159607898",
+appId: "1:167159607898:web:23ca11366b88868b085e63"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let currentType="";
+let currentMethod="";
+
+window.business=function(){
+menu.style.display="none";
+transaction.style.display="block";
+}
+
+window.back=function(){
+transaction.style.display="none";
+menu.style.display="block";
+}
+
+window.exitApp=function(){
+alert("Exit button clicked");
+}
+
+window.addTransaction=function(){
+transaction.style.display="none";
+addForm.style.display="block";
+}
+
+window.showAmount=function(){
+amount.style.display="block";
+}
+
+window.showType=function(){
+type.style.display="block";
+}
+
+window.showMethod=function(typeVal){
+currentType=typeVal;
+method.style.display="block";
+}
+
+window.showEnd=function(methodVal){
+currentMethod=methodVal;
+endButtons.style.display="block";
+}
+
+window.cancelTransaction=function(){
+addForm.style.display="none";
+transaction.style.display="block";
+}
+
+window.saveTransaction=async function(){
+
+let detail=document.getElementById("detail").value;
+let amount=document.getElementById("amount").value;
+let date=new Date().toLocaleDateString();
+
+await addDoc(collection(db,"transactions"),{
+detail,
+amount,
+date,
+type:currentType,
+method:currentMethod
+});
+
+alert("Transaction saved to Firestore");
+
+addForm.style.display="none";
+transaction.style.display="block";
+}
+
+window.openView=function(){
+transaction.style.display="none";
+viewMenu.style.display="block";
+}
+
+window.backToTransaction=function(){
+viewMenu.style.display="none";
+transaction.style.display="block";
+}
+
+window.showList=async function(){
+
+viewMenu.style.display="none";
+listScreen.style.display="block";
+
+let table=document.getElementById("listData");
+table.innerHTML="";
+
+const querySnapshot=await getDocs(collection(db,"transactions"));
+
+let i=1;
+
+querySnapshot.forEach(doc=>{
+
+let t=doc.data();
+
+table.innerHTML+=`
+<tr>
+<td>${i++}</td>
+<td>${t.date}</td>
+<td>${t.detail}</td>
+<td>${t.amount}</td>
+</tr>
+`;
+
+});
+
+}
+
+window.backToView=function(){
+listScreen.style.display="none";
+viewMenu.style.display="block";
+}
+
+window.comingSoon=function(){
+alert("Coming soon");
+}
+
+</script>
+
+</body>
 </html>
