@@ -1,179 +1,186 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jamal Said Kazembe Multisystem Management</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      text-align: center;
-    }
+<meta charset="UTF-8">
+<title>Jamal Said Kazembe Multisystem Management</title>
 
-    h1 {
-      font-size: 40px;
-      color: blue;
-      margin-top: 40px;
-    }
+<style>
 
-    h2 {
-      color: red;
-    }
+body{
+margin:0;
+font-family:Arial;
+background:#f4f4f4;
+text-align:center;
+}
 
-    #userName {
-      margin-top: 20px;
-      font-size: 20px;
-      font-weight: bold;
-    }
+h1{
+font-size:40px;
+color:blue;
+margin-top:40px;
+}
 
-    .login-btn {
-      margin-top: 200px;
-      padding: 15px 40px;
-      font-size: 18px;
-      background: green;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
+h2{
+color:red;
+}
 
-    .logout-btn {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 12px 30px;
-      font-size: 16px;
-      background: red;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      display: none;
-    }
-  </style>
+#userName{
+margin-top:20px;
+font-size:20px;
+font-weight:bold;
+}
+
+.login-btn{
+margin-top:200px;
+padding:15px 40px;
+font-size:18px;
+background:green;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+.logout-btn{
+position:fixed;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+padding:12px 30px;
+font-size:16px;
+background:red;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+display:none;
+}
+
+</style>
 </head>
+
 <body>
 
-  <h1>JAMAL SAID KAZEMBE</h1>
-  <h2>MULTISYSTEM MANAGEMENT</h2>
+<h1>JAMAL SAID KAZEMBE</h1>
+<h2>MULTISYSTEM MANAGEMENT</h2>
 
-  <div id="userName"></div>
+<div id="userName"></div>
 
-  <button class="login-btn" id="loginBtn">LOGIN WITH GOOGLE</button>
-  <button class="logout-btn" id="logoutBtn">LOGOUT</button>
+<button class="login-btn" id="loginBtn">LOGIN WITH GOOGLE</button>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getAuth,
-      GoogleAuthProvider,
-      signInWithPopup,
-      signOut,
-      onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {
-      getFirestore,
-      doc,
-      setDoc,
-      getDoc,
-      collection,
-      getDocs
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<button class="logout-btn" id="logoutBtn">LOGOUT</button>
 
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-      authDomain: "my-project-66803-95cb3.firebaseapp.com",
-      projectId: "my-project-66803-95cb3",
-      storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-      messagingSenderId: "167159607898",
-      appId: "1:167159607898:web:23ca11366b88868b085e63"
-    };
+<script type="module">
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
-    const db = getFirestore(app);
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-    // DOM elements
-    const loginBtn = document.getElementById("loginBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const userName = document.getElementById("userName");
+import { 
+getAuth,
+GoogleAuthProvider,
+signInWithPopup,
+signOut,
+onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    // Handle Google login
-    loginBtn.onclick = () => {
-      signInWithPopup(auth, provider)
-        .then(async (result) => {
-          const user = result.user;
-          const userRef = doc(db, "users", user.uid);
-          const userSnap = await getDoc(userRef);
+import {
+getFirestore,
+doc,
+setDoc,
+getDoc,
+collection,
+getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-          if (!userSnap.exists()) {
-            // If user does not exist, create a new record
-            const allUsers = await getDocs(collection(db, "users"));
-            let regNumber = allUsers.size + 1;
-            let regFormatted = regNumber.toString().padStart(10, '0');
+const firebaseConfig = {
+apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+authDomain: "my-project-66803-95cb3.firebaseapp.com",
+projectId: "my-project-66803-95cb3",
+storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+messagingSenderId: "167159607898",
+appId: "1:167159607898:web:23ca11366b88868b085e63"
+};
 
-            // Store user data
-            await setDoc(userRef, {
-              name: user.displayName,
-              email: user.email,
-              regNumber: regFormatted
-            });
-          }
-        })
-        .catch((error) => {
-          alert(error.message);
-        });
-    };
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+const db = getFirestore(app);
 
-    // Handle logout
-    logoutBtn.onclick = () => {
-      signOut(auth);
-    };
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const userName = document.getElementById("userName");
 
-    // Handle user state changes
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
+loginBtn.onclick = () => {
 
-        if (userSnap.exists()) {
-          const data = userSnap.data();
+signInWithPopup(auth, provider)
 
-          // Check if the user is an admin
-          const token = await user.getIdTokenResult();
-          
-          if (token.claims.admin) {
-            // Admin view: Show specific fields (email, regNumber, spaceUsed)
-            userName.innerHTML =
-              `Welcome: ${user.displayName}<br>
-               Email: ${data.email}<br>
-               Registration No: ${data.regNumber}<br>
-               Space Used: ${data.spaceUsed || 'Not Available'}`;
-          } else {
-            // Regular user view: Show name and regNumber only
-            userName.innerHTML =
-              `Welcome: ${user.displayName}<br>
-               Registration No: ${data.regNumber}`;
-          }
+.then(async (result)=>{
 
-          // Hide login button, show logout button
-          loginBtn.style.display = "none";
-          logoutBtn.style.display = "block";
-        }
-      } else {
-        // No user logged in
-        userName.innerHTML = "";
-        loginBtn.style.display = "block";
-        logoutBtn.style.display = "none";
-      }
-    });
-  </script>
+const user = result.user;
+
+const userRef = doc(db,"users",user.uid);
+const userSnap = await getDoc(userRef);
+
+if(!userSnap.exists()){
+
+const allUsers = await getDocs(collection(db,"users"));
+let regNumber = allUsers.size + 1;
+
+let regFormatted = regNumber.toString().padStart(10,'0');
+
+await setDoc(userRef,{
+name:user.displayName,
+email:user.email,
+regNumber:regFormatted,
+spaceUsed:0
+});
+
+}
+
+})
+
+.catch((error)=>{
+alert(error.message);
+});
+
+};
+
+logoutBtn.onclick = () => {
+signOut(auth);
+};
+
+onAuthStateChanged(auth, async (user)=>{
+
+if(user){
+
+const userRef = doc(db,"users",user.uid);
+const userSnap = await getDoc(userRef);
+
+if(userSnap.exists()){
+
+const data = userSnap.data();
+
+userName.innerHTML =
+"Welcome: " + user.displayName +
+"<br>Email: " + data.email +
+"<br>Registration No: " + data.regNumber +
+"<br>Space Used: " + data.spaceUsed;
+
+}
+
+loginBtn.style.display = "none";
+logoutBtn.style.display = "block";
+
+}else{
+
+userName.innerHTML = "";
+
+loginBtn.style.display = "block";
+logoutBtn.style.display = "none";
+
+}
+
+});
+
+</script>
 
 </body>
 </html>
