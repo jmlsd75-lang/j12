@@ -22,7 +22,8 @@ margin-top:100px;
 h2{
 color:red;
 }
-  #loginBtn{
+
+#loginBtn{
 background:purple;
 color:white;
 border:none;
@@ -40,8 +41,10 @@ margin-top:40px;
 
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
-<button id="loginBtn">LOGIN</button>
-  <script type="module">
+
+<button id="loginBtn">LOGIN WITH GOOGLE</button>
+
+<script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -63,13 +66,14 @@ const provider = new GoogleAuthProvider();
 document.getElementById("loginBtn").onclick = async function(){
 
 try{
-const result = await signInWithPopup(auth, provider);
 
+const result = await signInWithPopup(auth, provider);
 const user = result.user;
 
 document.body.innerHTML = `
 <h1>WELCOME</h1>
 <h2>${user.displayName}</h2>
+<p>${user.email}</p>
 `;
 
 }catch(error){
@@ -78,13 +82,6 @@ alert(error.message);
 
 }
 
-</script>
-
-initializeApp(firebaseConfig);
-  
-document.getElementById("loginBtn").onclick = function(){
-alert("Coming Soon");
-}
 </script>
 
 </body>
