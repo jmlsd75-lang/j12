@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -39,12 +40,23 @@ border:none;
 border-radius:6px;
 cursor:pointer;
 }
-  .free-btn{
+
+/* FREE BUTTON (hidden before login) */
+.free-btn{
 margin-top:20px;
 padding:12px 30px;
-font-size
+font-size:16px;
+background:blue;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+display:none;
+margin-left:auto;
+margin-right:auto;
+}
 
-
+/* PAID BUTTON (hidden before login) */
 .paid-btn{
 margin-top:10px;
 padding:12px 30px;
@@ -54,7 +66,7 @@ color:white;
 border:none;
 border-radius:6px;
 cursor:pointer;
-display:block;
+display:none;
 margin-left:auto;
 margin-right:auto;
 }
@@ -130,6 +142,10 @@ const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const userName = document.getElementById("userName");
 
+const freeBtn = document.querySelector(".free-btn");
+const paidBtn = document.querySelector(".paid-btn");
+
+/* LOGIN */
 loginBtn.onclick = () => {
 
 signInWithPopup(auth, provider)
@@ -165,10 +181,12 @@ alert(error.message);
 
 };
 
+/* LOGOUT */
 logoutBtn.onclick = () => {
 signOut(auth);
 };
 
+/* AUTH STATE */
 onAuthStateChanged(auth, async (user)=>{
 
 if(user){
@@ -188,8 +206,11 @@ userName.innerHTML =
 
 }
 
+/* show buttons after login */
 loginBtn.style.display = "none";
 logoutBtn.style.display = "block";
+freeBtn.style.display = "block";
+paidBtn.style.display = "block";
 
 }else{
 
@@ -197,6 +218,8 @@ userName.innerHTML = "";
 
 loginBtn.style.display = "block";
 logoutBtn.style.display = "none";
+freeBtn.style.display = "none";
+paidBtn.style.display = "none";
 
 }
 
@@ -206,3 +229,4 @@ logoutBtn.style.display = "none";
 
 </body>
 </html>
+```
