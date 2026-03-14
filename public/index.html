@@ -16,67 +16,11 @@ text-align:center;
 h1{
 font-size:40px;
 color:blue;
-margin-top:40px;
+margin-top:100px;
 }
 
 h2{
 color:red;
-}
-
-#userName{
-margin-top:20px;
-font-size:20px;
-font-weight:bold;
-}
-
-.login-btn{
-margin-top:120px;
-padding:15px 40px;
-font-size:18px;
-background:green;
-color:white;
-border:none;
-border-radius:6px;
-cursor:pointer;
-}
-
-.free-btn{
-margin-top:20px;
-padding:12px 30px;
-font-size:16px;
-background:blue;
-color:white;
-border:none;
-border-radius:6px;
-cursor:pointer;
-display:none;
-}
-
-.paid-btn{
-margin-top:10px;
-padding:12px 30px;
-font-size:16px;
-background:red;
-color:white;
-border:none;
-border-radius:6px;
-cursor:pointer;
-display:none;
-}
-
-.logout-btn{
-position:fixed;
-bottom:20px;
-left:50%;
-transform:translateX(-50%);
-padding:12px 30px;
-font-size:16px;
-background:red;
-color:white;
-border:none;
-border-radius:6px;
-cursor:pointer;
-display:none;
 }
 
 </style>
@@ -87,35 +31,9 @@ display:none;
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
 
-<div id="userName"></div>
-
-<button class="login-btn" id="loginBtn">LOGIN WITH GOOGLE</button>
-
-<button class="free-btn" id="freeBtn">FREE</button>
-<button class="paid-btn" id="paidBtn">PAID</button>
-
-<button class="logout-btn" id="logoutBtn">LOGOUT</button>
-
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import { 
-getAuth,
-GoogleAuthProvider,
-signInWithPopup,
-signOut,
-onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-import {
-getFirestore,
-doc,
-setDoc,
-getDoc,
-collection,
-getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
 apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
@@ -126,97 +44,7 @@ messagingSenderId: "167159607898",
 appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
-const db = getFirestore(app);
-
-const loginBtn = document.getElementById("loginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const userName = document.getElementById("userName");
-const freeBtn = document.getElementById("freeBtn");
-const paidBtn = document.getElementById("paidBtn");
-
-
-/* LOGIN */
-loginBtn.onclick = () => {
-
-signInWithPopup(auth, provider)
-
-.then(async (result)=>{
-
-const user = result.user;
-
-const userRef = doc(db,"users",user.uid);
-const userSnap = await getDoc(userRef);
-
-if(!userSnap.exists()){
-
-const allUsers = await getDocs(collection(db,"users"));
-let regNumber = allUsers.size + 1;
-let regFormatted = regNumber.toString().padStart(10,'0');
-
-await setDoc(userRef,{
-name:user.displayName,
-email:user.email,
-regNumber:regFormatted,
-spaceUsed:0
-});
-
-}
-
-})
-
-.catch((error)=>{
-alert(error.message);
-});
-
-};
-
-
-/* LOGOUT */
-logoutBtn.onclick = () => {
-signOut(auth);
-};
-
-
-/* AUTH STATE */
-onAuthStateChanged(auth, async (user) => {
-
-if(user){
-
-try{
-
-const userRef = doc(db,"users",user.uid);
-const userSnap = await getDoc(userRef);
-
-if(userSnap.exists()){
-
-userName.innerHTML = userSnap.data().name;
-
-loginBtn.style.display = "none";
-logoutBtn.style.display = "block";
-freeBtn.style.display = "block";
-paidBtn.style.display = "block";
-
-}
-
-}catch(error){
-console.error(error);
-}
-
-}else{
-
-userName.innerHTML = "";
-
-loginBtn.style.display = "block";
-logoutBtn.style.display = "none";
-freeBtn.style.display = "none";
-paidBtn.style.display = "none";
-
-}
-
-});
+initializeApp(firebaseConfig);
 
 </script>
 
