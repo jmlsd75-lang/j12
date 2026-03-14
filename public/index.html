@@ -40,7 +40,6 @@ border-radius:6px;
 cursor:pointer;
 }
 
-/* FREE BUTTON (hidden before login) */
 .free-btn{
 margin-top:20px;
 padding:12px 30px;
@@ -51,11 +50,8 @@ border:none;
 border-radius:6px;
 cursor:pointer;
 display:none;
-margin-left:auto;
-margin-right:auto;
 }
 
-/* PAID BUTTON (hidden before login) */
 .paid-btn{
 margin-top:10px;
 padding:12px 30px;
@@ -66,8 +62,6 @@ border:none;
 border-radius:6px;
 cursor:pointer;
 display:none;
-margin-left:auto;
-margin-right:auto;
 }
 
 .logout-btn{
@@ -97,8 +91,8 @@ display:none;
 
 <button class="login-btn" id="loginBtn">LOGIN WITH GOOGLE</button>
 
-<button class="free-btn">FREE </button>
-<button class="paid-btn">PAID </button>
+<button class="free-btn" id="freeBtn">FREE</button>
+<button class="paid-btn" id="paidBtn">PAID</button>
 
 <button class="logout-btn" id="logoutBtn">LOGOUT</button>
 
@@ -140,9 +134,9 @@ const db = getFirestore(app);
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const userName = document.getElementById("userName");
+const freeBtn = document.getElementById("freeBtn");
+const paidBtn = document.getElementById("paidBtn");
 
-const freeBtn = document.querySelector(".free-btn");
-const paidBtn = document.querySelector(".paid-btn");
 
 /* LOGIN */
 loginBtn.onclick = () => {
@@ -160,7 +154,6 @@ if(!userSnap.exists()){
 
 const allUsers = await getDocs(collection(db,"users"));
 let regNumber = allUsers.size + 1;
-
 let regFormatted = regNumber.toString().padStart(10,'0');
 
 await setDoc(userRef,{
@@ -180,44 +173,37 @@ alert(error.message);
 
 };
 
+
 /* LOGOUT */
 logoutBtn.onclick = () => {
 signOut(auth);
 };
-  onAuthStateChanged(auth, async (user) => {
 
-  if (user) {
 
-    try {
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
+/* AUTH STATE */
+onAuthStateChanged(auth, async (user) => {
 
-      if (userSnap.exists()) {
-        // user already logged in → go to menu
-        window.location.href = "menu.html";
-      }
+if(user){
 
-    } catch (error) {
-      console.error("Error getting user data:", error);
-    }
+try{
 
-  } else {
+const userRef = doc(db,"users",user.uid);
+const userSnap = await getDoc(userRef);
 
-    userName.innerHTML = "";
+if(userSnap.exists()){
 
-    loginBtn.style.display = "block";
-    logoutBtn.style.display = "none";
-    freeBtn.style.display = "none";
-    paidBtn.style.display = "none";
+userName.innerHTML = userSnap.data().name;
 
-  }
-
-});
-/* show buttons after login */
 loginBtn.style.display = "none";
 logoutBtn.style.display = "block";
 freeBtn.style.display = "block";
 paidBtn.style.display = "block";
+
+}
+
+}catch(error){
+console.error(error);
+}
 
 }else{
 
