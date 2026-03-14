@@ -22,6 +22,16 @@ margin-top:100px;
 h2{
 color:red;
 }
+  #loginBtn{
+background:purple;
+color:white;
+border:none;
+padding:15px 40px;
+font-size:20px;
+border-radius:8px;
+cursor:pointer;
+margin-top:40px;
+}
 
 </style>
 </head>
@@ -30,7 +40,7 @@ color:red;
 
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
-
+<button id="loginBtn">LOGIN</button>
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -44,8 +54,12 @@ messagingSenderId: "167159607898",
 appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
-initializeApp(firebaseConfig);
 
+initializeApp(firebaseConfig);
+  
+document.getElementById("loginBtn").onclick = function(){
+alert("Coming Soon");
+}
 </script>
 
 </body>
