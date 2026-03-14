@@ -185,27 +185,35 @@ alert(error.message);
 logoutBtn.onclick = () => {
 signOut(auth);
 };
+  onAuthStateChanged(auth, async (user) => {
 
-/* AUTH STATE */
-onAuthStateChanged(auth, async (user)=>{
+  if (user) {
 
-if(user){
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
 
-const userRef = doc(db,"users",user.uid);
-const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        // user already logged in → go to menu
+        window.location.href = "menu.html";
+      }
 
-if(userSnap.exists()){
+    } catch (error) {
+      console.error("Error getting user data:", error);
+    }
 
-const data = userSnap.data();
+  } else {
 
-userName.innerHTML =
-"Welcome: " + user.displayName +
-"<br>Email: " + data.email +
-"<br>Registration No: " + data.regNumber +
-"<br>Space Used: " + data.spaceUsed;
+    userName.innerHTML = "";
 
-}
+    loginBtn.style.display = "block";
+    logoutBtn.style.display = "none";
+    freeBtn.style.display = "none";
+    paidBtn.style.display = "none";
 
+  }
+
+});
 /* show buttons after login */
 loginBtn.style.display = "none";
 logoutBtn.style.display = "block";
@@ -229,4 +237,3 @@ paidBtn.style.display = "none";
 
 </body>
 </html>
-```
