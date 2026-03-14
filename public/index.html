@@ -5,6 +5,7 @@
 <title>Jamal Said Kazembe Multisystem Management</title>
 
 <style>
+
 body{
 margin:0;
 font-family:Arial, sans-serif;
@@ -18,13 +19,25 @@ margin-top:40px;
 
 h1{
 font-size:40px;
-margin-bottom:10px;
+margin-bottom:5px;
 color:blue;
+font-weight:bold;
 }
 
 h2{
-font-size:24px;
+font-size:22px;
 color:red;
+}
+
+.login-btn{
+margin-top:200px;
+padding:15px 40px;
+font-size:18px;
+background-color:green;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
 }
 
 </style>
@@ -35,14 +48,15 @@ color:red;
 <div class="container">
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
-</div>
 
+<button class="login-btn">LOGIN</button>
+
+</div>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
 
 const firebaseConfig = {
 apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
@@ -53,10 +67,8 @@ messagingSenderId: "167159607898",
 appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
 
 console.log("Multisystem Management Connected to Firebase");
 
