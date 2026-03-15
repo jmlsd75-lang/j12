@@ -113,11 +113,16 @@ const logoutBtn = document.querySelector(".logout-btn");
 let waitInterval;
 loginBtn.onclick = async () => {
   await signInWithPopup(auth, provider);
-loginBtn.style.display="none";
-logoutBtn.style.display="none";
-  actionBtns.style.display="none";
+  loginBtn.onclick = async () => {
+
+  await signInWithPopup(auth, provider);
 
   countdownPage.style.display="flex";
+
+  loginBtn.style.display="none";
+  logoutBtn.style.display="none";
+  actionBtns.style.display="none";
+  }
 
   let time = 180;
 
