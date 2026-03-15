@@ -50,6 +50,18 @@
       border-radius: 5px;
       cursor: pointer;
     }
+    #loginBtn {
+  background-color: blue; /* Set button color to blue */
+  padding: 15px 30px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#loginBtn:hover {
+  opacity: 3.0;  /* Add hover effect */
+}
 
     #payBtn {
       background-color: green; /* Pay button is green */
@@ -99,8 +111,7 @@
   <h1>JAMAL SAID KAZEMBE</h1>
   <h2>MULTISYSTEM MANAGEMENT</h2>
   <p id="userInfo" style="display:none;"></p>  
-  <button id="loginBtn">Login</button>
-
+  <button id="loginBtn" style="background-color: blue;">Login</button>
   <!-- Wrap the Free, Pay, and Logout buttons in a container -->
   <div class="button-container" id="freePayContainer" style="display:none;">
     <button id="freeBtn">Free</button>
