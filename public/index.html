@@ -51,8 +51,7 @@ h2{
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"; 
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -74,6 +73,13 @@ loginBtn.onclick = async () => {
   await signInWithPopup(auth, provider);
   loginBtn.style.display = "none";
 };
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loginBtn.style.display = "none";
+  } else {
+    loginBtn.style.display = "block";
+  }
+});
 </script>
 
 </body>
