@@ -30,14 +30,13 @@
     h2 {
       color: red;
     }
-
-    /* Center the Free and Pay buttons horizontally */
     .button-container {
-      display: flex;
-      justify-content: center;  /* Horizontally center the buttons */
-      gap: 20px;  /* Add some space between the buttons */
-      margin-top: 20px;
-    }
+  display: flex;
+  justify-content: center;
+  flex-direction: column; /* Stack buttons vertically */
+  gap: 20px;  /* Add some space between the buttons */
+  margin-top: 20px;
+}
 
     #freeBtn, #payBtn, #logoutBtn {
       background-color: green;
@@ -47,11 +46,17 @@
       border-radius: 5px;
       cursor: pointer;
     }
+#freeBtn {
+  background-color: blue; /* Free button is blue */
+}
 
-    #freeBtn:hover, #payBtn:hover, #logoutBtn:hover {
-      background-color: #3d9d3a;
-    }
+#payBtn {
+  background-color: green; /* Pay button is green */
+}
 
+#logoutBtn {
+  background-color: red; /* Logout button is red */
+}
     #errorMsg {
       color: red;
       display: none;
