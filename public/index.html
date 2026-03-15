@@ -205,13 +205,14 @@
     let countdownInterval;
     let timeRemaining = localStorage.getItem('freeCountdownTime') ? parseInt(localStorage.getItem('freeCountdownTime')) : 180;
     let countdownStarted = localStorage.getItem('countdownStarted') === 'true'; 
-
     if (countdownStarted) {
-      document.getElementById('freePayContainer').style.display = 'none';
-      document.getElementById('countdownContainer').style.display = 'block';
-      updateCountdown();
-      countdownInterval = setInterval(updateCountdown, 1000); 
-    }
+
+  document.getElementById('freePayContainer').style.display = 'none';
+  document.getElementById('countdownContainer').style.display = 'block';
+
+  startCountdown();
+
+}
 
     document.getElementById('freeBtn').addEventListener('click', function () {
       document.getElementById('freeBtn').disabled = true;
