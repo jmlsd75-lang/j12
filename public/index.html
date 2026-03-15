@@ -137,21 +137,18 @@
         displayError('Error during logout: ' + error.message);
       });
     });
-
-    // Store user data in Firestore
-    function storeUserData(user) {
-      const userRef = doc(db, "users", user.uid);
-      setDoc(userRef, {
-        email: user.email,
-        displayName: user.displayName,
-        lastLogin: serverTimestamp()
-      }).then(() => {
-        console.log('User data stored in Firestore');
-      }).catch((error) => {
-        displayError('Error storing user data in Firestore: ' + error.message);
-      });
-    }
-
+function storeUserData(user) {
+  const userRef = doc(db, "users", user.uid);
+  setDoc(userRef, {
+    email: user.email,
+    displayName: user.displayName,
+    lastLogin: serverTimestamp()
+  }).then(() => {
+    console.log('User data stored in Firestore:', user);
+  }).catch((error) => {
+    displayError('Error storing user data in Firestore: ' + error.message);
+  });
+}
     // Display error messages
     function displayError(message) {
       const errorMsgElement = document.getElementById('errorMsg');
