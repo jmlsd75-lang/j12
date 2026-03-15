@@ -9,7 +9,7 @@
       font-family: Arial;
       background: #f4f4f4;
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       flex-direction: column;
       height: 100vh;
       align-items: center;
@@ -30,45 +30,65 @@
     h2 {
       color: red;
     }
+
+    /* Default layout (for desktop and larger screens) */
     .button-container {
-  display: flex;
-  justify-content: center;  /* Horizontally align buttons */
-  flex-direction: row;  /* Keep Free and Pay buttons side by side */
-  gap: 20px;  /* Add some space between the Free and Pay buttons */
-  margin-top: 20px;
-}
+      display: flex;
+      justify-content: center;  /* Horizontally align buttons */
+      flex-direction: row;  /* Keep Free and Pay buttons side by side */
+      gap: 20px;  /* Add some space between the Free and Pay buttons */
+      margin-top: 20px;
+    }
 
-#logoutBtn {
-  margin-top: 20px;  /* Add space above logout button to move it below Free and Pay */
-  display: none; /* Ensure it is hidden initially */
-}
-
-    #freeBtn, #payBtn, #logoutBtn {
-      background-color: green;
+    #freeBtn {
+      background-color: blue; /* Free button is blue */
       padding: 15px 30px;
       font-size: 16px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
-#freeBtn {
-  background-color: blue; /* Free button is blue */
-}
 
-#payBtn {
-  background-color: green; /* Pay button is green */
-}
+    #payBtn {
+      background-color: green; /* Pay button is green */
+      padding: 15px 30px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
 
-#logoutBtn {
-  background-color: red; /* Logout button is red */
-}
+    #logoutBtn {
+      background-color: red; /* Logout button is red */
+      padding: 15px 30px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+      display: none;  /* Initially hide logout button */
+    }
+
+    #freeBtn:hover, #payBtn:hover, #logoutBtn:hover {
+      opacity: 0.8;  /* Add hover effect for all buttons */
+    }
+
     #errorMsg {
       color: red;
       display: none;
     }
 
-    #logoutBtn {
-      background-color: red; /* Change the color for logout */
+    /* Mobile (phone) layout */
+    @media screen and (max-width: 768px) {
+      .button-container {
+        flex-direction: column;  /* Stack buttons vertically on mobile */
+        gap: 15px;  /* Adjust gap for mobile view */
+      }
+
+      #logoutBtn {
+        margin-top: 10px;  /* Adjust spacing for mobile */
+        display: block; /* Show logout button on mobile */
+      }
     }
   </style>
 </head>
@@ -83,7 +103,7 @@
   <div class="button-container" id="freePayContainer" style="display:none;">
     <button id="freeBtn">Free</button>
     <button id="payBtn">Pay</button>
-    <button id="logoutBtn" style="display:none;">Logout</button> <!-- Logout is now part of the same container -->
+    <button id="logoutBtn">Logout</button> <!-- Logout is now below Free and Pay buttons -->
   </div>
 
   <p id="errorMsg"></p>  
