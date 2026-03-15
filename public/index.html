@@ -1,93 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Jamal Said Kazembe Multisystem Management</title>
-  <style>
-  body {
-    margin: 0;
-    font-family: Arial;
-    background: #f4f4f4;
-    /* Center content with flexbox */
-    display: flex;
-    justify-content: center;  /* Centers content horizontally */
-    align-items: flex-start;  /* Align content to the top */
-    height: 100vh;            /* Ensures full screen height */
-    flex-direction: column;   /* Stacks elements vertically */
-    padding-top: 50px;
-  }
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #f4f4f4;
+  /* Center content with flexbox */
+  display: flex;
+  justify-content: flex-start;  /* Keep content aligned to the top */
+  align-items: center;          /* Center items horizontally */
+  height: 100vh;                /* Ensure full screen height */
+  flex-direction: column;       /* Stack elements vertically */
+  padding-top: 50px;
+}
 
-  h1 {
-    font-size: 40px;
-    color: blue;
-    margin-top: 0;
-  }
+h1, h2 { 
+  text-align: center;   /* Center the text in both h1 and h2 */
+  margin: 0;            /* Remove any default margins */
+}
 
-  h2 {
-    color: red;
-  }
+h1 {
+  font-size: 40px;
+  color: blue;
+}
 
-  button {
-    background-color: purple;   /* Purple background */
-    color: white;               /* White text */
-    padding: 15px 30px;         /* Add some padding for better button size */
-    font-size: 16px;            /* Adjust font size */
-    border: none;               /* Remove border */
-    border-radius: 5px;         /* Optional: rounded corners */
-    cursor: pointer;            /* Change cursor on hover */
-    margin-top: 20px;           /* Add space between the title and button */
-  }
-
-  button:hover {
-    background-color: #7a3d9d;  /* Darker purple on hover */
-  }
-  </style>
-</head>
-<body>
-
-<h1>JAMAL SAID KAZEMBE</h1>
-<h2>MULTISYSTEM MANAGEMENT</h2>
-<button id="loginBtn">Login</button>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-  authDomain: "my-project-66803-95cb3.firebaseapp.com",
-  projectId: "my-project-66803-95cb3",
-  storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-  messagingSenderId: "167159607898",
-  appId: "1:167159607898:web:23ca11366b88868b085e63"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-// Add event listener for the login button
-document.getElementById('loginBtn').addEventListener('click', function() {
-  const provider = new GoogleAuthProvider();
-
-  // Sign in with a popup for Google login
-  signInWithPopup(auth, provider)
-    .then((result) => {
-      const user = result.user;
-      console.log('User logged in:', user);
-
-      // Hide the login button after successful login
-      document.getElementById('loginBtn').style.display = 'none';
-
-      // Optionally, you can redirect to another page after login
-      // window.location.href = 'dashboard.html';  // Example redirection
-    })
-    .catch((error) => {
-      console.error('Error during login:', error.message);
-    });
-});
-</script>
-
-</body>
-</html>
+h2 {
+  color: red;
+}
