@@ -8,7 +8,12 @@
     margin: 0;
     font-family: Arial;
     background: #f4f4f4;
-    text-align: center; /* Centers the content in the body */
+    /* Center content with flexbox */
+    display: flex;
+    justify-content: center;  /* Centers content horizontally */
+    align-items: center;      /* Centers content vertically */
+    height: 100vh;            /* Ensures full screen height */
+    flex-direction: column;   /* Stacks elements vertically */
   }
 
   h1 {
@@ -20,38 +25,28 @@
   h2 {
     color: red;
   }
-</style>
-  body {
-  margin: 0;
-  font-family: Arial;
-  background: #f4f4f4;
-  /* Replace text-align: center; with the following */
-  display: flex;
-  justify-content: center;  /* Centers content horizontally */
-  align-items: center;      /* Centers content vertically */
-  height: 100vh;            /* Ensures full screen height */
-  flex-direction: column;   /* Stacks elements vertically */
-}
-  button {
-  background-color: purple;   /* Purple background */
-  color: white;               /* White text */
-  padding: 15px 30px;         /* Add some padding for better button size */
-  font-size: 16px;            /* Adjust font size */
-  border: none;               /* Remove border */
-  border-radius: 5px;         /* Optional: rounded corners */
-  cursor: pointer;            /* Change cursor on hover */
-  margin-top: 20px;           /* Add space between the title and button */
-}
 
-button:hover {
-  background-color: #7a3d9d;  /* Darker purple on hover */
-}
+  button {
+    background-color: purple;   /* Purple background */
+    color: white;               /* White text */
+    padding: 15px 30px;         /* Add some padding for better button size */
+    font-size: 16px;            /* Adjust font size */
+    border: none;               /* Remove border */
+    border-radius: 5px;         /* Optional: rounded corners */
+    cursor: pointer;            /* Change cursor on hover */
+    margin-top: 20px;           /* Add space between the title and button */
+  }
+
+  button:hover {
+    background-color: #7a3d9d;  /* Darker purple on hover */
+  }
+  </style>
 </head>
 <body>
 
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
-  <button id="loginBtn">Login</button>
+<button id="loginBtn">Login</button>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
