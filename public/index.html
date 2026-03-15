@@ -136,13 +136,12 @@
       }).catch((error) => {
         displayError('Error during logout: ' + error.message);
       });
-    });
-function storeUserData(user) {
+    });function storeUserData(user) {
   const userRef = doc(db, "users", user.uid);
   setDoc(userRef, {
     email: user.email,
-    displayName: user.displayName,
-    lastLogin: serverTimestamp()
+    displayName: user.displayName || "No Name Provided",  // Ensure displayName exists
+    lastLogin: serverTimestamp()  // This will add the current timestamp
   }).then(() => {
     console.log('User data stored in Firestore:', user);
   }).catch((error) => {
