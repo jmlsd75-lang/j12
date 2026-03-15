@@ -214,6 +214,7 @@
         document.getElementById('countdownContainer').style.display = 'none';
         document.getElementById('freePayContainer').style.display = 'flex';
 
+        // Create and replace the button with "Start 24-Hour Countdown"
         const freeBtn24H = document.createElement('button');
         freeBtn24H.textContent = 'Start 24-Hour Countdown';
         freeBtn24H.id = 'freeBtn24H';
@@ -244,6 +245,7 @@
         document.getElementById('countdownContainer').style.display = 'none';
         document.getElementById('freePayContainer').style.display = 'flex';
 
+        // Revert to the original "Free" button
         const freeBtn = document.createElement('button');
         freeBtn.textContent = 'Free';
         freeBtn.id = 'freeBtn';
