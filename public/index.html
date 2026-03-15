@@ -47,13 +47,13 @@
     }
 
     #logoutBtn {
-      margin-top: auto;  /* Ensures the button stays at the bottom */
-      display: none;     /* Hide logout button initially */
+      margin-top: auto;
+      display: none;
     }
 
     #errorMsg {
       color: red;
-      display: none;  /* Hide error message initially */
+      display: none;
     }
   </style>
 </head>
@@ -61,16 +61,17 @@
 
   <h1>JAMAL SAID KAZEMBE</h1>
   <h2>MULTISYSTEM MANAGEMENT</h2>
-  <p id="userInfo" style="display:none;"></p>  <!-- User info will appear here if logged in -->
+  <p id="userInfo" style="display:none;"></p>  
   <button id="loginBtn">Login</button>
-  <button id="logoutBtn">Logout</button>  <!-- Logout button added here -->
-  <p id="errorMsg"></p>  <!-- Error message display -->
+  <button id="logoutBtn">Logout</button>
+  <p id="errorMsg"></p>  
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, setPersistence, browserLocalPersistence, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // Firebase configuration and initialization
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
       authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -83,8 +84,9 @@
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    // Set session persistence to ensure the user stays logged in even after page reload
+    // Set session persistence to ensure user stays logged in
     setPersistence(auth, browserLocalPersistence)
       .catch((error) => {
         displayError('Error setting persistence: ' + error.message);
@@ -93,39 +95,41 @@
     // Handle authentication state changes
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        document.getElementById('loginBtn').style.display = 'none';  // Hide login button
-        document.getElementById('logoutBtn').style.display = 'block';  // Show logout button
-        document.getElementById('userInfo').style.display = 'block';  // Show user info
-        document.getElementById('userInfo').textContent = `Welcome, ${user.displayName}`;  // Display user name
-        document.getElementById('errorMsg').style.display = 'none';  // Hide error message if logged in
+        document.getElementById('loginBtn').style.display = 'none';
+        document.getElementById('logoutBtn').style.display = 'block';
+        document.getElementById('userInfo').style.display = 'block';
+        document.getElementById('userInfo').textContent = `Welcome, ${user.displayName}`;
+        document.getElementById('errorMsg').style.display = 'none';
+        storeUserData(user);  // Store user data in Firestore
       } else {
-        document.getElementById('loginBtn').style.display = 'block';  // Show login button
-        document.getElementById('logoutBtn').style.display = 'none';  // Hide logout button
-        document.getElementById('userInfo').style.display = 'none';  // Hide user info
-        document.getElementById('errorMsg').style.display = 'none';  // Hide error message when logged out
+        document.getElementById('loginBtn').style.display = 'block';
+        document.getElementById('logoutBtn').style.display = 'none';
+        document.getElementById('userInfo').style.display = 'none';
+        document.getElementById('errorMsg').style.display = 'none';
       }
     });
 
-    // Add event listener for the login button
+    // Add event listener for login
     document.getElementById('loginBtn').addEventListener('click', function () {
       const provider = new GoogleAuthProvider();
-
       signInWithPopup(auth, provider)
         .then((result) => {
           const user = result.user;
           console.log('User logged in:', user);
 
-          document.getElementById('loginBtn').style.display = 'none';  // Hide login button
-          document.getElementById('logoutBtn').style.display = 'block';  // Show logout button
-          document.getElementById('userInfo').style.display = 'block';  // Show user info
-          document.getElementById('userInfo').textContent = `Welcome, ${user.displayName}`;  // Display user name
+          document.getElementById('loginBtn').style.display = 'none';
+          document.getElementById('logoutBtn').style.display = 'block';
+          document.getElementById('userInfo').style.display = 'block';
+          document.getElementById('userInfo').textContent = `Welcome, ${user.displayName}`;
+          
+          storeUserData(user);  // Store user data in Firestore
         })
         .catch((error) => {
           displayError('Error during login: ' + error.message);
         });
     });
 
-    // Add event listener for the logout button
+    // Add event listener for logout
     document.getElementById('logoutBtn').addEventListener('click', function () {
       signOut(auth).then(() => {
         console.log('User logged out');
@@ -134,7 +138,21 @@
       });
     });
 
-    // Function to display error message
+    // Store user data in Firestore
+    function storeUserData(user) {
+      const userRef = doc(db, "users", user.uid);
+      setDoc(userRef, {
+        email: user.email,
+        displayName: user.displayName,
+        lastLogin: serverTimestamp()
+      }).then(() => {
+        console.log('User data stored in Firestore');
+      }).catch((error) => {
+        displayError('Error storing user data in Firestore: ' + error.message);
+      });
+    }
+
+    // Display error messages
     function displayError(message) {
       const errorMsgElement = document.getElementById('errorMsg');
       errorMsgElement.textContent = message;
