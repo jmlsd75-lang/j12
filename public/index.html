@@ -190,100 +190,105 @@
         displayError('Error storing user data in Firestore: ' + error.message);
       });
     }
-function displayError(message) {
-  const errorMsgElement = document.getElementById('errorMsg');
-  if (message.includes('network')) {
-    errorMsgElement.textContent = 'Network error, please try again later.';
-  } else {
-    errorMsgElement.textContent = message;
-  }
-  errorMsgElement.style.display = 'block';
-}
+
+    function displayError(message) {
+      const errorMsgElement = document.getElementById('errorMsg');
+      if (message.includes('network')) {
+        errorMsgElement.textContent = 'Network error, please try again later.';
+      } else {
+        errorMsgElement.textContent = message;
+      }
+      errorMsgElement.style.display = 'block';
+    }
 
     let countdownInterval;
     let timeRemaining = 180;
     document.getElementById('freeBtn').addEventListener('click', function () {
       document.getElementById('freeBtn').disabled = true;
-document.getElementById('payBtn').disabled = true;
-document.getElementById('freePayContainer').style.display = 'none';
-document.getElementById('countdownContainer').style.display = 'block';
-  timeRemaining = 180; // Reset to 180 seconds
-  updateCountdown(); // Immediately update the countdown display
-  countdownInterval = setInterval(updateCountdown, 1000); // Start the countdown
-});
-function updateCountdown() {
-  document.getElementById('timerText').textContent = timeRemaining;
+      document.getElementById('payBtn').disabled = true;
+      document.getElementById('freePayContainer').style.display = 'none';
+      document.getElementById('countdownContainer').style.display = 'block';
+      timeRemaining = 180; // Reset to 180 seconds
+      updateCountdown(); // Immediately update the countdown display
+      countdownInterval = setInterval(updateCountdown, 1000); // Start the countdown
+    });
 
-  // When the 3-minute countdown ends, just replace the "Free" button with the "Start 24-Hour Countdown" button.
-  if (timeRemaining <= 0) {
-    clearInterval(countdownInterval); // Stop the 3-minute countdown
-clearInterval(countdown24HInterval); // Ensure the previous 24-hour countdown is cleared
-    document.getElementById('countdownContainer').style.display = 'none';
-    document.getElementById('freePayContainer').style.display = 'flex';
+    function updateCountdown() {
+      document.getElementById('timerText').textContent = timeRemaining;
 
-    // Create and replace the button with "Start 24-Hour Countdown"
-     if (!document.getElementById('freeBtn24H')) {
-  const freeBtn24H = document.createElement('button');
-  freeBtn24H.textContent = 'Start 24-Hour Countdown';
-  freeBtn24H.id = 'freeBtn24H';
-  freeBtn24H.style.backgroundColor = 'orange';
-  document.getElementById('freePayContainer').replaceChild(freeBtn24H, document.getElementById('freeBtn'));
-  freeBtn24H.addEventListener('click', start24HourCountdown);
-}
-  else {
-    timeRemaining--;
-  }
-}
+      // When the 3-minute countdown ends, just replace the "Free" button with the "Start 24-Hour Countdown" button.
+      if (timeRemaining <= 0) {
+        clearInterval(countdownInterval); // Stop the 3-minute countdown
+        document.getElementById('countdownContainer').style.display = 'none';
+        document.getElementById('freePayContainer').style.display = 'flex';
+
+        // Create and replace the button with "Start 24-Hour Countdown"
+        if (!document.getElementById('freeBtn24H')) {
+          const freeBtn24H = document.createElement('button');
+          freeBtn24H.textContent = 'Start 24-Hour Countdown';
+          freeBtn24H.id = 'freeBtn24H';
+          freeBtn24H.style.backgroundColor = 'orange';
+          document.getElementById('freePayContainer').replaceChild(freeBtn24H, document.getElementById('freeBtn'));
+          freeBtn24H.addEventListener('click', start24HourCountdown);
+        }
+      } else {
+        timeRemaining--;
+      }
+    }
+
     let countdown24HInterval;
     let timeRemaining24H = 86400;
- function start24HourCountdown() {
-  // Stop the 3-minute countdown
-  clearInterval(countdownInterval);
 
-  // Hide the "Free" buttons and show countdown container
-  document.getElementById('freePayContainer').style.display = 'none';
-  document.getElementById('countdownContainer').style.display = 'block';
+    function start24HourCountdown() {
+      // Stop the 3-minute countdown
+      clearInterval(countdownInterval);
 
-  // Reset 24-hour countdown
-  timeRemaining24H = 86400; // 24 hours in seconds
-  update24HourCountdown(); // Immediately update the countdown display
-  countdown24HInterval = setInterval(update24HourCountdown, 1000); // Start 24-hour countdown
-}
-    function update24HourCountdown() {
-  document.getElementById('timerText').textContent = timeRemaining24H;
+      // Hide the "Free" buttons and show countdown container
+      document.getElementById('freePayContainer').style.display = 'none';
+      document.getElementById('countdownContainer').style.display = 'block';
 
-  if (timeRemaining24H <= 0) {
-    clearInterval(countdown24HInterval); // Stop 24-hour countdown
-    alert('24 hours are up!');
-    
-    // Hide countdown and show Free/Pay buttons
-    document.getElementById('countdownContainer').style.display = 'none';
-    document.getElementById('freePayContainer').style.display = 'flex';
-
-    // Revert to the "Free" button if not already restored
-    if (!document.getElementById('freeBtn')) {
-      const freeBtn = document.createElement('button');
-      freeBtn.textContent = 'Free';
-      freeBtn.id = 'freeBtn';
-      freeBtn.style.backgroundColor = 'green';
-      document.getElementById('freePayContainer').replaceChild(freeBtn, document.getElementById('freeBtn24H'));
-      
-      freeBtn.addEventListener('click', function () {
-        document.getElementById('freePayContainer').style.display = 'none';
-        document.getElementById('countdownContainer').style.display = 'block';
-        countdownInterval = setInterval(updateCountdown, 1000); // Restart 3-minute countdown
-      });
+      // Reset 24-hour countdown
+      timeRemaining24H = 86400; // 24 hours in seconds
+      update24HourCountdown(); // Immediately update the countdown display
+      countdown24HInterval = setInterval(update24HourCountdown, 1000); // Start 24-hour countdown
     }
-  } else {
-    timeRemaining24H--;
-  }
-}
+
+    function update24HourCountdown() {
+      document.getElementById('timerText').textContent = timeRemaining24H;
+
+      if (timeRemaining24H <= 0) {
+        clearInterval(countdown24HInterval); // Stop 24-hour countdown
+        alert('24 hours are up!');
+        
+        // Hide countdown and show Free/Pay buttons
+        document.getElementById('countdownContainer').style.display = 'none';
+        document.getElementById('freePayContainer').style.display = 'flex';
+
+        // Revert to the "Free" button if not already restored
+        if (!document.getElementById('freeBtn')) {
+          const freeBtn = document.createElement('button');
+          freeBtn.textContent = 'Free';
+          freeBtn.id = 'freeBtn';
+          freeBtn.style.backgroundColor = 'green';
+          document.getElementById('freePayContainer').replaceChild(freeBtn, document.getElementById('freeBtn24H'));
+          
+          freeBtn.addEventListener('click', function () {
+            document.getElementById('freePayContainer').style.display = 'none';
+            document.getElementById('countdownContainer').style.display = 'block';
+            countdownInterval = setInterval(updateCountdown, 1000); // Restart 3-minute countdown
+          });
+        }
+      } else {
+        timeRemaining24H--;
+      }
+    }
+
     document.getElementById('exitBtn').addEventListener('click', function () {
-  clearInterval(countdownInterval); // Stop the 3-minute countdown
-  clearInterval(countdown24HInterval); // Stop the 24-hour countdown
-  document.getElementById('countdownContainer').style.display = 'none';
-  document.getElementById('freePayContainer').style.display = 'flex';
-});
+      clearInterval(countdownInterval); // Stop the 3-minute countdown
+      clearInterval(countdown24HInterval); // Stop the 24-hour countdown
+      document.getElementById('countdownContainer').style.display = 'none';
+      document.getElementById('freePayContainer').style.display = 'flex';
+    });
   </script>
 
 </body>
