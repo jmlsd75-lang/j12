@@ -8,18 +8,17 @@
       margin: 0;
       font-family: Arial;
       background: #f4f4f4;
-      /* Center content with flexbox */
       display: flex;
-      justify-content: flex-start;  /* Keep content aligned to the top */
-      align-items: center;          /* Center items horizontally */
-      height: 100vh;                /* Ensure full screen height */
-      flex-direction: column;       /* Stack elements vertically */
-      padding-top: 50px;            /* Add some space at the top */
+      justify-content: flex-start;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      padding-top: 50px;
     }
 
     h1, h2 {
-      text-align: center;   /* Center the text in both h1 and h2 */
-      margin: 0;            /* Remove any default margins */
+      text-align: center;
+      margin: 0;
     }
 
     h1 {
@@ -32,18 +31,18 @@
     }
 
     button {
-      background-color: purple;   /* Purple background */
-      color: white;               /* White text */
-      padding: 15px 30px;         /* Add some padding for better button size */
-      font-size: 16px;            /* Adjust font size */
-      border: none;               /* Remove border */
-      border-radius: 5px;         /* Optional: rounded corners */
-      cursor: pointer;            /* Change cursor on hover */
-      margin-top: 20px;           /* Add space between the title and button */
+      background-color: purple;
+      color: white;
+      padding: 15px 30px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
     }
 
     button:hover {
-      background-color: #7a3d9d;  /* Darker purple on hover */
+      background-color: #7a3d9d;
     }
   </style>
 </head>
@@ -51,13 +50,14 @@
 
   <h1>JAMAL SAID KAZEMBE</h1>
   <h2>MULTISYSTEM MANAGEMENT</h2>
+  <p id="userInfo" style="display:none;"></p>  <!-- User info will appear here if logged in -->
   <button id="loginBtn">Login</button>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    // Firebase configuration
+    // Firebase configuration and initialization
     const firebaseConfig = {
       apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
       authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -71,21 +71,30 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
+    // Handle authentication state changes
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById('loginBtn').style.display = 'none';  // Hide login button
+        document.getElementById('userInfo').style.display = 'block';  // Show user info
+        document.getElementById('userInfo').textContent = `Welcome, ${user.displayName}`;  // Display user name
+      } else {
+        document.getElementById('loginBtn').style.display = 'block';  // Show login button
+        document.getElementById('userInfo').style.display = 'none';  // Hide user info
+      }
+    });
+
     // Add event listener for the login button
-    document.getElementById('loginBtn').addEventListener('click', function() {
+    document.getElementById('loginBtn').addEventListener('click', function () {
       const provider = new GoogleAuthProvider();
 
-      // Sign in with a popup for Google login
       signInWithPopup(auth, provider)
         .then((result) => {
           const user = result.user;
           console.log('User logged in:', user);
 
-          // Hide the login button after successful login
-          document.getElementById('loginBtn').style.display = 'none';
-
-          // Optionally, you can redirect to another page after login
-          // window.location.href = 'dashboard.html';  // Example redirection
+          document.getElementById('loginBtn').style.display = 'none';  // Hide login button
+          document.getElementById('userInfo').style.display = 'block';  // Show user info
+          document.getElementById('userInfo').textContent = `Welcome, ${user.displayName}`;  // Display user name
         })
         .catch((error) => {
           console.error('Error during login:', error.message);
