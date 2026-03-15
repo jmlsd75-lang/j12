@@ -5,53 +5,57 @@
   <title>Jamal Said Kazembe Multisystem Management</title>
   <style>
     body {
-      margin: 0;
-      font-family: Arial;
-      background: #f4f4f4;
-      display: flex;
-      justify-content: center;
-      flex-direction: column;
-      height: 100vh;
-      align-items: center;
-      padding-top: 50px;
-      position: relative;
-    }
+  margin: 0;
+  font-family: Arial;
+  background: #f4f4f4;
+  display: flex;
+  flex-direction: column; /* Keep elements in a column */
+  justify-content: space-between; /* Space between top (name) and bottom (button) */
+  height: 100vh;
+  align-items: center;
+  padding-top: 50px;
+  position: relative;
+}
 
-    h1, h2 {
-      text-align: center;
-      margin: 0;
-    }
+h1, h2 {
+  text-align: center;
+  margin: 0;
+}
 
-    h1 {
-      font-size: 40px;
-      color: blue;
-      margin-bottom: 5px; /* Adjusted margin to reduce space below h1 */
-    }
+h1 {
+  font-size: 40px;
+  color: blue;
+  margin-bottom: 5px;
+}
 
-    h2 {
-      color: red;
-      margin-top: 0; /* Reduced margin at the top of h2 */
-    }
+h2 {
+  color: red;
+  margin-top: 0;
+}
 
-    /* Default layout (for desktop and larger screens) */
-    .button-container {
-      display: flex;
-      justify-content: center;  /* Horizontally align buttons */
-      flex-direction: row;  /* Keep Free and Pay buttons side by side */
-      gap: 20px;  /* Add some space between the Free and Pay buttons */
-      margin-top: 10px;  /* Reduced space above the buttons */
-    }
+#loginBtn {
+  background-color: blue;  /* Set login button color to blue */
+  padding: 15px 30px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 20px;  /* Space below the button */
+}
 
-    #freeBtn {
-      background-color: blue; /* Free button is blue */
-      padding: 15px 30px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    #loginBtn {
-  background-color: blue; /* Set button color to blue */
+#loginBtn:hover {
+  opacity: 0.8;  /* Hover effect */
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+#freeBtn, #payBtn, #logoutBtn {
   padding: 15px 30px;
   font-size: 16px;
   border: none;
@@ -59,51 +63,20 @@
   cursor: pointer;
 }
 
-#loginBtn:hover {
-  opacity: 3.0;  /* Add hover effect */
+#freeBtn:hover, #payBtn:hover, #logoutBtn:hover {
+  opacity: 0.8;
 }
 
-    #payBtn {
-      background-color: green; /* Pay button is green */
-      padding: 15px 30px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    #logoutBtn {
-      background-color: red; /* Logout button is red */
-      padding: 15px 30px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 20px;
-      display: none;  /* Initially hide logout button */
-    }
-
-    #freeBtn:hover, #payBtn:hover, #logoutBtn:hover {
-      opacity: 0.8;  /* Add hover effect for all buttons */
-    }
-
-    #errorMsg {
-      color: red;
-      display: none;
-    }
-
-    /* Mobile (phone) layout */
-    @media screen and (max-width: 768px) {
-      .button-container {
-        flex-direction: column;  /* Stack buttons vertically on mobile */
-        gap: 15px;  /* Adjust gap for mobile view */
-      }
-
-      #logoutBtn {
-        margin-top: 10px;  /* Adjust spacing for mobile */
-        display: block; /* Show logout button on mobile */
-      }
-    }
+@media screen and (max-width: 768px) {
+  .button-container {
+    flex-direction: column;
+    gap: 15px;
+  }
+  #logoutBtn {
+    margin-top: 10px;
+    display: block;
+  }
+}
   </style>
 </head>
 <body>
