@@ -82,6 +82,25 @@ h2{
   display:flex;
   gap:20px;
 }
+#backBtn,
+#nextBtn{
+  padding:20px 60px;
+  font-size:28px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  margin:15px;
+}
+
+#backBtn{
+  background:red;
+  color:white;
+}
+
+#nextBtn{
+  background:purple;
+  color:white;
+}
 </style>
 </head>
 
@@ -104,19 +123,52 @@ h2{
   <button class="free-btn">FREE</button>
   <button class="pay-btn">PAY</button>
 </div>
+<div id="cameraPage" style="display:none; margin-top:60px; text-align:center;">
 
+<video id="camera" width="300" autoplay></video>
+
+<br><br>
+
+<button id="takePhoto">TAKE PHOTO</button>
+<button id="cameraBack">BACK</button>
+
+<canvas id="canvas" style="display:none;"></canvas>
+
+</div>
+<div id="previewPage" style="display:none; margin-top:60px; text-align:center;">
+
+<img id="photoPreview" width="300">
+
+<br><br>
+
+<button id="photoOk">OK</button>
+<button id="photoCancel">CANCEL</button>
+
+</div>
+<div id="submitPage" style="display:none; margin-top:60px; text-align:center;">
+
+<img id="finalPhoto" width="300">
+
+<br><br>
+
+<button id="sendPhoto">SUBMIT</button>
+<button id="choosePhoto">PHOTOS</button>
+<button id="submitBack">BACK</button>
+
+<input type="file" id="fileInput" accept="image/*" style="display:none">
+
+</div>
 
 <!-- ✅ PUT PAYMENT PAGE HERE -->
  <div id="paymentPage" style="display:none; margin-top:100px; text-align:center;">
-
-  <div style="color:purple; font-size:20px;">pay through</div>
-  <div style="color:green; font-size:20px;">mix by yas</div>
-  <div style="color:blue; font-size:20px;">+255 655 510 714</div>
-  <div style="color:red; font-size:20px;">airtel money</div>
-  <div style="color:orange; font-size:20px;">+255 780 526 437</div>
-  <div style="color:brown; font-size:20px;">crdb bank</div>
-  <div style="color:black; font-size:20px;">0152001GN6K00</div>
-  <div style="color:teal; font-size:20px;">JAMALI SAIDI KAZEMB</div>
+<div style="color:purple; font-size:30px;">pay through</div>
+<div style="color:green; font-size:30px;">mix by yas</div>
+<div style="color:blue; font-size:30px;">+255 655 510 714</div>
+<div style="color:red; font-size:30px;">airtel money</div>
+<div style="color:orange; font-size:30px;">+255 780 526 437</div>
+<div style="color:brown; font-size:30px;">crdb bank</div>
+<div style="color:black; font-size:30px;">0152001GN6K00</div>
+<div style="color:teal; font-size:30px;">JAMALI SAIDI KAZEMB</div>
 
   <div style="margin-top:40px;">
     <button id="backBtn">BACK</button>
@@ -151,6 +203,36 @@ const actionBtns = document.querySelector(".action-buttons");
 console.log("Cloud system connected");
 const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
+const cameraPage = document.getElementById("cameraPage");
+const previewPage = document.getElementById("previewPage");
+const submitPage = document.getElementById("submitPage");
+
+const camera = document.getElementById("camera");
+const canvas = document.getElementById("canvas");
+const takePhoto = document.getElementById("takePhoto");
+
+const photoPreview = document.getElementById("photoPreview");
+const finalPhoto = document.getElementById("finalPhoto");
+
+const photoOk = document.getElementById("photoOk");
+const photoCancel = document.getElementById("photoCancel");
+
+const sendPhoto = document.getElementById("sendPhoto");
+const choosePhoto = document.getElementById("choosePhoto");
+const submitBack = document.getElementById("submitBack");
+
+const cameraBack = document.getElementById("cameraBack");
+const fileInput = document.getElementById("fileInput");
+
+let stream;
+
+async function startCamera(){
+
+stream = await navigator.mediaDevices.getUserMedia({video:true});
+
+camera.srcObject = stream;
+
+}
 let waitInterval;
 loginBtn.onclick = async () => {
   await signInWithPopup(auth, provider);
@@ -184,6 +266,14 @@ loginBtn.onclick = async () => {
     }
 
   },1000);
+
+};
+nextBtn.onclick = () => {
+
+  paymentPage.style.display = "none";
+  cameraPage.style.display = "block";
+
+  startCamera();
 
 };
 backBtn.onclick = () => {
@@ -250,6 +340,97 @@ waitInterval = setInterval(()=>{
 exitBtn.onclick = () => {
 
   window.close();
+
+};
+takePhoto.onclick = () => {
+
+const ctx = canvas.getContext("2d");
+
+canvas.width = camera.videoWidth;
+canvas.height = camera.videoHeight;
+
+ctx.drawImage(camera,0,0);
+
+const img = canvas.toDataURL("image/png");
+
+photoPreview.src = img;
+
+if(stream){
+  stream.getTracks().forEach(track => track.stop());
+}
+
+cameraPage.style.display = "none";
+previewPage.style.display = "block";
+
+};
+
+photoCancel.onclick = () => {
+
+previewPage.style.display="none";
+cameraPage.style.display="block";
+
+};
+photoOk.onclick = () => {
+
+finalPhoto.src = photoPreview.src;
+
+previewPage.style.display = "none";
+submitPage.style.display = "block";
+
+};
+const freeBtn = document.querySelector(".free-btn");
+
+freeBtn.onclick = () => {
+
+actionBtns.style.display = "none";
+cameraPage.style.display = "block";
+
+startCamera();
+
+};
+choosePhoto.onclick = () => {
+
+fileInput.click();
+
+};
+
+fileInput.onchange = () => {
+
+const file = fileInput.files[0];
+
+const reader = new FileReader();
+
+reader.onload = e => {
+
+finalPhoto.src = e.target.result;
+
+submitPage.style.display="block";
+
+};
+
+reader.readAsDataURL(file);
+fileInput.value="";
+
+};
+cameraBack.onclick = () => {
+
+if(stream){
+  stream.getTracks().forEach(track => track.stop());
+}
+
+cameraPage.style.display="none";
+paymentPage.style.display="block";
+
+};
+submitBack.onclick = () => {
+
+submitPage.style.display="none";
+paymentPage.style.display="block";
+
+};
+sendPhoto.onclick = () => {
+
+alert("Photo submitted to system");
 
 };
 </script>
