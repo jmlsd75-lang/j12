@@ -31,11 +31,6 @@
       color: red;
     }
 
-    #logoutBtn {
-      background-color: red;
-      margin-top: auto; /* Push the logout button to the bottom */
-    }
-
     /* Center the Free and Pay buttons horizontally */
     .button-container {
       display: flex;
@@ -44,7 +39,7 @@
       margin-top: 20px;
     }
 
-    #freeBtn, #payBtn {
+    #freeBtn, #payBtn, #logoutBtn {
       background-color: green;
       padding: 15px 30px;
       font-size: 16px;
@@ -53,13 +48,17 @@
       cursor: pointer;
     }
 
-    #freeBtn:hover, #payBtn:hover {
+    #freeBtn:hover, #payBtn:hover, #logoutBtn:hover {
       background-color: #3d9d3a;
     }
 
     #errorMsg {
       color: red;
       display: none;
+    }
+
+    #logoutBtn {
+      background-color: red; /* Change the color for logout */
     }
   </style>
 </head>
@@ -70,14 +69,13 @@
   <p id="userInfo" style="display:none;"></p>  
   <button id="loginBtn">Login</button>
 
-  <!-- Wrap the Free and Pay buttons in a container -->
+  <!-- Wrap the Free, Pay, and Logout buttons in a container -->
   <div class="button-container" id="freePayContainer" style="display:none;">
     <button id="freeBtn">Free</button>
     <button id="payBtn">Pay</button>
+    <button id="logoutBtn" style="display:none;">Logout</button> <!-- Logout is now part of the same container -->
   </div>
 
-  <button id="logoutBtn" style="display:none;">Logout</button>
-  
   <p id="errorMsg"></p>  
 
   <script type="module">
