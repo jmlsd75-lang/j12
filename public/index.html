@@ -14,30 +14,37 @@
   align-items: center; /* Horizontally center elements */
   height: 100vh;
   padding-top: 50px;  /* Space from the top */
+  text-align: center;  /* Center-align text */
 }
+
 h1, h2 {
   text-align: center;
   margin: 0;
 }
-    h1 {
+
+h1 {
   font-size: 40px;
   color: blue;
   margin-bottom: 10px; /* Space below the name */
 }
+
 h2 {
   color: red;
   margin-top: -5px; /* Remove or reduce margin */
 }
-    #loginBtn {
+
+/* Center the Login button horizontally */
+#loginBtn {
   background-color: blue;
   padding: 15px 30px;
   font-size: 16px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  margin-top: 0px; /* Reduce space above the login button */
+  margin-top: 30px; /* Adjust this value to control space above the button */
 }
 
+/* Flexbox for the other buttons */
 .button-container {
   display: flex;
   justify-content: center;
@@ -58,11 +65,13 @@ h2 {
   opacity: 0.8;
 }
 
+/* Mobile responsiveness */
 @media screen and (max-width: 768px) {
   .button-container {
     flex-direction: column;
     gap: 15px;
   }
+
   #logoutBtn {
     margin-top: 10px;
     display: block;
