@@ -44,34 +44,52 @@ h2 {
   margin-top: 30px; /* Adjust this value to control space above the button */
 }
 
-/* Flexbox for the other buttons */
+/* Flexbox for the button container */
 .button-container {
   display: flex;
   justify-content: center;
-  flex-direction: row;
+  flex-direction: row; /* Buttons are side by side by default */
   gap: 20px;
-  margin-top: 10px;
+  margin-top: 20px; /* Add some space between buttons and login button */
 }
 
+/* Individual button styles */
 #freeBtn, #payBtn, #logoutBtn {
   padding: 15px 30px;
   font-size: 16px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+#freeBtn {
+  background-color: green; /* Green for Free button */
+  color: white; /* White text */
+}
+
+#payBtn {
+  background-color: blue; /* Blue for Pay button */
+  color: white; /* White text */
+}
+
+#logoutBtn {
+  background-color: red; /* Red for Logout button */
+  color: white; /* White text */
 }
 
 #freeBtn:hover, #payBtn:hover, #logoutBtn:hover {
-  opacity: 0.8;
+  opacity: 0.8; /* Slightly reduce opacity on hover */
 }
 
 /* Mobile responsiveness */
 @media screen and (max-width: 768px) {
   .button-container {
-    flex-direction: column;
+    flex-direction: column; /* Stack buttons vertically on smaller screens */
     gap: 15px;
   }
 
+  /* Make the logout button appear below the Free and Pay buttons */
   #logoutBtn {
     margin-top: 10px;
     display: block;
