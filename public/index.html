@@ -1,1 +1,186 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Jamal Said Kazembe Multisystem Management</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      padding-top: 50px;
+      position: relative;
+    }
+
+    h1, h2 {
+      text-align: center;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 40px;
+      color: blue;
+    }
+
+    h2 {
+      color: red;
+    }
+
+    button {
+      background-color: purple;
+      color: white;
+      padding: 15px 30px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    button:hover {
+      background-color: #7a3d9d;
+    }
+
+    #logoutBtn {
+      margin-top: auto;
+      display: none;
+    }
+
+    #errorMsg {
+      color: red;
+      display: none;
+    }
+
+    /* Styling for the Free and Pay buttons */
+    #freeBtn, #payBtn {
+      background-color: green; /* Example color */
+      margin-top: 20px;
+    }
+
+    #freeBtn:hover, #payBtn:hover {
+      background-color: #3d9d3a;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>JAMAL SAID KAZEMBE</h1>
+  <h2>MULTISYSTEM MANAGEMENT</h2>
+  <p id="userInfo" style="display:none;"></p>  
+  <button id="loginBtn">Login</button>
+  <button id="logoutBtn">Logout</button>
+  <button id="freeBtn" style="display:none;">Free</button>
+  <button id="payBtn" style="display:none;">Pay</button>
+  <p id="errorMsg"></p>  
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, setPersistence, browserLocalPersistence, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+      authDomain: "my-project-66803-95cb3.firebaseapp.com",
+      projectId: "my-project-66803-95cb3",
+      storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+      messagingSenderId: "167159607898",
+      appId: "1:167159607898:web:23ca11366b88868b085e63"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Set session persistence to ensure user stays logged in
+    setPersistence(auth, browserLocalPersistence)
+      .catch((error) => {
+        displayError('Error setting persistence: ' + error.message);
+      });
+
+    // Handle authentication state changes
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById('loginBtn').style.display = 'none';
+        document.getElementById('logoutBtn').style.display = 'block';
+        document.getElementById('userInfo').style.display = 'block';
+        document.getElementById('userInfo').textContent = `Welcome, ${user.displayName}`;
+        document.getElementById('errorMsg').style.display = 'none';
+
+        // Show Free and Pay buttons
+        document.getElementById('freeBtn').style.display = 'block';
+        document.getElementById('payBtn').style.display = 'block';
+        
+        storeUserData(user);  // Store user data in Firestore
+      } else {
+        document.getElementById('loginBtn').style.display = 'block';
+        document.getElementById('logoutBtn').style.display = 'none';
+        document.getElementById('userInfo').style.display = 'none';
+        document.getElementById('errorMsg').style.display = 'none';
+
+        // Hide Free and Pay buttons when logged out
+        document.getElementById('freeBtn').style.display = 'none';
+        document.getElementById('payBtn').style.display = 'none';
+      }
+    });
+
+    // Add event listener for login
+    document.getElementById('loginBtn').addEventListener('click', function () {
+      const provider = new GoogleAuthProvider();
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          const user = result.user;
+          console.log('User logged in:', user);
+
+          document.getElementById('loginBtn').style.display = 'none';
+          document.getElementById('logoutBtn').style.display = 'block';
+          document.getElementById('userInfo').style.display = 'block';
+          document.getElementById('userInfo').textContent = `Welcome, ${user.displayName}`;
+          
+          storeUserData(user);  // Store user data in Firestore
+        })
+        .catch((error) => {
+          displayError('Error during login: ' + error.message);
+        });
+    });
+
+    // Add event listener for logout
+    document.getElementById('logoutBtn').addEventListener('click', function () {
+      signOut(auth).then(() => {
+        console.log('User logged out');
+      }).catch((error) => {
+        displayError('Error during logout: ' + error.message);
+      });
+    });
+
+    // Store user data in Firestore
+    function storeUserData(user) {
+      const userRef = doc(db, "users", user.uid);
+      setDoc(userRef, {
+        email: user.email,
+        displayName: user.displayName || "No Name Provided",  // Ensure displayName exists
+        lastLogin: serverTimestamp()  // This will add the current timestamp
+      }).then(() => {
+        console.log('User data stored in Firestore:', user);
+      }).catch((error) => {
+        displayError('Error storing user data in Firestore: ' + error.message);
+      });
+    }
+
+    // Display error messages
+    function displayError(message) {
+      const errorMsgElement = document.getElementById('errorMsg');
+      errorMsgElement.textContent = message;
+      errorMsgElement.style.display = 'block';
+    }
+  </script>
+
+</body>
+</html>
