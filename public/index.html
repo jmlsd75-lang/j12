@@ -154,8 +154,6 @@ const logoutBtn = document.querySelector(".logout-btn");
 let waitInterval;
 loginBtn.onclick = async () => {
   await signInWithPopup(auth, provider);
- 
-  await signInWithPopup(auth, provider);
 
   countdownPage.style.display="flex";
 
@@ -192,6 +190,13 @@ backBtn.onclick = () => {
 
   paymentPage.style.display="none";
   actionBtns.style.display="flex";
+
+};
+
+payBtn.onclick = () => {
+
+  actionBtns.style.display="none";
+  paymentPage.style.display="block";
 
 };
 onAuthStateChanged(auth, (user) => {
