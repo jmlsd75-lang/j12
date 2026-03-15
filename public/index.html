@@ -3,49 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <title>Jamal Said Kazembe Multisystem Management</title>
-
-<style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: #f4f4f4;
-  text-align: center;
-}
-
-h1 {
-  font-size: 40px;
-  color: blue;
-  margin-top: 100px;
-}
-
-h2 {
-  color: red;
-}
-
-#loginBtn {
-  background: purple;
-  color: white;
-  border: none;
-  padding: 15px 40px;
-  font-size: 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-top: 40px;
-}
-</style>
 </head>
-
 <body>
 
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
 
-<button id="loginBtn">LOGIN WITH GOOGLE</button>
-
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
@@ -57,48 +23,9 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
 const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
 
-// Check if the user is already logged in
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    // User is signed in, display their information
-    document.body.innerHTML = `
-      <h1>WELCOME</h1>
-      <h2>${user.displayName}</h2>
-      <p>${user.email}</p>
-    `;
-  } else {
-    // No user is signed in, show the login button
-    document.body.innerHTML = `
-      <h1>JAMAL SAID KAZEMBE</h1>
-      <h2>MULTISYSTEM MANAGEMENT</h2>
-      <button id="loginBtn">LOGIN WITH GOOGLE</button>
-    `;
-    // Attach event to login button
-    document.getElementById("loginBtn").onclick = async function() {
-      try {
-        // Set persistence to browser local storage (keeps user logged in across sessions)
-        await setPersistence(auth, browserLocalPersistence);
-
-        // Trigger the Google login flow
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-
-        // Display the user information after successful login
-        document.body.innerHTML = `
-          <h1>WELCOME</h1>
-          <h2>${user.displayName}</h2>
-          <p>${user.email}</p>
-        `;
-      } catch (error) {
-        alert(error.message);
-      }
-    };
-  }
-});
+// You can add any Firebase authentication logic or hosting functionality here
 
 </script>
 
