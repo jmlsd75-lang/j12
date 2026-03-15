@@ -38,26 +38,44 @@ h2{
   border-radius:6px;
   cursor:pointer;
 }
-.free-btn{
-  margin-top:120px;
-  padding:12px 25px;
+.free-btn,
+.pay-btn{
+  width:140px;
+  padding:12px 0;
   font-size:18px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+#businessBtn{
   background:green;
   color:white;
   border:none;
+  padding:15px 40px;
+  font-size:20px;
   border-radius:6px;
   cursor:pointer;
   margin-right:20px;
 }
 
-.pay-btn{
-  padding:12px 25px;
-  font-size:18px;
-  background:blue;
+#exitBtn{
+  background:red;
   color:white;
   border:none;
+  padding:15px 40px;
+  font-size:20px;
   border-radius:6px;
   cursor:pointer;
+}
+.free-btn{
+  margin-top:120px;
+  background:green;
+  color:white;
+}
+
+.pay-btn{
+  background:blue;
+  color:white;
 }
 .action-buttons{
   margin-top:120px;
@@ -79,13 +97,32 @@ h2{
     <button id="businessBtn">BUSINESS</button>
     <button id="exitBtn">EXIT</button>
   </div>
-
 </div>
   <button class="login-btn">LOGIN</button>
   <button class="logout-btn" style="display:none; position:absolute; bottom:20px;">LOGOUT</button>
 <div class="action-buttons" style="display:none;">
   <button class="free-btn">FREE</button>
   <button class="pay-btn">PAY</button>
+</div>
+
+
+<!-- ✅ PUT PAYMENT PAGE HERE -->
+ <div id="paymentPage" style="display:none; margin-top:100px; text-align:center;">
+
+  <div style="color:purple; font-size:20px;">pay through</div>
+  <div style="color:green; font-size:20px;">mix by yas</div>
+  <div style="color:blue; font-size:20px;">+255 655 510 714</div>
+  <div style="color:red; font-size:20px;">airtel money</div>
+  <div style="color:orange; font-size:20px;">+255 780 526 437</div>
+  <div style="color:brown; font-size:20px;">crdb bank</div>
+  <div style="color:black; font-size:20px;">0152001GN6K00</div>
+  <div style="color:teal; font-size:20px;">JAMALI SAIDI KAZEMB</div>
+
+  <div style="margin-top:40px;">
+    <button id="backBtn">BACK</button>
+    <button id="nextBtn">NEXT</button>
+  </div>
+
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -98,6 +135,10 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signO
   messagingSenderId: "167159607898",
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
+const payBtn = document.querySelector(".pay-btn");
+const paymentPage = document.getElementById("paymentPage");
+const backBtn = document.getElementById("backBtn");
+const nextBtn = document.getElementById("nextBtn");
 const countdownPage = document.getElementById("countdownPage");
 const mainTimer = document.getElementById("mainTimer");
 const exitBtn = document.getElementById("exitBtn");
@@ -113,8 +154,7 @@ const logoutBtn = document.querySelector(".logout-btn");
 let waitInterval;
 loginBtn.onclick = async () => {
   await signInWithPopup(auth, provider);
-  loginBtn.onclick = async () => {
-
+ 
   await signInWithPopup(auth, provider);
 
   countdownPage.style.display="flex";
@@ -122,18 +162,17 @@ loginBtn.onclick = async () => {
   loginBtn.style.display="none";
   logoutBtn.style.display="none";
   actionBtns.style.display="none";
-  }
 
   let time = 180;
 
   const timer = setInterval(()=>{
 
     mainTimer.textContent = time;
-
     time--;
 
     if(time < 0){
-  clearInterval(timer);
+
+      clearInterval(timer);
 
       exitBtn.style.display="none";
       businessBtn.style.display="none";
@@ -147,6 +186,13 @@ loginBtn.onclick = async () => {
     }
 
   },1000);
+
+};
+backBtn.onclick = () => {
+
+  paymentPage.style.display="none";
+  actionBtns.style.display="flex";
+
 };
 onAuthStateChanged(auth, (user) => {
 if (user) {
