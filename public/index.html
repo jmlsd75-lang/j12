@@ -44,6 +44,17 @@
     button:hover {
       background-color: #7a3d9d;
     }
+
+    #logoutBtn {
+      position: absolute;
+      bottom: 20px;
+      display: none;  /* Hide logout button initially */
+    }
+
+    #errorMsg {
+      color: red;
+      display: none;  /* Hide error message initially */
+    }
   </style>
 </head>
 <body>
@@ -52,10 +63,12 @@
   <h2>MULTISYSTEM MANAGEMENT</h2>
   <p id="userInfo" style="display:none;"></p>  <!-- User info will appear here if logged in -->
   <button id="loginBtn">Login</button>
+  <button id="logoutBtn">Logout</button>  <!-- Logout button added here -->
+  <p id="errorMsg"></p>  <!-- Error message display -->
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, setPersistence, browserLocalPersistence, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     // Firebase configuration and initialization
     const firebaseConfig = {
@@ -71,15 +84,25 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
+    // Set session persistence to ensure the user stays logged in even after page reload
+    setPersistence(auth, browserLocalPersistence)
+      .catch((error) => {
+        displayError('Error setting persistence: ' + error.message);
+      });
+
     // Handle authentication state changes
     onAuthStateChanged(auth, (user) => {
       if (user) {
         document.getElementById('loginBtn').style.display = 'none';  // Hide login button
+        document.getElementById('logoutBtn').style.display = 'block';  // Show logout button
         document.getElementById('userInfo').style.display = 'block';  // Show user info
         document.getElementById('userInfo').textContent = `Welcome, ${user.displayName}`;  // Display user name
+        document.getElementById('errorMsg').style.display = 'none';  // Hide error message if logged in
       } else {
         document.getElementById('loginBtn').style.display = 'block';  // Show login button
+        document.getElementById('logoutBtn').style.display = 'none';  // Hide logout button
         document.getElementById('userInfo').style.display = 'none';  // Hide user info
+        document.getElementById('errorMsg').style.display = 'none';  // Hide error message when logged out
       }
     });
 
@@ -93,13 +116,30 @@
           console.log('User logged in:', user);
 
           document.getElementById('loginBtn').style.display = 'none';  // Hide login button
+          document.getElementById('logoutBtn').style.display = 'block';  // Show logout button
           document.getElementById('userInfo').style.display = 'block';  // Show user info
           document.getElementById('userInfo').textContent = `Welcome, ${user.displayName}`;  // Display user name
         })
         .catch((error) => {
-          console.error('Error during login:', error.message);
+          displayError('Error during login: ' + error.message);
         });
     });
+
+    // Add event listener for the logout button
+    document.getElementById('logoutBtn').addEventListener('click', function () {
+      signOut(auth).then(() => {
+        console.log('User logged out');
+      }).catch((error) => {
+        displayError('Error during logout: ' + error.message);
+      });
+    });
+
+    // Function to display error message
+    function displayError(message) {
+      const errorMsgElement = document.getElementById('errorMsg');
+      errorMsgElement.textContent = message;
+      errorMsgElement.style.display = 'block';
+    }
   </script>
 
 </body>
