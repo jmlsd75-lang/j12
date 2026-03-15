@@ -125,12 +125,17 @@ h2{
 </div>
 <div id="cameraPage" style="display:none; margin-top:60px; text-align:center;">
 
-<video id="camera" width="300" autoplay></video>
+<button id="openCamera">CAMERA</button>
+<button id="openPhotos">PHOTOS</button>
+<button id="cameraBack">BACK</button>
 
 <br><br>
 
-<button id="takePhoto">TAKE PHOTO</button>
-<button id="cameraBack">BACK</button>
+<video id="camera" width="300" autoplay style="display:none;"></video>
+
+<br><br>
+
+<button id="takePhoto" style="display:none;">TAKE PHOTO</button>
 
 <canvas id="canvas" style="display:none;"></canvas>
 
@@ -210,7 +215,8 @@ const submitPage = document.getElementById("submitPage");
 const camera = document.getElementById("camera");
 const canvas = document.getElementById("canvas");
 const takePhoto = document.getElementById("takePhoto");
-
+const openCamera = document.getElementById("openCamera");
+const openPhotos = document.getElementById("openPhotos");
 const photoPreview = document.getElementById("photoPreview");
 const finalPhoto = document.getElementById("finalPhoto");
 
@@ -270,10 +276,8 @@ loginBtn.onclick = async () => {
 };
 nextBtn.onclick = () => {
 
-  paymentPage.style.display = "none";
-  cameraPage.style.display = "block";
-
-  startCamera();
+paymentPage.style.display = "none";
+cameraPage.style.display = "block";
 
 };
 backBtn.onclick = () => {
@@ -370,6 +374,19 @@ previewPage.style.display="none";
 cameraPage.style.display="block";
 
 };
+openCamera.onclick = () => {
+
+camera.style.display = "block";
+takePhoto.style.display = "inline-block";
+
+startCamera();
+
+};
+openPhotos.onclick = () => {
+
+fileInput.click();
+
+};
 photoOk.onclick = () => {
 
 finalPhoto.src = photoPreview.src;
@@ -419,13 +436,23 @@ if(stream){
 }
 
 cameraPage.style.display="none";
-paymentPage.style.display="block";
+
+if(paymentPage.style.display === "block"){
+  paymentPage.style.display="block";
+}else{
+  actionBtns.style.display="flex";
+}
 
 };
 submitBack.onclick = () => {
 
 submitPage.style.display="none";
-paymentPage.style.display="block";
+
+if(paymentPage.style.display === "block"){
+  paymentPage.style.display="block";
+}else{
+  actionBtns.style.display="flex";
+}
 
 };
 sendPhoto.onclick = () => {
