@@ -409,19 +409,28 @@ previewPage.style.display = "block";
 photoCancel.onclick = () => {
 previewPage.style.display="none";
 cameraPage.style.display="block";
+camera.style.display="none";
+takePhoto.style.display="none";
+openCamera.style.display="inline-block";
+openPhotos.style.display="inline-block";
+cameraBack.style.display="inline-block";
+photoOk.style.display="inline-block";
+photoCancel.style.display="inline-block";
 };
-openCamera.onclick = () => {
-fileInput.setAttribute("capture","environment");
-fileInput.click();
+openCamera.onclick = async () => {
+await startCamera();
+camera.style.display="block";
+takePhoto.style.display="inline-block";
 };
 openPhotos.onclick = () => {
 fileInput.removeAttribute("capture");
 fileInput.click();
 };
 photoOk.onclick = () => {
+previewPage.style.display="none";
+submitPage.style.display="block";
 photoOk.style.display="none";
 photoCancel.style.display="none";
-submitPage.style.display="block";
 };
 const freeBtn = document.querySelector(".free-btn");
 freeBtn.onclick = () => {
@@ -439,6 +448,9 @@ reader.onload = e => {
 photoPreview.src = e.target.result;
 cameraPage.style.display="none";
 previewPage.style.display="block";
+/* show buttons */
+photoOk.style.display="inline-block";
+photoCancel.style.display="inline-block";
 };
 reader.readAsDataURL(file);
 fileInput.value="";
@@ -482,6 +494,9 @@ t.includes("JAMAL SAID") ||
 t.includes("JAMAL KAZEMBE") ||
 t.includes("JAMAL SAID KAZEMBE");
 if(!channel || !name){
+if(stream){
+stream.getTracks().forEach(track => track.stop());
+}
 submitPage.style.display="none";
 actionBtns.style.display="flex";
 photoPreview.style.display="block";
@@ -492,6 +507,9 @@ return;
 /* GET AMOUNT */
 const amountMatch = t.match(/\d+(\.\d+)?/);
 if(!amountMatch){
+if(stream){
+stream.getTracks().forEach(track => track.stop());
+}
 submitPage.style.display="none";
 actionBtns.style.display="flex";
 sendPhoto.textContent="SUBMIT";
