@@ -283,13 +283,12 @@ cursor:pointer;
   <button id="backFromViewBtn" style="background:red; color:white; font-size:22px; padding:15px 40px; border:none; border-radius:8px; margin:10px; cursor:pointer;">BACK</button>
 </div>
 <script>
-// Handle "VIEW" button click
-viewTx.onclick = () => {
-  console.log("VIEW button clicked");
-  businessPage.style.display = "none";  // Hide business page
-  viewButtonsPage.style.display = "block";  // Show view buttons page
+  // Ensure the back button is selected properly.
+  const backFromViewBtn = document.getElementById("backFromViewBtn"); // Ensure this is selected correctly
+backFromViewBtn.onclick = () => {
+  viewButtonsPage.style.display = "none";  // Hide view buttons page
+  businessPage.style.display = "flex";  // Show business page again
 };
-
 // Handle "BACK" from the new button list
 backFromViewBtn.onclick = () => {
   viewButtonsPage.style.display = "none";  // Hide view buttons
@@ -332,8 +331,7 @@ const firebaseConfig = {
   messagingSenderId: "167159607898",
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
-const viewTx = document.getElementById("viewTx");  // Make sure this is defined
-const viewButtonsPage = document.getElementById("viewButtonsPage");
+const businessPage = document.getElementById("businessPage");
 const ADMIN_EMAIL = "camelkazembe1@gmail.com";
 const payBtn = document.querySelector(".pay-btn");
 const paymentPage = document.getElementById("paymentPage");
@@ -344,7 +342,6 @@ const mainTimer = document.getElementById("mainTimer");
 const exitBtn = document.getElementById("exitBtn");
 const businessBtn = document.getElementById("businessBtn");
 const app = initializeApp(firebaseConfig);
-const businessPage = document.getElementById("businessPage");
 const businessExit = document.getElementById("businessExit");
 const db = getFirestore(app);
   const auth = getAuth(app);
@@ -740,6 +737,18 @@ businessPage.style.display="flex";
 cancelTx.onclick = ()=>{
 txForm.style.display="none";
 businessPage.style.display="flex";
+};
+const viewTx = document.getElementById("viewTx");
+const viewButtonsPage = document.getElementById("viewButtonsPage");
+
+// Log the elements to see if they are selected correctly
+console.log(viewTx);  // Should log the VIEW button
+console.log(viewButtonsPage);  // Should log the viewButtonsPage element
+
+viewTx.onclick = () => {
+  console.log("VIEW button clicked");
+  businessPage.style.display = "none";  // Hide business page
+  viewButtonsPage.style.display = "block";  // Show view buttons page
 };
 </script>
 </body>
