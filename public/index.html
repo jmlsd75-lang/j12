@@ -405,13 +405,14 @@ submitPage.style.display = "block";
 
 };
 const freeBtn = document.querySelector(".free-btn");
-
 freeBtn.onclick = () => {
 
-actionBtns.style.display = "none";
-cameraPage.style.display = "block";
+actionBtns.style.display="none";
 
-startCamera();
+exitBtn.style.display="inline-block";
+businessBtn.style.display="inline-block";
+
+startCountdown();
 
 };
 choosePhoto.onclick = () => {
