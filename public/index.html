@@ -205,7 +205,6 @@ cursor:pointer;
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
 <div id="countdownPage" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; justify-content:center; align-items:center; flex-direction:column; font-size:30px;">
-
   <div id="mainTimer">180</div>
   <div style="margin-top:40px;">
     <button id="businessBtn">BUSINESS</button>
@@ -250,17 +249,34 @@ cursor:pointer;
 <div style="color:brown; font-size:30px;">crdb bank</div>
 <div style="color:black; font-size:30px;">0152001GN6K00</div>
 <div style="color:teal; font-size:30px;">JAMALI SAIDI KAZEMB</div>
-
 <div style="margin-top:40px;">
 <button id="backBtn">BACK</button>
 <button id="nextBtn">NEXT</button>
 </div>
 </div> <!-- ✅ CLOSE paymentPage -->
-
 <div id="businessPage" style="display:none; margin-top:120px;">
 <button id="addTx">ADD NEW TRANSACTION</button>
 <button id="viewTx">VIEW</button>
 <button id="businessExit">EXIT</button>
+</div>
+<div id="txForm" style="display:none; margin-top:120px; text-align:center;">
+<input id="txDesc" placeholder="Enter description"
+style="font-size:22px; padding:10px; text-align:center;"><br><br>
+<input id="txAmount" placeholder="Enter amount"
+style="font-size:22px; padding:10px; text-align:center; display:none;"><br><br>
+<div id="txType" style="display:none;">
+<button id="inBtn">IN</button>
+<button id="outBtn">OUT</button>
+</div><br>
+<div id="txMethod" style="display:none;">
+<button class="method">CASH</button>
+<button class="method">CREDIT</button>
+<button class="method">BANK</button>
+</div><br>
+<div id="txActions">
+<button id="okTx" style="display:none;">OK</button>
+<button id="cancelTx">CANCEL</button>
+</div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -602,6 +618,76 @@ countdownPage.style.display="none";
 actionBtns.style.display="flex";
 }
 },1000);
+};
+const addTx = document.getElementById("addTx");
+addTx.onclick = () => {
+  const description = prompt("Enter transaction description");
+  if(!description){
+    return;
+  }
+  alert("Transaction saved: " + description);
+};
+const addTx = document.getElementById("addTx");
+const txForm = document.getElementById("txForm");
+const txDesc = document.getElementById("txDesc");
+const txAmount = document.getElementById("txAmount");
+const txType = document.getElementById("txType");
+const txMethod = document.getElementById("txMethod");
+const okTx = document.getElementById("okTx");
+const cancelTx = document.getElementById("cancelTx");
+let direction = "";
+let method = "";
+addTx.onclick = () => {
+businessPage.style.display="none";
+txForm.style.display="block";
+txDesc.value="";
+txAmount.value="";
+direction="";
+method="";
+txAmount.style.display="none";
+txType.style.display="none";
+txMethod.style.display="none";
+okTx.style.display="none";
+};
+txDesc.oninput = () => {
+if(txDesc.value.length > 0){
+txAmount.style.display="block";
+}
+};
+txAmount.oninput = () => {
+if(txAmount.value.length > 0){
+txType.style.display="block";
+}
+};
+document.getElementById("inBtn").onclick = () => {
+direction="IN";
+txMethod.style.display="block";
+};
+document.getElementById("outBtn").onclick = () => {
+direction="OUT";
+txMethod.style.display="block";
+};
+document.querySelectorAll(".method").forEach(btn=>{
+btn.onclick = ()=>{
+method = btn.textContent;
+okTx.style.display="inline-block";
+};
+});
+okTx.onclick = ()=>{
+const description = txDesc.value;
+const amount = txAmount.value;
+console.log({
+description,
+amount,
+direction,
+method
+});
+txForm.style.display="none";
+businessPage.style.display="flex";
+};
+cancelTx.onclick = ()=>{
+txForm.style.display="none";
+businessPage.style.display="flex";
 };
 </script>
 </body>
