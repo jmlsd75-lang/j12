@@ -268,8 +268,31 @@ cursor:pointer;
 </div>
 </div> <!-- ✅ CLOSE paymentPage -->
 <div id="businessPage" style="display:none; margin-top:120px;">
-<button id="addTx">ADD NEW TRANSACTION</button>
-<button id="viewTx">VIEW</button>
+<button id="addTx">ADD NEW TRANSACTION</button><!-- Add the new buttons under businessPage -->
+<div id="viewButtonsPage" style="display:none; margin-top:60px; text-align:center;">
+  <div class="button-row" style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px;">
+    <button id="cashBookBtn" style="background:lightgreen; font-size:20px; padding:15px 30px; border:none; border-radius:10px; cursor:pointer;">CASH BOOK</button>
+    <button id="ledgersBtn" style="background:lightblue; font-size:20px; padding:15px 30px; border:none; border-radius:10px; cursor:pointer;">LEDGERS</button>
+    <button id="trialBalanceBtn" style="background:lightcoral; font-size:20px; padding:15px 30px; border:none; border-radius:10px; cursor:pointer;">TRIAL BALANCE</button>
+    <button id="incomeStatementBtn" style="background:lightyellow; font-size:20px; padding:15px 30px; border:none; border-radius:10px; cursor:pointer;">INCOME STATEMENT</button>
+    <button id="balanceSheetBtn" style="background:lightpink; font-size:20px; padding:15px 30px; border:none; border-radius:10px; cursor:pointer;">BALANCE SHEET</button>
+  </div>
+  <button id="backFromViewBtn" style="background:red; color:white; font-size:22px; padding:15px 40px; border:none; border-radius:8px; margin:10px; cursor:pointer;">BACK</button>
+</div>
+
+<script>
+// Handle "VIEW" button click
+viewTx.onclick = () => {
+  businessPage.style.display = "none";
+  viewButtonsPage.style.display = "block";  // Show the new buttons
+};
+
+// Handle "BACK" from the new button list
+backFromViewBtn.onclick = () => {
+  viewButtonsPage.style.display = "none";
+  businessPage.style.display = "flex";  // Go back to the previous menu
+};
+</script>
 <button id="businessExit">EXIT</button>
 </div>
 <div id="txForm" style="display:none; margin-top:120px; text-align:center;">
