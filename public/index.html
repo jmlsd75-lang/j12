@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Jamal Said Kazembe Multisystem Management</title>
-
 <style>
 body{
   margin:0;
@@ -17,13 +16,11 @@ justify-content:flex-start;
   text-align:center;
   padding-top:20px;
 }
-
 h1{
   font-size:40px;
   color:blue;
   margin:0;
 }
-
 h2{
   color:red;
   margin-top:5px;
@@ -34,7 +31,6 @@ flex-direction:column;
 align-items:center;
 justify-content:center;
 }
-
 #cameraPage button{
 font-size:22px;
 padding:15px 40px;
@@ -43,17 +39,14 @@ border:none;
 border-radius:8px;
 cursor:pointer;
 }
-
 #openCamera{
 background:green;
 color:white;
 }
-
 #openPhotos{
 background:blue;
 color:white;
 }
-
 #cameraBack{
 background:red;
 color:white;
@@ -92,7 +85,6 @@ display:none;
 margin-top:60px;
 text-align:center;
 }
-
 #sendPhoto{
 background:purple;
 color:white;
@@ -103,7 +95,6 @@ border-radius:8px;
 margin:10px;
 cursor:pointer;
 }
-
 #submitBack{
 background:red;
 color:white;
@@ -114,7 +105,6 @@ border-radius:8px;
 margin:10px;
 cursor:pointer;
 }
-
 #photoCancel{
 background:red;
 color:white;
@@ -135,7 +125,6 @@ cursor:pointer;
   cursor:pointer;
   margin-right:20px;
 }
-
 #exitBtn{
   background:red;
   color:white;
@@ -150,7 +139,6 @@ cursor:pointer;
   background:green;
   color:white;
 }
-
 .pay-btn{
   background:blue;
   color:white;
@@ -169,12 +157,10 @@ cursor:pointer;
   cursor:pointer;
   margin:15px;
 }
-
 #backBtn{
   background:red;
   color:white;
 }
-
 #nextBtn{
   background:purple;
   color:white;
@@ -191,15 +177,12 @@ cursor:pointer;
 }
 </style>
 </head>
-
 <body>
-
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
 <div id="countdownPage" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; justify-content:center; align-items:center; flex-direction:column; font-size:30px;">
-  
-  <div id="mainTimer">180</div>
 
+  <div id="mainTimer">180</div>
   <div style="margin-top:40px;">
     <button id="businessBtn">BUSINESS</button>
     <button id="exitBtn">EXIT</button>
@@ -212,41 +195,27 @@ cursor:pointer;
   <button class="pay-btn">PAY</button>
 </div>
 <div id="cameraPage" style="display:none; margin-top:60px; text-align:center;">
-
 <button id="openCamera">CAMERA</button>
 <button id="openPhotos">PHOTOS</button>
 <button id="cameraBack">BACK</button>
-
 <br><br>
-
 <video id="camera" width="300" autoplay style="display:none;"></video>
-
 <br><br>
-
 <button id="takePhoto" style="display:none;">TAKE PHOTO</button>
-
 <canvas id="canvas" style="display:none;"></canvas>
-
 </div>
 <div id="previewPage" style="display:none; margin-top:60px; text-align:center;">
-
 <img id="photoPreview" width="300">
-
 <br><br>
-
 <button id="photoOk">OK</button>
 <button id="photoCancel">CANCEL</button>
-
 </div>
 <div id="submitPage" style="display:none; margin-top:60px; text-align:center;">
-
-
 <br><br>
 <button id="sendPhoto">SUBMIT</button>
 <button id="submitBack">BACK</button>
 <input type="file" id="fileInput" accept="image/*" style="display:none">
 </div>
-
 <!-- ✅ PUT PAYMENT PAGE HERE -->
  <div id="paymentPage" style="display:none; margin-top:100px; text-align:center;">
 <div style="color:purple; font-size:30px;">pay through</div>
@@ -257,12 +226,10 @@ cursor:pointer;
 <div style="color:brown; font-size:30px;">crdb bank</div>
 <div style="color:black; font-size:30px;">0152001GN6K00</div>
 <div style="color:teal; font-size:30px;">JAMALI SAIDI KAZEMB</div>
-
   <div style="margin-top:40px;">
     <button id="backBtn">BACK</button>
     <button id="nextBtn">NEXT</button>
   </div>
-
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -316,225 +283,147 @@ camera.srcObject = stream;
 let waitInterval;
 loginBtn.onclick = async () => {
   await signInWithPopup(auth, provider);
-
   countdownPage.style.display="flex";
-
   loginBtn.style.display="none";
   logoutBtn.style.display="none";
   actionBtns.style.display="none";
-
   let time = 180;
-
   const timer = setInterval(()=>{
-
     mainTimer.textContent = time;
     time--;
-
     if(time < 0){
-
       clearInterval(timer);
-
       exitBtn.style.display="none";
       businessBtn.style.display="none";
-
       countdownPage.style.display="none";
-
       actionBtns.style.display="flex";
-
       startWaitTimer();
-
     }
-
   },1000);
-
 };
 nextBtn.onclick = () => {
-
 paymentPage.style.display = "none";
 cameraPage.style.display = "block";
-
 /* reset camera page so only main buttons appear */
 camera.style.display = "none";
 takePhoto.style.display = "none";
 previewPage.style.display = "none";
 submitPage.style.display = "none";
-
 };
 backBtn.onclick = () => {
-
   paymentPage.style.display="none";
   actionBtns.style.display="flex";
-
   systemName1.style.display="block";
   systemName2.style.display="block";
   logoutBtn.style.display="block";
 
 };
 payBtn.onclick = () => {
-
   actionBtns.style.display = "none";
   paymentPage.style.display = "block";
-
   systemName1.style.display = "none";
   systemName2.style.display = "none";
   logoutBtn.style.display = "none";
-
 };
 onAuthStateChanged(auth, (user) => {
-
 if (user) {
-
   loginBtn.style.display = "none";
-
   if(paymentPage.style.display !== "block"){
     logoutBtn.style.display = "block";
   }
-
   actionBtns.style.display = "flex";
-
   startWaitTimer();
 }
-
 else{
-
   loginBtn.style.display = "block";
   logoutBtn.style.display = "none";
   actionBtns.style.display = "none";
-
 }
-
 });
-
 logoutBtn.onclick = async () => {
   await signOut(auth);
 };
 function startCountdown(){
-
 countdownPage.style.display = "flex";
-
 exitBtn.style.display="inline-block";
 businessBtn.style.display="inline-block";
-
 let time = 180;
-
 const timer = setInterval(()=>{
-
 mainTimer.textContent = time;
 time--;
-
 if(time < 0){
-
 clearInterval(timer);
-
 countdownPage.style.display="none";
-
 exitBtn.style.display="none";
 businessBtn.style.display="none";
-
 actionBtns.style.display="flex";
-
 startWaitTimer(); // start 24 hour WAIT
-
 }
-
 },1000);
-
 }
 function startWaitTimer(){
-
 const waitBtn = document.querySelector(".free-btn");
-
 let saved = localStorage.getItem("waitEnd");
-
 if(!saved){
   saved = Date.now() + (24*3600*1000);
   localStorage.setItem("waitEnd", saved);
 }
-
 clearInterval(waitInterval);
-
 waitInterval = setInterval(()=>{
-
   const remaining = Math.floor((saved - Date.now())/1000);
-
   if(remaining <= 0){
-
     waitBtn.textContent = "FREE";
     waitBtn.disabled = false;   // user can click again
     clearInterval(waitInterval);
     localStorage.removeItem("waitEnd");
-
   }else{
-
     waitBtn.disabled = true;    // prevent clicking
-
     let h = Math.floor(remaining / 3600);
     let m = Math.floor((remaining % 3600) / 60);
     let s = remaining % 60;
-
     waitBtn.textContent =
     `WAIT ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
-
   }
-
 },1000);
 }
 exitBtn.onclick = () => {
-
   window.close();
-
 };
 takePhoto.onclick = () => {
-
 const ctx = canvas.getContext("2d");
-
 canvas.width = camera.videoWidth;
 canvas.height = camera.videoHeight;
-
 ctx.drawImage(camera,0,0);
-
 const img = canvas.toDataURL("image/png");
-
 photoPreview.src = img;
-
 if(stream){
   stream.getTracks().forEach(track => track.stop());
 }
-
 openCamera.style.display="none";
 openPhotos.style.display="none";
 cameraBack.style.display="none";
 cameraPage.style.display = "none";
 previewPage.style.display = "block";
-
 };
-
 photoCancel.onclick = () => {
-
 previewPage.style.display="none";
 cameraPage.style.display="block";
-
 };
 openCamera.onclick = () => {
 fileInput.setAttribute("capture","environment");
 fileInput.click();
 };
-
 openPhotos.onclick = () => {
 fileInput.removeAttribute("capture");
 fileInput.click();
 };
 photoOk.onclick = () => {
-
 photoOk.style.display="none";
 photoCancel.style.display="none";
-
 submitPage.style.display="block";
-
 };
 const freeBtn = document.querySelector(".free-btn");
 freeBtn.onclick = () => {
-
 if(freeBtn.textContent.startsWith("WAIT")){
 // do nothing if button shows WAIT
 return;
@@ -543,59 +432,42 @@ actionBtns.style.display="none";
 startCountdown();
 };
 fileInput.onchange = () => {
-
 const file = fileInput.files[0];
-
 const reader = new FileReader();
 reader.onload = e => {
-
 photoPreview.src = e.target.result;
-
 cameraPage.style.display="none";
 previewPage.style.display="block";
-
 };
-
 reader.readAsDataURL(file);
 fileInput.value="";
-
 };
 cameraBack.onclick = () => {
-
 if(stream){
   stream.getTracks().forEach(track => track.stop());
 }
 cameraPage.style.display="none";
-
 if(paymentPage.style.display === "block"){
   paymentPage.style.display="block";
 }else{
   actionBtns.style.display="flex";
 }
-
 };
 submitBack.onclick = () => {
-
 submitPage.style.display="none";
-
 if(paymentPage.style.display === "block"){
   paymentPage.style.display="block";
 }else{
   actionBtns.style.display="flex";
 }
-
 };
 sendPhoto.onclick = () => {
-
 sendPhoto.textContent="PLEASE WAIT...";
 sendPhoto.disabled=true;
-
 setTimeout(()=>{
 alert("Photo submitted to system");
 },2000);
-
 };
 </script>
-
 </body>
 </html>
