@@ -282,14 +282,13 @@ cursor:pointer;
   </div>
   <button id="backFromViewBtn" style="background:red; color:white; font-size:22px; padding:15px 40px; border:none; border-radius:8px; margin:10px; cursor:pointer;">BACK</button>
 </div>
-
 <script>
 // Handle "VIEW" button click
 viewTx.onclick = () => {
-  businessPage.style.display = "none";
-  viewButtonsPage.style.display = "block";  // Show the new buttons
+  console.log("VIEW button clicked");
+  businessPage.style.display = "none";  // Hide business page
+  viewButtonsPage.style.display = "block";  // Show view buttons page
 };
-
 // Handle "BACK" from the new button list
 backFromViewBtn.onclick = () => {
   viewButtonsPage.style.display = "none";
@@ -728,6 +727,7 @@ cancelTx.onclick = ()=>{
 txForm.style.display="none";
 businessPage.style.display="flex";
 };
+// Handle "VIEW" button click to show viewButtonsPage
 </script>
 </body>
 </html>
