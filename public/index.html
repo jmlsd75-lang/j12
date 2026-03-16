@@ -235,6 +235,7 @@ h2{
 <!-- View Buttons Page (MOVED OUTSIDE businessPage) -->
 <div id="viewButtonsPage" style="margin-top:60px;">
   <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px;">
+    <button id="listBtn">LIST</button> 
     <button id="cashBookBtn">CASH BOOK</button>
     <button id="ledgersBtn">LEDGERS</button>
     <button id="trialBalanceBtn">TRIAL BALANCE</button>
@@ -736,15 +737,12 @@ backFromViewBtn.onclick = () => {
 };
 
 // Placeholder clicks for view buttons
+  document.getElementById("listBtn").onclick = () => alert("Opening List...");
 document.getElementById("cashBookBtn").onclick = () => alert("Opening Cash Book...");
 document.getElementById("ledgersBtn").onclick = () => alert("Opening Ledgers...");
 document.getElementById("trialBalanceBtn").onclick = () => alert("Opening Trial Balance...");
 document.getElementById("incomeStatementBtn").onclick = () => alert("Opening Income Statement...");
 document.getElementById("balanceSheetBtn").onclick = () => alert("Opening Balance Sheet...");
-  document.getElementById("listBtn").onclick = () => {
-  alert("List button clicked!");
-  // We will add real logic here later
-};
 </script>
 </body>
 </html>
