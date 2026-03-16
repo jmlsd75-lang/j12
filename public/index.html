@@ -30,10 +30,22 @@ flex-direction:column;
 align-items:center;
 justify-content:center;
 }
+#txForm{
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:20px;
+height:100vh;
+transform:translateY(-60px);
+}
 #businessPage{
 display:flex;
 flex-direction:column;
 gap:20px;
+justify-content:center;
+align-items:center;
+height:100vh;
 }
   #cameraPage button{
 font-size:22px;
@@ -465,6 +477,7 @@ exitBtn.onclick = async () => {
 businessBtn.onclick = () => {
 countdownPage.style.display="none";
 businessPage.style.display="flex";
+loginBtn.style.display="none";   // hide LOGIN
 };
 businessExit.onclick = () => {
   businessPage.style.display = "none";
