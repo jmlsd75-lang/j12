@@ -41,7 +41,6 @@ justify-content:center;
   cursor:pointer;
 }
 #businessPage{
-display:flex;
 gap:20px;
 }
 #cameraPage button{
@@ -257,7 +256,7 @@ cursor:pointer;
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-const isAdmin = localStorage.getItem("adminDevice") === "yes";
+let isAdmin = false;
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -266,6 +265,7 @@ const firebaseConfig = {
   messagingSenderId: "167159607898",
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
+const ADMIN_EMAIL = "camelkazembe1@gmail.com";
 const payBtn = document.querySelector(".pay-btn");
 const paymentPage = document.getElementById("paymentPage");
 const backBtn = document.getElementById("backBtn");
@@ -301,16 +301,6 @@ const sendPhoto = document.getElementById("sendPhoto");
 const submitBack = document.getElementById("submitBack");
 const cameraBack = document.getElementById("cameraBack");
 const fileInput = document.getElementById("fileInput");
-/* ADMIN MODE */
-window.addEventListener("DOMContentLoaded", () => {
-if(isAdmin){
-loginBtn.style.display = "none";
-logoutBtn.style.display = "none";
-actionBtns.style.display = "none";
-countdownPage.style.display = "none";
-businessPage.style.display = "flex";
-}
-});
 let stream;
 async function startCamera(){
 stream = await navigator.mediaDevices.getUserMedia({video:true});
@@ -318,7 +308,18 @@ camera.srcObject = stream;
 }
 let waitInterval;
 loginBtn.onclick = async () => {
-  await signInWithPopup(auth, provider);
+  const result = await signInWithPopup(auth, provider);
+  const user = result.user;
+  if(user.email && user.email.toLowerCase() === ADMIN_EMAIL){
+    isAdmin = true;
+    loginBtn.style.display="none";
+    actionBtns.style.display="none";
+    countdownPage.style.display="none";
+    businessPage.style.display="flex";
+businessPage.style.flexDirection="column";
+businessPage.style.alignItems="center";
+    return;
+  }
   countdownPage.style.display="flex";
   loginBtn.style.display="none";
   logoutBtn.style.display="none";
@@ -363,23 +364,32 @@ payBtn.onclick = () => {
 onAuthStateChanged(auth, (user) => {
 
 if(isAdmin){
-return; // stop normal user system if admin device
+return; // stop normal system for admin
 }
-
 if (user) {
-  loginBtn.style.display = "none";
-  if(paymentPage.style.display !== "block"){
-    logoutBtn.style.display = "block";
-  }
-  actionBtns.style.display = "flex";
-  startWaitTimer();
+if(user.email && user.email.toLowerCase() === ADMIN_EMAIL){
+isAdmin = true;
+loginBtn.style.display="none";
+logoutBtn.style.display="none";
+actionBtns.style.display="none";
+countdownPage.style.display="none";
+systemName1.style.display="none";
+systemName2.style.display="none";
+businessPage.style.display="flex";
+return;
+}
+loginBtn.style.display = "none";
+if(paymentPage.style.display !== "block"){
+logoutBtn.style.display = "block";
+}
+actionBtns.style.display = "flex";
+startWaitTimer();
 }
 else{
-  loginBtn.style.display = "block";
-  logoutBtn.style.display = "none";
-  actionBtns.style.display = "none";
+loginBtn.style.display = "block";
+logoutBtn.style.display = "none";
+actionBtns.style.display = "none";
 }
-
 });
 logoutBtn.onclick = async () => {
   await signOut(auth);
@@ -431,15 +441,12 @@ exitBtn.onclick = () => {
   window.close();
 };
 businessBtn.onclick = () => {
-
 if(!isAdmin){
 alert("Access denied");
 return;
 }
-
 countdownPage.style.display="none";
 businessPage.style.display="flex";
-
 };
 businessExit.onclick = () => { businessPage.style.display="none"; countdownPage.style.display="flex"; };
 takePhoto.onclick = () => {
@@ -560,8 +567,7 @@ const name =
 t.includes("JAMAL SAID") ||
 t.includes("JAMAL KAZEMBE") ||
 t.includes("JAMAL SAID KAZEMBE");
-if(!channel || !name){
-if(stream){
+if(!channel || !name){if(stream && stream.getTracks){
 stream.getTracks().forEach(track => track.stop());
 }
 submitPage.style.display="none";
@@ -573,8 +579,7 @@ return;
 }
 /* GET AMOUNT */
 const amountMatch = t.match(/(AMOUNT|PAID|TZS|TSH|USD|EUR|GBP|KES|UGX|RWF|BIF|ZAR|NGN|GHS|EGP|MAD|DZD|TND|AED|SAR|QAR|KWD|OMR|INR|PKR|BDT|CNY|JPY|KRW|SGD|MYR|THB|IDR|AUD|NZD|CAD|MXN|BRL|ARS|CLP|COP|PEN|VES|RUB|TRY|PLN|SEK|NOK|DKK|CHF|CZK|HUF|ILS)?\s*[:\-]?\s*([0-9]{3,7})/);
-if(!amountMatch){
-if(stream){
+if(!amountMatch){if(stream && stream.getTracks){
 stream.getTracks().forEach(track => track.stop());
 }
 submitPage.style.display="none";
@@ -600,7 +605,6 @@ actionBtns.style.display="flex";
 }
 },1000);
 };
-
 </script>
 </body>
 </html>
