@@ -231,6 +231,7 @@ cursor:pointer;
     <button id="nextBtn">NEXT</button>
   </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -461,17 +462,58 @@ if(paymentPage.style.display === "block"){
   actionBtns.style.display="flex";
 }
 };
-sendPhoto.onclick=()=>{
+sendPhoto.onclick = async () => {
 sendPhoto.textContent="PLEASE WAIT...";
 sendPhoto.disabled=true;
-photoPreview.style.display="none";
-submitBack.style.display="none";
-photoOk.style.display="none";
-photoCancel.style.display="none";
-submitPage.style.display="flex";
-submitPage.style.flexDirection="column";
-submitPage.style.alignItems="center";
-submitPage.style.justifyContent="center";
+const img = photoPreview.src;
+/* READ TEXT */
+const { data:{ text } } = await Tesseract.recognize(img,"eng");
+const t = text.toUpperCase();
+/* CHANNEL CHECK */
+const channel =
+t.includes("MIX BY YAS") ||
+t.includes("655 510 714") ||
+t.includes("780 526 437") ||
+t.includes("CRDB BANK") ||
+t.includes("0152001GN6K00");
+/* NAME CHECK */
+const name =
+t.includes("JAMAL SAID") ||
+t.includes("JAMAL KAZEMBE") ||
+t.includes("JAMAL SAID KAZEMBE");
+if(!channel || !name){
+submitPage.style.display="none";
+actionBtns.style.display="flex";
+photoPreview.style.display="block";
+sendPhoto.textContent="SUBMIT";
+sendPhoto.disabled=false;
+return;
+}
+/* GET AMOUNT */
+const amountMatch = t.match(/\d+(\.\d+)?/);
+if(!amountMatch){
+submitPage.style.display="none";
+actionBtns.style.display="flex";
+sendPhoto.textContent="SUBMIT";
+sendPhoto.disabled=false;
+return;
+}
+let amount = parseFloat(amountMatch[0]);
+/* TIME FORMULA */
+let seconds = (amount / 500) * 3600;
+/* START COUNTDOWN */
+submitPage.style.display="none";
+countdownPage.style.display="flex";
+let time = Math.floor(seconds);
+const timer = setInterval(()=>{
+mainTimer.textContent = time;
+time--;
+if(time < 0){
+clearInterval(timer);
+countdownPage.style.display="none";
+actionBtns.style.display="flex";
+}
+},1000);
 };
 </script>
 </body>
