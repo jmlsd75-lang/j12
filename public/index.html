@@ -31,6 +31,19 @@ flex-direction:column;
 align-items:center;
 justify-content:center;
 }
+#exitBtn{
+  background:red;
+  color:white;
+  border:none;
+  padding:15px 40px;
+  font-size:20px;
+  border-radius:6px;
+  cursor:pointer;
+}
+#businessPage{
+display:flex;
+gap:20px;
+}
 #cameraPage button{
 font-size:22px;
 padding:15px 40px;
@@ -230,7 +243,12 @@ cursor:pointer;
     <button id="backBtn">BACK</button>
     <button id="nextBtn">NEXT</button>
   </div>
+  <div id="businessPage" style="display:none; margin-top:120px;">
+    <button id="addTx">ADD NEW TRANSACTION</button>
+<button id="viewTx">VIEW</button>
+<button id="businessExit">EXIT</button>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -252,6 +270,8 @@ const mainTimer = document.getElementById("mainTimer");
 const exitBtn = document.getElementById("exitBtn");
 const businessBtn = document.getElementById("businessBtn");
 const app = initializeApp(firebaseConfig);
+const businessPage = document.getElementById("businessPage");
+const businessExit = document.getElementById("businessExit");
 const db = getFirestore(app);
   const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
@@ -390,6 +410,8 @@ waitInterval = setInterval(()=>{
 exitBtn.onclick = () => {
   window.close();
 };
+businessBtn.onclick = () => { countdownPage.style.display="none"; businessPage.style.display="flex"; };
+businessExit.onclick = () => { businessPage.style.display="none"; countdownPage.style.display="flex"; };
 takePhoto.onclick = () => {
 const ctx = canvas.getContext("2d");
 canvas.width = camera.videoWidth;
@@ -478,9 +500,24 @@ sendPhoto.onclick = async () => {
 sendPhoto.textContent="PLEASE WAIT...";
 sendPhoto.disabled=true;
 const img = photoPreview.src;
+/* READ QR CODE */
+const image = new Image();
+image.src = img;
+await new Promise(resolve => image.onload = resolve);
+const qrCanvas = document.createElement("canvas");
+const qrCtx = qrCanvas.getContext("2d");
+qrCanvas.width = image.width;
+qrCanvas.height = image.height;
+qrCtx.drawImage(image,0,0);
+const qrData = qrCtx.getImageData(0,0,qrCanvas.width,qrCanvas.height);
+const qr = jsQR(qrData.data, qrCanvas.width, qrCanvas.height);
+let qrText = "";
+if(qr){
+qrText = qr.data.toUpperCase();
+}
 /* READ TEXT */
 const { data:{ text } } = await Tesseract.recognize(img,"eng");
-const t = text.toUpperCase();
+const t = (text + " " + qrText).toUpperCase();
 /* CHANNEL CHECK */
 const channel =
 t.includes("MIX BY YAS") ||
@@ -505,7 +542,7 @@ sendPhoto.disabled=false;
 return;
 }
 /* GET AMOUNT */
-const amountMatch = t.match(/\d+(\.\d+)?/);
+const amountMatch = t.match(/(AMOUNT|PAID|TZS|TSH|USD|EUR|GBP|KES|UGX|RWF|BIF|ZAR|NGN|GHS|EGP|MAD|DZD|TND|AED|SAR|QAR|KWD|OMR|INR|PKR|BDT|CNY|JPY|KRW|SGD|MYR|THB|IDR|AUD|NZD|CAD|MXN|BRL|ARS|CLP|COP|PEN|VES|RUB|TRY|PLN|SEK|NOK|DKK|CHF|CZK|HUF|ILS)?\s*[:\-]?\s*([0-9]{3,7})/);
 if(!amountMatch){
 if(stream){
 stream.getTracks().forEach(track => track.stop());
@@ -516,7 +553,7 @@ sendPhoto.textContent="SUBMIT";
 sendPhoto.disabled=false;
 return;
 }
-let amount = parseFloat(amountMatch[0]);
+let amount = parseFloat(amountMatch[2]);
 /* TIME FORMULA */
 let seconds = (amount / 500) * 3600;
 /* START COUNTDOWN */
