@@ -289,10 +289,11 @@ viewTx.onclick = () => {
   businessPage.style.display = "none";  // Hide business page
   viewButtonsPage.style.display = "block";  // Show view buttons page
 };
+
 // Handle "BACK" from the new button list
 backFromViewBtn.onclick = () => {
-  viewButtonsPage.style.display = "none";
-  businessPage.style.display = "flex";  // Go back to the previous menu
+  viewButtonsPage.style.display = "none";  // Hide view buttons
+  businessPage.style.display = "flex";  // Show business page
 };
 </script>
 <button id="businessExit">EXIT</button>
@@ -729,7 +730,6 @@ cancelTx.onclick = ()=>{
 txForm.style.display="none";
 businessPage.style.display="flex";
 };
-// Handle "VIEW" button click to show viewButtonsPage
 </script>
 </body>
 </html>
