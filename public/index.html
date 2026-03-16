@@ -307,19 +307,6 @@ stream = await navigator.mediaDevices.getUserMedia({video:true});
 camera.srcObject = stream;
 }
 let waitInterval;
-loginBtn.onclick = async () => {
-  const result = await signInWithPopup(auth, provider);
-  const user = result.user;
-  if(user.email && user.email.toLowerCase() === ADMIN_EMAIL){
-    isAdmin = true;
-    loginBtn.style.display="none";
-    actionBtns.style.display="none";
-    countdownPage.style.display="none";
-    businessPage.style.display="flex";
-businessPage.style.flexDirection="column";
-businessPage.style.alignItems="center";
-    return;
-  }
   countdownPage.style.display="flex";
   loginBtn.style.display="none";
   logoutBtn.style.display="none";
@@ -337,7 +324,6 @@ businessPage.style.alignItems="center";
       startWaitTimer();
     }
   },1000);
-};
 nextBtn.onclick = () => {
 paymentPage.style.display = "none";
 cameraPage.style.display = "block";
@@ -437,8 +423,9 @@ waitInterval = setInterval(()=>{
   }
 },1000);
 }
-exitBtn.onclick = () => {
-  window.close();
+exitBtn.onclick = async () => {
+  await signOut(auth);
+  location.reload();
 };
 businessBtn.onclick = () => {
 if(!isAdmin){
