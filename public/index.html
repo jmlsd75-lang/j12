@@ -1,4 +1,4 @@
-=<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -230,7 +230,7 @@ cursor:pointer;
 <input type="file" id="fileInput" accept="image/*" style="display:none">
 </div>
 <!-- ✅ PUT PAYMENT PAGE HERE -->
- <div id="paymentPage" style="display:none; margin-top:100px; text-align:center;">
+<div id="paymentPage" style="display:none; margin-top:100px; text-align:center;">
 <div style="color:purple; font-size:30px;">pay through</div>
 <div style="color:green; font-size:30px;">mix by yas</div>
 <div style="color:blue; font-size:30px;">+255 655 510 714</div>
@@ -239,12 +239,15 @@ cursor:pointer;
 <div style="color:brown; font-size:30px;">crdb bank</div>
 <div style="color:black; font-size:30px;">0152001GN6K00</div>
 <div style="color:teal; font-size:30px;">JAMALI SAIDI KAZEMB</div>
-  <div style="margin-top:40px;">
-    <button id="backBtn">BACK</button>
-    <button id="nextBtn">NEXT</button>
-  </div>
-  <div id="businessPage" style="display:none; margin-top:120px;">
-    <button id="addTx">ADD NEW TRANSACTION</button>
+
+<div style="margin-top:40px;">
+<button id="backBtn">BACK</button>
+<button id="nextBtn">NEXT</button>
+</div>
+</div> <!-- ✅ CLOSE paymentPage -->
+
+<div id="businessPage" style="display:none; margin-top:120px;">
+<button id="addTx">ADD NEW TRANSACTION</button>
 <button id="viewTx">VIEW</button>
 <button id="businessExit">EXIT</button>
 </div>
@@ -299,15 +302,15 @@ const submitBack = document.getElementById("submitBack");
 const cameraBack = document.getElementById("cameraBack");
 const fileInput = document.getElementById("fileInput");
 /* ADMIN MODE */
+window.addEventListener("DOMContentLoaded", () => {
 if(isAdmin){
-loginBtn.style.display="none";
-logoutBtn.style.display="none";
-actionBtns.style.display="none";
-countdownPage.style.display="flex";
-mainTimer.textContent="ADMIN";
-businessBtn.style.display="inline-block";
-exitBtn.style.display="inline-block";
+loginBtn.style.display = "none";
+logoutBtn.style.display = "none";
+actionBtns.style.display = "none";
+countdownPage.style.display = "none";
+businessPage.style.display = "flex";
 }
+});
 let stream;
 async function startCamera(){
 stream = await navigator.mediaDevices.getUserMedia({video:true});
@@ -349,7 +352,6 @@ backBtn.onclick = () => {
   systemName1.style.display="block";
   systemName2.style.display="block";
   logoutBtn.style.display="block";
-
 };
 payBtn.onclick = () => {
   actionBtns.style.display = "none";
@@ -359,6 +361,11 @@ payBtn.onclick = () => {
   logoutBtn.style.display = "none";
 };
 onAuthStateChanged(auth, (user) => {
+
+if(isAdmin){
+return; // stop normal user system if admin device
+}
+
 if (user) {
   loginBtn.style.display = "none";
   if(paymentPage.style.display !== "block"){
@@ -372,6 +379,7 @@ else{
   logoutBtn.style.display = "none";
   actionBtns.style.display = "none";
 }
+
 });
 logoutBtn.onclick = async () => {
   await signOut(auth);
