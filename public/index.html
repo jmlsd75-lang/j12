@@ -10,7 +10,7 @@ body{
   background:#f4f4f4;
   display:flex;
   flex-direction:column;
-justify-content:flex-start;
+  justify-content:flex-start;
   align-items:center;
   height:100vh;
   text-align:center;
@@ -25,49 +25,31 @@ h2{
   color:red;
   margin-top:5px;
 }
-#cameraPage{
-flex-direction:column;
-align-items:center;
-justify-content:center;
+
+/* Pages Layout */
+#cameraPage, #txForm, #businessPage, #viewButtonsPage {
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:20px;
 }
-#txForm{
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-gap:20px;
-height:100vh;
-transform:translateY(-60px);
+
+#countdownPage{
+  display:none; 
+  position:fixed; 
+  top:0; left:0; 
+  width:100%; height:100%; 
+  background:white; 
+  justify-content:center; 
+  align-items:center; 
+  flex-direction:column; 
+  font-size:30px;
+  z-index: 999;
 }
-#businessPage{
-display:flex;
-flex-direction:column;
-gap:20px;
-justify-content:center;
-align-items:center;
-height:100vh;
-}
-  #cameraPage button{
-font-size:22px;
-padding:15px 40px;
-margin:10px;
-border:none;
-border-radius:8px;
-cursor:pointer;
-}
-#openCamera{
-background:green;
-color:white;
-}
-#openPhotos{
-background:blue;
-color:white;
-}
-#cameraBack{
-background:red;
-color:white;
-}
-  .login-btn{
+
+/* Buttons Styling */
+.login-btn{
   margin-top:150px;
   padding:12px 30px;
   font-size:18px;
@@ -77,96 +59,12 @@ color:white;
   border-radius:6px;
   cursor:pointer;
 }
-.free-btn,
-.pay-btn{
+
+.free-btn, .pay-btn{
   width:140px;
   padding:12px 0;
   font-size:18px;
   border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
-#photoOk{
-background:green;
-color:white;
-font-size:22px;
-padding:15px 40px;
-border:none;
-border-radius:8px;
-margin:10px;
-cursor:pointer;
-}
-#submitPage{
-display:none;
-margin-top:60px;
-text-align:center;
-}
-#businessPage button{
-  font-size:28px;
-  padding:20px 60px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-}
-/* different colors */
-#addTx{
-  background:green;
-  color:white;
-}
-#viewTx{
-  background:blue;
-  color:white;
-}
-#businessExit{
-  background:red;
-  color:white;
-}
-#sendPhoto{
-background:purple;
-color:white;
-font-size:22px;
-padding:15px 40px;
-border:none;
-border-radius:8px;
-margin:10px;
-cursor:pointer;
-}
-#submitBack{
-background:red;
-color:white;
-font-size:22px;
-padding:15px 40px;
-border:none;
-border-radius:8px;
-margin:10px;
-cursor:pointer;
-}
-#photoCancel{
-background:red;
-color:white;
-font-size:22px;
-padding:15px 40px;
-border:none;
-border-radius:8px;
-margin:10px;
-cursor:pointer;
-}
-#businessBtn{
-  background:green;
-  color:white;
-  border:none;
-  padding:15px 40px;
-  font-size:20px;
-  border-radius:6px;
-  cursor:pointer;
-  margin-right:20px;
-}
-#exitBtn{
-  background:red;
-  color:white;
-  border:none;
-  padding:15px 40px;
-  font-size:20px;
   border-radius:6px;
   cursor:pointer;
 }
@@ -179,28 +77,13 @@ cursor:pointer;
   background:blue;
   color:white;
 }
+
 .action-buttons{
   margin-top:120px;
-  display:flex;
+  display:none; /* Hidden by default */
   gap:20px;
 }
-#backBtn,
-#nextBtn{
-  padding:20px 60px;
-  font-size:28px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-  margin:15px;
-}
-#backBtn{
-  background:red;
-  color:white;
-}
-#nextBtn{
-  background:purple;
-  color:white;
-}
+
 .logout-btn{
   background:red;
   color:white;
@@ -210,119 +93,185 @@ cursor:pointer;
   cursor:pointer;
   position:absolute;
   bottom:20px;
+  display:none;
 }
+
+/* Business Page Buttons */
+#businessPage button, #viewButtonsPage button {
+  font-size:22px;
+  padding:15px 40px;
+  margin:5px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+#addTx{ background:green; color:white; }
+#viewTx{ background:blue; color:white; }
+#businessExit{ background:red; color:white; }
+
+/* View List Buttons */
+#cashBookBtn { background:lightgreen; color:black; }
+#ledgersBtn { background:lightblue; color:black; }
+#trialBalanceBtn { background:lightcoral; color:black; }
+#incomeStatementBtn { background:lightyellow; color:black; }
+#balanceSheetBtn { background:lightpink; color:black; }
+#backFromViewBtn { background:red; color:white; margin-top:20px; }
+
+/* Camera & Payment Styling */
+#cameraPage button, #previewPage button, #submitPage button {
+  font-size:22px;
+  padding:15px 40px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+#openCamera{ background:green; color:white; }
+#openPhotos{ background:blue; color:white; }
+#cameraBack{ background:red; color:white; }
+#photoOk, #sendPhoto{ background:purple; color:white; }
+#photoCancel, #submitBack{ background:red; color:white; }
+
+#paymentPage{
+  display:none; 
+  margin-top:100px; 
+  text-align:center;
+}
+#backBtn, #nextBtn{
+  padding:20px 60px;
+  font-size:28px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  margin:15px;
+}
+#backBtn{ background:red; color:white; }
+#nextBtn{ background:purple; color:white; }
+
+/* Transaction Form */
+#txDesc, #txAmount {
+  font-size:22px; 
+  padding:10px; 
+  text-align:center;
+}
+#inBtn { background:green; color:white; padding:10px 20px; border:none; border-radius:6px; cursor:pointer; }
+#outBtn { background:red; color:white; padding:10px 20px; border:none; border-radius:6px; cursor:pointer; }
+.method { margin:5px; padding:10px; cursor:pointer; }
+
 </style>
 </head>
 <body>
+
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
-<div id="countdownPage" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; justify-content:center; align-items:center; flex-direction:column; font-size:30px;">
+
+<!-- Countdown Page -->
+<div id="countdownPage">
   <div id="mainTimer">180</div>
   <div style="margin-top:40px;">
     <button id="businessBtn">BUSINESS</button>
     <button id="exitBtn">EXIT</button>
-<button id="adminLogoutBtn" style="display:none;">LOGOUT</button>
   </div>
 </div>
-  <button class="login-btn">LOGIN</button>
- <button class="logout-btn" style="display:none;">LOGOUT</button>
-  <div class="action-buttons" style="display:none;">
+
+<!-- Login / Action Buttons -->
+<button class="login-btn">LOGIN</button>
+<button class="logout-btn">LOGOUT</button>
+<div class="action-buttons">
   <button class="free-btn">FREE</button>
   <button class="pay-btn">PAY</button>
 </div>
-<div id="cameraPage" style="display:none; margin-top:60px; text-align:center;">
-<button id="openCamera">CAMERA</button>
-<button id="openPhotos">PHOTOS</button>
-<button id="cameraBack">BACK</button>
-<br><br>
-<video id="camera" width="300" autoplay style="display:none;"></video>
-<br><br>
-<button id="takePhoto" style="display:none;">TAKE PHOTO</button>
-<canvas id="canvas" style="display:none;"></canvas>
+
+<!-- Camera Page -->
+<div id="cameraPage" style="margin-top:60px;">
+  <button id="openCamera">CAMERA</button>
+  <button id="openPhotos">PHOTOS</button>
+  <button id="cameraBack">BACK</button>
+  <br><br>
+  <video id="camera" width="300" autoplay style="display:none;"></video>
+  <br><br>
+  <button id="takePhoto" style="display:none;">TAKE PHOTO</button>
+  <canvas id="canvas" style="display:none;"></canvas>
 </div>
+
+<!-- Preview Page -->
 <div id="previewPage" style="display:none; margin-top:60px; text-align:center;">
-<img id="photoPreview" width="300">
-<br><br>
-<button id="photoOk">OK</button>
-<button id="photoCancel">CANCEL</button>
+  <img id="photoPreview" width="300">
+  <br><br>
+  <button id="photoOk">OK</button>
+  <button id="photoCancel">CANCEL</button>
 </div>
+
+<!-- Submit Page -->
 <div id="submitPage" style="display:none; margin-top:60px; text-align:center;">
-<br><br>
-<button id="sendPhoto">SUBMIT</button>
-<button id="submitBack">BACK</button>
-<input type="file" id="fileInput" accept="image/*" style="display:none">
+  <br><br>
+  <button id="sendPhoto">SUBMIT</button>
+  <button id="submitBack">BACK</button>
+  <input type="file" id="fileInput" accept="image/*" style="display:none">
 </div>
-<!-- ✅ PUT PAYMENT PAGE HERE -->
-<div id="paymentPage" style="display:none; margin-top:100px; text-align:center;">
-<div style="color:purple; font-size:30px;">pay through</div>
-<div style="color:green; font-size:30px;">mix by yas</div>
-<div style="color:blue; font-size:30px;">+255 655 510 714</div>
-<div style="color:red; font-size:30px;">airtel money</div>
-<div style="color:orange; font-size:30px;">+255 780 526 437</div>
-<div style="color:brown; font-size:30px;">crdb bank</div>
-<div style="color:black; font-size:30px;">0152001GN6K00</div>
-<div style="color:teal; font-size:30px;">JAMALI SAIDI KAZEMB</div>
-<div style="margin-top:40px;">
-<button id="backBtn">BACK</button>
-<button id="nextBtn">NEXT</button>
-</div>
-</div> <!-- ✅ CLOSE paymentPage -->
-<div id="businessPage" style="display:none; margin-top:120px;">
-<button id="addTx">ADD NEW TRANSACTION</button><!-- Add the new buttons under businessPage -->
-<button id="viewTx" style="background:blue; color:white; font-size:28px; padding:20px 60px; border:none; border-radius:10px; cursor:pointer;">
-  VIEW
-</button>
-<div id="viewButtonsPage" style="display:none; margin-top:60px; text-align:center;">
-  <div class="button-row" style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px;">
-    <button id="cashBookBtn" style="background:lightgreen; font-size:20px; padding:15px 30px; border:none; border-radius:10px; cursor:pointer;">CASH BOOK</button>
-    <button id="ledgersBtn" style="background:lightblue; font-size:20px; padding:15px 30px; border:none; border-radius:10px; cursor:pointer;">LEDGERS</button>
-    <button id="trialBalanceBtn" style="background:lightcoral; font-size:20px; padding:15px 30px; border:none; border-radius:10px; cursor:pointer;">TRIAL BALANCE</button>
-    <button id="incomeStatementBtn" style="background:lightyellow; font-size:20px; padding:15px 30px; border:none; border-radius:10px; cursor:pointer;">INCOME STATEMENT</button>
-    <button id="balanceSheetBtn" style="background:lightpink; font-size:20px; padding:15px 30px; border:none; border-radius:10px; cursor:pointer;">BALANCE SHEET</button>
+
+<!-- Payment Page -->
+<div id="paymentPage">
+  <div style="color:purple; font-size:30px;">pay through</div>
+  <div style="color:green; font-size:30px;">mix by yas</div>
+  <div style="color:blue; font-size:30px;">+255 655 510 714</div>
+  <div style="color:red; font-size:30px;">airtel money</div>
+  <div style="color:orange; font-size:30px;">+255 780 526 437</div>
+  <div style="color:brown; font-size:30px;">crdb bank</div>
+  <div style="color:black; font-size:30px;">0152001GN6K00</div>
+  <div style="color:teal; font-size:30px;">JAMALI SAIDI KAZEMB</div>
+  <div style="margin-top:40px;">
+    <button id="backBtn">BACK</button>
+    <button id="nextBtn">NEXT</button>
   </div>
-  <button id="backFromViewBtn" style="background:red; color:white; font-size:22px; padding:15px 40px; border:none; border-radius:8px; margin:10px; cursor:pointer;">BACK</button>
 </div>
-<script>
-  // Ensure the back button is selected properly.
-  const backFromViewBtn = document.getElementById("backFromViewBtn"); // Ensure this is selected correctly
-backFromViewBtn.onclick = () => {
-  viewButtonsPage.style.display = "none";  // Hide view buttons page
-  businessPage.style.display = "flex";  // Show business page again
-};
-// Handle "BACK" from the new button list
-backFromViewBtn.onclick = () => {
-  viewButtonsPage.style.display = "none";  // Hide view buttons
-  businessPage.style.display = "flex";  // Show business page
-};
-</script>
-<button id="businessExit">EXIT</button>
+
+<!-- Business Page (Main Menu) -->
+<div id="businessPage" style="margin-top:120px;">
+  <button id="addTx">ADD NEW TRANSACTION</button>
+  <button id="viewTx">VIEW</button>
+  <button id="businessExit">EXIT</button>
 </div>
-<div id="txForm" style="display:none; margin-top:120px; text-align:center;">
-<input id="txDesc" placeholder="Enter description"
-style="font-size:22px; padding:10px; text-align:center;"><br><br>
-<input id="txAmount" placeholder="Enter amount"
-style="font-size:22px; padding:10px; text-align:center; display:none;"><br><br>
-<div id="txType" style="display:none;">
-<button id="inBtn">IN</button>
-<button id="outBtn">OUT</button>
-</div><br>
-<div id="txMethod" style="display:none;">
-<button class="method">CASH</button>
-<button class="method">CREDIT</button>
-<button class="method">BANK</button>
-</div><br>
-<div id="txActions">
-<button id="okTx" style="display:none;">OK</button>
-<button id="cancelTx">CANCEL</button>
+
+<!-- View Buttons Page (MOVED OUTSIDE businessPage) -->
+<div id="viewButtonsPage" style="margin-top:60px;">
+  <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px;">
+    <button id="cashBookBtn">CASH BOOK</button>
+    <button id="ledgersBtn">LEDGERS</button>
+    <button id="trialBalanceBtn">TRIAL BALANCE</button>
+    <button id="incomeStatementBtn">INCOME STATEMENT</button>
+    <button id="balanceSheetBtn">BALANCE SHEET</button>
+  </div>
+  <button id="backFromViewBtn">BACK</button>
 </div>
+
+<!-- Transaction Form -->
+<div id="txForm" style="margin-top:120px; text-align:center;">
+  <input id="txDesc" placeholder="Enter description"><br><br>
+  <input id="txAmount" placeholder="Enter amount" style="display:none;"><br><br>
+  <div id="txType" style="display:none;">
+    <button id="inBtn">IN</button>
+    <button id="outBtn">OUT</button>
+  </div><br>
+  <div id="txMethod" style="display:none;">
+    <button class="method">CASH</button>
+    <button class="method">CREDIT</button>
+    <button class="method">BANK</button>
+  </div><br>
+  <div id="txActions">
+    <button id="okTx" style="display:none;">OK</button>
+    <button id="cancelTx">CANCEL</button>
+  </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-let isAdmin = false;
+
+// Config
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -331,352 +280,58 @@ const firebaseConfig = {
   messagingSenderId: "167159607898",
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
-const businessPage = document.getElementById("businessPage");
 const ADMIN_EMAIL = "camelkazembe1@gmail.com";
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+let isAdmin = false;
+let stream = null;
+
+// Elements
+const systemName1 = document.querySelector("h1");
+const systemName2 = document.querySelector("h2");
+const loginBtn = document.querySelector(".login-btn");
+const logoutBtn = document.querySelector(".logout-btn");
+const actionBtns = document.querySelector(".action-buttons");
+const freeBtn = document.querySelector(".free-btn");
 const payBtn = document.querySelector(".pay-btn");
+
+const countdownPage = document.getElementById("countdownPage");
+const mainTimer = document.getElementById("mainTimer");
+const businessBtn = document.getElementById("businessBtn");
+const exitBtn = document.getElementById("exitBtn");
+
 const paymentPage = document.getElementById("paymentPage");
 const backBtn = document.getElementById("backBtn");
 const nextBtn = document.getElementById("nextBtn");
-const countdownPage = document.getElementById("countdownPage");
-const mainTimer = document.getElementById("mainTimer");
-const exitBtn = document.getElementById("exitBtn");
-const businessBtn = document.getElementById("businessBtn");
-const app = initializeApp(firebaseConfig);
+
+const businessPage = document.getElementById("businessPage");
 const businessExit = document.getElementById("businessExit");
-const db = getFirestore(app);
-  const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
-const actionBtns = document.querySelector(".action-buttons");
-console.log("Cloud system connected");
-const loginBtn = document.querySelector(".login-btn");
-const logoutBtn = document.querySelector(".logout-btn");
+const viewTx = document.getElementById("viewTx");
+const viewButtonsPage = document.getElementById("viewButtonsPage");
+const backFromViewBtn = document.getElementById("backFromViewBtn");
+
 const cameraPage = document.getElementById("cameraPage");
-const previewPage = document.getElementById("previewPage");
-const submitPage = document.getElementById("submitPage");
-const systemName1 = document.querySelector("h1");
-const systemName2 = document.querySelector("h2");
 const camera = document.getElementById("camera");
 const canvas = document.getElementById("canvas");
 const takePhoto = document.getElementById("takePhoto");
 const openCamera = document.getElementById("openCamera");
 const openPhotos = document.getElementById("openPhotos");
+const cameraBack = document.getElementById("cameraBack");
+
+const previewPage = document.getElementById("previewPage");
 const photoPreview = document.getElementById("photoPreview");
 const photoOk = document.getElementById("photoOk");
 const photoCancel = document.getElementById("photoCancel");
+
+const submitPage = document.getElementById("submitPage");
 const sendPhoto = document.getElementById("sendPhoto");
 const submitBack = document.getElementById("submitBack");
-const cameraBack = document.getElementById("cameraBack");
 const fileInput = document.getElementById("fileInput");
-let stream;
-async function startCamera(){
-stream = await navigator.mediaDevices.getUserMedia({video:true});
-camera.srcObject = stream;
-}
-let waitInterval;
-  countdownPage.style.display="flex";
-  loginBtn.style.display="none";
-  logoutBtn.style.display="none";
-  actionBtns.style.display="none";
-  let time = 180;
-  const timer = setInterval(()=>{
-    mainTimer.textContent = time;
-    time--;
-    if(time < 0){
-      clearInterval(timer);
-      exitBtn.style.display="none";
-      businessBtn.style.display="none";
-      countdownPage.style.display="none";
-      actionBtns.style.display="flex";
-      startWaitTimer();
-    }
-  },1000);
-nextBtn.onclick = () => {
-paymentPage.style.display = "none";
-cameraPage.style.display = "block";
-/* reset camera page so only main buttons appear */
-camera.style.display = "none";
-takePhoto.style.display = "none";
-previewPage.style.display = "none";
-submitPage.style.display = "none";
-};
-backBtn.onclick = () => {
-  paymentPage.style.display="none";
-  actionBtns.style.display="flex";
-  systemName1.style.display="block";
-  systemName2.style.display="block";
-  logoutBtn.style.display="block";
-};
-payBtn.onclick = () => {
-  actionBtns.style.display = "none";
-  paymentPage.style.display = "block";
-  systemName1.style.display = "none";
-  systemName2.style.display = "none";
-  logoutBtn.style.display = "none";
-};
-onAuthStateChanged(auth, (user) => {
 
-if(isAdmin){
-return; // stop normal system for admin
-}
-if (user) {
-if(user.email && user.email.toLowerCase() === ADMIN_EMAIL){
-isAdmin = true;
-loginBtn.style.display="none";
-logoutBtn.style.display="none";
-actionBtns.style.display="none";
-countdownPage.style.display="none";
-systemName1.style.display="none";
-systemName2.style.display="none";
-businessPage.style.display="flex";
-return;
-}
-loginBtn.style.display = "none";
-if(paymentPage.style.display !== "block"){
-logoutBtn.style.display = "block";
-}
-actionBtns.style.display = "flex";
-startWaitTimer();
-}
-else{
-loginBtn.style.display = "block";
-logoutBtn.style.display = "none";
-actionBtns.style.display = "none";
-}
-});
-logoutBtn.onclick = async () => {
-  await signOut(auth);
-};
-loginBtn.onclick = async () => {
-  try{
-    await signInWithPopup(auth, provider);
-  }catch(err){
-    console.log(err);
-  }
-};
-function startCountdown(){
-countdownPage.style.display = "flex";
-exitBtn.style.display="inline-block";
-businessBtn.style.display="inline-block";
-let time = 180;
-const timer = setInterval(()=>{
-mainTimer.textContent = time;
-time--;
-if(time < 0){
-clearInterval(timer);
-countdownPage.style.display="none";
-exitBtn.style.display="none";
-businessBtn.style.display="none";
-actionBtns.style.display="flex";
-startWaitTimer(); // start 24 hour WAIT
-}
-},1000);
-}
-// Add this to block refresh if the user is in the "WAIT" state
-let isInWaitState = localStorage.getItem("waitEnd");
-
-// If the user is in WAIT state, block refresh
-if (isInWaitState) {
-    window.addEventListener("beforeunload", function (e) {
-        const message = "You cannot refresh the page during the WAIT state. Are you sure you want to leave?";
-        e.returnValue = message;  // Standard for most browsers
-        return message;  // Some browsers show the message
-    });
-}
-function startWaitTimer(){
-const waitBtn = document.querySelector(".free-btn");
-let saved = localStorage.getItem("waitEnd");
-if(!saved){
-  saved = Date.now() + (24*3600*1000);
-  localStorage.setItem("waitEnd", saved);
-}
-clearInterval(waitInterval);
-waitInterval = setInterval(()=>{
-  const remaining = Math.floor((saved - Date.now())/1000);
-  if(remaining <= 0){
-    waitBtn.textContent = "FREE";
-    waitBtn.disabled = false;   // user can click again
-    clearInterval(waitInterval);
-    localStorage.removeItem("waitEnd");
-  }else{
-    waitBtn.disabled = true;    // prevent clicking
-    let h = Math.floor(remaining / 3600);
-    let m = Math.floor((remaining % 3600) / 60);
-    let s = remaining % 60;
-    waitBtn.textContent =
-    `WAIT ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
-  }
-},1000);
-}
-exitBtn.onclick = async () => {
-  await signOut(auth);
-  location.reload();
-};
-businessBtn.onclick = () => {
-countdownPage.style.display="none";
-businessPage.style.display="flex";
-loginBtn.style.display="none";   // hide LOGIN
-};
-businessExit.onclick = () => {
-  businessPage.style.display = "none";
-  countdownPage.style.display = "flex";
-};
-takePhoto.onclick = () => {
-const ctx = canvas.getContext("2d");
-canvas.width = camera.videoWidth;
-canvas.height = camera.videoHeight;
-ctx.drawImage(camera,0,0);
-const img = canvas.toDataURL("image/png");
-photoPreview.src = img;
-if(stream){
-  stream.getTracks().forEach(track => track.stop());
-}
-openCamera.style.display="none";
-openPhotos.style.display="none";
-cameraBack.style.display="none";
-cameraPage.style.display = "none";
-previewPage.style.display = "block";
-};
-photoCancel.onclick = () => {
-previewPage.style.display="none";
-cameraPage.style.display="block";
-camera.style.display="none";
-takePhoto.style.display="none";
-openCamera.style.display="inline-block";
-openPhotos.style.display="inline-block";
-cameraBack.style.display="inline-block";
-photoOk.style.display="inline-block";
-photoCancel.style.display="inline-block";
-};
-openCamera.onclick = async () => {
-await startCamera();
-camera.style.display="block";
-takePhoto.style.display="inline-block";
-};
-openPhotos.onclick = () => {
-fileInput.removeAttribute("capture");
-fileInput.click();
-};
-photoOk.onclick = () => {
-previewPage.style.display="none";
-submitPage.style.display="block";
-photoOk.style.display="none";
-photoCancel.style.display="none";
-};
-const freeBtn = document.querySelector(".free-btn");
-freeBtn.onclick = () => {
-if(freeBtn.textContent.startsWith("WAIT")){
-// do nothing if button shows WAIT
-return;
-}
-actionBtns.style.display="none";
-startCountdown();
-};
-fileInput.onchange = () => {
-const file = fileInput.files[0];
-const reader = new FileReader();
-reader.onload = e => {
-photoPreview.src = e.target.result;
-cameraPage.style.display="none";
-previewPage.style.display="block";
-/* show buttons */
-photoOk.style.display="inline-block";
-photoCancel.style.display="inline-block";
-};
-reader.readAsDataURL(file);
-fileInput.value="";
-};
-cameraBack.onclick = () => {
-if(stream){
-  stream.getTracks().forEach(track => track.stop());
-}
-cameraPage.style.display="none";
-if(paymentPage.style.display === "block"){
-  paymentPage.style.display="block";
-}else{
-  actionBtns.style.display="flex";
-}
-};
-submitBack.onclick = () => {
-submitPage.style.display="none";
-if(paymentPage.style.display === "block"){
-  paymentPage.style.display="block";
-}else{
-  actionBtns.style.display="flex";
-}
-};
-sendPhoto.onclick = async () => {
-sendPhoto.textContent="PLEASE WAIT...";
-sendPhoto.disabled=true;
-const img = photoPreview.src;
-/* READ QR CODE */
-const image = new Image();
-image.src = img;
-await new Promise(resolve => image.onload = resolve);
-const qrCanvas = document.createElement("canvas");
-const qrCtx = qrCanvas.getContext("2d");
-qrCanvas.width = image.width;
-qrCanvas.height = image.height;
-qrCtx.drawImage(image,0,0);
-const qrData = qrCtx.getImageData(0,0,qrCanvas.width,qrCanvas.height);
-const qr = jsQR(qrData.data, qrCanvas.width, qrCanvas.height);
-let qrText = "";
-if(qr){
-qrText = qr.data.toUpperCase();
-}
-/* READ TEXT */
-const { data:{ text } } = await Tesseract.recognize(img,"eng");
-const t = (text + " " + qrText).toUpperCase();
-/* CHANNEL CHECK */
-const channel =
-t.includes("MIX BY YAS") ||
-t.includes("655 510 714") ||
-t.includes("780 526 437") ||
-t.includes("CRDB BANK") ||
-t.includes("0152001GN6K00");
-/* NAME CHECK */
-const name =
-t.includes("JAMAL SAID") ||
-t.includes("JAMAL KAZEMBE") ||
-t.includes("JAMAL SAID KAZEMBE");
-if(!channel || !name){if(stream && stream.getTracks){
-stream.getTracks().forEach(track => track.stop());
-}
-submitPage.style.display="none";
-actionBtns.style.display="flex";
-photoPreview.style.display="block";
-sendPhoto.textContent="SUBMIT";
-sendPhoto.disabled=false;
-return;
-}
-/* GET AMOUNT */
-const amountMatch = t.match(/(AMOUNT|PAID|TZS|TSH|USD|EUR|GBP|KES|UGX|RWF|BIF|ZAR|NGN|GHS|EGP|MAD|DZD|TND|AED|SAR|QAR|KWD|OMR|INR|PKR|BDT|CNY|JPY|KRW|SGD|MYR|THB|IDR|AUD|NZD|CAD|MXN|BRL|ARS|CLP|COP|PEN|VES|RUB|TRY|PLN|SEK|NOK|DKK|CHF|CZK|HUF|ILS)?\s*[:\-]?\s*([0-9]{3,7})/);
-if(!amountMatch){if(stream && stream.getTracks){
-stream.getTracks().forEach(track => track.stop());
-}
-submitPage.style.display="none";
-actionBtns.style.display="flex";
-sendPhoto.textContent="SUBMIT";
-sendPhoto.disabled=false;
-return;
-}
-let amount = parseFloat(amountMatch[2]);
-/* TIME FORMULA */
-let seconds = (amount / 500) * 3600;
-/* START COUNTDOWN */
-submitPage.style.display="none";
-countdownPage.style.display="flex";
-let time = Math.floor(seconds);
-const timer = setInterval(()=>{
-mainTimer.textContent = time;
-time--;
-if(time < 0){
-clearInterval(timer);
-countdownPage.style.display="none";
-actionBtns.style.display="flex";
-}
-},1000);
-};
-const addTx = document.getElementById("addTx");
 const txForm = document.getElementById("txForm");
 const txDesc = document.getElementById("txDesc");
 const txAmount = document.getElementById("txAmount");
@@ -684,72 +339,409 @@ const txType = document.getElementById("txType");
 const txMethod = document.getElementById("txMethod");
 const okTx = document.getElementById("okTx");
 const cancelTx = document.getElementById("cancelTx");
+const addTx = document.getElementById("addTx");
+
+console.log("Cloud system connected");
+
+// --- Logic Functions ---
+
+function showUi(page) {
+  // Hide all main pages
+  countdownPage.style.display = "none";
+  actionBtns.style.display = "none";
+  paymentPage.style.display = "none";
+  businessPage.style.display = "none";
+  viewButtonsPage.style.display = "none";
+  cameraPage.style.display = "none";
+  previewPage.style.display = "none";
+  submitPage.style.display = "none";
+  txForm.style.display = "none";
+  loginBtn.style.display = "none";
+  logoutBtn.style.display = "none";
+  systemName1.style.display = "block";
+  systemName2.style.display = "block";
+
+  if (page === 'login') {
+    loginBtn.style.display = "block";
+  } else if (page === 'actions') {
+    actionBtns.style.display = "flex";
+    logoutBtn.style.display = "block";
+    checkWaitTimer();
+  } else if (page === 'countdown') {
+    countdownPage.style.display = "flex";
+    logoutBtn.style.display = "none"; 
+    systemName1.style.display = "none";
+    systemName2.style.display = "none";
+  } else if (page === 'business') {
+    businessPage.style.display = "flex";
+    systemName1.style.display = "none";
+    systemName2.style.display = "none";
+  } else if (page === 'payment') {
+    paymentPage.style.display = "block";
+    systemName1.style.display = "none";
+    systemName2.style.display = "none";
+  } else if (page === 'camera') {
+    cameraPage.style.display = "flex";
+  }
+}
+
+// --- Timers ---
+
+let countdownInterval;
+
+function startCountdown(durationSeconds) {
+  clearInterval(countdownInterval);
+  
+  // Save end time to localStorage to persist on refresh
+  const endTime = Date.now() + (durationSeconds * 1000);
+  localStorage.setItem("sessionEnd", endTime);
+
+  runTimerTick();
+  countdownInterval = setInterval(runTimerTick, 1000);
+}
+
+function runTimerTick() {
+  const endTime = localStorage.getItem("sessionEnd");
+  if (!endTime) {
+    clearInterval(countdownInterval);
+    return;
+  }
+
+  const remaining = Math.floor((parseInt(endTime) - Date.now()) / 1000);
+
+  if (remaining <= 0) {
+    clearInterval(countdownInterval);
+    localStorage.removeItem("sessionEnd");
+    
+    // Session over
+    if (isAdmin) return; // Admin shouldn't see action buttons usually
+    showUi('actions');
+    startWaitTimer(); // Start 24h wait
+  } else {
+    showUi('countdown');
+    mainTimer.textContent = remaining;
+  }
+}
+
+function checkExistingSession() {
+  const endTime = localStorage.getItem("sessionEnd");
+  if (endTime && parseInt(endTime) > Date.now()) {
+    // Resume session
+    runTimerTick(); // This will set the interval
+    return true;
+  }
+  return false;
+}
+
+let waitInterval;
+function startWaitTimer() {
+  let saved = localStorage.getItem("waitEnd");
+  if (!saved) {
+    saved = Date.now() + (24 * 3600 * 1000);
+    localStorage.setItem("waitEnd", saved);
+  }
+  
+  clearInterval(waitInterval);
+  waitInterval = setInterval(() => {
+    const remaining = Math.floor((parseInt(saved) - Date.now()) / 1000);
+    if (remaining <= 0) {
+      freeBtn.textContent = "FREE";
+      freeBtn.disabled = false;
+      clearInterval(waitInterval);
+      localStorage.removeItem("waitEnd");
+    } else {
+      freeBtn.disabled = true;
+      let h = Math.floor(remaining / 3600);
+      let m = Math.floor((remaining % 3600) / 60);
+      let s = remaining % 60;
+      freeBtn.textContent = `WAIT ${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    }
+  }, 1000);
+}
+
+function checkWaitTimer() {
+  const saved = localStorage.getItem("waitEnd");
+  if (saved && parseInt(saved) > Date.now()) {
+    startWaitTimer(); // Resume wait display
+  } else {
+    freeBtn.textContent = "FREE";
+    freeBtn.disabled = false;
+  }
+}
+
+// Block Refresh Warning during Wait
+if (localStorage.getItem("waitEnd")) {
+  window.addEventListener("beforeunload", function(e) {
+    const message = "You cannot refresh during the WAIT state.";
+    e.returnValue = message;
+    return message;
+  });
+}
+
+// --- Auth ---
+
+onAuthStateChanged(auth, (user) => {
+  clearInterval(countdownInterval);
+  
+  if (user && user.email.toLowerCase() === ADMIN_EMAIL) {
+    isAdmin = true;
+    showUi('business');
+  } else if (user) {
+    isAdmin = false;
+    // Check if session is active
+    if (!checkExistingSession()) {
+      showUi('actions');
+    }
+  } else {
+    showUi('login');
+  }
+});
+
+loginBtn.onclick = async () => {
+  try { await signInWithPopup(auth, provider); } catch (e) { console.log(e); }
+};
+
+logoutBtn.onclick = async () => {
+  localStorage.removeItem("sessionEnd");
+  localStorage.removeItem("waitEnd");
+  await signOut(auth);
+};
+
+// --- Navigation Events ---
+
+exitBtn.onclick = async () => {
+  localStorage.removeItem("sessionEnd");
+  await signOut(auth);
+  location.reload();
+};
+
+businessBtn.onclick = () => {
+  showUi('business');
+};
+
+businessExit.onclick = () => {
+  if (isAdmin) {
+    showUi('login'); // Admin logout logic essentially
+    signOut(auth);
+  } else {
+    showUi('countdown'); // Go back to timer if user somehow got here
+  }
+};
+
+freeBtn.onclick = () => {
+  if (freeBtn.textContent.startsWith("WAIT")) return;
+  startCountdown(180); // 3 minutes
+};
+
+payBtn.onclick = () => {
+  showUi('payment');
+};
+
+backBtn.onclick = () => {
+  showUi('actions');
+};
+
+nextBtn.onclick = () => {
+  showUi('camera');
+  camera.style.display = "none";
+  takePhoto.style.display = "none";
+};
+
+cameraBack.onclick = () => {
+  if (stream) { stream.getTracks().forEach(track => track.stop()); }
+  if (localStorage.getItem("sessionEnd")) showUi('countdown');
+  else showUi('payment');
+};
+
+// --- Camera Logic ---
+
+openCamera.onclick = async () => {
+  stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  camera.srcObject = stream;
+  camera.style.display = "block";
+  takePhoto.style.display = "inline-block";
+};
+
+openPhotos.onclick = () => {
+  fileInput.removeAttribute("capture");
+  fileInput.click();
+};
+
+fileInput.onchange = () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    photoPreview.src = e.target.result;
+    cameraPage.style.display = "none";
+    previewPage.style.display = "flex";
+    photoOk.style.display = "inline-block";
+    photoCancel.style.display = "inline-block";
+  };
+  reader.readAsDataURL(file);
+  fileInput.value = "";
+};
+
+takePhoto.onclick = () => {
+  const ctx = canvas.getContext("2d");
+  canvas.width = camera.videoWidth;
+  canvas.height = camera.videoHeight;
+  ctx.drawImage(camera, 0, 0);
+  const img = canvas.toDataURL("image/png");
+  photoPreview.src = img;
+  
+  if (stream) stream.getTracks().forEach(track => track.stop());
+  
+  cameraPage.style.display = "none";
+  previewPage.style.display = "flex";
+};
+
+photoCancel.onclick = () => {
+  previewPage.style.display = "none";
+  cameraPage.style.display = "flex";
+  camera.style.display = "none";
+  takePhoto.style.display = "none";
+};
+
+photoOk.onclick = () => {
+  previewPage.style.display = "none";
+  submitPage.style.display = "flex";
+};
+
+submitBack.onclick = () => {
+  submitPage.style.display = "none";
+  cameraPage.style.display = "flex";
+};
+
+sendPhoto.onclick = async () => {
+  sendPhoto.textContent = "VERIFYING...";
+  sendPhoto.disabled = true;
+  const img = photoPreview.src;
+
+  // OCR & QR Logic
+  const image = new Image();
+  image.src = img;
+  await new Promise(resolve => image.onload = resolve);
+  
+  const qrCanvas = document.createElement("canvas");
+  const qrCtx = qrCanvas.getContext("2d");
+  qrCanvas.width = image.width;
+  qrCanvas.height = image.height;
+  qrCtx.drawImage(image, 0, 0);
+  const qrData = qrCtx.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
+  const qr = jsQR(qrData.data, qrCanvas.width, qrCanvas.height);
+  
+  let qrText = qr ? qr.data.toUpperCase() : "";
+  
+  let recognizedText = "";
+  try {
+    const result = await Tesseract.recognize(img, "eng");
+    recognizedText = result.data.text.toUpperCase();
+  } catch (e) {
+    console.error("OCR Error", e);
+  }
+
+  const t = recognizedText + " " + qrText;
+
+  // Validation
+  const channelOk = t.includes("MIX BY YAS") || t.includes("655 510 714") || t.includes("780 526 437") || t.includes("CRDB");
+  const nameOk = t.includes("JAMAL SAID") || t.includes("JAMAL KAZEMBE") || t.includes("JAMALI SAIDI");
+
+  if (!channelOk || !nameOk) {
+    alert("Invalid Payment Receipt. Names or Channels not found.");
+    sendPhoto.textContent = "SUBMIT";
+    sendPhoto.disabled = false;
+    submitPage.style.display = "none";
+    cameraPage.style.display = "flex";
+    return;
+  }
+
+  // Amount extraction
+  const amountMatch = t.match(/(AMOUNT|PAID|TZS|TSH)?\s*[:\-]?\s*([0-9]{3,7})/);
+  if (!amountMatch) {
+    alert("Could not read amount.");
+    sendPhoto.textContent = "SUBMIT";
+    sendPhoto.disabled = false;
+    return;
+  }
+
+  const amount = parseFloat(amountMatch[2]);
+  const seconds = (amount / 500) * 3600; // Example rate
+
+  // Start Paid Session
+  localStorage.removeItem("waitEnd"); // Clear any wait penalty
+  startCountdown(Math.floor(seconds));
+  
+  sendPhoto.textContent = "SUBMIT";
+  sendPhoto.disabled = false;
+};
+
+// --- Business Logic ---
+
+addTx.onclick = () => {
+  businessPage.style.display = "none";
+  txForm.style.display = "flex";
+  txDesc.value = "";
+  txAmount.value = "";
+  txAmount.style.display = "none";
+  txType.style.display = "none";
+  txMethod.style.display = "none";
+  okTx.style.display = "none";
+};
+
 let direction = "";
 let method = "";
-addTx.onclick = () => {
-businessPage.style.display="none";
-txForm.style.display="block";
-txDesc.value="";
-txAmount.value="";
-direction="";
-method="";
-txAmount.style.display="none";
-txType.style.display="none";
-txMethod.style.display="none";
-okTx.style.display="none";
-};
-txDesc.oninput = () => {
-if(txDesc.value.length > 0){
-txAmount.style.display="block";
-}
-};
-txAmount.oninput = () => {
-if(txAmount.value.length > 0){
-txType.style.display="block";
-}
-};
-document.getElementById("inBtn").onclick = () => {
-direction="IN";
-txMethod.style.display="block";
-};
-document.getElementById("outBtn").onclick = () => {
-direction="OUT";
-txMethod.style.display="block";
-};
-document.querySelectorAll(".method").forEach(btn=>{
-btn.onclick = ()=>{
-method = btn.textContent;
-okTx.style.display="inline-block";
-};
-});
-okTx.onclick = ()=>{
-const description = txDesc.value;
-const amount = txAmount.value;
-console.log({
-description,
-amount,
-direction,
-method
-});
-txForm.style.display="none";
-businessPage.style.display="flex";
-};
-cancelTx.onclick = ()=>{
-txForm.style.display="none";
-businessPage.style.display="flex";
-};
-const viewTx = document.getElementById("viewTx");
-const viewButtonsPage = document.getElementById("viewButtonsPage");
 
-// Log the elements to see if they are selected correctly
-console.log(viewTx);  // Should log the VIEW button
-console.log(viewButtonsPage);  // Should log the viewButtonsPage element
+txDesc.oninput = () => { if(txDesc.value.length > 0) txAmount.style.display = "block"; };
+txAmount.oninput = () => { if(txAmount.value.length > 0) txType.style.display = "block"; };
+
+document.getElementById("inBtn").onclick = () => { direction = "IN"; txMethod.style.display = "block"; };
+document.getElementById("outBtn").onclick = () => { direction = "OUT"; txMethod.style.display = "block"; };
+
+document.querySelectorAll(".method").forEach(btn => {
+  btn.onclick = () => {
+    method = btn.textContent;
+    okTx.style.display = "inline-block";
+  };
+});
+
+okTx.onclick = () => {
+  const data = {
+    desc: txDesc.value,
+    amount: txAmount.value,
+    dir: direction,
+    method: method
+  };
+  console.log("Saving Transaction:", data);
+  // Add Firebase save logic here if needed
+  txForm.style.display = "none";
+  businessPage.style.display = "flex";
+};
+
+cancelTx.onclick = () => {
+  txForm.style.display = "none";
+  businessPage.style.display = "flex";
+};
+
+// --- View Logic (Corrected) ---
 
 viewTx.onclick = () => {
-  console.log("VIEW button clicked");
-  businessPage.style.display = "none";  // Hide business page
-  viewButtonsPage.style.display = "block";  // Show view buttons page
+  businessPage.style.display = "none";
+  viewButtonsPage.style.display = "flex";
 };
+
+backFromViewBtn.onclick = () => {
+  viewButtonsPage.style.display = "none";
+  businessPage.style.display = "flex";
+};
+
+// Placeholder clicks for view buttons
+document.getElementById("cashBookBtn").onclick = () => alert("Opening Cash Book...");
+document.getElementById("ledgersBtn").onclick = () => alert("Opening Ledgers...");
+document.getElementById("trialBalanceBtn").onclick = () => alert("Opening Trial Balance...");
+document.getElementById("incomeStatementBtn").onclick = () => alert("Opening Income Statement...");
+document.getElementById("balanceSheetBtn").onclick = () => alert("Opening Balance Sheet...");
+
 </script>
 </body>
 </html>
