@@ -73,6 +73,10 @@ h2{
   background:green;
   color:white;
 }
+.free-btn:disabled {
+  background:gray;
+  cursor:not-allowed;
+}
 .pay-btn{
   background:blue;
   color:white;
@@ -93,7 +97,6 @@ h2{
   cursor:pointer;
   position:absolute;
   bottom:20px;
-  display:none;
 }
 
 /* Business Page Buttons */
@@ -175,7 +178,7 @@ h2{
 
 <!-- Login / Action Buttons -->
 <button class="login-btn">LOGIN</button>
-<button class="logout-btn">LOGOUT</button>
+<button class="logout-btn" style="display:none;">LOGOUT</button>
 <div class="action-buttons">
   <button class="free-btn">FREE</button>
   <button class="pay-btn">PAY</button>
@@ -232,7 +235,7 @@ h2{
   <button id="businessExit">EXIT</button>
 </div>
 
-<!-- View Buttons Page (MOVED OUTSIDE businessPage) -->
+<!-- View Buttons Page -->
 <div id="viewButtonsPage" style="margin-top:60px;">
   <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px;">
     <button id="listBtn">LIST</button> 
@@ -289,6 +292,7 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 let isAdmin = false;
+let currentUser = null; // Track logged in user globally
 let stream = null;
 
 // Elements
@@ -357,20 +361,27 @@ function showUi(page) {
   previewPage.style.display = "none";
   submitPage.style.display = "none";
   txForm.style.display = "none";
-  loginBtn.style.display = "none";
-  logoutBtn.style.display = "none";
+  
+  // Default visibility
   systemName1.style.display = "block";
   systemName2.style.display = "block";
 
-  if (page === 'login') {
-    loginBtn.style.display = "block";
-  } else if (page === 'actions') {
-    actionBtns.style.display = "flex";
+  // --- SMART LOGIN/LOGOUT BUTTON LOGIC ---
+  // This runs every time UI changes. 
+  // If user exists, show Logout. If not, show Login.
+  if (currentUser) {
+    loginBtn.style.display = "none";
     logoutBtn.style.display = "block";
+  } else {
+    loginBtn.style.display = "block";
+    logoutBtn.style.display = "none";
+  }
+
+  if (page === 'actions') {
+    actionBtns.style.display = "flex";
     checkWaitTimer();
   } else if (page === 'countdown') {
     countdownPage.style.display = "flex";
-    logoutBtn.style.display = "none"; 
     systemName1.style.display = "none";
     systemName2.style.display = "none";
   } else if (page === 'business') {
@@ -393,7 +404,6 @@ let countdownInterval;
 function startCountdown(durationSeconds) {
   clearInterval(countdownInterval);
   
-  // Save end time to localStorage to persist on refresh
   const endTime = Date.now() + (durationSeconds * 1000);
   localStorage.setItem("sessionEnd", endTime);
 
@@ -415,7 +425,7 @@ function runTimerTick() {
     localStorage.removeItem("sessionEnd");
     
     // Session over
-    if (isAdmin) return; // Admin shouldn't see action buttons usually
+    if (isAdmin) return; 
     showUi('actions');
     startWaitTimer(); // Start 24h wait
   } else {
@@ -427,8 +437,7 @@ function runTimerTick() {
 function checkExistingSession() {
   const endTime = localStorage.getItem("sessionEnd");
   if (endTime && parseInt(endTime) > Date.now()) {
-    // Resume session
-    runTimerTick(); // This will set the interval
+    runTimerTick(); 
     return true;
   }
   return false;
@@ -463,27 +472,34 @@ function startWaitTimer() {
 function checkWaitTimer() {
   const saved = localStorage.getItem("waitEnd");
   if (saved && parseInt(saved) > Date.now()) {
-    startWaitTimer(); // Resume wait display
+    startWaitTimer(); 
   } else {
     freeBtn.textContent = "FREE";
     freeBtn.disabled = false;
   }
 }
 
-// Block Refresh Warning during Wait
-if (localStorage.getItem("waitEnd")) {
-  window.addEventListener("beforeunload", function(e) {
-    const message = "You cannot refresh during the WAIT state.";
+// --- PREVENT REFRESH LOGIC ---
+// Warns user if they try to refresh during an active session or wait time
+window.addEventListener("beforeunload", function(e) {
+  const hasSession = localStorage.getItem("sessionEnd");
+  const hasWait = localStorage.getItem("waitEnd");
+  
+  if (hasSession || hasWait) {
+    const message = "Refreshing the page is not allowed during an active session or wait period.";
     e.returnValue = message;
     return message;
-  });
-}
+  }
+});
 
 // --- Auth ---
 
 onAuthStateChanged(auth, (user) => {
   clearInterval(countdownInterval);
+  clearInterval(waitInterval);
   
+  currentUser = user; // Update global user state
+
   if (user && user.email.toLowerCase() === ADMIN_EMAIL) {
     isAdmin = true;
     showUi('business');
@@ -505,6 +521,7 @@ loginBtn.onclick = async () => {
 logoutBtn.onclick = async () => {
   localStorage.removeItem("sessionEnd");
   localStorage.removeItem("waitEnd");
+  currentUser = null;
   await signOut(auth);
 };
 
@@ -522,10 +539,9 @@ businessBtn.onclick = () => {
 
 businessExit.onclick = () => {
   if (isAdmin) {
-    showUi('login'); // Admin logout logic essentially
-    signOut(auth);
+    signOut(auth); // This will trigger onAuthStateChanged which shows login
   } else {
-    showUi('countdown'); // Go back to timer if user somehow got here
+    showUi('countdown'); 
   }
 };
 
@@ -724,7 +740,7 @@ cancelTx.onclick = () => {
   businessPage.style.display = "flex";
 };
 
-// --- View Logic (Corrected) ---
+// --- View Logic ---
 
 viewTx.onclick = () => {
   businessPage.style.display = "none";
@@ -737,7 +753,7 @@ backFromViewBtn.onclick = () => {
 };
 
 // Placeholder clicks for view buttons
-  document.getElementById("listBtn").onclick = () => alert("Opening List...");
+document.getElementById("listBtn").onclick = () => alert("Opening List...");
 document.getElementById("cashBookBtn").onclick = () => alert("Opening Cash Book...");
 document.getElementById("ledgersBtn").onclick = () => alert("Opening Ledgers...");
 document.getElementById("trialBalanceBtn").onclick = () => alert("Opening Trial Balance...");
