@@ -408,6 +408,13 @@ actionBtns.style.display = "none";
 logoutBtn.onclick = async () => {
   await signOut(auth);
 };
+loginBtn.onclick = async () => {
+  try{
+    await signInWithPopup(auth, provider);
+  }catch(err){
+    console.log(err);
+  }
+};
 function startCountdown(){
 countdownPage.style.display = "flex";
 exitBtn.style.display="inline-block";
@@ -618,14 +625,6 @@ countdownPage.style.display="none";
 actionBtns.style.display="flex";
 }
 },1000);
-};
-const addTx = document.getElementById("addTx");
-addTx.onclick = () => {
-  const description = prompt("Enter transaction description");
-  if(!description){
-    return;
-  }
-  alert("Transaction saved: " + description);
 };
 const addTx = document.getElementById("addTx");
 const txForm = document.getElementById("txForm");
