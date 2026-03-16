@@ -244,7 +244,7 @@ cursor:pointer;
 <br><br>
 <button id="sendPhoto">SUBMIT</button>
 <button id="submitBack">BACK</button>
-<input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none">
+<input type="file" id="fileInput" accept="image/*" style="display:none">
 </div>
 
 <!-- ✅ PUT PAYMENT PAGE HERE -->
@@ -516,14 +516,13 @@ cameraPage.style.display="block";
 
 };
 openCamera.onclick = () => {
-
+fileInput.setAttribute("capture","environment");
 fileInput.click();
-
 };
+
 openPhotos.onclick = () => {
-
+fileInput.removeAttribute("capture");
 fileInput.click();
-
 };
 photoOk.onclick = () => {
 
