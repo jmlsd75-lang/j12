@@ -318,23 +318,65 @@ payBtn.onclick = () => {
 
 };
 onAuthStateChanged(auth, (user) => {
+
 if (user) {
+
   loginBtn.style.display = "none";
-  logoutBtn.style.display = "block";
+
+  if(paymentPage.style.display !== "block"){
+    logoutBtn.style.display = "block";
+  }
+
   actionBtns.style.display = "flex";
 
-  startWaitTimer();   // ✅ restores WAIT/FREE after refresh
+  startWaitTimer();
 }
-  else {
-    loginBtn.style.display = "block";
-    logoutBtn.style.display = "none";
-    actionBtns.style.display = "none";
-  }
+
+else{
+
+  loginBtn.style.display = "block";
+  logoutBtn.style.display = "none";
+  actionBtns.style.display = "none";
+
+}
+
 });
 
 logoutBtn.onclick = async () => {
   await signOut(auth);
 };
+function startCountdown(){
+
+countdownPage.style.display = "flex";
+
+exitBtn.style.display="inline-block";
+businessBtn.style.display="inline-block";
+
+let time = 180;
+
+const timer = setInterval(()=>{
+
+mainTimer.textContent = time;
+time--;
+
+if(time < 0){
+
+clearInterval(timer);
+
+countdownPage.style.display="none";
+
+exitBtn.style.display="none";
+businessBtn.style.display="none";
+
+actionBtns.style.display="flex";
+
+startWaitTimer(); // start 24 hour WAIT
+
+}
+
+},1000);
+
+}
 function startWaitTimer(){
 
 const waitBtn = document.querySelector(".free-btn");
@@ -362,8 +404,7 @@ waitInterval = setInterval(()=>{
 let h = Math.floor(remaining / 3600);
 let m = Math.floor((remaining % 3600) / 60);
 let s = remaining % 60;
-
-waitBtn.textContent = `WAIT ${h}:${m}:${s}`;
+waitBtn.textContent = `WAIT ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
   }
 
 },1000);
@@ -425,10 +466,11 @@ submitPage.style.display = "block";
 const freeBtn = document.querySelector(".free-btn");
 freeBtn.onclick = () => {
 
-actionBtns.style.display="none";
+if(freeBtn.textContent.startsWith("WAIT")){
+return;
+}
 
-exitBtn.style.display="inline-block";
-businessBtn.style.display="inline-block";
+actionBtns.style.display="none";
 
 startCountdown();
 
