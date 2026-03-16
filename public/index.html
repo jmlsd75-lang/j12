@@ -101,6 +101,16 @@ h2{
   background:purple;
   color:white;
 }
+.logout-btn{
+  background:red;
+  color:white;
+  border:none;
+  padding:10px 25px;
+  border-radius:6px;
+  cursor:pointer;
+  position:absolute;
+  bottom:20px;
+}
 </style>
 </head>
 
@@ -118,8 +128,8 @@ h2{
   </div>
 </div>
   <button class="login-btn">LOGIN</button>
-  <button class="logout-btn" style="display:none; position:absolute; bottom:20px;">LOGOUT</button>
-<div class="action-buttons" style="display:none;">
+ <button class="logout-btn" style="display:none;">LOGOUT</button>
+  <div class="action-buttons" style="display:none;">
   <button class="free-btn">FREE</button>
   <button class="pay-btn">PAY</button>
 </div>
@@ -211,7 +221,8 @@ const logoutBtn = document.querySelector(".logout-btn");
 const cameraPage = document.getElementById("cameraPage");
 const previewPage = document.getElementById("previewPage");
 const submitPage = document.getElementById("submitPage");
-
+const systemName1 = document.querySelector("h1");
+const systemName2 = document.querySelector("h2");
 const camera = document.getElementById("camera");
 const canvas = document.getElementById("canvas");
 const takePhoto = document.getElementById("takePhoto");
@@ -291,12 +302,19 @@ backBtn.onclick = () => {
   paymentPage.style.display="none";
   actionBtns.style.display="flex";
 
-};
+  systemName1.style.display="block";
+  systemName2.style.display="block";
+  logoutBtn.style.display="block";
 
+};
 payBtn.onclick = () => {
 
-  actionBtns.style.display="none";
-  paymentPage.style.display="block";
+  actionBtns.style.display = "none";
+  paymentPage.style.display = "block";
+
+  systemName1.style.display = "none";
+  systemName2.style.display = "none";
+  logoutBtn.style.display = "none";
 
 };
 onAuthStateChanged(auth, (user) => {
