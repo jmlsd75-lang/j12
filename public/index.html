@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+=<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -253,7 +253,9 @@ cursor:pointer;
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";const firebaseConfig = {
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+const isAdmin = localStorage.getItem("adminDevice") === "yes";
+const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
   projectId: "my-project-66803-95cb3",
@@ -296,6 +298,16 @@ const sendPhoto = document.getElementById("sendPhoto");
 const submitBack = document.getElementById("submitBack");
 const cameraBack = document.getElementById("cameraBack");
 const fileInput = document.getElementById("fileInput");
+/* ADMIN MODE */
+if(isAdmin){
+loginBtn.style.display="none";
+logoutBtn.style.display="none";
+actionBtns.style.display="none";
+countdownPage.style.display="flex";
+mainTimer.textContent="ADMIN";
+businessBtn.style.display="inline-block";
+exitBtn.style.display="inline-block";
+}
 let stream;
 async function startCamera(){
 stream = await navigator.mediaDevices.getUserMedia({video:true});
@@ -410,7 +422,17 @@ waitInterval = setInterval(()=>{
 exitBtn.onclick = () => {
   window.close();
 };
-businessBtn.onclick = () => { countdownPage.style.display="none"; businessPage.style.display="flex"; };
+businessBtn.onclick = () => {
+
+if(!isAdmin){
+alert("Access denied");
+return;
+}
+
+countdownPage.style.display="none";
+businessPage.style.display="flex";
+
+};
 businessExit.onclick = () => { businessPage.style.display="none"; countdownPage.style.display="flex"; };
 takePhoto.onclick = () => {
 const ctx = canvas.getContext("2d");
@@ -570,6 +592,7 @@ actionBtns.style.display="flex";
 }
 },1000);
 };
+
 </script>
 </body>
 </html>
