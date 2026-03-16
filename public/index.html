@@ -28,6 +28,36 @@ h2{
   color:red;
   margin-top:5px;
 }
+#cameraPage{
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+}
+
+#cameraPage button{
+font-size:22px;
+padding:15px 40px;
+margin:10px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+
+#openCamera{
+background:green;
+color:white;
+}
+
+#openPhotos{
+background:blue;
+color:white;
+}
+
+#cameraBack{
+background:red;
+color:white;
+}
   .login-btn{
   margin-top:150px;
   padding:12px 30px;
@@ -162,16 +192,11 @@ h2{
 </div>
 <div id="submitPage" style="display:none; margin-top:60px; text-align:center;">
 
-<img id="finalPhoto" width="300">
 
 <br><br>
-
 <button id="sendPhoto">SUBMIT</button>
-<button id="choosePhoto">PHOTOS</button>
 <button id="submitBack">BACK</button>
-
-<input type="file" id="fileInput" accept="image/*" style="display:none">
-
+<input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none">
 </div>
 
 <!-- ✅ PUT PAYMENT PAGE HERE -->
@@ -229,26 +254,16 @@ const takePhoto = document.getElementById("takePhoto");
 const openCamera = document.getElementById("openCamera");
 const openPhotos = document.getElementById("openPhotos");
 const photoPreview = document.getElementById("photoPreview");
-const finalPhoto = document.getElementById("finalPhoto");
-
 const photoOk = document.getElementById("photoOk");
 const photoCancel = document.getElementById("photoCancel");
-
 const sendPhoto = document.getElementById("sendPhoto");
-const choosePhoto = document.getElementById("choosePhoto");
 const submitBack = document.getElementById("submitBack");
-
 const cameraBack = document.getElementById("cameraBack");
 const fileInput = document.getElementById("fileInput");
-
 let stream;
-
 async function startCamera(){
-
 stream = await navigator.mediaDevices.getUserMedia({video:true});
-
 camera.srcObject = stream;
-
 }
 let waitInterval;
 loginBtn.onclick = async () => {
@@ -387,6 +402,7 @@ if(!saved){
   saved = Date.now() + (24*3600*1000);
   localStorage.setItem("waitEnd", saved);
 }
+
 clearInterval(waitInterval);
 
 waitInterval = setInterval(()=>{
@@ -396,15 +412,21 @@ waitInterval = setInterval(()=>{
   if(remaining <= 0){
 
     waitBtn.textContent = "FREE";
+    waitBtn.disabled = false;   // user can click again
     clearInterval(waitInterval);
     localStorage.removeItem("waitEnd");
 
   }else{
 
-let h = Math.floor(remaining / 3600);
-let m = Math.floor((remaining % 3600) / 60);
-let s = remaining % 60;
-waitBtn.textContent = `WAIT ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+    waitBtn.disabled = true;    // prevent clicking
+
+    let h = Math.floor(remaining / 3600);
+    let m = Math.floor((remaining % 3600) / 60);
+    let s = remaining % 60;
+
+    waitBtn.textContent =
+    `WAIT ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+
   }
 
 },1000);
@@ -431,6 +453,9 @@ if(stream){
   stream.getTracks().forEach(track => track.stop());
 }
 
+openCamera.style.display="none";
+openPhotos.style.display="none";
+cameraBack.style.display="none";
 cameraPage.style.display = "none";
 previewPage.style.display = "block";
 
@@ -444,10 +469,7 @@ cameraPage.style.display="block";
 };
 openCamera.onclick = () => {
 
-camera.style.display = "block";
-takePhoto.style.display = "inline-block";
-
-startCamera();
+fileInput.click();
 
 };
 openPhotos.onclick = () => {
@@ -457,8 +479,6 @@ fileInput.click();
 };
 photoOk.onclick = () => {
 
-finalPhoto.src = photoPreview.src;
-
 previewPage.style.display = "none";
 submitPage.style.display = "block";
 
@@ -467,31 +487,23 @@ const freeBtn = document.querySelector(".free-btn");
 freeBtn.onclick = () => {
 
 if(freeBtn.textContent.startsWith("WAIT")){
+// do nothing if button shows WAIT
 return;
 }
-
 actionBtns.style.display="none";
-
 startCountdown();
-
 };
-choosePhoto.onclick = () => {
-
-fileInput.click();
-
-};
-
 fileInput.onchange = () => {
 
 const file = fileInput.files[0];
 
 const reader = new FileReader();
-
 reader.onload = e => {
 
-finalPhoto.src = e.target.result;
+photoPreview.src = e.target.result;
 
-submitPage.style.display="block";
+cameraPage.style.display="none";
+previewPage.style.display="block";
 
 };
 
