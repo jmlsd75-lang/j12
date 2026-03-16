@@ -461,12 +461,17 @@ if(paymentPage.style.display === "block"){
   actionBtns.style.display="flex";
 }
 };
-sendPhoto.onclick = () => {
+sendPhoto.onclick=()=>{
 sendPhoto.textContent="PLEASE WAIT...";
 sendPhoto.disabled=true;
-setTimeout(()=>{
-alert("Photo submitted to system");
-},2000);
+photoPreview.style.display="none";
+submitBack.style.display="none";
+photoOk.style.display="none";
+photoCancel.style.display="none";
+submitPage.style.display="flex";
+submitPage.style.flexDirection="column";
+submitPage.style.alignItems="center";
+submitPage.style.justifyContent="center";
 };
 </script>
 </body>
