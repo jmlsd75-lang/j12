@@ -474,6 +474,17 @@ startWaitTimer(); // start 24 hour WAIT
 }
 },1000);
 }
+// Add this to block refresh if the user is in the "WAIT" state
+let isInWaitState = localStorage.getItem("waitEnd");
+
+// If the user is in WAIT state, block refresh
+if (isInWaitState) {
+    window.addEventListener("beforeunload", function (e) {
+        const message = "You cannot refresh the page during the WAIT state. Are you sure you want to leave?";
+        e.returnValue = message;  // Standard for most browsers
+        return message;  // Some browsers show the message
+    });
+}
 function startWaitTimer(){
 const waitBtn = document.querySelector(".free-btn");
 let saved = localStorage.getItem("waitEnd");
