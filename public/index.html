@@ -77,6 +77,54 @@ color:white;
   border-radius:6px;
   cursor:pointer;
 }
+#photoOk{
+background:green;
+color:white;
+font-size:22px;
+padding:15px 40px;
+border:none;
+border-radius:8px;
+margin:10px;
+cursor:pointer;
+}
+#submitPage{
+display:none;
+margin-top:60px;
+text-align:center;
+}
+
+#sendPhoto{
+background:purple;
+color:white;
+font-size:22px;
+padding:15px 40px;
+border:none;
+border-radius:8px;
+margin:10px;
+cursor:pointer;
+}
+
+#submitBack{
+background:red;
+color:white;
+font-size:22px;
+padding:15px 40px;
+border:none;
+border-radius:8px;
+margin:10px;
+cursor:pointer;
+}
+
+#photoCancel{
+background:red;
+color:white;
+font-size:22px;
+padding:15px 40px;
+border:none;
+border-radius:8px;
+margin:10px;
+cursor:pointer;
+}
 #businessBtn{
   background:green;
   color:white;
@@ -479,8 +527,10 @@ fileInput.click();
 };
 photoOk.onclick = () => {
 
-previewPage.style.display = "none";
-submitPage.style.display = "block";
+photoOk.style.display="none";
+photoCancel.style.display="none";
+
+submitPage.style.display="block";
 
 };
 const freeBtn = document.querySelector(".free-btn");
@@ -538,7 +588,12 @@ if(paymentPage.style.display === "block"){
 };
 sendPhoto.onclick = () => {
 
+sendPhoto.textContent="PLEASE WAIT...";
+sendPhoto.disabled=true;
+
+setTimeout(()=>{
 alert("Photo submitted to system");
+},2000);
 
 };
 </script>
