@@ -3,188 +3,291 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Multisystem</title>
+<title>Jamal Said Kazembe Multisystem Management</title>
 
 <style>
 body{
-  font-family:Arial;
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#f4f4f4;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  min-height:100vh;
   text-align:center;
+  padding-top:50px;
 }
 
-#welcomePage,#paymentPage,#capturePage,#previewPage{
+h1{ font-size:32px; color:blue; margin:0; }
+h2{ color:red; margin-top:5px; font-size:18px; }
+
+.login-btn{
+  margin-top:100px;
+  padding:15px 40px;
+  font-size:20px;
+  background:#28a745;
+  color:white;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  display:none;
+}
+
+.logout-btn{
+  background:#dc3545;
+  color:white;
+  border:none;
+  padding:10px 25px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:16px;
+  display:none;
+}
+
+#welcomePage{
   display:none;
   flex-direction:column;
   align-items:center;
-  gap:15px;
-  margin-top:30px;
+  gap:20px;
+  margin-top:50px;
+}
+
+#payBtn{
+  background:#28a745;
+  color:white;
+  border:none;
+  padding:15px 40px;
+  font-size:20px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+#paymentPage{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  margin-top:40px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>MULTISYSTEM</h2>
+<h1>JAMAL SAID KAZEMBE</h1>
+<h2>MULTISYSTEM MANAGEMENT</h2>
 
+<!-- LOGIN -->
 <button class="login-btn">LOGIN</button>
 
+<!-- WELCOME PAGE -->
 <div id="welcomePage">
+
   <button id="payBtn">PAY</button>
+
+  <button class="logout-btn">LOGOUT</button>
+
 </div>
 
+<!-- PAYMENT PAGE -->
 <div id="paymentPage">
-  <p>Payment Info</p>
-  <button id="backBtn">BACK</button>
-  <button id="nextBtn">NEXT</button>
-</div>
 
-<!-- CAMERA + FILE PAGE -->
-<div id="capturePage">
+  <div>Pay through</div>
+  <div>Mix by Yas</div>
+  <div>+255 655 510 714</div>
+  <div>Airtel Money</div>
+  <div>+255 780 526 374</div>
+  <div>CRDB</div>
+  <div>0152001GN6K00</div>
+  <div>JAMALI SAIDI KAZEMBE</div>
 
-  <button id="openCamera">CAMERA</button>
-  <button id="openFile">SELECT PHOTO</button>
+  <div style="margin-top:30px; display:flex; gap:20px;">
+    <button id="backBtn" style="padding:10px 25px; background:#dc3545; color:white; border:none; border-radius:6px;">
+      BACK
+    </button>
 
-  <video id="video" width="300" autoplay style="display:none;"></video>
-  <canvas id="canvas" style="display:none;"></canvas>
-
-  <button id="captureBtn" style="display:none;">CAPTURE</button>
-  <button id="okCapture" style="display:none;">OK</button>
-  <button id="cancelCapture" style="display:none;">CANCEL</button>
-
-  <button id="backToPayment">BACK</button>
-
-  <input type="file" id="fileInput" accept="image/*" style="display:none">
+    <button id="nextBtn" style="padding:10px 25px; background:#28a745; color:white; border:none; border-radius:6px;">
+      NEXT
+    </button>
+  </div>
 
 </div>
 
-<!-- PREVIEW -->
-<div id="previewPage">
-  <img id="previewImg" width="300">
-  <button id="submitBtn">SUBMIT</button>
-  <button id="cancelPreview">CANCEL</button>
 </div>
+<!-- ADD THIS HERE -->
 
-<script>
-// NAVIGATION
+<div id="capturePage"></div>
+<div id="previewPage"></div>
+
+<script type="module">
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+  authDomain: "my-project-66803-95cb3.firebaseapp.com",
+  projectId: "my-project-66803-95cb3",
+  storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+  messagingSenderId: "167159607898",
+  appId: "1:167159607898:web:23ca11366b88868b085e63"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+// Elements
 const loginBtn = document.querySelector(".login-btn");
+const logoutBtn = document.querySelector(".logout-btn");
 const welcomePage = document.getElementById("welcomePage");
+
+const payBtn = document.getElementById("payBtn");
 const paymentPage = document.getElementById("paymentPage");
+const backBtn = document.getElementById("backBtn");
+
+// Auth state
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loginBtn.style.display = "none";
+    welcomePage.style.display = "flex";
+    logoutBtn.style.display = "block";
+  } else {
+    loginBtn.style.display = "block";
+    welcomePage.style.display = "none";
+    logoutBtn.style.display = "none";
+    paymentPage.style.display = "none";
+  }
+});
+
+// Login
+loginBtn.onclick = async () => {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (e) {
+    alert("Login failed");
+  }
+};
+
+// Logout
+logoutBtn.onclick = async () => {
+  await signOut(auth);
+};
+
+// PAY → show payment page
+payBtn.onclick = () => {
+  welcomePage.style.display = "none";
+  paymentPage.style.display = "flex";
+};
+
+// BACK → return
+backBtn.onclick = () => {
+  paymentPage.style.display = "none";
+  welcomePage.style.display = "flex";
+};
+const nextBtn = document.getElementById("nextBtn");
 const capturePage = document.getElementById("capturePage");
 const previewPage = document.getElementById("previewPage");
 
-const payBtn = document.getElementById("payBtn");
-const backBtn = document.getElementById("backBtn");
-const nextBtn = document.getElementById("nextBtn");
-
-loginBtn.onclick=()=>{
-  loginBtn.style.display="none";
-  welcomePage.style.display="flex";
-};
-
-payBtn.onclick=()=>{
-  welcomePage.style.display="none";
-  paymentPage.style.display="flex";
-};
-
-backBtn.onclick=()=>{
-  paymentPage.style.display="none";
-  welcomePage.style.display="flex";
-};
-
-nextBtn.onclick=()=>{
-  paymentPage.style.display="none";
-  capturePage.style.display="flex";
-};
-
-const backToPayment = document.getElementById("backToPayment");
-backToPayment.onclick=()=>{
-  capturePage.style.display="none";
-  paymentPage.style.display="flex";
-};
-
-// FILE
+const openCamera = document.getElementById("openCamera");
 const openFile = document.getElementById("openFile");
-const fileInput = document.getElementById("fileInput");
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+
+const captureBtn = document.getElementById("captureBtn");
 const okCapture = document.getElementById("okCapture");
 const cancelCapture = document.getElementById("cancelCapture");
 
-let imageData="";
+const previewImg = document.getElementById("previewImg");
 
-openFile.onclick=()=>fileInput.click();
+const submitBtn = document.getElementById("submitBtn");
+const cancelPreview = document.getElementById("cancelPreview");
 
-fileInput.onchange=()=>{
-  const file=fileInput.files[0];
-  const reader=new FileReader();
+const fileInput = document.getElementById("fileInput");
+const backToPayment = document.getElementById("backToPayment");
 
-  reader.onload=e=>{
-    imageData=e.target.result;
-    okCapture.style.display="block";
-    cancelCapture.style.display="block";
+let stream = null;
+let imageData = "";
+
+// NEXT → open capture page
+nextBtn.onclick = () => {
+  paymentPage.style.display = "none";
+  capturePage.style.display = "flex";
+};
+
+// BACK → payment
+backToPayment.onclick = () => {
+  capturePage.style.display = "none";
+  paymentPage.style.display = "flex";
+};
+
+// OPEN CAMERA
+openCamera.onclick = async () => {
+  stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  video.srcObject = stream;
+  video.style.display = "block";
+  captureBtn.style.display = "inline-block";
+};
+
+// CAPTURE PHOTO
+captureBtn.onclick = () => {
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext("2d").drawImage(video, 0, 0);
+
+  imageData = canvas.toDataURL("image/png");
+
+  // stop camera
+  stream.getTracks().forEach(t => t.stop());
+  video.style.display = "none";
+
+  captureBtn.style.display = "none";
+  okCapture.style.display = "inline-block";
+  cancelCapture.style.display = "inline-block";
+};
+
+// OPEN FILES
+openFile.onclick = () => fileInput.click();
+
+fileInput.onchange = () => {
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+
+  reader.onload = e => {
+    imageData = e.target.result;
+    okCapture.style.display = "inline-block";
+    cancelCapture.style.display = "inline-block";
   };
 
   reader.readAsDataURL(file);
 };
 
-// CAMERA
-const openCamera = document.getElementById("openCamera");
-const video = document.getElementById("video");
-const canvas = document.getElementById("canvas");
-const captureBtn = document.getElementById("captureBtn");
-
-let stream=null;
-
-openCamera.onclick=async()=>{
-  stream = await navigator.mediaDevices.getUserMedia({ video:true });
-  video.srcObject = stream;
-  video.style.display="block";
-  captureBtn.style.display="block";
+// OK → preview
+okCapture.onclick = () => {
+  capturePage.style.display = "none";
+  previewPage.style.display = "flex";
+  previewImg.src = imageData;
 };
 
-captureBtn.onclick=()=>{
-  canvas.width=video.videoWidth;
-  canvas.height=video.videoHeight;
-  canvas.getContext("2d").drawImage(video,0,0);
-
-  imageData = canvas.toDataURL("image/png");
-
-  stream.getTracks().forEach(t=>t.stop());
-  video.style.display="none";
-  captureBtn.style.display="none";
-
-  okCapture.style.display="block";
-  cancelCapture.style.display="block";
+// CANCEL → back to capture page clean
+cancelCapture.onclick = () => {
+  imageData = "";
+  okCapture.style.display = "none";
+  cancelCapture.style.display = "none";
 };
 
-// OK → PREVIEW
-const previewImg = document.getElementById("previewImg");
-
-okCapture.onclick=()=>{
-  capturePage.style.display="none";
-  previewPage.style.display="flex";
-  previewImg.src=imageData;
-};
-
-// CANCEL
-cancelCapture.onclick=()=>{
-  imageData="";
-  okCapture.style.display="none";
-  cancelCapture.style.display="none";
-};
-
-// PREVIEW CANCEL
-const cancelPreview = document.getElementById("cancelPreview");
-
-cancelPreview.onclick=()=>{
-  previewPage.style.display="none";
-  capturePage.style.display="flex";
+// PREVIEW CANCEL → back
+cancelPreview.onclick = () => {
+  previewPage.style.display = "none";
+  capturePage.style.display = "flex";
 };
 
 // SUBMIT
-const submitBtn = document.getElementById("submitBtn");
-
-submitBtn.onclick=()=>{
-  alert("Submitted!");
-  previewPage.style.display="none";
-  welcomePage.style.display="flex";
+submitBtn.onclick = () => {
+  alert("Photo submitted!");
+  previewPage.style.display = "none";
+  welcomePage.style.display = "flex";
 };
 </script>
 
