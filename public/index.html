@@ -42,18 +42,16 @@
 </style>
 </head>
 <body>
-
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
-
 <!-- Login Button -->
 <button class="login-btn">LOGIN</button>
-
 <!-- Welcome Page (Shown after login) -->
 <div id="welcomePage">
+  <h2 class="user-name">Welcome, User</h2>
+  <button class="pay-btn">PAY</button>
   <button class="logout-btn">LOGOUT</button>
 </div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
