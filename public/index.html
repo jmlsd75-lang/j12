@@ -13,118 +13,59 @@
     flex-direction:column;
     justify-content:flex-start;
     align-items:center;
-    min-height:100vh; /* Changed to min-height to allow scrolling if needed */
+    min-height:100vh;
     text-align:center;
     padding-top:20px;
   }
-  h1{
-    font-size:32px; /* Slightly reduced for better fit on mobile */
-    color:blue;
-    margin:0;
-  }
-  h2{
-    color:red;
-    margin-top:5px;
-    font-size:18px;
-  }
+  h1{ font-size:32px; color:blue; margin:0; }
+  h2{ color:red; margin-top:5px; font-size:18px; }
 
   /* Pages Layout */
   #cameraPage, #txForm, #businessPage, #viewButtonsPage, #previewPage, #submitPage {
-    display:none;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:15px;
-    width:100%;
-    padding:20px;
-    box-sizing:border-box;
+    display:none; flex-direction:column; align-items:center; justify-content:center; gap:15px;
+    width:100%; padding:20px; box-sizing:border-box;
   }
-
   #countdownPage{
-    display:none; 
-    position:fixed; 
-    top:0; left:0; 
-    width:100%; height:100%; 
-    background:white; 
-    justify-content:center; 
-    align-items:center; 
-    flex-direction:column; 
-    font-size:40px;
-    font-weight:bold;
-    z-index: 999;
+    display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white;
+    justify-content:center; align-items:center; flex-direction:column; font-size:40px;
+    font-weight:bold; z-index: 999;
   }
 
   /* Buttons Styling */
+  /* CHANGE: Login button hidden by default */
   .login-btn{
-    margin-top:100px;
-    padding:15px 40px;
-    font-size:20px;
-    background:#28a745;
-    color:white;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: none; /* Hidden until JS confirms user is NOT logged in */
+    margin-top:100px; padding:15px 40px; font-size:20px;
+    background:#28a745; color:white; border:none; border-radius:6px; cursor:pointer;
   }
-  .login-btn:active { transform: scale(0.98); }
-
+  
   .free-btn, .pay-btn{
-    width:140px;
-    padding:15px 0;
-    font-size:18px;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-    transition: opacity 0.3s;
+    width:140px; padding:15px 0; font-size:18px; border:none; border-radius:6px; cursor:pointer;
   }
-  .free-btn{
-    background:#28a745;
-    color:white;
-  }
-  .free-btn:disabled {
-    background:#6c757d;
-    cursor:not-allowed;
-    opacity:0.7;
-  }
-  .pay-btn{
-    background:#007bff;
-    color:white;
-  }
+  .free-btn{ background:#28a745; color:white; }
+  .free-btn:disabled { background:#6c757d; cursor:not-allowed; opacity:0.7; }
+  .pay-btn{ background:#007bff; color:white; }
 
   .action-buttons{
-    margin-top:80px;
-    display:none; 
-    gap:20px;
-    justify-content:center;
+    margin-top:80px; display:none; gap:20px; justify-content:center;
   }
 
+  /* CHANGE: Logout button hidden by default, JS will show it if logged in */
   .logout-btn{
-    background:#dc3545;
-    color:white;
-    border:none;
-    padding:10px 25px;
-    border-radius:6px;
-    cursor:pointer;
-    position:absolute;
-    bottom:20px;
-    font-size:16px;
+    display: none; /* Hidden by default */
+    background:#dc3545; color:white; border:none; padding:10px 25px;
+    border-radius:6px; cursor:pointer; position:absolute; bottom:20px; font-size:16px;
   }
 
-  /* Business Page Buttons */
+  /* Business & View Buttons */
   #businessPage button, #viewButtonsPage button {
-    font-size:18px;
-    padding:15px 30px;
-    width:90%;
-    max-width:300px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    margin:5px 0;
+    font-size:18px; padding:15px 30px; width:90%; max-width:300px;
+    border:none; border-radius:8px; cursor:pointer; margin:5px 0;
   }
   #addTx{ background:#28a745; color:white; }
   #viewTx{ background:#007bff; color:white; }
   #businessExit{ background:#dc3545; color:white; }
-
+  
   /* View List Buttons */
   #cashBookBtn { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
   #ledgersBtn { background:#d1ecf1; color:#0c5460; border:1px solid #bee5eb; }
@@ -134,60 +75,29 @@
   #backFromViewBtn { background:#dc3545; color:white; margin-top:20px; }
 
   /* Camera & Payment Styling */
-  #cameraPage button {
-    font-size:18px;
-    padding:12px 25px;
-  }
+  #cameraPage button { font-size:18px; padding:12px 25px; }
   #openCamera{ background:#28a745; color:white; }
   #openPhotos{ background:#17a2b8; color:white; }
   #cameraBack{ background:#dc3545; color:white; }
   #photoOk, #sendPhoto{ background:#6f42c1; color:white; }
   #photoCancel, #submitBack{ background:#dc3545; color:white; }
 
-  #paymentPage{
-    display:none; 
-    margin-top:50px; 
-    text-align:center;
-    padding:20px;
-  }
-  #paymentPage div {
-    margin-bottom: 10px;
-  }
-  #backBtn, #nextBtn{
-    padding:15px 40px;
-    font-size:20px;
-    border:none;
-    border-radius:10px;
-    cursor:pointer;
-    margin:15px;
-  }
+  #paymentPage{ display:none; margin-top:50px; text-align:center; padding:20px; }
+  #paymentPage div { margin-bottom: 10px; }
+  #backBtn, #nextBtn{ padding:15px 40px; font-size:20px; border:none; border-radius:10px; cursor:pointer; margin:15px; }
   #backBtn{ background:#dc3545; color:white; }
   #nextBtn{ background:#6f42c1; color:white; }
 
   /* Transaction Form */
   #txDesc, #txAmount {
-    font-size:18px; 
-    padding:12px; 
-    text-align:center;
-    width:80%;
-    max-width:300px;
-    border:1px solid #ccc;
-    border-radius:5px;
+    font-size:18px; padding:12px; text-align:center; width:80%; max-width:300px;
+    border:1px solid #ccc; border-radius:5px;
   }
   #inBtn { background:#28a745; color:white; padding:10px 20px; border:none; border-radius:6px; cursor:pointer; }
   #outBtn { background:#dc3545; color:white; padding:10px 20px; border:none; border-radius:6px; cursor:pointer; }
   .method { margin:5px; padding:10px 15px; cursor:pointer; border-radius:5px; border:1px solid #ccc; background:white; }
-  .method:active { background:#eee; }
-
-  /* View Buttons Container */
-  .view-grid {
-    display:flex; 
-    flex-wrap:wrap; 
-    justify-content:center; 
-    gap:10px; 
-    width:100%;
-    padding:10px;
-  }
+  
+  .view-grid { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; width:100%; padding:10px; }
 </style>
 </head>
 <body>
@@ -204,9 +114,12 @@
   </div>
 </div>
 
-<!-- Login / Action Buttons -->
+<!-- Login Button (Hidden by default) -->
 <button class="login-btn">LOGIN</button>
-<button class="logout-btn" style="display:none;">LOGOUT</button>
+
+<!-- Logout Button (Hidden by default, shown by JS if user exists) -->
+<button class="logout-btn">LOGOUT</button>
+
 <div class="action-buttons">
   <button class="free-btn">FREE</button>
   <button class="pay-btn">PAY</button>
@@ -314,7 +227,7 @@ const firebaseConfig = {
   messagingSenderId: "167159607898",
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
-// SECURITY NOTE: Admin email is checked client-side. For production, use Firebase Custom Claims or Backend validation.
+
 const ADMIN_EMAIL = "camelkazembe1@gmail.com";
 
 const app = initializeApp(firebaseConfig);
@@ -324,7 +237,7 @@ const provider = new GoogleAuthProvider();
 
 let isAdmin = false;
 let currentUser = null; 
-let stream = null; // Global stream reference
+let stream = null;
 
 // --- DOM Elements ---
 const systemName1 = document.querySelector("h1");
@@ -377,11 +290,8 @@ const okTx = document.getElementById("okTx");
 const cancelTx = document.getElementById("cancelTx");
 const addTx = document.getElementById("addTx");
 
-console.log("System initialized");
-
 // --- Helper Functions ---
 
-// Stop video stream to release camera hardware
 function stopCamera() {
   if (stream) {
     stream.getTracks().forEach(track => track.stop());
@@ -391,47 +301,43 @@ function stopCamera() {
   }
 }
 
-// Central UI Switcher
 function showUi(page) {
-  // Hide all pages first
+  // Hide all pages
   const pages = [countdownPage, actionBtns, paymentPage, businessPage, viewButtonsPage, cameraPage, previewPage, submitPage, txForm];
   pages.forEach(p => p.style.display = "none");
 
-  // Default visibility
   systemName1.style.display = "block";
   systemName2.style.display = "block";
-  stopCamera(); // Always stop camera when switching UI unless specifically handled later
+  stopCamera();
 
-  // Login/Logout Button Logic
-  loginBtn.style.display = currentUser ? "none" : "block";
-  logoutBtn.style.display = currentUser ? "block" : "none";
+  // --- SMART LOGIN BUTTON LOGIC ---
+  // This runs every time UI changes. 
+  // If user exists, show Logout. If not, show Login.
+  if (currentUser) {
+    loginBtn.style.display = "none";
+    logoutBtn.style.display = "block";
+  } else {
+    loginBtn.style.display = "block";
+    logoutBtn.style.display = "none";
+  }
 
-  switch(page) {
-    case 'login':
-      // Default state handled above
-      break;
-    case 'actions':
-      actionBtns.style.display = "flex";
-      checkWaitTimer();
-      break;
-    case 'countdown':
-      countdownPage.style.display = "flex";
-      systemName1.style.display = "none";
-      systemName2.style.display = "none";
-      break;
-    case 'business':
-      businessPage.style.display = "flex";
-      systemName1.style.display = "none";
-      systemName2.style.display = "none";
-      break;
-    case 'payment':
-      paymentPage.style.display = "block";
-      systemName1.style.display = "none";
-      systemName2.style.display = "none";
-      break;
-    case 'camera':
-      cameraPage.style.display = "flex";
-      break;
+  if (page === 'actions') {
+    actionBtns.style.display = "flex";
+    checkWaitTimer();
+  } else if (page === 'countdown') {
+    countdownPage.style.display = "flex";
+    systemName1.style.display = "none";
+    systemName2.style.display = "none";
+  } else if (page === 'business') {
+    businessPage.style.display = "flex";
+    systemName1.style.display = "none";
+    systemName2.style.display = "none";
+  } else if (page === 'payment') {
+    paymentPage.style.display = "block";
+    systemName1.style.display = "none";
+    systemName2.style.display = "none";
+  } else if (page === 'camera') {
+    cameraPage.style.display = "flex";
   }
 }
 
@@ -442,27 +348,21 @@ let waitInterval;
 
 function startCountdown(durationSeconds) {
   clearInterval(countdownInterval);
-  
   const endTime = Date.now() + (durationSeconds * 1000);
   localStorage.setItem("sessionEnd", endTime);
-
   runTimerTick();
   countdownInterval = setInterval(runTimerTick, 1000);
 }
 
 function runTimerTick() {
   const endTime = localStorage.getItem("sessionEnd");
-  if (!endTime) {
-    clearInterval(countdownInterval);
-    return;
-  }
+  if (!endTime) { clearInterval(countdownInterval); return; }
 
   const remaining = Math.floor((parseInt(endTime) - Date.now()) / 1000);
 
   if (remaining <= 0) {
     clearInterval(countdownInterval);
     localStorage.removeItem("sessionEnd");
-    
     if (!isAdmin) {
       showUi('actions');
       startWaitTimer(); 
@@ -485,7 +385,7 @@ function checkExistingSession() {
 function startWaitTimer() {
   let saved = localStorage.getItem("waitEnd");
   if (!saved) {
-    saved = Date.now() + (24 * 3600 * 1000); // 24 Hours
+    saved = Date.now() + (24 * 3600 * 1000); 
     localStorage.setItem("waitEnd", saved);
   }
   
@@ -518,11 +418,11 @@ function checkWaitTimer() {
 }
 
 // --- Auth Logic ---
-
+// This runs automatically when the page loads or refreshes
 onAuthStateChanged(auth, (user) => {
   clearInterval(countdownInterval);
   clearInterval(waitInterval);
-  currentUser = user;
+  currentUser = user; // Update global user state
 
   if (user && user.email.toLowerCase() === ADMIN_EMAIL) {
     isAdmin = true;
@@ -533,12 +433,13 @@ onAuthStateChanged(auth, (user) => {
       showUi('actions');
     }
   } else {
-    showUi('login');
+    // User is NOT logged in, show Login button
+    showUi('login'); 
   }
 });
 
 loginBtn.onclick = async () => {
-  try { await signInWithPopup(auth, provider); } catch (e) { console.error(e); alert("Login failed"); }
+  try { await signInWithPopup(auth, provider); } catch (e) { console.error(e); }
 };
 
 logoutBtn.onclick = async () => {
@@ -564,7 +465,7 @@ businessExit.onclick = () => {
 
 freeBtn.onclick = () => {
   if (freeBtn.textContent.startsWith("WAIT")) return;
-  startCountdown(180); // 3 minutes
+  startCountdown(180);
 };
 
 payBtn.onclick = () => showUi('payment');
@@ -579,7 +480,7 @@ cameraBack.onclick = () => {
   else showUi('payment');
 };
 
-// --- Camera & OCR Logic ---
+// --- Camera Logic ---
 
 openCamera.onclick = async () => {
   try {
@@ -588,7 +489,7 @@ openCamera.onclick = async () => {
     camera.style.display = "block";
     takePhoto.style.display = "inline-block";
   } catch (err) {
-    alert("Could not access camera. Please check permissions.");
+    alert("Could not access camera.");
   }
 };
 
@@ -604,7 +505,7 @@ fileInput.onchange = () => {
   const reader = new FileReader();
   reader.onload = e => {
     photoPreview.src = e.target.result;
-    showUi('preview'); // Helper to hide others
+    showUi('preview');
     document.getElementById('previewPage').style.display = 'flex';
   };
   reader.readAsDataURL(file);
@@ -644,12 +545,10 @@ sendPhoto.onclick = async () => {
   sendPhoto.disabled = true;
   const img = photoPreview.src;
 
-  // Create Image for Processing
   const image = new Image();
   image.src = img;
   await new Promise(resolve => image.onload = resolve);
   
-  // --- QR Scan ---
   const qrCanvas = document.createElement("canvas");
   const qrCtx = qrCanvas.getContext("2d");
   qrCanvas.width = image.width;
@@ -660,23 +559,19 @@ sendPhoto.onclick = async () => {
   
   let qrText = qr ? qr.data.toUpperCase() : "";
   
-  // --- OCR Scan ---
   let recognizedText = "";
   try {
     const result = await Tesseract.recognize(img, "eng");
     recognizedText = result.data.text.toUpperCase();
-  } catch (e) {
-    console.error("OCR Error", e);
-  }
+  } catch (e) { console.error("OCR Error", e); }
 
   const fullText = recognizedText + " " + qrText;
 
-  // --- Validation ---
   const channelOk = fullText.includes("MIX BY YAS") || fullText.includes("655 510 714") || fullText.includes("780 526 437") || fullText.includes("CRDB");
-  const nameOk = fullText.includes("JAMAL SAID") || fullText.includes("JAMAL KAZEMBE") || fullText.includes("JAMALI SAIDI") || fullText.includes("KAZEMB"); // Partial match safety
+  const nameOk = fullText.includes("JAMAL SAID") || fullText.includes("JAMAL KAZEMBE") || fullText.includes("JAMALI SAIDI");
 
   if (!channelOk || !nameOk) {
-    alert("Validation Failed: Could not verify payment details.\n\nDetected Text:\n" + fullText.substring(0, 100));
+    alert("Validation Failed: Could not verify payment details.");
     sendPhoto.textContent = "SUBMIT";
     sendPhoto.disabled = false;
     showUi('camera');
@@ -684,21 +579,18 @@ sendPhoto.onclick = async () => {
     return;
   }
 
-  // Amount extraction (Look for numbers typically found after currency symbols or keywords)
-  // Note: This regex is basic. It looks for numbers between 3 and 7 digits.
   const amountMatch = fullText.match(/(AMOUNT|PAID|TZS|TSH)?\s*[:\-]?\s*([0-9]{3,7})/);
-  
   if (!amountMatch) {
-    alert("Could not read the amount. Please ensure the receipt is clear.");
+    alert("Could not read amount.");
     sendPhoto.textContent = "SUBMIT";
     sendPhoto.disabled = false;
     return;
   }
 
   const amount = parseFloat(amountMatch[2]);
-  const seconds = (amount / 500) * 3600; // Example rate: 500 Tsh = 1 Hour
+  const seconds = (amount / 500) * 3600; 
 
-  if(confirm(`Detected Amount: ${amount}\nTime to be added: ${Math.floor(seconds/60)} minutes.\n\nProceed?`)) {
+  if(confirm(`Detected Amount: ${amount}\nTime added: ${Math.floor(seconds/60)} minutes.\nProceed?`)) {
     localStorage.removeItem("waitEnd"); 
     startCountdown(Math.floor(seconds));
     sendPhoto.textContent = "SUBMIT";
@@ -709,7 +601,7 @@ sendPhoto.onclick = async () => {
   }
 };
 
-// --- Transaction Logic ---
+// --- Business Logic ---
 
 addTx.onclick = () => {
   showUi('txForm');
@@ -747,8 +639,6 @@ okTx.onclick = () => {
     timestamp: Date.now()
   };
   console.log("Saving Transaction:", data);
-  // TODO: Add Firebase Firestore 'addDoc' logic here
-  
   alert("Transaction Saved (Local Log)");
   showUi('business');
 };
