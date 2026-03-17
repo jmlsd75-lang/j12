@@ -38,16 +38,17 @@
     color:white;
     border-radius:6px;
   }
-
-  .pay-btn{
-    bottom: 90px; /* Above logout */
-    padding:18px 50px;
-    font-size:22px;
-    background-color: #28a745;
-    color:white;
-    border-radius:8px;
-  }
-  
+.pay-btn{
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding:18px 50px;
+  font-size:22px;
+  background-color: #28a745;
+  color:white;
+  border-radius:8px;
+}
   .logout-btn{
     bottom: 30px;
     background:#dc3545;
@@ -56,23 +57,12 @@
     border-radius:6px;
     font-size:16px;
   }
-  .free-text{
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  
-  font-size: 50px;
-  font-weight: bold;
-  color: green;
-}
 </style>
 </head>
 <body>
 
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
-<div class="free-text">FREE</div>
   
 <!-- Login Button -->
 <button class="login-btn">LOGIN</button>
