@@ -100,6 +100,51 @@
     border-radius:6px;
     font-size:16px;
   }
+  /* Container for the new Camera/Photos page */
+#cameraMenuPage {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  display: none; /* Hidden by default */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px; /* Space between buttons */
+}
+
+/* Styling the individual buttons */
+#openCameraBtn {
+  padding: 15px 40px;
+  font-size: 20px;
+  background: #007bff; /* Blue */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#openPhotosBtn {
+  padding: 15px 40px;
+  font-size: 20px;
+  background: #17a2b8; /* Teal */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#backFromCameraBtn {
+  padding: 15px 40px;
+  font-size: 20px;
+  background: #dc3545; /* Red */
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
 </style>
 </head>
 <body>
@@ -136,6 +181,12 @@
     <button class="back-btn">BACK</button>
     <button class="next-btn">NEXT</button>
   </div>
+  <!-- New Page for Camera/Photos Options -->
+<div id="cameraMenuPage" style="display:none;">
+  <button id="openCameraBtn">CAMERA</button>
+  <button id="openPhotosBtn">PHOTOS</button>
+  <button id="backFromCameraBtn">BACK</button>
+</div>
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -160,9 +211,9 @@ const provider = new GoogleAuthProvider();
 const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
 const payBtn = document.querySelector(".pay-btn");
-
-// --- Auth Logic ---
-
+const cameraMenuPage = document.getElementById("cameraMenuPage");
+const nextBtn = document.querySelector(".next-btn"); // Ensure you select the existing Next button
+const backFromCameraBtn = document.getElementById("backFromCameraBtn");
 // Listen for authentication state changes (Triggers instantly on load)
 onAuthStateChanged(auth, (user) => {
   if (user) {
@@ -212,7 +263,16 @@ payBtn.onclick = () => {
   payBtn.style.display = "none";
   logoutBtn.style.display = "none";
 };
-
+// NEXT click -> hide payPage, show cameraMenuPage
+nextBtn.onclick = () => {
+  payPage.style.display = "none";
+  cameraMenuPage.style.display = "flex";
+};
+  // BACK (from camera menu) -> hide cameraMenuPage, show payPage
+backFromCameraBtn.onclick = () => {
+  cameraMenuPage.style.display = "none";
+  payPage.style.display = "flex";
+};
 // BACK → return to main
 backBtn.onclick = () => {
   payPage.style.display = "none";
