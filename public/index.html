@@ -7,12 +7,12 @@
     <style>
         body {
     display: flex;
-    justify-content: center; /* Center horizontally */
-    align-items: flex-start; /* Align top */
-    height: 100vh;
-    text-align: center;
     flex-direction: column; /* Stack elements vertically */
-    padding-top: 20px; /* Adds space from the top */
+    justify-content: flex-start; /* Keep content at the top */
+    align-items: center; /* Center horizontally */
+    height: 100vh; /* Full viewport height */
+    text-align: center;
+    padding-top: 20px; /* Space from top for title */
 }
 h1 {
     margin: 0;
@@ -28,7 +28,8 @@ h1 {
     border-radius: 5px;
     font-size: 1rem;
     cursor: pointer;
-    margin-top: 30px; /* Space between title and button */
+    margin-top: auto; /* Pushes the button to the bottom of the remaining space */
+    margin-bottom: 20px; /* Adds a little space from the bottom */
 }
    </style>
     <!-- Firebase Configuration -->
