@@ -6,32 +6,42 @@
     <title>JAMALI SAIDI KAZEMBE MULTISYSTEM MANAGEMENT</title>
     <style>
         body {
-    display: flex;
-    flex-direction: column; /* Stack elements vertically */
-    justify-content: flex-start; /* Keep content at the top */
-    align-items: center; /* Center horizontally */
-    height: 100vh; /* Full viewport height */
-    text-align: center;
-    padding-top: 20px; /* Space from top for title */
-}
-h1 {
-    margin: 0;
-}
-.highlight {
-    color: #FF5733; /* Highlight color */
-}
-.login-btn {
-    background-color: #6a0dad; /* Purple color */
-    color: white;
-    padding: 15px 25px;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    cursor: pointer;
-    margin-top: auto; /* Pushes the button to the bottom of the remaining space */
-    margin-bottom: 20px; /* Adds a little space from the bottom */
-}
-   </style>
+            display: flex;
+            flex-direction: column; /* Stack elements vertically */
+            justify-content: flex-start; /* Keep content at the top initially */
+            align-items: center; /* Center horizontally */
+            height: 100vh; /* Full viewport height */
+            text-align: center;
+            margin: 0; /* Remove default body margin */
+        }
+
+        h1 {
+            /* Keeps the title at the top */
+            margin: 20px 0 0 0; 
+            width: 100%; /* Ensures it takes full width for centering text */
+        }
+
+        .highlight {
+            color: #FF5733; /* Highlight color */
+        }
+
+        .login-btn {
+            background-color: #6a0dad; /* Purple color */
+            color: white;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            
+            /* --- CHANGED SECTION START --- */
+            margin-top: auto; /* Pushes the button down as far as possible */
+            margin-bottom: auto; /* Pulls the button up as far as possible */
+            /* Using both auto margins vertically centers the element 
+               in the remaining space after the H1 is rendered. */
+            /* --- CHANGED SECTION END --- */
+        }
+    </style>
     <!-- Firebase Configuration -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
