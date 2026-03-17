@@ -74,6 +74,21 @@
         function login() {
             alert("Login button clicked");
         }
+        function login() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithRedirect(provider);
+}
+        auth.getRedirectResult()
+.then((result) => {
+    if (result.user) {
+        console.log("Logged in user:", result.user);
+        // You can redirect to dashboard here if needed
+        // window.location.href = "dashboard.html";
+    }
+})
+.catch((error) => {
+    console.error(error);
+});
     </script>
 </head>
 
