@@ -21,68 +21,55 @@
   h2{ color:red; margin-top:5px; font-size:18px; }
 
   /* Buttons Styling */
+  .login-btn, .logout-btn, .pay-btn {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    border:none;
+    cursor:pointer;
+    display: none; /* Hidden by default, controlled by JS */
+  }
+  
   .login-btn{
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding:15px 40px;
-  font-size:20px;
-  background:#28a745;
-  color:white;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-  display: none;
-}
-  .pay-btn{
-  position: fixed;
-  bottom: 80px; /* ABOVE logout */
-  left: 50%;
-  transform: translateX(-50%);
-  
-  padding:18px 50px;
-  font-size:22px;
-  background-color: #28a745; /* nice green */
-  color:white;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-}
-  .logout-btn{
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  
-  background:#dc3545;
-  color:white;
-  border:none;
-  padding:10px 25px;
-  border-radius:6px;
-  cursor:pointer;
-  font-size:16px;
+    bottom: 30px;
+    padding:15px 40px;
+    font-size:20px;
+    background:#28a745;
+    color:white;
+    border-radius:6px;
+  }
 
-  display: none;
-}
-  #welcomePage {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 50px;
+  .pay-btn{
+    bottom: 90px; /* Above logout */
+    padding:18px 50px;
+    font-size:22px;
+    background-color: #28a745;
+    color:white;
+    border-radius:8px;
+  }
+  
+  .logout-btn{
+    bottom: 30px;
+    background:#dc3545;
+    color:white;
+    padding:10px 25px;
+    border-radius:6px;
+    font-size:16px;
   }
 </style>
 </head>
 <body>
+
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
+
 <!-- Login Button -->
 <button class="login-btn">LOGIN</button>
-<!-- Welcome Page (Shown after login) -->
-<div id="welcomePage">
-  <button class="pay-btn">PAY</button>
-  <button class="logout-btn">LOGOUT</button>
-</div>
+
+<!-- Fixed Position Buttons (Shown after login) -->
+<button class="pay-btn">PAY</button>
+<button class="logout-btn">LOGOUT</button>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -97,6 +84,7 @@ const firebaseConfig = {
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
+// Initialize Firebase immediately
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
@@ -104,23 +92,21 @@ const provider = new GoogleAuthProvider();
 // --- DOM Elements ---
 const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
-const welcomePage = document.getElementById("welcomePage");
+const payBtn = document.querySelector(".pay-btn");
 
 // --- Auth Logic ---
 
-// Listen for authentication state changes
+// Listen for authentication state changes (Triggers instantly on load)
 onAuthStateChanged(auth, (user) => {
   if (user) {
     // User is signed in.
-    console.log("User logged in:", user.displayName);
     loginBtn.style.display = "none";
-    welcomePage.style.display = "flex";
-    logoutBtn.style.display = "block"; // Show logout button inside welcome page
+    payBtn.style.display = "block";
+    logoutBtn.style.display = "block";
   } else {
     // User is signed out.
-    console.log("User logged out.");
     loginBtn.style.display = "block";
-    welcomePage.style.display = "none";
+    payBtn.style.display = "none";
     logoutBtn.style.display = "none";
   }
 });
@@ -142,6 +128,11 @@ logoutBtn.onclick = async () => {
   } catch (e) {
     console.error("Logout Error:", e);
   }
+};
+
+// Pay Button Click (Placeholder)
+payBtn.onclick = () => {
+  alert("Payment logic goes here");
 };
 
 </script>
