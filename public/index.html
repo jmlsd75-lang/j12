@@ -2,164 +2,192 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jamal Said Kazembe Multisystem Management</title>
 <style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:#f4f4f4;
-  display:flex;
-  flex-direction:column;
-  justify-content:flex-start;
-  align-items:center;
-  height:100vh;
-  text-align:center;
-  padding-top:20px;
-}
-h1{
-  font-size:40px;
-  color:blue;
-  margin:0;
-}
-h2{
-  color:red;
-  margin-top:5px;
-}
+  body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:#f4f4f4;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-start;
+    align-items:center;
+    min-height:100vh; /* Changed to min-height to allow scrolling if needed */
+    text-align:center;
+    padding-top:20px;
+  }
+  h1{
+    font-size:32px; /* Slightly reduced for better fit on mobile */
+    color:blue;
+    margin:0;
+  }
+  h2{
+    color:red;
+    margin-top:5px;
+    font-size:18px;
+  }
 
-/* Pages Layout */
-#cameraPage, #txForm, #businessPage, #viewButtonsPage {
-  display:none;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:20px;
-}
+  /* Pages Layout */
+  #cameraPage, #txForm, #businessPage, #viewButtonsPage, #previewPage, #submitPage {
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:15px;
+    width:100%;
+    padding:20px;
+    box-sizing:border-box;
+  }
 
-#countdownPage{
-  display:none; 
-  position:fixed; 
-  top:0; left:0; 
-  width:100%; height:100%; 
-  background:white; 
-  justify-content:center; 
-  align-items:center; 
-  flex-direction:column; 
-  font-size:30px;
-  z-index: 999;
-}
+  #countdownPage{
+    display:none; 
+    position:fixed; 
+    top:0; left:0; 
+    width:100%; height:100%; 
+    background:white; 
+    justify-content:center; 
+    align-items:center; 
+    flex-direction:column; 
+    font-size:40px;
+    font-weight:bold;
+    z-index: 999;
+  }
 
-/* Buttons Styling */
-.login-btn{
-  margin-top:150px;
-  padding:12px 30px;
-  font-size:18px;
-  background:green;
-  color:white;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
+  /* Buttons Styling */
+  .login-btn{
+    margin-top:100px;
+    padding:15px 40px;
+    font-size:20px;
+    background:#28a745;
+    color:white;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  .login-btn:active { transform: scale(0.98); }
 
-.free-btn, .pay-btn{
-  width:140px;
-  padding:12px 0;
-  font-size:18px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
-.free-btn{
-  margin-top:120px;
-  background:green;
-  color:white;
-}
-.free-btn:disabled {
-  background:gray;
-  cursor:not-allowed;
-}
-.pay-btn{
-  background:blue;
-  color:white;
-}
+  .free-btn, .pay-btn{
+    width:140px;
+    padding:15px 0;
+    font-size:18px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    transition: opacity 0.3s;
+  }
+  .free-btn{
+    background:#28a745;
+    color:white;
+  }
+  .free-btn:disabled {
+    background:#6c757d;
+    cursor:not-allowed;
+    opacity:0.7;
+  }
+  .pay-btn{
+    background:#007bff;
+    color:white;
+  }
 
-.action-buttons{
-  margin-top:120px;
-  display:none; /* Hidden by default */
-  gap:20px;
-}
+  .action-buttons{
+    margin-top:80px;
+    display:none; 
+    gap:20px;
+    justify-content:center;
+  }
 
-.logout-btn{
-  background:red;
-  color:white;
-  border:none;
-  padding:10px 25px;
-  border-radius:6px;
-  cursor:pointer;
-  position:absolute;
-  bottom:20px;
-}
+  .logout-btn{
+    background:#dc3545;
+    color:white;
+    border:none;
+    padding:10px 25px;
+    border-radius:6px;
+    cursor:pointer;
+    position:absolute;
+    bottom:20px;
+    font-size:16px;
+  }
 
-/* Business Page Buttons */
-#businessPage button, #viewButtonsPage button {
-  font-size:22px;
-  padding:15px 40px;
-  margin:5px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-}
-#addTx{ background:green; color:white; }
-#viewTx{ background:blue; color:white; }
-#businessExit{ background:red; color:white; }
+  /* Business Page Buttons */
+  #businessPage button, #viewButtonsPage button {
+    font-size:18px;
+    padding:15px 30px;
+    width:90%;
+    max-width:300px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    margin:5px 0;
+  }
+  #addTx{ background:#28a745; color:white; }
+  #viewTx{ background:#007bff; color:white; }
+  #businessExit{ background:#dc3545; color:white; }
 
-/* View List Buttons */
-#cashBookBtn { background:lightgreen; color:black; }
-#ledgersBtn { background:lightblue; color:black; }
-#trialBalanceBtn { background:lightcoral; color:black; }
-#incomeStatementBtn { background:lightyellow; color:black; }
-#balanceSheetBtn { background:lightpink; color:black; }
-#backFromViewBtn { background:red; color:white; margin-top:20px; }
+  /* View List Buttons */
+  #cashBookBtn { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
+  #ledgersBtn { background:#d1ecf1; color:#0c5460; border:1px solid #bee5eb; }
+  #trialBalanceBtn { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
+  #incomeStatementBtn { background:#fff3cd; color:#856404; border:1px solid #ffeeba; }
+  #balanceSheetBtn { background:#e2d6f8; color:#563d7c; border:1px solid #d6d6f8; }
+  #backFromViewBtn { background:#dc3545; color:white; margin-top:20px; }
 
-/* Camera & Payment Styling */
-#cameraPage button, #previewPage button, #submitPage button {
-  font-size:22px;
-  padding:15px 40px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-}
-#openCamera{ background:green; color:white; }
-#openPhotos{ background:blue; color:white; }
-#cameraBack{ background:red; color:white; }
-#photoOk, #sendPhoto{ background:purple; color:white; }
-#photoCancel, #submitBack{ background:red; color:white; }
+  /* Camera & Payment Styling */
+  #cameraPage button {
+    font-size:18px;
+    padding:12px 25px;
+  }
+  #openCamera{ background:#28a745; color:white; }
+  #openPhotos{ background:#17a2b8; color:white; }
+  #cameraBack{ background:#dc3545; color:white; }
+  #photoOk, #sendPhoto{ background:#6f42c1; color:white; }
+  #photoCancel, #submitBack{ background:#dc3545; color:white; }
 
-#paymentPage{
-  display:none; 
-  margin-top:100px; 
-  text-align:center;
-}
-#backBtn, #nextBtn{
-  padding:20px 60px;
-  font-size:28px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-  margin:15px;
-}
-#backBtn{ background:red; color:white; }
-#nextBtn{ background:purple; color:white; }
+  #paymentPage{
+    display:none; 
+    margin-top:50px; 
+    text-align:center;
+    padding:20px;
+  }
+  #paymentPage div {
+    margin-bottom: 10px;
+  }
+  #backBtn, #nextBtn{
+    padding:15px 40px;
+    font-size:20px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    margin:15px;
+  }
+  #backBtn{ background:#dc3545; color:white; }
+  #nextBtn{ background:#6f42c1; color:white; }
 
-/* Transaction Form */
-#txDesc, #txAmount {
-  font-size:22px; 
-  padding:10px; 
-  text-align:center;
-}
-#inBtn { background:green; color:white; padding:10px 20px; border:none; border-radius:6px; cursor:pointer; }
-#outBtn { background:red; color:white; padding:10px 20px; border:none; border-radius:6px; cursor:pointer; }
-.method { margin:5px; padding:10px; cursor:pointer; }
+  /* Transaction Form */
+  #txDesc, #txAmount {
+    font-size:18px; 
+    padding:12px; 
+    text-align:center;
+    width:80%;
+    max-width:300px;
+    border:1px solid #ccc;
+    border-radius:5px;
+  }
+  #inBtn { background:#28a745; color:white; padding:10px 20px; border:none; border-radius:6px; cursor:pointer; }
+  #outBtn { background:#dc3545; color:white; padding:10px 20px; border:none; border-radius:6px; cursor:pointer; }
+  .method { margin:5px; padding:10px 15px; cursor:pointer; border-radius:5px; border:1px solid #ccc; background:white; }
+  .method:active { background:#eee; }
 
+  /* View Buttons Container */
+  .view-grid {
+    display:flex; 
+    flex-wrap:wrap; 
+    justify-content:center; 
+    gap:10px; 
+    width:100%;
+    padding:10px;
+  }
 </style>
 </head>
 <body>
@@ -170,7 +198,7 @@ h2{
 <!-- Countdown Page -->
 <div id="countdownPage">
   <div id="mainTimer">180</div>
-  <div style="margin-top:40px;">
+  <div style="margin-top:40px; display:flex; gap:20px;">
     <button id="businessBtn">BUSINESS</button>
     <button id="exitBtn">EXIT</button>
   </div>
@@ -185,43 +213,44 @@ h2{
 </div>
 
 <!-- Camera Page -->
-<div id="cameraPage" style="margin-top:60px;">
-  <button id="openCamera">CAMERA</button>
-  <button id="openPhotos">PHOTOS</button>
-  <button id="cameraBack">BACK</button>
-  <br><br>
-  <video id="camera" width="300" autoplay style="display:none;"></video>
-  <br><br>
-  <button id="takePhoto" style="display:none;">TAKE PHOTO</button>
+<div id="cameraPage">
+  <button id="openCamera">OPEN CAMERA</button>
+  <button id="openPhotos">UPLOAD PHOTOS</button>
+  <video id="camera" width="100%" style="max-width:400px; display:none;" autoplay></video>
   <canvas id="canvas" style="display:none;"></canvas>
+  <button id="takePhoto" style="display:none;">TAKE PHOTO</button>
+  <button id="cameraBack">BACK</button>
 </div>
 
 <!-- Preview Page -->
-<div id="previewPage" style="display:none; margin-top:60px; text-align:center;">
-  <img id="photoPreview" width="300">
-  <br><br>
-  <button id="photoOk">OK</button>
-  <button id="photoCancel">CANCEL</button>
+<div id="previewPage">
+  <h3>Preview</h3>
+  <img id="photoPreview" width="100%" style="max-width:400px; border:1px solid #ccc;">
+  <div>
+    <button id="photoOk">OK</button>
+    <button id="photoCancel">CANCEL</button>
+  </div>
 </div>
 
 <!-- Submit Page -->
-<div id="submitPage" style="display:none; margin-top:60px; text-align:center;">
-  <br><br>
-  <button id="sendPhoto">SUBMIT</button>
+<div id="submitPage">
+  <h3>Ready to Submit?</h3>
+  <p>Verify your payment details are correct.</p>
+  <button id="sendPhoto">VERIFY PAYMENT</button>
   <button id="submitBack">BACK</button>
   <input type="file" id="fileInput" accept="image/*" style="display:none">
 </div>
 
 <!-- Payment Page -->
 <div id="paymentPage">
-  <div style="color:purple; font-size:30px;">pay through</div>
-  <div style="color:green; font-size:30px;">mix by yas</div>
-  <div style="color:blue; font-size:30px;">+255 655 510 714</div>
-  <div style="color:red; font-size:30px;">airtel money</div>
-  <div style="color:orange; font-size:30px;">+255 780 526 437</div>
-  <div style="color:brown; font-size:30px;">crdb bank</div>
-  <div style="color:black; font-size:30px;">0152001GN6K00</div>
-  <div style="color:teal; font-size:30px;">JAMALI SAIDI KAZEMB</div>
+  <div style="color:purple; font-size:24px;">Pay through</div>
+  <div style="color:green; font-size:24px;">Mix by Yas</div>
+  <div style="color:blue; font-size:24px;">+255 655 510 714</div>
+  <div style="color:red; font-size:24px;">Airtel Money</div>
+  <div style="color:orange; font-size:24px;">+255 780 526 437</div>
+  <div style="color:brown; font-size:24px;">CRDB Bank</div>
+  <div style="color:black; font-size:24px;">0152001GN6K00</div>
+  <div style="color:teal; font-size:24px;">Jamali Saidi Kazembe</div>
   <div style="margin-top:40px;">
     <button id="backBtn">BACK</button>
     <button id="nextBtn">NEXT</button>
@@ -229,15 +258,15 @@ h2{
 </div>
 
 <!-- Business Page (Main Menu) -->
-<div id="businessPage" style="margin-top:120px;">
+<div id="businessPage">
   <button id="addTx">ADD NEW TRANSACTION</button>
-  <button id="viewTx">VIEW</button>
+  <button id="viewTx">VIEW REPORTS</button>
   <button id="businessExit">EXIT</button>
 </div>
 
 <!-- View Buttons Page -->
-<div id="viewButtonsPage" style="margin-top:60px;">
-  <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px;">
+<div id="viewButtonsPage">
+  <div class="view-grid">
     <button id="listBtn">LIST</button> 
     <button id="cashBookBtn">CASH BOOK</button>
     <button id="ledgersBtn">LEDGERS</button>
@@ -249,9 +278,10 @@ h2{
 </div>
 
 <!-- Transaction Form -->
-<div id="txForm" style="margin-top:120px; text-align:center;">
-  <input id="txDesc" placeholder="Enter description"><br><br>
-  <input id="txAmount" placeholder="Enter amount" style="display:none;"><br><br>
+<div id="txForm">
+  <h3>New Transaction</h3>
+  <input id="txDesc" placeholder="Description"><br><br>
+  <input id="txAmount" type="number" placeholder="Amount" style="display:none;"><br><br>
   <div id="txType" style="display:none;">
     <button id="inBtn">IN</button>
     <button id="outBtn">OUT</button>
@@ -262,7 +292,7 @@ h2{
     <button class="method">BANK</button>
   </div><br>
   <div id="txActions">
-    <button id="okTx" style="display:none;">OK</button>
+    <button id="okTx" style="display:none;">SAVE</button>
     <button id="cancelTx">CANCEL</button>
   </div>
 </div>
@@ -275,7 +305,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// Config
+// --- Firebase Config ---
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -284,6 +314,7 @@ const firebaseConfig = {
   messagingSenderId: "167159607898",
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
+// SECURITY NOTE: Admin email is checked client-side. For production, use Firebase Custom Claims or Backend validation.
 const ADMIN_EMAIL = "camelkazembe1@gmail.com";
 
 const app = initializeApp(firebaseConfig);
@@ -292,10 +323,10 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 let isAdmin = false;
-let currentUser = null; // Track logged in user globally
-let stream = null;
+let currentUser = null; 
+let stream = null; // Global stream reference
 
-// Elements
+// --- DOM Elements ---
 const systemName1 = document.querySelector("h1");
 const systemName2 = document.querySelector("h2");
 const loginBtn = document.querySelector(".login-btn");
@@ -346,60 +377,68 @@ const okTx = document.getElementById("okTx");
 const cancelTx = document.getElementById("cancelTx");
 const addTx = document.getElementById("addTx");
 
-console.log("Cloud system connected");
+console.log("System initialized");
 
-// --- Logic Functions ---
+// --- Helper Functions ---
 
-function showUi(page) {
-  // Hide all main pages
-  countdownPage.style.display = "none";
-  actionBtns.style.display = "none";
-  paymentPage.style.display = "none";
-  businessPage.style.display = "none";
-  viewButtonsPage.style.display = "none";
-  cameraPage.style.display = "none";
-  previewPage.style.display = "none";
-  submitPage.style.display = "none";
-  txForm.style.display = "none";
-  
-  // Default visibility
-  systemName1.style.display = "block";
-  systemName2.style.display = "block";
-
-  // --- SMART LOGIN/LOGOUT BUTTON LOGIC ---
-  // This runs every time UI changes. 
-  // If user exists, show Logout. If not, show Login.
-  if (currentUser) {
-    loginBtn.style.display = "none";
-    logoutBtn.style.display = "block";
-  } else {
-    loginBtn.style.display = "block";
-    logoutBtn.style.display = "none";
-  }
-
-  if (page === 'actions') {
-    actionBtns.style.display = "flex";
-    checkWaitTimer();
-  } else if (page === 'countdown') {
-    countdownPage.style.display = "flex";
-    systemName1.style.display = "none";
-    systemName2.style.display = "none";
-  } else if (page === 'business') {
-    businessPage.style.display = "flex";
-    systemName1.style.display = "none";
-    systemName2.style.display = "none";
-  } else if (page === 'payment') {
-    paymentPage.style.display = "block";
-    systemName1.style.display = "none";
-    systemName2.style.display = "none";
-  } else if (page === 'camera') {
-    cameraPage.style.display = "flex";
+// Stop video stream to release camera hardware
+function stopCamera() {
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+    stream = null;
+    camera.style.display = "none";
+    takePhoto.style.display = "none";
   }
 }
 
-// --- Timers ---
+// Central UI Switcher
+function showUi(page) {
+  // Hide all pages first
+  const pages = [countdownPage, actionBtns, paymentPage, businessPage, viewButtonsPage, cameraPage, previewPage, submitPage, txForm];
+  pages.forEach(p => p.style.display = "none");
+
+  // Default visibility
+  systemName1.style.display = "block";
+  systemName2.style.display = "block";
+  stopCamera(); // Always stop camera when switching UI unless specifically handled later
+
+  // Login/Logout Button Logic
+  loginBtn.style.display = currentUser ? "none" : "block";
+  logoutBtn.style.display = currentUser ? "block" : "none";
+
+  switch(page) {
+    case 'login':
+      // Default state handled above
+      break;
+    case 'actions':
+      actionBtns.style.display = "flex";
+      checkWaitTimer();
+      break;
+    case 'countdown':
+      countdownPage.style.display = "flex";
+      systemName1.style.display = "none";
+      systemName2.style.display = "none";
+      break;
+    case 'business':
+      businessPage.style.display = "flex";
+      systemName1.style.display = "none";
+      systemName2.style.display = "none";
+      break;
+    case 'payment':
+      paymentPage.style.display = "block";
+      systemName1.style.display = "none";
+      systemName2.style.display = "none";
+      break;
+    case 'camera':
+      cameraPage.style.display = "flex";
+      break;
+  }
+}
+
+// --- Timer Logic ---
 
 let countdownInterval;
+let waitInterval;
 
 function startCountdown(durationSeconds) {
   clearInterval(countdownInterval);
@@ -424,10 +463,10 @@ function runTimerTick() {
     clearInterval(countdownInterval);
     localStorage.removeItem("sessionEnd");
     
-    // Session over
-    if (isAdmin) return; 
-    showUi('actions');
-    startWaitTimer(); // Start 24h wait
+    if (!isAdmin) {
+      showUi('actions');
+      startWaitTimer(); 
+    }
   } else {
     showUi('countdown');
     mainTimer.textContent = remaining;
@@ -443,11 +482,10 @@ function checkExistingSession() {
   return false;
 }
 
-let waitInterval;
 function startWaitTimer() {
   let saved = localStorage.getItem("waitEnd");
   if (!saved) {
-    saved = Date.now() + (24 * 3600 * 1000);
+    saved = Date.now() + (24 * 3600 * 1000); // 24 Hours
     localStorage.setItem("waitEnd", saved);
   }
   
@@ -479,33 +517,18 @@ function checkWaitTimer() {
   }
 }
 
-// --- PREVENT REFRESH LOGIC ---
-// Warns user if they try to refresh during an active session or wait time
-window.addEventListener("beforeunload", function(e) {
-  const hasSession = localStorage.getItem("sessionEnd");
-  const hasWait = localStorage.getItem("waitEnd");
-  
-  if (hasSession || hasWait) {
-    const message = "Refreshing the page is not allowed during an active session or wait period.";
-    e.returnValue = message;
-    return message;
-  }
-});
-
-// --- Auth ---
+// --- Auth Logic ---
 
 onAuthStateChanged(auth, (user) => {
   clearInterval(countdownInterval);
   clearInterval(waitInterval);
-  
-  currentUser = user; // Update global user state
+  currentUser = user;
 
   if (user && user.email.toLowerCase() === ADMIN_EMAIL) {
     isAdmin = true;
     showUi('business');
   } else if (user) {
     isAdmin = false;
-    // Check if session is active
     if (!checkExistingSession()) {
       showUi('actions');
     }
@@ -515,7 +538,7 @@ onAuthStateChanged(auth, (user) => {
 });
 
 loginBtn.onclick = async () => {
-  try { await signInWithPopup(auth, provider); } catch (e) { console.log(e); }
+  try { await signInWithPopup(auth, provider); } catch (e) { console.error(e); alert("Login failed"); }
 };
 
 logoutBtn.onclick = async () => {
@@ -525,24 +548,18 @@ logoutBtn.onclick = async () => {
   await signOut(auth);
 };
 
-// --- Navigation Events ---
+// --- Navigation ---
 
 exitBtn.onclick = async () => {
   localStorage.removeItem("sessionEnd");
   await signOut(auth);
-  location.reload();
 };
 
-businessBtn.onclick = () => {
-  showUi('business');
-};
+businessBtn.onclick = () => showUi('business');
 
 businessExit.onclick = () => {
-  if (isAdmin) {
-    signOut(auth); // This will trigger onAuthStateChanged which shows login
-  } else {
-    showUi('countdown'); 
-  }
+  if (isAdmin) signOut(auth);
+  else showUi('countdown'); 
 };
 
 freeBtn.onclick = () => {
@@ -550,36 +567,33 @@ freeBtn.onclick = () => {
   startCountdown(180); // 3 minutes
 };
 
-payBtn.onclick = () => {
-  showUi('payment');
-};
+payBtn.onclick = () => showUi('payment');
 
-backBtn.onclick = () => {
-  showUi('actions');
-};
+backBtn.onclick = () => showUi('actions');
 
-nextBtn.onclick = () => {
-  showUi('camera');
-  camera.style.display = "none";
-  takePhoto.style.display = "none";
-};
+nextBtn.onclick = () => showUi('camera');
 
 cameraBack.onclick = () => {
-  if (stream) { stream.getTracks().forEach(track => track.stop()); }
+  stopCamera();
   if (localStorage.getItem("sessionEnd")) showUi('countdown');
   else showUi('payment');
 };
 
-// --- Camera Logic ---
+// --- Camera & OCR Logic ---
 
 openCamera.onclick = async () => {
-  stream = await navigator.mediaDevices.getUserMedia({ video: true });
-  camera.srcObject = stream;
-  camera.style.display = "block";
-  takePhoto.style.display = "inline-block";
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+    camera.srcObject = stream;
+    camera.style.display = "block";
+    takePhoto.style.display = "inline-block";
+  } catch (err) {
+    alert("Could not access camera. Please check permissions.");
+  }
 };
 
 openPhotos.onclick = () => {
+  stopCamera();
   fileInput.removeAttribute("capture");
   fileInput.click();
 };
@@ -590,10 +604,8 @@ fileInput.onchange = () => {
   const reader = new FileReader();
   reader.onload = e => {
     photoPreview.src = e.target.result;
-    cameraPage.style.display = "none";
-    previewPage.style.display = "flex";
-    photoOk.style.display = "inline-block";
-    photoCancel.style.display = "inline-block";
+    showUi('preview'); // Helper to hide others
+    document.getElementById('previewPage').style.display = 'flex';
   };
   reader.readAsDataURL(file);
   fileInput.value = "";
@@ -607,27 +619,24 @@ takePhoto.onclick = () => {
   const img = canvas.toDataURL("image/png");
   photoPreview.src = img;
   
-  if (stream) stream.getTracks().forEach(track => track.stop());
-  
-  cameraPage.style.display = "none";
-  previewPage.style.display = "flex";
+  stopCamera();
+  showUi('preview');
+  document.getElementById('previewPage').style.display = 'flex';
 };
 
 photoCancel.onclick = () => {
-  previewPage.style.display = "none";
-  cameraPage.style.display = "flex";
-  camera.style.display = "none";
-  takePhoto.style.display = "none";
+  showUi('camera');
+  document.getElementById('cameraPage').style.display = 'flex';
 };
 
 photoOk.onclick = () => {
-  previewPage.style.display = "none";
-  submitPage.style.display = "flex";
+  showUi('submit');
+  document.getElementById('submitPage').style.display = 'flex';
 };
 
 submitBack.onclick = () => {
-  submitPage.style.display = "none";
-  cameraPage.style.display = "flex";
+  showUi('preview');
+  document.getElementById('previewPage').style.display = 'flex';
 };
 
 sendPhoto.onclick = async () => {
@@ -635,11 +644,12 @@ sendPhoto.onclick = async () => {
   sendPhoto.disabled = true;
   const img = photoPreview.src;
 
-  // OCR & QR Logic
+  // Create Image for Processing
   const image = new Image();
   image.src = img;
   await new Promise(resolve => image.onload = resolve);
   
+  // --- QR Scan ---
   const qrCanvas = document.createElement("canvas");
   const qrCtx = qrCanvas.getContext("2d");
   qrCanvas.width = image.width;
@@ -650,6 +660,7 @@ sendPhoto.onclick = async () => {
   
   let qrText = qr ? qr.data.toUpperCase() : "";
   
+  // --- OCR Scan ---
   let recognizedText = "";
   try {
     const result = await Tesseract.recognize(img, "eng");
@@ -658,46 +669,51 @@ sendPhoto.onclick = async () => {
     console.error("OCR Error", e);
   }
 
-  const t = recognizedText + " " + qrText;
+  const fullText = recognizedText + " " + qrText;
 
-  // Validation
-  const channelOk = t.includes("MIX BY YAS") || t.includes("655 510 714") || t.includes("780 526 437") || t.includes("CRDB");
-  const nameOk = t.includes("JAMAL SAID") || t.includes("JAMAL KAZEMBE") || t.includes("JAMALI SAIDI");
+  // --- Validation ---
+  const channelOk = fullText.includes("MIX BY YAS") || fullText.includes("655 510 714") || fullText.includes("780 526 437") || fullText.includes("CRDB");
+  const nameOk = fullText.includes("JAMAL SAID") || fullText.includes("JAMAL KAZEMBE") || fullText.includes("JAMALI SAIDI") || fullText.includes("KAZEMB"); // Partial match safety
 
   if (!channelOk || !nameOk) {
-    alert("Invalid Payment Receipt. Names or Channels not found.");
+    alert("Validation Failed: Could not verify payment details.\n\nDetected Text:\n" + fullText.substring(0, 100));
     sendPhoto.textContent = "SUBMIT";
     sendPhoto.disabled = false;
-    submitPage.style.display = "none";
-    cameraPage.style.display = "flex";
+    showUi('camera');
+    document.getElementById('cameraPage').style.display = 'flex';
     return;
   }
 
-  // Amount extraction
-  const amountMatch = t.match(/(AMOUNT|PAID|TZS|TSH)?\s*[:\-]?\s*([0-9]{3,7})/);
+  // Amount extraction (Look for numbers typically found after currency symbols or keywords)
+  // Note: This regex is basic. It looks for numbers between 3 and 7 digits.
+  const amountMatch = fullText.match(/(AMOUNT|PAID|TZS|TSH)?\s*[:\-]?\s*([0-9]{3,7})/);
+  
   if (!amountMatch) {
-    alert("Could not read amount.");
+    alert("Could not read the amount. Please ensure the receipt is clear.");
     sendPhoto.textContent = "SUBMIT";
     sendPhoto.disabled = false;
     return;
   }
 
   const amount = parseFloat(amountMatch[2]);
-  const seconds = (amount / 500) * 3600; // Example rate
+  const seconds = (amount / 500) * 3600; // Example rate: 500 Tsh = 1 Hour
 
-  // Start Paid Session
-  localStorage.removeItem("waitEnd"); // Clear any wait penalty
-  startCountdown(Math.floor(seconds));
-  
-  sendPhoto.textContent = "SUBMIT";
-  sendPhoto.disabled = false;
+  if(confirm(`Detected Amount: ${amount}\nTime to be added: ${Math.floor(seconds/60)} minutes.\n\nProceed?`)) {
+    localStorage.removeItem("waitEnd"); 
+    startCountdown(Math.floor(seconds));
+    sendPhoto.textContent = "SUBMIT";
+    sendPhoto.disabled = false;
+  } else {
+    sendPhoto.textContent = "SUBMIT";
+    sendPhoto.disabled = false;
+  }
 };
 
-// --- Business Logic ---
+// --- Transaction Logic ---
 
 addTx.onclick = () => {
-  businessPage.style.display = "none";
-  txForm.style.display = "flex";
+  showUi('txForm');
+  txForm.style.display = 'flex';
   txDesc.value = "";
   txAmount.value = "";
   txAmount.style.display = "none";
@@ -725,40 +741,36 @@ document.querySelectorAll(".method").forEach(btn => {
 okTx.onclick = () => {
   const data = {
     desc: txDesc.value,
-    amount: txAmount.value,
+    amount: parseFloat(txAmount.value),
     dir: direction,
-    method: method
+    method: method,
+    timestamp: Date.now()
   };
   console.log("Saving Transaction:", data);
-  // Add Firebase save logic here if needed
-  txForm.style.display = "none";
-  businessPage.style.display = "flex";
+  // TODO: Add Firebase Firestore 'addDoc' logic here
+  
+  alert("Transaction Saved (Local Log)");
+  showUi('business');
 };
 
-cancelTx.onclick = () => {
-  txForm.style.display = "none";
-  businessPage.style.display = "flex";
-};
+cancelTx.onclick = () => showUi('business');
 
 // --- View Logic ---
 
 viewTx.onclick = () => {
-  businessPage.style.display = "none";
-  viewButtonsPage.style.display = "flex";
+  showUi('view');
+  viewButtonsPage.style.display = 'flex';
 };
 
-backFromViewBtn.onclick = () => {
-  viewButtonsPage.style.display = "none";
-  businessPage.style.display = "flex";
-};
+backFromViewBtn.onclick = () => showUi('business');
 
-// Placeholder clicks for view buttons
-document.getElementById("listBtn").onclick = () => alert("Opening List...");
-document.getElementById("cashBookBtn").onclick = () => alert("Opening Cash Book...");
-document.getElementById("ledgersBtn").onclick = () => alert("Opening Ledgers...");
-document.getElementById("trialBalanceBtn").onclick = () => alert("Opening Trial Balance...");
-document.getElementById("incomeStatementBtn").onclick = () => alert("Opening Income Statement...");
-document.getElementById("balanceSheetBtn").onclick = () => alert("Opening Balance Sheet...");
+document.getElementById("listBtn").onclick = () => alert("List View: Requires DB query implementation");
+document.getElementById("cashBookBtn").onclick = () => alert("Cash Book: Requires DB query implementation");
+document.getElementById("ledgersBtn").onclick = () => alert("Ledgers: Requires DB query implementation");
+document.getElementById("trialBalanceBtn").onclick = () => alert("Trial Balance: Requires calculation logic");
+document.getElementById("incomeStatementBtn").onclick = () => alert("Income Statement: Requires calculation logic");
+document.getElementById("balanceSheetBtn").onclick = () => alert("Balance Sheet: Requires calculation logic");
+
 </script>
 </body>
 </html>
