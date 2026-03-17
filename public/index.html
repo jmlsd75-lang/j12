@@ -5,41 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JAMALI SAIDI KAZEMBE MULTISYSTEM MANAGEMENT</title>
     <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start; /* Keeps the H1 at the top */
-            align-items: center;
-            height: 100vh;
-            text-align: center;
-            margin: 0; /* Ensure no default margins */
-            position: relative; /* Allows absolute positioning inside */
-        }
-
+    body {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh;
+    text-align: center;
+        }   
         h1 {
-            margin: 20px 0 0 0;
+            margin: 0;
         }
-
         .highlight {
-            color: #FF5733;
-        }
-
-        .login-btn {
-            background-color: #6a0dad;
-            color: white;
-            padding: 15px 25px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            cursor: pointer;
-            
-            /* --- CHANGED SECTION --- */
-            position: absolute; /* Removes it from the flex flow */
-            top: 50%; /* Moves it down 50% of the screen height */
-            left: 50%; /* Moves it right 50% of the screen width */
-            transform: translate(-50%, -50%); /* Centers it perfectly */
-            /* ---------------------- */
-        }
+            color: #FF5733; /* You can change the color here */
+        }       
+.login-btn {
+    background-color: #6a0dad; /* Purple color */
+    color: white;
+    padding: 15px 25px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 20px; /* Space between title and button */
+}
     </style>
     <!-- Firebase Configuration -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
@@ -58,10 +46,21 @@
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
+        function loginWithGoogle() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    auth.signInWithPopup(provider)
+        .then(() => {
+            window.location.reload();
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+}
     </script>
 </head>
 <body>
     <h1><span class="highlight">JAMALI SAIDI KAZEMBE</span> MULTISYSTEM MANAGEMENT</h1>
-    <button class="login-btn">Login</button>
+   <button class="login-btn" onclick="loginWithGoogle()">Login</button>
 </body>
 </html>
