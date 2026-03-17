@@ -134,6 +134,13 @@
                 auth.signOut();
             });
         });
+        auth.getRedirectResult()
+    .then((result) => {
+        // user returned from Google login
+    })
+    .catch((error) => {
+        console.error(error);
+    });
     </script>
 </head>
 <body>
