@@ -21,6 +21,24 @@
             color: #FF5733; /* You can change the color here */
         }
     </style>
+    <!-- Firebase Configuration -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+    </script>
 </head>
 <body>
     <h1><span class="highlight">JAMALI SAIDI KAZEMBE</span> MULTISYSTEM MANAGEMENT</h1>
