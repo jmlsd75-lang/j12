@@ -4,49 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JAMALI SAIDI KAZEMBE MULTISYSTEM MANAGEMENT</title>
-
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             display: flex;
-            justify-content: flex-start;
+            justify-content: center;
             align-items: center;
-            flex-direction: column;
             height: 100vh;
             text-align: center;
-            position: relative;
         }
-
         h1 {
-            margin-top: 20px;
+            margin: 0;
         }
-
         .highlight {
-            color: #FF5733;
-        }
-
-        .login-btn {
-            background-color: #6a0dad;
-            color: white;
-            padding: 15px 25px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            cursor: pointer;
-
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            color: #FF5733; /* You can change the color here */
         }
     </style>
-
-    <!-- Firebase -->
+    <!-- Firebase Configuration -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
-
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
     <script>
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
             authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -55,23 +35,12 @@
             messagingSenderId: "167159607898",
             appId: "1:167159607898:web:23ca11366b88868b085e63"
         };
-
-        firebase.initializeApp(firebaseConfig);
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
         const auth = firebase.auth();
-
-        const provider = new firebase.auth.GoogleAuthProvider();
-
-        function login() {
-            auth.signInWithRedirect(provider);
-        }
-
-        auth.getRedirectResult().catch(console.error);
     </script>
 </head>
-
 <body>
     <h1><span class="highlight">JAMALI SAIDI KAZEMBE</span> MULTISYSTEM MANAGEMENT</h1>
-
-    <button class="login-btn" onclick="login()">Login</button>
 </body>
 </html>
