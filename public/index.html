@@ -7,26 +7,25 @@
     <style>
         body {
             display: flex;
-            flex-direction: column; /* Stack elements vertically */
-            justify-content: flex-start; /* Keep content at the top initially */
-            align-items: center; /* Center horizontally */
-            height: 100vh; /* Full viewport height */
+            flex-direction: column;
+            justify-content: flex-start; /* Keeps the H1 at the top */
+            align-items: center;
+            height: 100vh;
             text-align: center;
-            margin: 0; /* Remove default body margin */
+            margin: 0; /* Ensure no default margins */
+            position: relative; /* Allows absolute positioning inside */
         }
 
         h1 {
-            /* Keeps the title at the top */
-            margin: 20px 0 0 0; 
-            width: 100%; /* Ensures it takes full width for centering text */
+            margin: 20px 0 0 0;
         }
 
         .highlight {
-            color: #FF5733; /* Highlight color */
+            color: #FF5733;
         }
 
         .login-btn {
-            background-color: #6a0dad; /* Purple color */
+            background-color: #6a0dad;
             color: white;
             padding: 15px 25px;
             border: none;
@@ -34,12 +33,12 @@
             font-size: 1rem;
             cursor: pointer;
             
-            /* --- CHANGED SECTION START --- */
-            margin-top: auto; /* Pushes the button down as far as possible */
-            margin-bottom: auto; /* Pulls the button up as far as possible */
-            /* Using both auto margins vertically centers the element 
-               in the remaining space after the H1 is rendered. */
-            /* --- CHANGED SECTION END --- */
+            /* --- CHANGED SECTION --- */
+            position: absolute; /* Removes it from the flex flow */
+            top: 50%; /* Moves it down 50% of the screen height */
+            left: 50%; /* Moves it right 50% of the screen width */
+            transform: translate(-50%, -50%); /* Centers it perfectly */
+            /* ---------------------- */
         }
     </style>
     <!-- Firebase Configuration -->
