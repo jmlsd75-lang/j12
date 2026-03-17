@@ -168,7 +168,6 @@
     <p class="crdb">0152001GN6K00</p>
     <p class="name">JAMALI SAIDI KAZEMBE</p>
   </div>
-
   <div class="pay-actions">
     <button class="back-btn">BACK</button>
     <button class="next-btn">NEXT</button>
@@ -181,6 +180,17 @@
   <button id="openCameraBtn">CAMERA</button>
   <button id="openPhotosBtn">PHOTOS</button>
   <button id="backFromCameraBtn">BACK</button>
+</div>
+
+<div id="previewPage" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; flex-direction:column; justify-content:center; align-items:center;">
+  
+  <img id="previewImage" style="max-width:90%; max-height:60%; border-radius:10px; margin-bottom:20px;" />
+
+  <div style="display:flex; gap:20px;">
+    <button id="submitBtn" style="padding:12px 25px; background:green; color:white; border:none; border-radius:6px;">SUBMIT</button>
+    <button id="cancelBtn" style="padding:12px 25px; background:red; color:white; border:none; border-radius:6px;">CANCEL</button>
+  </div>
+
 </div>
 
 <script type="module">
@@ -196,7 +206,14 @@ const firebaseConfig = {
   messagingSenderId: "167159607898",
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
+const cameraInput = document.getElementById("cameraInput");
+const photosInput = document.getElementById("photosInput");
+const previewPage = document.getElementById("previewPage");
+const previewImage = document.getElementById("previewImage");
+const submitBtn = document.getElementById("submitBtn");
+const cancelBtn = document.getElementById("cancelBtn");
 
+let selectedFile = null;
 // Initialize Firebase immediately
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -277,42 +294,44 @@ backFromCameraBtn.onclick = () => {
   cameraMenuPage.style.display = "none";
   payPage.style.display = "flex";
 };
+function handleFile(file) {
+  if (!file) return;
 
-// Placeholders for Camera/Photos logic
-const cameraInput = document.getElementById("cameraInput");
+  selectedFile = file;
 
-// Open camera
-openCameraBtn.onclick = () => {
-  cameraInput.click();
-};
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    previewImage.src = e.target.result;
 
-// When photo is taken
-cameraInput.onchange = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    alert("Photo captured: " + file.name);
-    // later you can upload this file
-  }
-};
-const photosInput = document.getElementById("photosInput");
-
-// Open gallery / photos
-openPhotosBtn.onclick = () => {
-  photosInput.click();
-};
-
-// When user selects photo
-photosInput.onchange = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    alert("Photo selected: " + file.name);
-
-    // Optional: go back
+    // hide everything
     cameraMenuPage.style.display = "none";
-    payPage.style.display = "flex";
-  }
+    payPage.style.display = "none";
+
+    // show preview
+    previewPage.style.display = "flex";
+  };
+  reader.readAsDataURL(file);
+}
+
+// camera
+cameraInput.onchange = (event) => {
+  handleFile(event.target.files[0]);
 };
 
+// photos
+photosInput.onchange = (event) => {
+  handleFile(event.target.files[0]);
+};
+// SUBMIT
+submitBtn.onclick = () => {
+  previewPage.innerHTML = "<h2>Please wait...</h2>";
+};
+
+// CANCEL
+cancelBtn.onclick = () => {
+  previewPage.style.display = "none";
+  cameraMenuPage.style.display = "flex";
+};
 </script>
 </body>
 </html>
