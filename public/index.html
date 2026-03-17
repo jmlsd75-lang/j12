@@ -4,43 +4,92 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JAMALI SAIDI KAZEMBE MULTISYSTEM MANAGEMENT</title>
+
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             height: 100vh;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
         }
+
+        /* TOP TITLE */
+        header {
+            text-align: center;
+            padding: 20px;
+        }
+
         h1 {
             margin: 0;
         }
+
         .highlight {
-            color: #FF5733; /* You can change the color here */
+            color: #FF5733;
+        }
+
+        /* CENTER AREA */
+        .center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* PURPLE BUTTON */
+        button {
+            padding: 14px 30px;
+            font-size: 18px;
+            background-color: purple;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #6a0dad;
         }
     </style>
-    <!-- Firebase Configuration -->
+
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+
     <script>
-        // Firebase Config
         const firebaseConfig = {
-            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-            authDomain: "my-project-66803-95cb3.firebaseapp.com",
-            projectId: "my-project-66803-95cb3",
-            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-            messagingSenderId: "167159607898",
-            appId: "1:167159607898:web:23ca11366b88868b085e63"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_BUCKET",
+            messagingSenderId: "YOUR_ID",
+            appId: "YOUR_APP_ID"
         };
+
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
+
+        function login() {
+            alert("Login button clicked");
+        }
     </script>
 </head>
+
 <body>
-    <h1><span class="highlight">JAMALI SAIDI KAZEMBE</span> MULTISYSTEM MANAGEMENT</h1>
+
+    <!-- TITLE AT TOP -->
+    <header>
+        <h1>
+            <span class="highlight">JAMALI SAIDI KAZEMBE</span> MULTISYSTEM MANAGEMENT
+        </h1>
+    </header>
+
+    <!-- CENTER LOGIN BUTTON -->
+    <div class="center">
+        <button onclick="login()">Login</button>
+    </div>
+
 </body>
 </html>
