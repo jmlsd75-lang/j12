@@ -19,10 +19,6 @@
             padding: 20px;
         }
 
-        h1 {
-            margin: 0;
-        }
-
         .highlight {
             color: #FF5733;
         }
@@ -48,58 +44,53 @@
             background-color: #6a0dad;
         }
     </style>
-
-    <!-- ✅ Firebase (COMPAT - REQUIRED) -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
-    <script>
-        // ✅ YOUR REAL FIREBASE CONFIG
-        const firebaseConfig = {
-            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-            authDomain: "my-project-66803-95cb3.firebaseapp.com",
-            projectId: "my-project-66803-95cb3",
-            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-            messagingSenderId: "167159607898",
-            appId: "1:167159607898:web:23ca11366b88868b085e63"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-
-        // ✅ LOGIN FUNCTION
-        function login() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-
-            firebase.auth().signInWithPopup(provider)
-            .then((result) => {
-                console.log("User:", result.user);
-
-                // redirect after login
-                window.location.href = "dashboard.html";
-            })
-            .catch((error) => {
-                console.error("Login error:", error);
-                alert(error.message);
-            });
-        }
-    </script>
 </head>
 
 <body>
 
-    <!-- TOP TITLE -->
-    <header>
-        <h1>
-            <span class="highlight">JAMALI SAIDI KAZEMBE</span> MULTISYSTEM MANAGEMENT
-        </h1>
-    </header>
+<header>
+    <h1>
+        <span class="highlight">JAMALI SAIDI KAZEMBE</span> MULTISYSTEM MANAGEMENT
+    </h1>
+</header>
 
-    <!-- CENTER BUTTON -->
-    <div class="center">
-        <button onclick="login()">Login with Google</button>
-    </div>
+<div class="center">
+    <button id="loginBtn">Login with Google</button>
+</div>
+
+<!-- ✅ MODERN FIREBASE SCRIPT -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+// ✅ YOUR CONFIG
+const firebaseConfig = {
+  apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+  authDomain: "my-project-66803-95cb3.firebaseapp.com",
+  projectId: "my-project-66803-95cb3",
+  storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+  messagingSenderId: "167159607898",
+  appId: "1:167159607898:web:23ca11366b88868b085e63"
+};
+
+// Initialize
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+// LOGIN BUTTON
+document.getElementById("loginBtn").addEventListener("click", () => {
+    signInWithPopup(auth, provider)
+    .then((result) => {
+        console.log("User:", result.user);
+        window.location.href = "dashboard.html";
+    })
+    .catch((error) => {
+        console.error("Error:", error);
+        alert(error.message);
+    });
+});
+</script>
 
 </body>
 </html>
