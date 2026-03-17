@@ -14,7 +14,6 @@
             flex-direction: column;
         }
 
-        /* TOP TITLE */
         header {
             text-align: center;
             padding: 20px;
@@ -28,7 +27,6 @@
             color: #FF5733;
         }
 
-        /* CENTER AREA */
         .center {
             flex: 1;
             display: flex;
@@ -36,7 +34,6 @@
             align-items: center;
         }
 
-        /* PURPLE BUTTON */
         button {
             padding: 14px 30px;
             font-size: 18px;
@@ -58,48 +55,57 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
 
     <script>
+        // ✅ YOUR REAL FIREBASE CONFIG
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_BUCKET",
-            messagingSenderId: "YOUR_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
         };
 
+        // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
+
+        // 🔐 LOGIN WITH GOOGLE
         function login() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithRedirect(provider);
-}
-        auth.getRedirectResult()
-.then((result) => {
-    if (result.user) {
-        console.log("Logged in user:", result.user);
-        // You can redirect to dashboard here if needed
-        // window.location.href = "dashboard.html";
-    }
-})
-.catch((error) => {
-    console.error(error);
-});
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithRedirect(provider);
+        }
+
+        // 🔄 HANDLE RETURN AFTER LOGIN
+        window.onload = function () {
+            auth.getRedirectResult()
+            .then((result) => {
+                if (result.user) {
+                    console.log("Logged in user:", result.user);
+
+                    // 🚀 redirect after login
+                    window.location.href = "dashboard.html";
+                }
+            })
+            .catch((error) => {
+                console.error("Login error:", error);
+            });
+        };
     </script>
 </head>
 
 <body>
 
-    <!-- TITLE AT TOP -->
+    <!-- TITLE -->
     <header>
         <h1>
             <span class="highlight">JAMALI SAIDI KAZEMBE</span> MULTISYSTEM MANAGEMENT
         </h1>
     </header>
 
-    <!-- CENTER LOGIN BUTTON -->
+    <!-- LOGIN BUTTON -->
     <div class="center">
-        <button onclick="login()">Login</button>
+        <button onclick="login()">Login with Google</button>
     </div>
 
 </body>
