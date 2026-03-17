@@ -174,7 +174,8 @@
     <button class="next-btn">NEXT</button>
   </div>
 </div>
-
+<input type="file" id="photosInput" accept="image/*" style="display:none;">
+<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
 <!-- Page 2: Camera/Photos Options (Sibling to payPage, not child) -->
 <div id="cameraMenuPage">
   <button id="openCameraBtn">CAMERA</button>
@@ -278,8 +279,39 @@ backFromCameraBtn.onclick = () => {
 };
 
 // Placeholders for Camera/Photos logic
-openCameraBtn.onclick = () => alert("Open Camera logic here");
-openPhotosBtn.onclick = () => alert("Open Photos logic here");
+const cameraInput = document.getElementById("cameraInput");
+
+// Open camera
+openCameraBtn.onclick = () => {
+  cameraInput.click();
+};
+
+// When photo is taken
+cameraInput.onchange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    alert("Photo captured: " + file.name);
+    // later you can upload this file
+  }
+};
+const photosInput = document.getElementById("photosInput");
+
+// Open gallery / photos
+openPhotosBtn.onclick = () => {
+  photosInput.click();
+};
+
+// When user selects photo
+photosInput.onchange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    alert("Photo selected: " + file.name);
+
+    // Optional: go back
+    cameraMenuPage.style.display = "none";
+    payPage.style.display = "flex";
+  }
+};
 
 </script>
 </body>
