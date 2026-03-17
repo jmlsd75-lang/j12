@@ -4,71 +4,120 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jamal Said Kazembe Multisystem Management</title>
-<style>
-  body{
-    margin:0;
-    font-family:Arial, sans-serif;
-    background:#f4f4f4;
-    display:flex;
-    flex-direction:column;
-    justify-content:flex-start;
-    align-items:center;
-    min-height:100vh;
-    text-align:center;
-    padding-top:50px;
-  }
-  h1{ font-size:32px; color:blue; margin:0; }
-  h2{ color:red; margin-top:5px; font-size:18px; }
 
-  /* Buttons Styling */
-  .login-btn{
-    margin-top:100px; padding:15px 40px; font-size:20px;
-    background:#28a745; color:white; border:none; border-radius:6px; cursor:pointer;
-    display: none; /* Hidden by default until JS checks auth status */
-  }
-  
-  .logout-btn{
-    background:#dc3545; color:white; border:none; padding:10px 25px;
-    border-radius:6px; cursor:pointer; margin-top:20px; font-size:16px;
-    display: none; /* Hidden by default */
-  }
-#welcomePage {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-top: 50px;
-  gap: 20px;
+<style>
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#f4f4f4;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  min-height:100vh;
+  text-align:center;
+  padding-top:50px;
 }
 
-#payBtn {
-  background: #28a745;
-  color: white;
-  border: none;
-  padding: 15px 40px;
-  font-size: 20px;
-  border-radius: 6px;
-  cursor: pointer;
+h1{ font-size:32px; color:blue; margin:0; }
+h2{ color:red; margin-top:5px; font-size:18px; }
+
+.login-btn{
+  margin-top:100px;
+  padding:15px 40px;
+  font-size:20px;
+  background:#28a745;
+  color:white;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  display:none;
+}
+
+.logout-btn{
+  background:#dc3545;
+  color:white;
+  border:none;
+  padding:10px 25px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:16px;
+  display:none;
+}
+
+#welcomePage{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  gap:20px;
+  margin-top:50px;
+}
+
+#payBtn{
+  background:#28a745;
+  color:white;
+  border:none;
+  padding:15px 40px;
+  font-size:20px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+#paymentPage{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  margin-top:40px;
 }
 </style>
 </head>
+
 <body>
 
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
 
-<!-- Login Button -->
+<!-- LOGIN -->
 <button class="login-btn">LOGIN</button>
-  <div id="welcomePage">
+
+<!-- WELCOME PAGE -->
+<div id="welcomePage">
+
   <button id="payBtn">PAY</button>
+
   <button class="logout-btn">LOGOUT</button>
+
+</div>
+
+<!-- PAYMENT PAGE -->
+<div id="paymentPage">
+
+  <div>Pay through</div>
+  <div>Mix by Yas</div>
+  <div>+255 655 510 714</div>
+  <div>Airtel Money</div>
+  <div>+255 780 526 374</div>
+  <div>CRDB</div>
+  <div>0152001GN6K00</div>
+  <div>JAMALI SAIDI KAZEMBE</div>
+
+  <div style="margin-top:30px; display:flex; gap:20px;">
+    <button id="backBtn" style="padding:10px 25px; background:#dc3545; color:white; border:none; border-radius:6px;">
+      BACK
+    </button>
+
+    <button id="nextBtn" style="padding:10px 25px; background:#28a745; color:white; border:none; border-radius:6px;">
+      NEXT
+    </button>
+  </div>
+
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// --- Firebase Config ---
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -82,49 +131,56 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// --- DOM Elements ---
+// Elements
 const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
 const welcomePage = document.getElementById("welcomePage");
 
-// --- Auth Logic ---
+const payBtn = document.getElementById("payBtn");
+const paymentPage = document.getElementById("paymentPage");
+const backBtn = document.getElementById("backBtn");
 
-// Listen for authentication state changes
+// Auth state
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    // User is signed in.
-    console.log("User logged in:", user.displayName);
     loginBtn.style.display = "none";
     welcomePage.style.display = "flex";
-    logoutBtn.style.display = "block"; // Show logout button inside welcome page
+    logoutBtn.style.display = "block";
   } else {
-    // User is signed out.
-    console.log("User logged out.");
     loginBtn.style.display = "block";
     welcomePage.style.display = "none";
     logoutBtn.style.display = "none";
+    paymentPage.style.display = "none";
   }
 });
 
-// Login Button Click
+// Login
 loginBtn.onclick = async () => {
   try {
     await signInWithPopup(auth, provider);
   } catch (e) {
-    console.error("Login Error:", e);
-    alert("Login failed. Please try again.");
+    alert("Login failed");
   }
 };
 
-// Logout Button Click
+// Logout
 logoutBtn.onclick = async () => {
-  try {
-    await signOut(auth);
-  } catch (e) {
-    console.error("Logout Error:", e);
-  }
+  await signOut(auth);
+};
+
+// PAY → show payment page
+payBtn.onclick = () => {
+  welcomePage.style.display = "none";
+  paymentPage.style.display = "flex";
+};
+
+// BACK → return
+backBtn.onclick = () => {
+  paymentPage.style.display = "none";
+  welcomePage.style.display = "flex";
 };
 
 </script>
+
 </body>
 </html>
