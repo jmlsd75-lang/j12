@@ -20,7 +20,7 @@
   h1{ font-size:32px; color:blue; margin:0; }
   h2{ color:red; margin-top:5px; font-size:18px; }
 
-  /* Buttons Styling */
+  /* --- Main Menu Buttons --- */
   .login-btn, .logout-btn, .pay-btn {
     position: fixed;
     left: 50%;
@@ -29,8 +29,6 @@
     cursor:pointer;
     display: none; /* Hidden by default, controlled by JS */
   }
-
-  /* Main Menu Buttons */
   .login-btn{
     bottom: 30px;
     padding:15px 40px;
@@ -61,16 +59,15 @@
   /* --- Page 1: Payment Info --- */
   #payPage{
     position: fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
+    top:0; left:0;
+    width:100%; height:100%;
     background:#ffffff;
-    display:none; /* Hidden by default */
+    display:none;
     flex-direction:column;
     justify-content:center;
     align-items:center;
     text-align:center;
+    z-index: 10;
   }
   .pay-info p{ margin:10px; font-size:18px; }
   .mix{ color:green; }
@@ -78,7 +75,6 @@
   .crdb{ color:blue; }
   .name{ color:black; font-weight:bold; }
 
-  /* Bottom buttons for Pay Page */
   .pay-actions{
     position: fixed;
     bottom: 30px;
@@ -105,42 +101,71 @@
   /* --- Page 2: Camera/Photos Menu --- */
   #cameraMenuPage {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top:0; left:0;
+    width:100%; height:100%;
     background: #ffffff;
-    display: none; /* Hidden by default */
+    display: none;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 20px; /* Space between buttons */
+    gap: 20px;
+    z-index: 20;
   }
   #openCameraBtn {
-    padding: 15px 40px;
-    font-size: 20px;
-    background: #007bff; /* Blue */
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
+    padding: 15px 40px; font-size: 20px;
+    background: #007bff; color: white;
+    border: none; border-radius: 6px; cursor: pointer;
   }
   #openPhotosBtn {
-    padding: 15px 40px;
-    font-size: 20px;
-    background: #17a2b8; /* Teal */
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
+    padding: 15px 40px; font-size: 20px;
+    background: #17a2b8; color: white;
+    border: none; border-radius: 6px; cursor: pointer;
   }
   #backFromCameraBtn {
-    padding: 15px 40px;
-    font-size: 20px;
-    background: #dc3545; /* Red */
+    padding: 15px 40px; font-size: 20px;
+    background: #dc3545; color: white;
+    border: none; border-radius: 6px; cursor: pointer;
+  }
+
+  /* --- Page 3: Preview & Submit --- */
+  #previewPage {
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: white;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 30;
+  }
+  #previewImage {
+    max-width: 90%;
+    max-height: 60%;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  .preview-actions {
+    display: flex;
+    gap: 20px;
+  }
+  #submitBtn {
+    padding: 12px 25px;
+    background: green;
     color: white;
     border: none;
     border-radius: 6px;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  #cancelBtn {
+    padding: 12px 25px;
+    background: red;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 18px;
     cursor: pointer;
   }
 </style>
@@ -155,6 +180,10 @@
 <button class="login-btn">LOGIN</button>
 <button class="pay-btn">PAY</button>
 <button class="logout-btn">LOGOUT</button>
+
+<!-- Hidden File Inputs -->
+<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
+<input type="file" id="photosInput" accept="image/*" style="display:none;">
 
 <!-- Page 1: Payment Info -->
 <div id="payPage">
@@ -173,24 +202,21 @@
     <button class="next-btn">NEXT</button>
   </div>
 </div>
-<input type="file" id="photosInput" accept="image/*" style="display:none;">
-<input type="file" id="cameraInput" accept="image/*" capture style="display:none;">
-<!-- Page 2: Camera/Photos Options (Sibling to payPage, not child) -->
+
+<!-- Page 2: Camera/Photos Options -->
 <div id="cameraMenuPage">
   <button id="openCameraBtn">CAMERA</button>
   <button id="openPhotosBtn">PHOTOS</button>
   <button id="backFromCameraBtn">BACK</button>
 </div>
 
-<div id="previewPage" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; flex-direction:column; justify-content:center; align-items:center;">
-  
-  <img id="previewImage" style="max-width:90%; max-height:60%; border-radius:10px; margin-bottom:20px;" />
-
-  <div style="display:flex; gap:20px;">
-    <button id="submitBtn" style="padding:12px 25px; background:green; color:white; border:none; border-radius:6px;">SUBMIT</button>
-    <button id="cancelBtn" style="padding:12px 25px; background:red; color:white; border:none; border-radius:6px;">CANCEL</button>
+<!-- Page 3: Preview Page -->
+<div id="previewPage">
+  <img id="previewImage" src="" alt="Payment Preview">
+  <div class="preview-actions">
+    <button id="submitBtn">SUBMIT</button>
+    <button id="cancelBtn">CANCEL</button>
   </div>
-
 </div>
 
 <script type="module">
@@ -206,15 +232,8 @@ const firebaseConfig = {
   messagingSenderId: "167159607898",
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
-const cameraInput = document.getElementById("cameraInput");
-const photosInput = document.getElementById("photosInput");
-const previewPage = document.getElementById("previewPage");
-const previewImage = document.getElementById("previewImage");
-const submitBtn = document.getElementById("submitBtn");
-const cancelBtn = document.getElementById("cancelBtn");
 
-let selectedFile = null;
-// Initialize Firebase immediately
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
@@ -233,112 +252,119 @@ const openCameraBtn = document.getElementById("openCameraBtn");
 const openPhotosBtn = document.getElementById("openPhotosBtn");
 const backFromCameraBtn = document.getElementById("backFromCameraBtn");
 
+const cameraInput = document.getElementById("cameraInput");
+const photosInput = document.getElementById("photosInput");
+
+const previewPage = document.getElementById("previewPage");
+const previewImage = document.getElementById("previewImage");
+const submitBtn = document.getElementById("submitBtn");
+const cancelBtn = document.getElementById("cancelBtn");
+
+let selectedFile = null;
+
 // --- Auth Logic ---
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    // User is signed in.
     loginBtn.style.display = "none";
     payBtn.style.display = "block";
     logoutBtn.style.display = "block";
   } else {
-    // User is signed out.
     loginBtn.style.display = "block";
     payBtn.style.display = "none";
     logoutBtn.style.display = "none";
   }
 });
 
-// Login Button Click
 loginBtn.onclick = async () => {
-  try {
-    await signInWithPopup(auth, provider);
-  } catch (e) {
-    console.error("Login Error:", e);
-    alert("Login failed. Please try again.");
-  }
+  try { await signInWithPopup(auth, provider); } 
+  catch (e) { console.error("Login Error", e); alert("Login failed."); }
 };
 
-// Logout Button Click
 logoutBtn.onclick = async () => {
-  try {
-    await signOut(auth);
-  } catch (e) {
-    console.error("Logout Error:", e);
-  }
+  try { await signOut(auth); } 
+  catch (e) { console.error("Logout Error", e); }
 };
 
 // --- Navigation Logic ---
 
-// 1. PAY Button -> Shows Payment Page
+// 1. Main Menu -> Pay Page
 payBtn.onclick = () => {
   payPage.style.display = "flex";
   payBtn.style.display = "none";
   logoutBtn.style.display = "none";
 };
 
-// 2. BACK (Pay Page) -> Returns to Main Menu
+// 2. Pay Page -> Main Menu
 backBtn.onclick = () => {
   payPage.style.display = "none";
   payBtn.style.display = "block";
   logoutBtn.style.display = "block";
 };
 
-// 3. NEXT (Pay Page) -> Shows Camera Menu
+// 3. Pay Page -> Camera Menu
 nextBtn.onclick = () => {
   payPage.style.display = "none";
   cameraMenuPage.style.display = "flex";
 };
 
-// 4. BACK (Camera Menu) -> Returns to Payment Page
+// 4. Camera Menu -> Pay Page
 backFromCameraBtn.onclick = () => {
   cameraMenuPage.style.display = "none";
   payPage.style.display = "flex";
 };
+
+// --- Camera & Photos Logic ---
+
+openCameraBtn.onclick = () => {
+  cameraInput.click();
+};
+
+openPhotosBtn.onclick = () => {
+  photosInput.click();
+};
+
+// Handle file selection (from Camera or Photos)
 function handleFile(file) {
   if (!file) return;
-
   selectedFile = file;
 
   const reader = new FileReader();
   reader.onload = function(e) {
     previewImage.src = e.target.result;
-
-    // hide everything
+    
+    // Hide other pages
     cameraMenuPage.style.display = "none";
     payPage.style.display = "none";
-
-    // show preview
+    
+    // Show Preview
     previewPage.style.display = "flex";
   };
   reader.readAsDataURL(file);
 }
 
-// camera
-cameraInput.onchange = (event) => {
-  handleFile(event.target.files[0]);
-};
+cameraInput.onchange = (e) => handleFile(e.target.files[0]);
+photosInput.onchange = (e) => handleFile(e.target.files[0]);
 
-// photos
-photosInput.onchange = (event) => {
-  handleFile(event.target.files[0]);
-};
-// SUBMIT
+// --- Preview Actions ---
+
 submitBtn.onclick = () => {
-  previewPage.innerHTML = "<h2>Please wait...</h2>";
+  // Logic to upload file to Firebase Storage would go here
+  alert("Payment Submitted Successfully!");
+  
+  // Reset and go back to main menu
+  previewPage.style.display = "none";
+  payBtn.style.display = "block";
+  logoutBtn.style.display = "block";
+  previewImage.src = "";
+  selectedFile = null;
 };
 
-// CANCEL
 cancelBtn.onclick = () => {
   previewPage.style.display = "none";
   cameraMenuPage.style.display = "flex";
+  selectedFile = null;
 };
-openCameraBtn.onclick = () => {
-  cameraMenuPage.style.display = "none"; // hide menu
-  cameraInput.click();
-};
-openPhotosBtn.onclick = () => {
-  photosInput.click();
-};
+
 </script>
 </body>
 </html>
