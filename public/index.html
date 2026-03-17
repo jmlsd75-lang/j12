@@ -288,16 +288,27 @@ backFromCameraBtn.onclick = () => showPage('pay');
 // --- Camera & Photos Logic ---
 openCameraBtn.onclick = () => cameraInput.click();
 openPhotosBtn.onclick = () => photosInput.click();
-
 function handleFile(file) {
-  if (!file) return;
+  if (!file) {
+    // ❗ user cancelled camera/photos picker
+    selectedFile = null;
+    return;
+  }
+
   selectedFile = file;
+
   const reader = new FileReader();
   reader.onload = function(e) {
     previewImage.src = e.target.result;
     showPage('preview');
   };
   reader.readAsDataURL(file);
+
+  // ✅ FORCE reset so same file can be selected again
+  setTimeout(() => {
+    cameraInput.value = "";
+    photosInput.value = "";
+  }, 100);
 }
 
 cameraInput.onchange = (e) => handleFile(e.target.files[0]);
@@ -356,7 +367,8 @@ submitBtn.onclick = async () => {
         receiptDate.setHours(parseInt(parts[0]), parseInt(parts[1]), 0, 0);
         
         const diffMs = now - receiptDate;
-if(diffMs < 0 || diffMs > 600000) throw new Error("Invalid time.");
+        if(diffMs < 0 || diffMs > 10 * 60 * 1000)
+  throw new Error("Invalid time.");
         const diffMins = diffMs / 60000;
         
         if(diffMins > 10) throw new Error("Payment time is older than 10 minutes.");
@@ -366,7 +378,7 @@ if(diffMs < 0 || diffMs > 600000) throw new Error("Invalid time.");
     }
 
     // Step 5: Check Currency
-    const currencies = ["TZS", "USD", "$", "€", "SH", "SHILLING"];
+    const currencies = ["TZS", "TSH", "USD", "EUR", "$", "€"];
     const hasCurrency = currencies.some(c => cleanText.includes(c));
     if(!hasCurrency) throw new Error("No currency found.");
 
@@ -376,8 +388,7 @@ if(diffMs < 0 || diffMs > 600000) throw new Error("Invalid time.");
     const hasTxKeyword = txKeywords.some(k => cleanText.includes(k));
     // Or look for a long alphanumeric string typical of IDs
     const hasTxCode = /[A-Z0-9]{6,}/.test(cleanText.replace(/\s/g, ""));
-    
-    if(!hasTxKeyword && !hasTxCode) throw new Error("Transaction ID missing.");
+    if(!hasTxKeyword) throw new Error("Transaction ID missing.");
 
     // --- SUCCESS ---
     // Extract Amount
@@ -387,7 +398,7 @@ if(diffMs < 0 || diffMs > 600000) throw new Error("Invalid time.");
     if(amounts) {
         const parsed = amounts
             .map(a => parseFloat(a.replace(/,/g, '')))
-            .filter(n => n > 100); // Filter small numbers (like dates)
+            .filter(n => n > 0);
         
         if(parsed.length > 0) amount = Math.max(...parsed);
     }
@@ -410,10 +421,15 @@ if(diffMs < 0 || diffMs > 600000) throw new Error("Invalid time.");
     loadingOverlay.style.display = "none";
   }
 };
-
 cancelBtn.onclick = () => {
-  showPage('camera');
   selectedFile = null;
+  previewImage.src = "";
+  
+  // ✅ reset again (extra safe)
+  cameraInput.value = "";
+  photosInput.value = "";
+
+  showPage('camera');
 };
 
 // --- Timer Logic ---
