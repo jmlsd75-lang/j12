@@ -346,19 +346,28 @@ cameraInput.onchange = (e) => handleFile(e.target.files[0]);
 photosInput.onchange = (e) => handleFile(e.target.files[0]);
 
 // --- Preview Actions ---
-
 submitBtn.onclick = () => {
-  // Logic to upload file to Firebase Storage would go here
-  alert("Payment Submitted Successfully!");
-  
-  // Reset and go back to main menu
-  previewPage.style.display = "none";
-  payBtn.style.display = "block";
-  logoutBtn.style.display = "block";
-  previewImage.src = "";
-  selectedFile = null;
-};
+  // show loading
+  previewPage.innerHTML = "<h2>Please wait...</h2>";
 
+  // simulate processing (you can replace later with Firebase upload)
+  setTimeout(() => {
+    previewPage.style.display = "none";
+
+    // restore preview content
+    previewPage.innerHTML = `
+      <img id="previewImage" src="" />
+      <div class="preview-actions">
+        <button id="submitBtn">SUBMIT</button>
+        <button id="cancelBtn">CANCEL</button>
+      </div>
+    `;
+
+    // go back to main
+    payBtn.style.display = "block";
+    logoutBtn.style.display = "block";
+  }, 2000);
+};
 cancelBtn.onclick = () => {
   previewPage.style.display = "none";
   cameraMenuPage.style.display = "flex";
