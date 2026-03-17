@@ -325,7 +325,33 @@ submitBtn.onclick = async () => {
   
   try {
     // 2. Extract Text using Tesseract
-    const result = await Tesseract.recognize(previewImage.src, 'eng');
+    // --- Image Preprocessing ---
+const canvas = document.createElement("canvas");
+const ctx = canvas.getContext("2d");
+const img = new Image();
+
+img.src = previewImage.src;
+await new Promise(r => img.onload = r);
+
+canvas.width = img.width;
+canvas.height = img.height;
+ctx.drawImage(img, 0, 0);
+
+// Grayscale
+const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+const data = imageData.data;
+
+for (let i = 0; i < data.length; i += 4) {
+  const avg = (data[i] + data[i+1] + data[i+2]) / 3;
+  data[i] = data[i+1] = data[i+2] = avg;
+}
+
+ctx.putImageData(imageData, 0, 0);
+
+const processedImage = canvas.toDataURL();
+
+// OCR
+const result = await Tesseract.recognize(processedImage, 'eng+osd');
     const rawText = result.data.text.toUpperCase();
     // Clean text for easier matching (remove line breaks)
     const cleanText = rawText.replace(/\n/g, " ").replace(/\s+/g, " ");
@@ -343,11 +369,12 @@ submitBtn.onclick = async () => {
     const digitsOnly = cleanText.replace(/\D/g, ""); 
     
     const targets = ["655510714", "780526437", "0152001GN6K00"];
-    // For phones, check last 9 digits match. For account, check string includes.
     const hasTarget = targets.some(t => {
-        if(t.startsWith("0")) return cleanText.includes(t); // Account number
-        return digitsOnly.includes(t); // Phone numbers
-    });
+  if (t.startsWith("0")) {
+    return cleanText.includes(t); // CRDB account
+  }
+  return cleanText.includes(t) || digitsOnly.includes(t); // phone numbers
+});
 
     if(!hasTarget) throw new Error("Invalid Payment Target.");
 
@@ -367,8 +394,10 @@ submitBtn.onclick = async () => {
         receiptDate.setHours(parseInt(parts[0]), parseInt(parts[1]), 0, 0);
         
         const diffMs = now - receiptDate;
-        if(diffMs < 0 || diffMs > 10 * 60 * 1000)
-  throw new Error("Invalid time.");
+  if (diffMs < 0 || diffMs > 10 * 60 * 1000) {
+  throw new Error("Invalid or expired time.");
+}
+
         const diffMins = diffMs / 60000;
         
         if(diffMins > 10) throw new Error("Payment time is older than 10 minutes.");
@@ -388,17 +417,33 @@ submitBtn.onclick = async () => {
     const hasTxKeyword = txKeywords.some(k => cleanText.includes(k));
     // Or look for a long alphanumeric string typical of IDs
     const hasTxCode = /[A-Z0-9]{6,}/.test(cleanText.replace(/\s/g, ""));
-    if(!hasTxKeyword) throw new Error("Transaction ID missing.");
+    const txPattern = /(TXN|REF|ID|RECEIPT|TRANS|TRANSACTION)[\s:.-]*([A-Z0-9]{6,})/;
+if(!txPattern.test(cleanText) && !hasTxCode) {
+  throw new Error("Transaction ID missing or invalid.");
+}
 
-    // --- SUCCESS ---
-    // Extract Amount
+// --- Prevent reuse ---
+const txMatch = cleanText.match(/(TXN|REF|ID|RECEIPT|TRANS|TRANSACTION)[\s:.-]*([A-Z0-9]{6,})/);
+if (!txMatch) throw new Error("Transaction ID missing.");
+
+const txId = txMatch[2];
+const usedTxList = JSON.parse(localStorage.getItem("usedTxList") || "[]");
+
+if (usedTxList.includes(txId)) {
+  throw new Error("Receipt already used.");
+}
+
+usedTxList.push(txId);
+localStorage.setItem("usedTxList", JSON.stringify(usedTxList));
     let amount = 0;
-    // Look for numbers that could be amounts (often followed by .00 or similar)
-    const amounts = cleanText.match(/[\d,]+/g);
+    const amounts = cleanText.match(/(?:TZS|TSH|\$|USD)?\s?[\d,]+(\.\d{2})?/g);
     if(amounts) {
         const parsed = amounts
             .map(a => parseFloat(a.replace(/,/g, '')))
-            .filter(n => n > 0);
+          const amountMatch = cleanText.match(/(TZS|TSH)?\s?([\d,]{4,})/);
+if (!amountMatch) throw new Error("Amount not found");
+
+const amount = parseFloat(amountMatch[2].replace(/,/g, ""));
         
         if(parsed.length > 0) amount = Math.max(...parsed);
     }
@@ -471,7 +516,8 @@ window.onload = () => {
   const endTime = localStorage.getItem("sessionEnd");
   if(endTime && parseInt(endTime) > Date.now()) {
     showPage('timer');
-    startTimer();
+    const remaining = Math.floor((endTime - Date.now()) / 1000);
+startTimer(remaining);
   }
 };
 
