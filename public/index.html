@@ -29,50 +29,8 @@
     cursor:pointer;
     display: none; /* Hidden by default, controlled by JS */
   }
-  #payPage{
-  position: fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:#ffffff;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-}
 
-/* Different colors for lines */
-.pay-info p{ margin:10px; font-size:18px; }
-.mix{ color:green; }
-.airtel{ color:red; }
-.crdb{ color:blue; }
-.name{ color:black; font-weight:bold; }
-
-/* Bottom buttons */
-.pay-actions{
-  position: fixed;
-  bottom: 30px;
-  display:flex;
-  gap:20px;
-}
-
-.back-btn{
-  padding:12px 25px;
-  background:gray;
-  color:white;
-  border:none;
-  border-radius:6px;
-}
-
-.next-btn{
-  padding:12px 25px;
-  background:green;
-  color:white;
-  border:none;
-  border-radius:6px;
-}
+  /* Main Menu Buttons */
   .login-btn{
     bottom: 30px;
     padding:15px 40px;
@@ -81,17 +39,16 @@
     color:white;
     border-radius:6px;
   }
-.pay-btn{
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding:18px 50px;
-  font-size:22px;
-  background-color: #28a745;
-  color:white;
-  border-radius:8px;
-}
+  .pay-btn{
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding:18px 50px;
+    font-size:22px;
+    background-color: #28a745;
+    color:white;
+    border-radius:8px;
+  }
   .logout-btn{
     bottom: 30px;
     background:#dc3545;
@@ -100,80 +57,115 @@
     border-radius:6px;
     font-size:16px;
   }
-  /* Container for the new Camera/Photos page */
-#cameraMenuPage {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #ffffff;
-  display: none; /* Hidden by default */
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 20px; /* Space between buttons */
-}
 
-/* Styling the individual buttons */
-#openCameraBtn {
-  padding: 15px 40px;
-  font-size: 20px;
-  background: #007bff; /* Blue */
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
+  /* --- Page 1: Payment Info --- */
+  #payPage{
+    position: fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:#ffffff;
+    display:none; /* Hidden by default */
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+  }
+  .pay-info p{ margin:10px; font-size:18px; }
+  .mix{ color:green; }
+  .airtel{ color:red; }
+  .crdb{ color:blue; }
+  .name{ color:black; font-weight:bold; }
 
-#openPhotosBtn {
-  padding: 15px 40px;
-  font-size: 20px;
-  background: #17a2b8; /* Teal */
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
+  /* Bottom buttons for Pay Page */
+  .pay-actions{
+    position: fixed;
+    bottom: 30px;
+    display:flex;
+    gap:20px;
+  }
+  .back-btn{
+    padding:12px 25px;
+    background:gray;
+    color:white;
+    border:none;
+    border-radius:6px;
+    cursor: pointer;
+  }
+  .next-btn{
+    padding:12px 25px;
+    background:green;
+    color:white;
+    border:none;
+    border-radius:6px;
+    cursor: pointer;
+  }
 
-#backFromCameraBtn {
-  padding: 15px 40px;
-  font-size: 20px;
-  background: #dc3545; /* Red */
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
+  /* --- Page 2: Camera/Photos Menu --- */
+  #cameraMenuPage {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px; /* Space between buttons */
+  }
+  #openCameraBtn {
+    padding: 15px 40px;
+    font-size: 20px;
+    background: #007bff; /* Blue */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  #openPhotosBtn {
+    padding: 15px 40px;
+    font-size: 20px;
+    background: #17a2b8; /* Teal */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  #backFromCameraBtn {
+    padding: 15px 40px;
+    font-size: 20px;
+    background: #dc3545; /* Red */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
 
+<!-- Main Screen Headers -->
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
   
-<!-- Login Button -->
+<!-- Main Screen Buttons -->
 <button class="login-btn">LOGIN</button>
-
-<!-- Fixed Position Buttons (Shown after login) -->
 <button class="pay-btn">PAY</button>
 <button class="logout-btn">LOGOUT</button>
-<div id="payPage" style="display:none;">
+
+<!-- Page 1: Payment Info -->
+<div id="payPage">
   <div class="pay-info">
     <p>Pay through:</p>
-    
     <p class="mix">Mix by Yas:</p>
-
     <p class="mix">+255 655 510 714</p>
-
-<p class="airtel">Airtel Money:</p>
-    
-<p class="airtel">+255 780 526 437</p>
-    
-<p class="crdb">CRDB:</p>
-
+    <p class="airtel">Airtel Money:</p>
+    <p class="airtel">+255 780 526 437</p>
+    <p class="crdb">CRDB:</p>
     <p class="crdb">0152001GN6K00</p>
-
     <p class="name">JAMALI SAIDI KAZEMBE</p>
   </div>
 
@@ -181,13 +173,15 @@
     <button class="back-btn">BACK</button>
     <button class="next-btn">NEXT</button>
   </div>
-  <!-- New Page for Camera/Photos Options -->
-<div id="cameraMenuPage" style="display:none;">
+</div>
+
+<!-- Page 2: Camera/Photos Options (Sibling to payPage, not child) -->
+<div id="cameraMenuPage">
   <button id="openCameraBtn">CAMERA</button>
   <button id="openPhotosBtn">PHOTOS</button>
   <button id="backFromCameraBtn">BACK</button>
 </div>
-</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -211,10 +205,17 @@ const provider = new GoogleAuthProvider();
 const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
 const payBtn = document.querySelector(".pay-btn");
+
+const payPage = document.getElementById("payPage");
+const backBtn = document.querySelector(".back-btn");
+const nextBtn = document.querySelector(".next-btn");
+
 const cameraMenuPage = document.getElementById("cameraMenuPage");
-const nextBtn = document.querySelector(".next-btn"); // Ensure you select the existing Next button
+const openCameraBtn = document.getElementById("openCameraBtn");
+const openPhotosBtn = document.getElementById("openPhotosBtn");
 const backFromCameraBtn = document.getElementById("backFromCameraBtn");
-// Listen for authentication state changes (Triggers instantly on load)
+
+// --- Auth Logic ---
 onAuthStateChanged(auth, (user) => {
   if (user) {
     // User is signed in.
@@ -248,37 +249,38 @@ logoutBtn.onclick = async () => {
   }
 };
 
-// Pay Button Click (Placeholder)
-payBtn.onclick = () => {
-  alert("Payment logic goes here");
-};
-// New elements
-const payPage = document.getElementById("payPage");
-const backBtn = document.querySelector(".back-btn");
+// --- Navigation Logic ---
 
-// PAY click → hide main UI, show pay page
+// 1. PAY Button -> Shows Payment Page
 payBtn.onclick = () => {
-  document.body.style.background = "#fff";
   payPage.style.display = "flex";
   payBtn.style.display = "none";
   logoutBtn.style.display = "none";
 };
-// NEXT click -> hide payPage, show cameraMenuPage
-nextBtn.onclick = () => {
-  payPage.style.display = "none";
-  cameraMenuPage.style.display = "flex";
-};
-  // BACK (from camera menu) -> hide cameraMenuPage, show payPage
-backFromCameraBtn.onclick = () => {
-  cameraMenuPage.style.display = "none";
-  payPage.style.display = "flex";
-};
-// BACK → return to main
+
+// 2. BACK (Pay Page) -> Returns to Main Menu
 backBtn.onclick = () => {
   payPage.style.display = "none";
   payBtn.style.display = "block";
   logoutBtn.style.display = "block";
 };
+
+// 3. NEXT (Pay Page) -> Shows Camera Menu
+nextBtn.onclick = () => {
+  payPage.style.display = "none";
+  cameraMenuPage.style.display = "flex";
+};
+
+// 4. BACK (Camera Menu) -> Returns to Payment Page
+backFromCameraBtn.onclick = () => {
+  cameraMenuPage.style.display = "none";
+  payPage.style.display = "flex";
+};
+
+// Placeholders for Camera/Photos logic
+openCameraBtn.onclick = () => alert("Open Camera logic here");
+openPhotosBtn.onclick = () => alert("Open Photos logic here");
+
 </script>
 </body>
 </html>
