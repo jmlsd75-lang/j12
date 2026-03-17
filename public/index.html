@@ -32,13 +32,24 @@
     border-radius:6px; cursor:pointer; margin-top:20px; font-size:16px;
     display: none; /* Hidden by default */
   }
+#welcomePage {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 50px;
+  gap: 20px;
+}
 
-  #welcomePage {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 50px;
-  }
+#payBtn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 15px 40px;
+  font-size: 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
 </style>
 </head>
 <body>
@@ -48,7 +59,8 @@
 
 <!-- Login Button -->
 <button class="login-btn">LOGIN</button>
-<div id="welcomePage">
+  <div id="welcomePage">
+  <button id="payBtn">PAY</button>
   <button class="logout-btn">LOGOUT</button>
 </div>
 
