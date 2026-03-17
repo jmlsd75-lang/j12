@@ -4,22 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JAMALI SAIDI KAZEMBE MULTISYSTEM MANAGEMENT</title>
+
     <style>
         body {
+            font-family: Arial, sans-serif;
+            margin: 0;
             display: flex;
-            flex-direction: column;
             justify-content: flex-start;
             align-items: center;
+            flex-direction: column;
             height: 100vh;
             text-align: center;
-            margin: 0;
             position: relative;
-            font-family: Arial, sans-serif;
         }
 
         h1 {
-            margin: 20px 0 0 0;
-            width: 100%;
+            margin-top: 20px;
         }
 
         .highlight {
@@ -34,49 +34,17 @@
             border-radius: 5px;
             font-size: 1rem;
             cursor: pointer;
+
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-        }
-
-        .logout-btn {
-            background-color: #6a0dad;
-            color: white;
-            padding: 15px 25px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            cursor: pointer;
-            position: absolute;
-            bottom: 20px;
-            display: none;
-        }
-
-        .center-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: none;
-            gap: 20px;
-        }
-
-        .action-btn {
-            background-color: #FF5733;
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            cursor: pointer;
         }
     </style>
 
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -93,53 +61,17 @@
 
         const provider = new firebase.auth.GoogleAuthProvider();
 
-        function updateUI(user) {
-            const loginBtn = document.getElementById('loginBtn');
-            const logoutBtn = document.getElementById('logoutBtn');
-            const centerButtons = document.getElementById('centerButtons');
-
-            if (user) {
-                loginBtn.style.display = 'none';
-                logoutBtn.style.display = 'block';
-                centerButtons.style.display = 'flex';
-            } else {
-                loginBtn.style.display = 'block';
-                logoutBtn.style.display = 'none';
-                centerButtons.style.display = 'none';
-            }
-        }
-
-        auth.onAuthStateChanged((user) => {
-            updateUI(user);
-        });
-
-        auth.getRedirectResult()
-            .then(() => {})
-            .catch((error) => {
-                console.error(error);
-            });
-
         function login() {
             auth.signInWithRedirect(provider);
         }
 
-        function logout() {
-            auth.signOut();
-        }
+        auth.getRedirectResult().catch(console.error);
     </script>
 </head>
 
 <body>
     <h1><span class="highlight">JAMALI SAIDI KAZEMBE</span> MULTISYSTEM MANAGEMENT</h1>
 
-    <!-- FIXED: direct onclick -->
-    <button id="loginBtn" class="login-btn" onclick="login()">Login</button>
-
-    <button id="logoutBtn" class="logout-btn" onclick="logout()">Logout</button>
-
-    <div id="centerButtons" class="center-container">
-        <button class="action-btn">Pay</button>
-        <button class="action-btn">Free</button>
-    </div>
+    <button class="login-btn" onclick="login()">Login</button>
 </body>
 </html>
