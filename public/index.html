@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JAMALI SAIDI KAZEMBE MULTISYSTEM MANAGEMENT</title>
     <style>
-    body {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    height: 100vh;
-    text-align: center;
+        
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center; /* Center everything vertically */
+            height: 100vh;
+            text-align: center;
+            flex-direction: column; /* Stack elements vertically */
         }   
         h1 {
             margin: 0;
@@ -18,16 +20,16 @@
         .highlight {
             color: #FF5733; /* You can change the color here */
         }       
-.login-btn {
-    background-color: #6a0dad; /* Purple color */
-    color: white;
-    padding: 15px 25px;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    cursor: pointer;
-    margin-top: 20px; /* Space between title and button */
-}
+        .login-btn {
+            background-color: #6a0dad; /* Purple color */
+            color: white;
+            padding: 15px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 20px; /* Space between title and button */
+        }
     </style>
     <!-- Firebase Configuration -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
