@@ -13,7 +13,7 @@
             height: 100vh;
             text-align: center;
             margin: 0;
-            position: relative; /* Allows absolute positioning for children */
+            position: relative;
             font-family: Arial, sans-serif;
         }
 
@@ -26,7 +26,6 @@
             color: #FF5733;
         }
 
-        /* --- Login Button (Centered initially) --- */
         .login-btn {
             background-color: #6a0dad;
             color: white;
@@ -41,7 +40,6 @@
             transform: translate(-50%, -50%);
         }
 
-        /* --- Logout Button (At Bottom) --- */
         .logout-btn {
             background-color: #6a0dad;
             color: white;
@@ -51,22 +49,19 @@
             font-size: 1rem;
             cursor: pointer;
             position: absolute;
-            bottom: 20px; /* Places it at the bottom */
-            display: none; /* Hidden by default */
+            bottom: 20px;
+            display: none;
         }
 
-        /* --- Center Buttons Container (Pay/Free) --- */
         .center-container {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            display: flex; /* Used flex to put Pay and Free side-by-side */
-            gap: 20px; /* Space between Pay and Free */
-            display: none; /* Hidden by default */
+            display: none;
+            gap: 20px;
         }
 
-        /* --- Pay & Free Button Styles --- */
         .action-btn {
             background-color: #FF5733;
             color: white;
@@ -77,12 +72,13 @@
             cursor: pointer;
         }
     </style>
-    <!-- Firebase Configuration -->
+
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+
     <script>
-        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
             authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -91,68 +87,56 @@
             messagingSenderId: "167159607898",
             appId: "1:167159607898:web:23ca11366b88868b085e63"
         };
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+
+        firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        // 1. Setup Google Auth Provider
         const provider = new firebase.auth.GoogleAuthProvider();
 
-        // 2. Function to handle UI changes based on login state
         function updateUI(user) {
             const loginBtn = document.getElementById('loginBtn');
             const logoutBtn = document.getElementById('logoutBtn');
             const centerButtons = document.getElementById('centerButtons');
 
             if (user) {
-                // User IS logged in
-                loginBtn.style.display = 'none';         // Hide Login
-                logoutBtn.style.display = 'block';       // Show Logout at bottom
-                centerButtons.style.display = 'flex';    // Show Pay/Free at center
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'block';
+                centerButtons.style.display = 'flex';
             } else {
-                // User is NOT logged in
-                loginBtn.style.display = 'block';        // Show Login at center
-                logoutBtn.style.display = 'none';        // Hide Logout
-                centerButtons.style.display = 'none';    // Hide Pay/Free
+                loginBtn.style.display = 'block';
+                logoutBtn.style.display = 'none';
+                centerButtons.style.display = 'none';
             }
         }
 
-        // 3. Listen for Authentication State Changes (Detects login/return from redirect)
         auth.onAuthStateChanged((user) => {
             updateUI(user);
         });
 
-        // 4. Wait for DOM to load to attach click listeners
-        document.addEventListener('DOMContentLoaded', () => {
-            // Login Button Action
-            document.getElementById('loginBtn').addEventListener('click', () => {
-                auth.signInWithRedirect(provider);
+        auth.getRedirectResult()
+            .then(() => {})
+            .catch((error) => {
+                console.error(error);
             });
 
-            // Logout Button Action
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                auth.signOut();
-            });
-        });
-        auth.getRedirectResult()
-    .then((result) => {
-        // user returned from Google login
-    })
-    .catch((error) => {
-        console.error(error);
-    });
+        function login() {
+            auth.signInWithRedirect(provider);
+        }
+
+        function logout() {
+            auth.signOut();
+        }
     </script>
 </head>
+
 <body>
     <h1><span class="highlight">JAMALI SAIDI KAZEMBE</span> MULTISYSTEM MANAGEMENT</h1>
 
-    <!-- Login Button (Centered) -->
-    <button id="loginBtn" class="login-btn">Login</button>
+    <!-- FIXED: direct onclick -->
+    <button id="loginBtn" class="login-btn" onclick="login()">Login</button>
 
-    <!-- Logout Button (Bottom) -->
-    <button id="logoutBtn" class="logout-btn">Logout</button>
+    <button id="logoutBtn" class="logout-btn" onclick="logout()">Logout</button>
 
-    <!-- Center Buttons (Pay/Free) -->
     <div id="centerButtons" class="center-container">
         <button class="action-btn">Pay</button>
         <button class="action-btn">Free</button>
