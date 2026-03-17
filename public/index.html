@@ -49,10 +49,10 @@
         }
     </style>
 
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+    <!-- ✅ Firebase (COMPAT - REQUIRED) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
     <script>
         // ✅ YOUR REAL FIREBASE CONFIG
@@ -66,44 +66,37 @@
         };
 
         // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
+        firebase.initializeApp(firebaseConfig);
 
-        // 🔐 LOGIN WITH GOOGLE
+        // ✅ LOGIN FUNCTION
         function login() {
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithRedirect(provider);
-        }
 
-        // 🔄 HANDLE RETURN AFTER LOGIN
-        window.onload = function () {
-            auth.getRedirectResult()
+            firebase.auth().signInWithPopup(provider)
             .then((result) => {
-                if (result.user) {
-                    console.log("Logged in user:", result.user);
+                console.log("User:", result.user);
 
-                    // 🚀 redirect after login
-                    window.location.href = "dashboard.html";
-                }
+                // redirect after login
+                window.location.href = "dashboard.html";
             })
             .catch((error) => {
                 console.error("Login error:", error);
+                alert(error.message);
             });
-        };
+        }
     </script>
 </head>
 
 <body>
 
-    <!-- TITLE -->
+    <!-- TOP TITLE -->
     <header>
         <h1>
             <span class="highlight">JAMALI SAIDI KAZEMBE</span> MULTISYSTEM MANAGEMENT
         </h1>
     </header>
 
-    <!-- LOGIN BUTTON -->
+    <!-- CENTER BUTTON -->
     <div class="center">
         <button onclick="login()">Login with Google</button>
     </div>
