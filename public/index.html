@@ -29,7 +29,50 @@
     cursor:pointer;
     display: none; /* Hidden by default, controlled by JS */
   }
-  
+  #payPage{
+  position: fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:#ffffff;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+}
+
+/* Different colors for lines */
+.pay-info p{ margin:10px; font-size:18px; }
+.mix{ color:green; }
+.airtel{ color:red; }
+.crdb{ color:blue; }
+.name{ color:black; font-weight:bold; }
+
+/* Bottom buttons */
+.pay-actions{
+  position: fixed;
+  bottom: 30px;
+  display:flex;
+  gap:20px;
+}
+
+.back-btn{
+  padding:12px 25px;
+  background:gray;
+  color:white;
+  border:none;
+  border-radius:6px;
+}
+
+.next-btn{
+  padding:12px 25px;
+  background:green;
+  color:white;
+  border:none;
+  border-radius:6px;
+}
   .login-btn{
     bottom: 30px;
     padding:15px 40px;
@@ -70,7 +113,20 @@
 <!-- Fixed Position Buttons (Shown after login) -->
 <button class="pay-btn">PAY</button>
 <button class="logout-btn">LOGOUT</button>
+<div id="payPage" style="display:none;">
+  <div class="pay-info">
+    <p>Pay through:</p>
+    <p class="mix">Mix by Yas: +255 655 510 714</p>
+    <p class="airtel">Airtel Money: +255 780 526 437</p>
+    <p class="crdb">CRDB: 0152001GN6K00</p>
+    <p class="name">JAMALI SAIDI KAZEMBE</p>
+  </div>
 
+  <div class="pay-actions">
+    <button class="back-btn">BACK</button>
+    <button class="next-btn">NEXT</button>
+  </div>
+</div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -135,7 +191,24 @@ logoutBtn.onclick = async () => {
 payBtn.onclick = () => {
   alert("Payment logic goes here");
 };
+// New elements
+const payPage = document.getElementById("payPage");
+const backBtn = document.querySelector(".back-btn");
 
+// PAY click → hide main UI, show pay page
+payBtn.onclick = () => {
+  document.body.style.background = "#fff";
+  payPage.style.display = "flex";
+  payBtn.style.display = "none";
+  logoutBtn.style.display = "none";
+};
+
+// BACK → return to main
+backBtn.onclick = () => {
+  payPage.style.display = "none";
+  payBtn.style.display = "block";
+  logoutBtn.style.display = "block";
+};
 </script>
 </body>
 </html>
