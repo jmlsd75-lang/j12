@@ -285,9 +285,20 @@ timerDisplay.textContent =
   String(secs).padStart(2, '0');
   }, 1000);
 }
+exitBtn.onclick = () => {
+  const user = auth.currentUser;
 
-exitBtn.onclick = () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); timerButtons.style.display = "none"; showPage('main'); };
+  // ADMIN → stay in business
+  if (user && user.email === "camelazembe1@gmail.com") {
+    showPage('business');
+    return;
+  }
 
+  clearInterval(timerInterval);
+  localStorage.removeItem("sessionEnd");
+  timerButtons.style.display = "none";
+  showPage('main');
+};
 // -------------------------------------------------------
 // IMAGE PREPROCESSING
 // -------------------------------------------------------
@@ -419,22 +430,30 @@ const tzsAmount = await convertToTZS(amount, currency);
 const seconds = Math.floor((tzsAmount / 300) * 3600);
 
 // ✅ SPECIAL ADMIN (UNLIMITED TIME)
-if (user && user.email === "camelazembe1@gmail.com") {
-  clearInterval(timerInterval);
-  localStorage.removeItem("sessionEnd");
+const currentUser = auth.currentUser;
 
-  timerDisplay.textContent = "∞ ∞ ∞";
-  timerStatus.textContent = "Unlimited Access";
-
-  timerButtons.style.display = "flex";
-  showPage("timer");
+if (currentUser && currentUser.email === "camelazembe1@gmail.com") {
+  showPage("business"); // go directly
   return;
 }
 if (nameFound && numberFound && timeValid && seconds > 0) {
   startTimer(seconds);
-  timerButtons.style.display = "flex";
-  showPage("timer");
-} else {
+  showPage('business');
+}
+if (user.email === "camelazembe1@gmail.com") {
+  userDisplay.style.display = "block";
+
+  loginBtn.style.display = "none";
+  payBtn.style.display = "none";
+  accessBtn.style.display = "none";
+  logoutBtn.style.display = "none";
+
+  backToTimerBtn.style.display = "none"; // ❌ hide BACK
+
+  showPage('business');
+  return;
+}
+else {
   alert("Invalid payment");
   showPage("pay");
 }
