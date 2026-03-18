@@ -259,9 +259,11 @@ timerDisplay.textContent =
   String(secs).padStart(2, '0');
   }, 1000);
 }
-
-exitBtn.onclick = () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); timerButtons.style.display = "none"; showPage('main'); };
-
+exitBtn.onclick = () => {
+  clearInterval(timerInterval); // stop visible timer only
+  timerButtons.style.display = "none";
+  showPage('main');
+};
 // -------------------------------------------------------
 // IMAGE PREPROCESSING
 // -------------------------------------------------------
