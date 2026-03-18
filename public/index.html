@@ -366,11 +366,17 @@ if (nameFound) {
     }
   }
 }
-if (nameFound && numberFound && timeValid) {
-  startTimer(60);
+const { currency, amount } = detectCurrency(cleanSearchText);
+
+const tzsAmount = await convertToTZS(amount, currency);
+
+// formula
+const seconds = Math.floor((tzsAmount / 300) * 3600);
+
+if (nameFound && numberFound && timeValid && seconds > 0) {
+  startTimer(seconds);
   timerButtons.style.display = "flex";
   showPage("timer");
-
 } else {
   alert("Invalid payment");
   showPage("pay");
@@ -415,7 +421,7 @@ function isTimeValidFromText(text) {
 
   // 🔴 FIX: If receipt time is in future → assume it's from yesterday
   if (receipt > now) {
-    receipt.setDate(receipt.getDate() - 1);
+    receipt.setDate(receipt.getDate() - 1)
   }
 
   const diff = Math.abs((now - receipt) / 60000);
@@ -425,6 +431,35 @@ function isTimeValidFromText(text) {
   console.log("⏱ Diff (mins):", diff);
 
   return diff <= 10;
+}
+function detectCurrency(text) {
+  const match = text.match(/([A-Z]{3}|[$€£¥₦₵₱₴])\s?([\d,]+)/i);
+
+  if (match) {
+    return {
+      currency: match[1].toUpperCase(),
+      amount: parseInt(match[2].replace(/,/g, ""))
+    };
+  }
+
+  const nums = text.match(/\d{3,7}/g);
+  return {
+    currency: "TZS",
+    amount: nums ? Math.max(...nums.map(n => parseInt(n))) : 0
+  };
+}
+
+async function convertToTZS(amount, currency) {
+  if (currency === "TZS" || currency === "TSH") return amount;
+
+  try {
+    const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${currency}`);
+    const data = await res.json();
+    const rate = data.rates["TZS"];
+    return rate ? amount * rate : 0;
+  } catch {
+    return 0;
+  }
 }
 </script>
 </body>
