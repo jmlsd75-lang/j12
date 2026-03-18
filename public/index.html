@@ -343,14 +343,31 @@ cancelBtn.onclick = () => {
   previewImage.src = "";
   showPage('main'); // Cancel returns to main
 };
-
 submitBtn.onclick = async () => {
-  if(!selectedFile) return;
+  if (!selectedFile) return;
 
+  // Show loading
   loadingOverlay.style.display = "flex";
   loadingText.textContent = "Please wait...";
-};
 
+  // Small delay (optional)
+  await new Promise(resolve => setTimeout(resolve, 1000));
+
+  // 👉 Fixed 60 seconds
+  const totalSeconds = 60;
+
+  const endTime = Date.now() + (totalSeconds * 1000);
+  localStorage.setItem("sessionEnd", endTime);
+
+  startTimer(totalSeconds);
+
+  // Show timer page + buttons
+  timerButtons.style.display = "flex";
+  showPage('timer');
+
+  // Hide loading
+  loadingOverlay.style.display = "none";
+};
 </script>
 </body>
 </html>
