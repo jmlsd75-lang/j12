@@ -408,15 +408,14 @@ submitBtn.onclick = async () => {
 
   // --- TEXT CHECK ---
   const { data: { text } } = await Tesseract.recognize(canvas, 'eng');
+// --- CONDITION ---
+const cleanText = text.replace(/[^a-zA-Z0-9]/g, ""); // remove symbols
 
-  // --- CONDITION ---
-  if (!qr && (!text || text.trim().length < 3)) {
-    // ❌ INVALID → back to main
-    loadingOverlay.style.display = "none";
-    showPage('main');
-    return;
-  }
-
+if (!qr && (!cleanText || cleanText.length < 5)) {
+  loadingOverlay.style.display = "none";
+  showPage('main');
+  return;
+}
   // ✅ VALID → start timer
   const totalSeconds = 60;
 
