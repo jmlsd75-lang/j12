@@ -390,8 +390,7 @@ exitBtn.onclick = () => {
   timerButtons.style.display = "none";
   showPage('main');
 };
-submitBtn.onclick = async () => {
-  // 1. Validate File
+async function handleSubmit() {
   if (!selectedFile) return;
 
   if (!selectedFile.type.startsWith("image/")) {
@@ -404,7 +403,7 @@ submitBtn.onclick = async () => {
   let objectUrl = null;
 
   try {
-    // 2. Load Image
+    // 1. Load Image
     const img = new Image();
     objectUrl = URL.createObjectURL(selectedFile);
     img.src = objectUrl;
@@ -415,70 +414,52 @@ submitBtn.onclick = async () => {
       img.onerror = () => reject(new Error("Invalid image"));
     });
 
-    // 3. Prepare Canvas
+    // 2. Canvas
     const MAX_W = 1000;
     const scale = Math.min(1, MAX_W / img.width);
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-    
+
     canvas.width = Math.floor(img.width * scale);
     canvas.height = Math.floor(img.height * scale);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
     let detectedText = "";
 
-    // -------------------------------------------------------
-    // CHECK 1: LOOK AT QR CODE
-    // -------------------------------------------------------
+    // 3. QR CHECK
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const qr = jsQR(imageData.data, canvas.width, canvas.height);
 
     if (qr && qr.data) {
-      // Found text inside the QR code
       detectedText = qr.data;
-      console.log("✅ Text found via QR Code:", detectedText);
-    } 
-    
-    // -------------------------------------------------------
-    // CHECK 2: LOOK AT NORMAL IMAGE (If no QR found)
-    // -------------------------------------------------------
-    else {
+      console.log("✅ QR:", detectedText);
+    } else {
+      // 4. OCR CHECK
       loadingText.textContent = "Reading image text...";
-      
+
       try {
-        // Set strict 5-second limit for reading
-        const timeoutPromise = new Promise((_, reject) => 
+        const timeoutPromise = new Promise((_, reject) =>
           setTimeout(() => reject(new Error("Timeout")), 5000)
         );
-        
+
         const ocrPromise = Tesseract.recognize(canvas, "eng");
         const { data: { text } } = await Promise.race([ocrPromise, timeoutPromise]);
 
-        // Save text found in normal image
         detectedText = text;
-        console.log("✅ Text found in Normal Image:", detectedText);
-      } catch (err) {
-        console.warn("Normal image scan failed or timed out.");
+        console.log("✅ OCR:", detectedText);
+      } catch {
         detectedText = "";
       }
     }
 
-    // -------------------------------------------------------
-    // FINAL DECISION: HAS TEXT?
-    // -------------------------------------------------------
-    
-    // Clean result: keep only letters and numbers
+    // 5. VALIDATION
     const cleanText = detectedText.replace(/[^a-zA-Z0-9]/g, "");
-
-    // VALIDATION RULE:
-    // If we found 3 or more characters, it is VALID.
     const isValid = cleanText.length >= 3;
 
-    // Cleanup memory
-    if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
 
+    // 6. RESULT
     if (isValid) {
-      // ✅ VALID: Text was present (in QR or Image)
       const totalSeconds = 60;
       const endTime = Date.now() + totalSeconds * 1000;
       localStorage.setItem("sessionEnd", endTime);
@@ -487,20 +468,19 @@ submitBtn.onclick = async () => {
       timerButtons.style.display = "flex";
       showPage("timer");
     } else {
-      // ❌ INVALID: No text found anywhere
-      alert("Invalid Proof: No text or QR code found in the image.");
+      alert("Invalid Proof: No text or QR found.");
       showPage("pay");
     }
 
   } catch (error) {
-    console.error("Error:", error);
-    alert("Processing error. Please try again.");
+    console.error(error);
+    alert("Processing error. Try again.");
     showPage("pay");
   } finally {
     if (objectUrl) URL.revokeObjectURL(objectUrl);
     loadingOverlay.style.display = "none";
   }
-};
+}
 </script>
 </body>
 </html>
