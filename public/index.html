@@ -104,11 +104,6 @@
     <button id="exitBtn" class="timer-action-btn">EXIT</button>
   </div>
 </div>
-<div id="businessPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:50;">
-  <button id="addTransactionBtn">ADD NEW TRANSACTION</button>
-  <button id="viewBtn">VIEW</button>
-  <button id="backToTimerBtn">BACK</button>
-</div>
 
 <div id="loadingOverlay">
   <div class="loader"></div>
@@ -158,35 +153,16 @@ const timerStatus = document.getElementById("timerStatus");
 const timerButtons = document.getElementById("timerButtons");
 const businessBtn = document.getElementById("businessBtn");
 const exitBtn = document.getElementById("exitBtn");
-const businessPage = document.getElementById("businessPage");
-const addTransactionBtn = document.getElementById("addTransactionBtn");
-const viewBtn = document.getElementById("viewBtn");
-const backToTimerBtn = document.getElementById("backToTimerBtn");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
 
 let selectedFile = null;
 let timerInterval = null;
 
+// --- Auth Logic ---
 onAuthStateChanged(auth, (user) => {
   if (user) {
     userDisplay.textContent = user.displayName;
-
-    // ✅ ADMIN USER (DIRECT ACCESS)
-    if (user.email === "camelazembe1@gmail.com") {
-      userDisplay.style.display = "block";
-
-      loginBtn.style.display = "none";
-      payBtn.style.display = "none";
-      accessBtn.style.display = "none";
-      logoutBtn.style.display = "none";
-
-      timerButtons.style.display = "flex"; // show BUSINESS + EXIT
-
-      showPage('business'); // 🔥 go directly
-      return;
-    }
-
     showPage('main');
   } else {
     userDisplay.style.display = "none";
@@ -203,24 +179,15 @@ accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
 
 // --- Navigation Logic ---
 function showPage(page) {
-payPage.style.display = "none"; 
-cameraMenuPage.style.display = "none"; 
-previewPage.style.display = "none"; 
-timerPage.style.display = "none";
-businessPage.style.display = "none"; // ✅ ADD THIS
+  payPage.style.display = "none"; cameraMenuPage.style.display = "none"; previewPage.style.display = "none"; timerPage.style.display = "none";
+  payBtn.style.display = "none"; accessBtn.style.display = "none"; logoutBtn.style.display = "none"; userDisplay.style.display = "none";
+
   if(page === 'main' && auth.currentUser) {
-    if (auth.currentUser.email === "camelazembe1@gmail.com") {
-  showPage('business');
-  return;
-}
     userDisplay.style.display = "block"; logoutBtn.style.display = "block";
     const endTime = localStorage.getItem("sessionEnd");
     if (endTime && Date.now() < parseInt(endTime)) { accessBtn.style.display = "block"; } 
     else { payBtn.style.display = "block"; }
   } else if (page === 'pay') { payPage.style.display = "flex"; } 
-  else if (page === 'business') {
-  businessPage.style.display = "flex";
-}
   else if (page === 'camera') { cameraMenuPage.style.display = "flex"; } 
   else if (page === 'preview') { previewPage.style.display = "flex"; } 
   else if (page === 'timer') { timerPage.style.display = "flex"; userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; }
@@ -285,20 +252,9 @@ timerDisplay.textContent =
   String(secs).padStart(2, '0');
   }, 1000);
 }
-exitBtn.onclick = () => {
-  const user = auth.currentUser;
 
-  // ADMIN → stay in business
-  if (user && user.email === "camelazembe1@gmail.com") {
-    showPage('business');
-    return;
-  }
+exitBtn.onclick = () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); timerButtons.style.display = "none"; showPage('main'); };
 
-  clearInterval(timerInterval);
-  localStorage.removeItem("sessionEnd");
-  timerButtons.style.display = "none";
-  showPage('main');
-};
 // -------------------------------------------------------
 // IMAGE PREPROCESSING
 // -------------------------------------------------------
@@ -429,31 +385,11 @@ const tzsAmount = await convertToTZS(amount, currency);
 // formula
 const seconds = Math.floor((tzsAmount / 300) * 3600);
 
-// ✅ SPECIAL ADMIN (UNLIMITED TIME)
-const currentUser = auth.currentUser;
-
-if (currentUser && currentUser.email === "camelazembe1@gmail.com") {
-  showPage("business"); // go directly
-  return;
-}
 if (nameFound && numberFound && timeValid && seconds > 0) {
   startTimer(seconds);
-  showPage('business');
-}
-if (user.email === "camelazembe1@gmail.com") {
-  userDisplay.style.display = "block";
-
-  loginBtn.style.display = "none";
-  payBtn.style.display = "none";
-  accessBtn.style.display = "none";
-  logoutBtn.style.display = "none";
-
-  backToTimerBtn.style.display = "none"; // ❌ hide BACK
-
-  showPage('business');
-  return;
-}
-else {
+  timerButtons.style.display = "flex";
+  showPage("timer");
+} else {
   alert("Invalid payment");
   showPage("pay");
 }
@@ -537,12 +473,6 @@ async function convertToTZS(amount, currency) {
     return 0;
   }
 }
-businessBtn.onclick = () => {
-  showPage('business'); // ✅ go to new menu
-};
-backToTimerBtn.onclick = () => {
-  showPage('timer'); // ✅ return to timer
-};
 </script>
 </body>
 </html>
