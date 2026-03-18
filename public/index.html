@@ -160,18 +160,10 @@ let selectedFile = null;
 let timerInterval = null;
 
 // --- Auth Logic ---
-// onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, (user) => {
   if (user) {
     userDisplay.textContent = user.displayName;
-
-    const endTime = localStorage.getItem("sessionEnd");
-
-    if (endTime && Date.now() < parseInt(endTime)) {
-      startTimerFromStorage();   // 🔥 restore timer immediately
-      showPage('timer');         // 🔥 go directly to timer
-    } else {
-      showPage('main');
-    }
+    showPage('main');
   } else {
     userDisplay.style.display = "none";
     loginBtn.style.display = "block";
@@ -235,13 +227,7 @@ function startTimer(seconds) {
       localStorage.removeItem("sessionEnd"); setTimeout(() => { showPage('main'); timerButtons.style.display = "none"; }, 2000);
       return;
     }
-    const hrs = Math.floor(remaining / 3600);
-const mins = Math.floor((remaining % 3600) / 60);
-const secs = remaining % 60;
-timerDisplay.textContent =
-  String(hrs).padStart(2, '0') + ":" +
-  String(mins).padStart(2, '0') + ":" +
-  String(secs).padStart(2, '0');
+    timerDisplay.textContent = "00:" + String(Math.floor(remaining / 60)).padStart(2, '0') + ":" + String(remaining % 60).padStart(2, '0');
   }, 1000);
 }
 
@@ -251,13 +237,7 @@ function startTimerFromStorage() {
   timerInterval = setInterval(() => {
     const rem = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
     if(rem <= 0){ clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); showPage('main'); return; }
-const hrs = Math.floor(rem / 3600);
-const mins = Math.floor((rem % 3600) / 60);
-const secs = rem % 60;
-timerDisplay.textContent =
-  String(hrs).padStart(2, '0') + ":" +
-  String(mins).padStart(2, '0') + ":" +
-  String(secs).padStart(2, '0');
+    timerDisplay.textContent = "00:" + String(Math.floor(rem / 60)).padStart(2, '0') + ":" + String(rem % 60).padStart(2, '0');
   }, 1000);
 }
 
