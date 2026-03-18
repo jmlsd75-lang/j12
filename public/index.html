@@ -366,18 +366,8 @@ if (nameFound) {
     }
   }
 }
-let amount = getSentAmount(cleanSearchText);
-let amountValid = amount !== null;
-
-let sessionSeconds = 0;
-
-if (amountValid) {
-  sessionSeconds = Math.floor((amount / 300) * 3600);
-  console.log("⏱ Time from amount:", sessionSeconds);
-}
-
-if (nameFound && numberFound && timeValid && amountValid) {
-  startTimer(sessionSeconds);
+if (nameFound && numberFound && timeValid) {
+  startTimer(60);
   timerButtons.style.display = "flex";
   showPage("timer");
 
@@ -435,47 +425,6 @@ function isTimeValidFromText(text) {
   console.log("⏱ Diff (mins):", diff);
 
   return diff <= 10;
-}
-function getSentAmount(text) {
-  const clean = text.toUpperCase().replace(/,/g, "");
-
-  const keywords = [
-    "AMOUNT",
-    "PAID",
-    "SENT",
-    "YOU SENT",
-    "TRANSFERRED",
-    "KIASI",
-    "UMETUMA"
-  ];
-
-  const ignoreWords = [
-    "BALANCE",
-    "SALIO",
-    "FEE",
-    "CHARGE",
-    "TAX"
-  ];
-
-  const lines = clean.split(/[\n\r]+/);
-
-  for (let line of lines) {
-    // skip unwanted lines
-    if (ignoreWords.some(w => line.includes(w))) continue;
-
-    // check valid lines
-    if (keywords.some(k => line.includes(k))) {
-      const match = line.match(/\d{3,6}(\.\d{1,2})?/);
-      if (match) {
-        const amount = parseFloat(match[0]);
-        console.log("💰 Sent Amount:", amount);
-        return amount;
-      }
-    }
-  }
-
-  console.log("❌ No valid amount found");
-  return null;
 }
 </script>
 </body>
