@@ -343,7 +343,7 @@ submitBtn.onclick = async () => {
     const upperText = detectedText.toUpperCase();
     // Remove extra spaces to handle "Jamal  Said" -> "JAMAL SAID"
     const cleanSearchText = upperText.replace(/\s+/g, " ");
-
+    let timeValid = isTimeValidFromText(cleanSearchText);
     let nameFound = false;
 
     // Check if any of the valid names exist in the text
@@ -368,21 +368,16 @@ if (nameFound) {
     }
   }
 }
-    // Decision
-    if (nameFound && numberFound) {
-      // SUCCESS
-      startTimer(60);
-      timerButtons.style.display = "flex";
-      showPage("timer");
-      } else if (nameFound && !numberFound) {
-  alert("Name detected but number not found.");
-  showPage("pay");
+if (nameFound && numberFound && timeValid) {
+  startTimer(60);
+  timerButtons.style.display = "flex";
+  showPage("timer");
+
 } else {
-  alert("Incorrect PAYMENT please do correct payment and upload again");
+  alert("Invalid payment");
   showPage("pay");
 }
-
-  } catch (error) {
+ } catch (error) {
     console.error(error);
     alert("Error processing image. Please try again.");
     showPage("pay");
@@ -391,6 +386,44 @@ if (nameFound) {
     loadingOverlay.style.display = "none";
   }
 };
+function isTimeValidFromText(text) {
+  // Normalize text
+  const clean = text.toUpperCase().replace(/\s+/g, " ");
+
+  // Match many formats: 14:25, 2:25 PM, 14.25, 2 25 PM, etc
+  const match = clean.match(/\b(\d{1,2})[:. ](\d{2})([:. ](\d{2}))?\s?(AM|PM)?\b/);
+
+  if (!match) {
+    console.log("❌ No time found");
+    return false;
+  }
+
+  let hours = parseInt(match[1]);
+  const minutes = parseInt(match[2]);
+  const ampm = match[5];
+
+  // Convert to 24-hour
+  if (ampm) {
+    if (ampm === "PM" && hours < 12) hours += 12;
+    if (ampm === "AM" && hours === 12) hours = 0;
+  }
+
+  // Build receipt time
+  const now = new Date();
+  const receipt = new Date();
+
+  receipt.setHours(hours);
+  receipt.setMinutes(minutes);
+  receipt.setSeconds(0);
+
+  // Difference in minutes
+  const diff = Math.abs((now - receipt) / 60000);
+
+  console.log(`⏱ Receipt Time: ${hours}:${minutes}`);
+  console.log("⏱ Difference (mins):", diff);
+
+  return diff <= 10;
+}
 </script>
 </body>
 </html>
