@@ -387,10 +387,9 @@ if (nameFound && numberFound && timeValid) {
   }
 };
 function isTimeValidFromText(text) {
-  // Normalize text
   const clean = text.toUpperCase().replace(/\s+/g, " ");
 
-  // Match many formats: 14:25, 2:25 PM, 14.25, 2 25 PM, etc
+  // Match time
   const match = clean.match(/\b(\d{1,2})[:. ](\d{2})([:. ](\d{2}))?\s?(AM|PM)?\b/);
 
   if (!match) {
@@ -402,25 +401,30 @@ function isTimeValidFromText(text) {
   const minutes = parseInt(match[2]);
   const ampm = match[5];
 
-  // Convert to 24-hour
+  // Convert AM/PM → 24h
   if (ampm) {
     if (ampm === "PM" && hours < 12) hours += 12;
     if (ampm === "AM" && hours === 12) hours = 0;
   }
 
-  // Build receipt time
   const now = new Date();
-  const receipt = new Date();
 
+  // Create receipt time (TODAY first)
+  const receipt = new Date();
   receipt.setHours(hours);
   receipt.setMinutes(minutes);
   receipt.setSeconds(0);
 
-  // Difference in minutes
+  // 🔴 FIX: If receipt time is in future → assume it's from yesterday
+  if (receipt > now) {
+    receipt.setDate(receipt.getDate() - 1);
+  }
+
   const diff = Math.abs((now - receipt) / 60000);
 
-  console.log(`⏱ Receipt Time: ${hours}:${minutes}`);
-  console.log("⏱ Difference (mins):", diff);
+  console.log("⏱ Now:", now);
+  console.log("⏱ Receipt:", receipt);
+  console.log("⏱ Diff (mins):", diff);
 
   return diff <= 10;
 }
