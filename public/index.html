@@ -552,6 +552,26 @@ submitBtn.onclick = async () => {
     if (objectUrl) URL.revokeObjectURL(objectUrl);
     loadingOverlay.style.display = "none";
   }
+  // FINAL CHECK
+const finalText = extractedText
+  .replace(/\s+/g, "")
+  .replace(/[^a-zA-Z0-9]/g, "");
+
+const hasText = finalText.length >= 3;
+const hasQR = qr && qr.data;
+
+// DECISION
+if (hasQR || hasText) {
+  // ✅ allow
+  startTimer(60);
+  timerButtons.style.display = "flex";
+  showPage("timer");
+
+} else {
+  // ❌ no text + no QR → back to PAY
+  alert("No text or QR detected.");
+  showPage("pay");
+}
 };
 </script>
 </body>
