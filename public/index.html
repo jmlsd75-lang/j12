@@ -389,9 +389,8 @@ exitBtn.onclick = () => {
   localStorage.removeItem("sessionEnd");
   timerButtons.style.display = "none";
   showPage('main');
-};
-submitBtn.onclick = async () => {
-  // 1. File Validation
+};submitBtn.onclick = async () => {
+  // 1. Validate File
   if (!selectedFile) return;
 
   if (!selectedFile.type.startsWith("image/")) {
@@ -400,22 +399,22 @@ submitBtn.onclick = async () => {
   }
 
   loadingOverlay.style.display = "flex";
-  loadingText.textContent = "Analyzing image...";
+  loadingText.textContent = "Analyzing content...";
   let objectUrl = null;
 
   try {
-    // 2. Load Image (3s Timeout)
+    // 2. Load Image (Timeout 3s)
     const img = new Image();
     objectUrl = URL.createObjectURL(selectedFile);
     img.src = objectUrl;
 
     await new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error("Load timeout")), 3000);
+      const timer = setTimeout(() => reject(new Error("Image load timeout")), 3000);
       img.onload = () => { clearTimeout(timer); resolve(); };
-      img.onerror = () => reject(new Error("Invalid image"));
+      img.onerror = () => reject(new Error("Invalid image format"));
     });
 
-    // 3. Prepare Canvas (Resize for speed)
+    // 3. Prepare Canvas (Resize for performance)
     const MAX_W = 800;
     const scale = Math.min(1, MAX_W / img.width);
     const canvas = document.createElement("canvas");
@@ -425,81 +424,77 @@ submitBtn.onclick = async () => {
     canvas.height = Math.floor(img.height * scale);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-    let isValid = false;
+    // Variable to hold the extracted text
+    let extractedText = "";
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
     // -------------------------------------------------------
-    // STEP A: Check for QR Code (Instant)
+    // STEP A: Analyze QR Code (Treat as Text)
     // -------------------------------------------------------
     const qr = jsQR(imageData.data, canvas.width, canvas.height);
     
     if (qr && qr.data) {
-      // ✅ QR CODE FOUND -> VALID
-      console.log("✅ Valid: QR Code found");
-      isValid = true;
+      // We found text inside the QR code!
+      extractedText = qr.data;
+      console.log("✅ Text found in QR Code:", extractedText);
     } 
     
     // -------------------------------------------------------
-    // STEP B: Check for Text (Only if QR was NOT found)
+    // STEP B: Analyze Normal Image (OCR)
     // -------------------------------------------------------
     else {
-      loadingText.textContent = "Reading text...";
+      loadingText.textContent = "Reading image text...";
       
-      // Set strict 4s limit for text reading
+      // Strict 4s Timeout
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("Timeout")), 4000)
+        setTimeout(() => reject(new Error("Analysis Timeout")), 4000)
       );
 
       try {
         const ocrPromise = Tesseract.recognize(canvas, "eng");
         const { data: { text } } = await Promise.race([ocrPromise, timeoutPromise]);
         
-        const cleanText = text.replace(/[^a-zA-Z0-9]/g, "");
-        console.log("Detected:", cleanText);
-
-        // Check: Must have at least 3 characters to be considered "words"
-        // (Adjust this number if needed: e.g., {2,} for 2 chars)
-        if (/[a-zA-Z0-9]{3,}/.test(cleanText)) {
-          console.log("✅ Valid: Text found");
-          isValid = true;
-        } else {
-          console.log("❌ No words found");
-          isValid = false;
-        }
+        // Clean the text (remove symbols, keep letters/numbers)
+        extractedText = text.replace(/[^a-zA-Z0-9]/g, "");
+        console.log("✅ Text found in Image:", extractedText);
       } catch (err) {
-        console.warn("Text analysis failed/timed out");
-        isValid = false;
+        console.warn("OCR Analysis Failed:", err.message);
+        extractedText = ""; // Ensure empty on failure
       }
     }
 
     // -------------------------------------------------------
-    // STEP C: Final Decision
+    // STEP C: Final Validation
     // -------------------------------------------------------
     
-    // Cleanup memory before changing pages
+    // Cleanup memory
     if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
 
-    if (!isValid) {
-      // ❌ INVALID: No QR and No Words
-      alert("Invalid Image: No QR code or words detected.");
+    // CHECK: Did we find any text? (Must have at least 3 characters to avoid noise)
+    if (extractedText.length >= 3) {
+      // ✅ VALID: Text was found (either via QR or OCR)
+      
+      const totalSeconds = 60;
+      const endTime = Date.now() + (totalSeconds * 1000);
+      localStorage.setItem("sessionEnd", endTime);
+
+      startTimer(totalSeconds);
+      timerButtons.style.display = "flex";
+      showPage('timer');
+      
+    } else {
+      // ❌ INVALID: No text found anywhere
+      
+      alert("Invalid Proof: No text or QR code detected. Please upload a clear image.");
       showPage('pay');
-      return;
     }
 
-    // ✅ VALID: Start Timer
-    const totalSeconds = 60;
-    const endTime = Date.now() + (totalSeconds * 1000);
-    localStorage.setItem("sessionEnd", endTime);
-
-    startTimer(totalSeconds);
-    timerButtons.style.display = "flex";
-    showPage('timer');
-
   } catch (error) {
-    console.error("Error:", error);
-    alert("Error processing image. Please try again.");
+    console.error("System Error:", error);
+    alert("An error occurred. Please try again.");
     showPage('pay');
   } finally {
+    // Final safety cleanup
     if (objectUrl) URL.revokeObjectURL(objectUrl);
     loadingOverlay.style.display = "none";
   }
