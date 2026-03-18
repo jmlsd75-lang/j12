@@ -367,27 +367,23 @@ function startTimer(seconds) {
 }
 submitBtn.onclick = async () => {
   if (!selectedFile) return;
-  // Show loading
+
   loadingOverlay.style.display = "flex";
   loadingText.textContent = "Please wait...";
 
-  // Small delay (optional)
-  await new Promise(resolve => setTimeout(resolve, 300));
+  setTimeout(() => {
+    const totalSeconds = 60;
 
-  // 👉 Fixed 60 seconds
-  const totalSeconds = 60;
+    const endTime = Date.now() + (totalSeconds * 1000);
+    localStorage.setItem("sessionEnd", endTime);
 
-  const endTime = Date.now() + (totalSeconds * 1000);
-  localStorage.setItem("sessionEnd", endTime);
+    startTimer(totalSeconds);
 
-  startTimer(totalSeconds);
+    timerButtons.style.display = "flex";
+    showPage('timer');
 
-  // Show timer page + buttons
-  timerButtons.style.display = "flex";
-  showPage('timer');
-
-  // Hide loading
-  loadingOverlay.style.display = "none";
+    loadingOverlay.style.display = "none";
+  }, 3000); // wait 3 seconds
 };
   </script>
 </body>
