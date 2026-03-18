@@ -481,6 +481,119 @@ async function handleSubmit() {
     loadingOverlay.style.display = "none";
   }
 }
+
+// -----------------------------
+// 2. FILE SELECTION
+// -----------------------------
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files[0]) {
+    selectedFile = e.target.files[0];
+    submitBtn.disabled = false;
+  } else {
+    selectedFile = null;
+    submitBtn.disabled = true;
+  }
+});
+
+
+// -----------------------------
+// 3. CONNECT BUTTON ✅
+// -----------------------------
+submitBtn.onclick = handleSubmit;
+
+
+// -----------------------------
+// 4. SUBMIT FUNCTION
+// -----------------------------
+async function handleSubmit() {
+  if (!selectedFile) return;
+
+  if (!selectedFile.type.startsWith("image/")) {
+    alert("Please select a valid image file.");
+    return;
+  }
+
+  loadingOverlay.style.display = "flex";
+  loadingText.textContent = "Scanning image...";
+  let objectUrl = null;
+
+  try {
+    // Load image
+    const img = new Image();
+    objectUrl = URL.createObjectURL(selectedFile);
+    img.src = objectUrl;
+
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error("Load timeout")), 4000);
+      img.onload = () => { clearTimeout(timer); resolve(); };
+      img.onerror = () => reject(new Error("Invalid image"));
+    });
+
+    // Canvas
+    const MAX_W = 1000;
+    const scale = Math.min(1, MAX_W / img.width);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = Math.floor(img.width * scale);
+    canvas.height = Math.floor(img.height * scale);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    let detectedText = "";
+
+    // QR check
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const qr = jsQR(imageData.data, canvas.width, canvas.height);
+
+    if (qr && qr.data) {
+      detectedText = qr.data;
+    } else {
+      // OCR check
+      loadingText.textContent = "Reading image text...";
+
+      try {
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Timeout")), 5000)
+        );
+
+        const ocrPromise = Tesseract.recognize(canvas, "eng");
+        const { data: { text } } = await Promise.race([ocrPromise, timeoutPromise]);
+
+        detectedText = text;
+      } catch {
+        detectedText = "";
+      }
+    }
+
+    // Validation
+    const cleanText = detectedText.replace(/[^a-zA-Z0-9]/g, "");
+    const isValid = cleanText.length >= 3;
+
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+
+    // Result
+    if (isValid) {
+      const totalSeconds = 60;
+      const endTime = Date.now() + totalSeconds * 1000;
+      localStorage.setItem("sessionEnd", String(endTime));
+
+      startTimer(totalSeconds);
+      timerButtons.style.display = "flex";
+      showPage("timer");
+    } else {
+      alert("Invalid Proof: No text or QR found.");
+      showPage("pay");
+    }
+
+  } catch (error) {
+    console.error(error);
+    alert("Processing error. Try again.");
+    showPage("pay");
+  } finally {
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    loadingOverlay.style.display = "none";
+  }
+}
 </script>
 </body>
 </html>
