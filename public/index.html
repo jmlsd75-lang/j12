@@ -391,36 +391,34 @@ exitBtn.onclick = () => {
   showPage('main');
 };
 submitBtn.onclick = async () => {
-  // 1. Validate file
+  // 1. Validate file existence and type
   if (!selectedFile) return;
 
   if (!selectedFile.type.startsWith("image/")) {
-    alert("Please select a valid image.");
+    alert("Please select a valid image file.");
     return;
   }
 
-  // 2. Show loading
+  // 2. Show loading UI
   loadingOverlay.style.display = "flex";
-  loadingText.textContent = "Processing...";
-  
-  // Variable to track if we should stop
+  loadingText.textContent = "Verifying...";
   let objectUrl = null;
 
   try {
-    // 3. Load image safely
+    // 3. Load Image with 3s Timeout
     const img = new Image();
     objectUrl = URL.createObjectURL(selectedFile);
     img.src = objectUrl;
 
     await new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => reject(new Error("Image load timeout")), 5000);
-      img.onload = () => { clearTimeout(timeout); resolve(); };
-      img.onerror = () => reject(new Error("Invalid image"));
+      const timer = setTimeout(() => reject(new Error("Image load timeout")), 3000);
+      img.onload = () => { clearTimeout(timer); resolve(); };
+      img.onerror = () => reject(new Error("Invalid image format"));
     });
 
-    // 4. Resize for speed
-    const MAX_WIDTH = 800;
-    const scale = Math.min(1, MAX_WIDTH / img.width);
+    // 4. Resize for Speed (Max 800px)
+    const MAX_W = 800;
+    const scale = Math.min(1, MAX_W / img.width);
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
     
@@ -428,73 +426,46 @@ submitBtn.onclick = async () => {
     canvas.height = Math.floor(img.height * scale);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-    // 5. FAST CHECK: QR Code
+    // 5. --- START ANALYSIS (Strict 5s Limit) ---
+    let isProofValid = false; // Default is FALSE
+
+    // A. Fast QR Check
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const qr = jsQR(imageData.data, canvas.width, canvas.height);
 
-    let isValid = false;
-
-    if (qr && qr.data) {
-      // ✅ QR FOUND -> Immediate Success
-      console.log("✅ QR detected:", qr.data);
-      isValid = true;
+    if (qr && qr.data && qr.data.length > 0) {
+      // ✅ VALID: QR Code Found
+      console.log("✅ QR Verified:", qr.data);
+      isProofValid = true;
     } else {
-      // 6. SLOW CHECK: OCR with Strict Timeout
+      // B. OCR Fallback (Run only if QR failed)
       loadingText.textContent = "Reading text...";
 
-      // Timeout wrapper: Stop OCR if it takes longer than 6 seconds
+      // Create a 4-second timeout for OCR
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("OCR Timeout")), 6000)
+        setTimeout(() => reject(new Error("Analysis Timeout")), 4000)
       );
 
       try {
-        const tesseractPromise = Tesseract.recognize(canvas, "eng");
-
-        // Race between Tesseract and the Timeout
-        const { data: { text } } = await Promise.race([tesseractPromise, timeoutPromise]);
+        const ocrPromise = Tesseract.recognize(canvas, "eng");
+        
+        // Race: OCR vs Timeout
+        const { data: { text } } = await Promise.race([ocrPromise, timeoutPromise]);
 
         const cleanText = text.replace(/[^a-zA-Z0-9]/g, "");
-        console.log("OCR:", cleanText);
+        console.log("Detected Text:", cleanText);
 
-        // Check for meaningful text (e.g., 3+ letters or numbers)
-        if (/[A-Z]{3,}|\d{3,}/.test(cleanText)) {
-          console.log("✅ OCR valid");
-          isValid = true;
+        // ✅ STRICT CHECK: Must have 4+ consecutive letters OR 4+ numbers
+        // This prevents random noise or 1-2 characters from passing
+        if (/[A-Za-z]{4,}/.test(cleanText) || /\d{4,}/.test(cleanText)) {
+          console.log("✅ Text Verified");
+          isProofValid = true;
+        } else {
+          console.log("❌ Text insufficient");
+          isProofValid = false;
         }
-      } catch (ocrError) {
-        // If timeout or OCR error occurs, log it and treat as invalid
-        console.warn("OCR Failed or Timed Out:", ocrError.message);
-        isValid = false;
-      }
-    }
 
-    // 7. VALIDATION RESULT
-    if (!isValid) {
-      // ❌ INVALID: Stop loading and return to Pay page
-      alert("Invalid proof. No QR code or text found.");
-      showPage("pay");
-      return;
-    }
-
-    // 8. SUCCESS -> Start 1 Min Countdown
-    const totalSeconds = 60;
-    const endTime = Date.now() + (totalSeconds * 1000);
-    localStorage.setItem("sessionEnd", endTime);
-
-    startTimer(totalSeconds);
-    timerButtons.style.display = "flex";
-    showPage("timer");
-
-  } catch (error) {
-    console.error("System Error:", error);
-    alert("An error occurred. Please try again.");
-    showPage("pay");
-  } finally {
-    // 9. Always cleanup memory and hide loading
-    if (objectUrl) URL.revokeObjectURL(objectUrl);
-    loadingOverlay.style.display = "none";
-  }
-};
+      } catch (
   </script>
 </body>
 </html>
