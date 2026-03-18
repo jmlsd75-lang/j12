@@ -397,11 +397,22 @@ submitBtn.onclick = async () => {
     alert("Please select a valid image file.");
     return;
   }
+let objectUrl = null;
+let forceFailTimeout;
 
-  loadingOverlay.style.display = "flex";
-  loadingText.textContent = "Analyzing content...";
-  let objectUrl = null;
+loadingOverlay.style.display = "flex";
+let hasTimedOut = false;
 
+forceFailTimeout = setTimeout(() => {
+  hasTimedOut = true;
+
+  alert("Processing too slow. Try again.");
+  selectedFile = null;
+  previewImage.src = "";
+  loadingOverlay.style.display = "none";
+  showPage("pay");
+}, 5000);
+loadingText.textContent = "Analyzing content...";
   try {
     // -------------------------------------------------------
     // 1. LOAD IMAGE (Safety Timeout)
@@ -467,12 +478,13 @@ submitBtn.onclick = async () => {
       ];
 
       // Global Timeout of 7 seconds for the ENTIRE OCR process
-      const GLOBAL_TIMEOUT = 7000;
+      const GLOBAL_TIMEOUT = 4500;
       const startTime = Date.now();
       let bestResult = "";
 
       // Loop through variants until we find text or run out of time
       for (const variant of variants) {
+        if (hasTimedOut) break;
         // Check time remaining
         if (Date.now() - startTime > GLOBAL_TIMEOUT) {
           console.warn("Global OCR timeout reached.");
@@ -515,7 +527,10 @@ submitBtn.onclick = async () => {
 
     // VALIDATION RULE:
     // Must have at least 3 characters to prove it's not just dust/noise.
-    const isValid = finalText.length >= 3;
+    const hasNumbers = /\d{3,}/.test(finalText);   // numbers like amount/code
+const hasWords = /[a-zA-Z]{3,}/.test(finalText); // real words
+
+const isValid = hasNumbers || hasWords;
 
     // Cleanup memory
     if (objectUrl) {
@@ -526,7 +541,10 @@ submitBtn.onclick = async () => {
     // -------------------------------------------------------
     // 6. FINAL DECISION
     // -------------------------------------------------------
+    if (hasTimedOut) return;
     if (isValid) {
+
+  clearTimeout(forceFailTimeout);
       console.log("✅ SUCCESS: Valid content detected.");
       
       const totalSeconds = 60;
@@ -538,12 +556,15 @@ submitBtn.onclick = async () => {
       showPage("timer");
 
     } else {
+
+  clearTimeout(forceFailTimeout);
       console.log("❌ FAILED: No content detected.");
       alert("Invalid image. No readable text or QR code found. Please upload a clearer photo.");
       showPage("pay");
     }
 
   } catch (error) {
+    clearTimeout(forceFailTimeout);
     console.error("System Error:", error);
     alert("An error occurred during analysis. Please try again.");
     showPage("pay");
@@ -552,26 +573,6 @@ submitBtn.onclick = async () => {
     if (objectUrl) URL.revokeObjectURL(objectUrl);
     loadingOverlay.style.display = "none";
   }
-  // FINAL CHECK
-const finalText = extractedText
-  .replace(/\s+/g, "")
-  .replace(/[^a-zA-Z0-9]/g, "");
-
-const hasText = finalText.length >= 3;
-const hasQR = qr && qr.data;
-
-// DECISION
-if (hasQR || hasText) {
-  // ✅ allow
-  startTimer(60);
-  timerButtons.style.display = "flex";
-  showPage("timer");
-
-} else {
-  // ❌ no text + no QR → back to PAY
-  alert("No text or QR detected.");
-  showPage("pay");
-}
 };
 </script>
 </body>
