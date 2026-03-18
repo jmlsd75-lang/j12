@@ -126,6 +126,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+const ADMIN_EMAIL = "camelkazembe1@gmail.com";
+let isAdmin = false;
 
 // --- DOM Elements ---
 const loginBtn = document.querySelector(".login-btn");
@@ -162,9 +164,28 @@ let timerInterval = null;
 // --- Auth Logic ---
 onAuthStateChanged(auth, (user) => {
   if (user) {
+    isAdmin = user.email === ADMIN_EMAIL;
+
     userDisplay.textContent = user.displayName;
-    showPage('main');
+
+    if (isAdmin) {
+      // 🔥 ADMIN MODE
+      userDisplay.style.display = "block";
+      logoutBtn.style.display = "none";
+      payBtn.style.display = "none";
+      accessBtn.style.display = "none";
+
+      showPage('timer'); // go directly
+      timerDisplay.textContent = "UNLIMITED";
+      timerStatus.textContent = "Admin Access";
+
+      timerButtons.style.display = "flex";
+    } else {
+      showPage('main');
+    }
+
   } else {
+    isAdmin = false;
     userDisplay.style.display = "none";
     loginBtn.style.display = "block";
     payBtn.style.display = "none";
@@ -172,7 +193,6 @@ onAuthStateChanged(auth, (user) => {
     logoutBtn.style.display = "none";
   }
 });
-
 loginBtn.onclick = async () => { try { await signInWithPopup(auth, provider); } catch (e) { alert("Login failed"); } };
 logoutBtn.onclick = async () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); await signOut(auth); showPage('main'); };
 accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
@@ -217,6 +237,7 @@ cancelBtn.onclick = () => { selectedFile = null; previewImage.src = ""; showPage
 
 // --- Timer Logic ---
 function startTimer(seconds) {
+  if (isAdmin) return;
   clearInterval(timerInterval);
   const endTime = Date.now() + seconds * 1000;
   localStorage.setItem("sessionEnd", String(endTime));
@@ -238,6 +259,7 @@ timerDisplay.textContent =
 }
 
 function startTimerFromStorage() {
+  if (isAdmin) return;
   const endTime = parseInt(localStorage.getItem("sessionEnd")); if(!endTime) return;
   timerButtons.style.display = "flex"; clearInterval(timerInterval);
   timerInterval = setInterval(() => {
@@ -252,9 +274,28 @@ timerDisplay.textContent =
   String(secs).padStart(2, '0');
   }, 1000);
 }
+businessBtn.onclick = () => {
+  if (isAdmin) {
+    // 👉 ADMIN goes straight to business system (no timer logic)
+    alert("Admin Business Access"); 
+    // 👉 replace this with your real business page logic
+    return;
+  }
+
+  // normal users (you can add logic later)
+};
 
 exitBtn.onclick = () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); timerButtons.style.display = "none"; showPage('main'); };
+businessBtn.onclick = () => {
+  if (isAdmin) {
+    // 👉 ADMIN goes straight to business system (no timer logic)
+    alert("Admin Business Access"); 
+    // 👉 replace this with your real business page logic
+    return;
+  }
 
+  // normal users (you can add logic later)
+};
 // -------------------------------------------------------
 // IMAGE PREPROCESSING
 // -------------------------------------------------------
