@@ -104,10 +104,9 @@
   #timerDisplay { font-size: 60px; font-weight: bold; color: #333; }
   #timerStatus { margin-top: 20px; font-size: 20px; color: #666; }
 
-  /* Timer Buttons Container */
   #timerButtons {
     margin-top: 30px;
-    display: none; /* Hidden by default */
+    display: none; 
     gap: 20px;
   }
   .timer-action-btn {
@@ -242,7 +241,6 @@ const timerDisplay = document.getElementById("timerDisplay");
 const userDisplayTimer = document.getElementById("userDisplayTimer");
 const timerStatus = document.getElementById("timerStatus");
 const timerButtons = document.getElementById("timerButtons");
-const businessBtn = document.getElementById("businessBtn");
 const exitBtn = document.getElementById("exitBtn");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
@@ -278,20 +276,17 @@ logoutBtn.onclick = async () => {
 };
 
 accessBtn.onclick = () => {
-  // If user clicks ACCESS, just go to timer
   startTimerFromStorage();
   showPage('timer');
 };
 
 // --- Navigation Logic ---
 function showPage(page) {
-  // Hide all pages
   payPage.style.display = "none";
   cameraMenuPage.style.display = "none";
   previewPage.style.display = "none";
   timerPage.style.display = "none";
   
-  // Reset Main Buttons
   payBtn.style.display = "none";
   accessBtn.style.display = "none";
   logoutBtn.style.display = "none";
@@ -304,10 +299,8 @@ function showPage(page) {
 
       const endTime = localStorage.getItem("sessionEnd");
       if (endTime && Date.now() < parseInt(endTime)) {
-        // Session active
         accessBtn.style.display = "block";
       } else {
-        // No session
         payBtn.style.display = "block";
       }
     }
@@ -334,7 +327,7 @@ openPhotosBtn.onclick = () => photosInput.click();
 
 function handleFile(file) {
   if (!file) {
-    showPage('camera'); // If file selection cancelled, go back to camera menu
+    showPage('camera'); 
     return;
   }
 
@@ -347,7 +340,6 @@ function handleFile(file) {
   };
   reader.readAsDataURL(file);
 
-  // Reset inputs
   cameraInput.value = "";
   photosInput.value = "";
 }
@@ -358,7 +350,7 @@ photosInput.onchange = (e) => handleFile(e.target.files[0]);
 cancelBtn.onclick = () => {
   selectedFile = null;
   previewImage.src = "";
-  showPage('camera'); // Cancel returns to camera menu
+  showPage('camera'); 
 };
 
 // --- Timer Logic ---
@@ -400,13 +392,11 @@ function startTimerFromStorage() {
 
   const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
   
-  // Resume display
   let mins = Math.floor(remaining / 60);
   let secs = remaining % 60;
   timerDisplay.textContent = "00:" + String(mins).padStart(2, '0') + ":" + String(secs).padStart(2, '0');
   timerButtons.style.display = "flex";
 
-  // Restart interval to keep counting
   clearInterval(timerInterval);
   timerInterval = setInterval(() => {
     const now = Date.now();
@@ -437,7 +427,41 @@ exitBtn.onclick = () => {
 };
 
 // -------------------------------------------------------
-// MAIN SUBMIT LOGIC (SCANNER)
+// IMAGE PREPROCESSING (For Receipts & Screens)
+// -------------------------------------------------------
+function preprocessImage(canvas) {
+  const ctx = canvas.getContext('2d');
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imageData.data;
+  
+  // 1. Convert to Grayscale
+  // 2. Apply Contrast (Thresholding)
+  // This helps read faint receipts and removes colorful wallpaper backgrounds
+  for (let i = 0; i < data.length; i += 4) {
+    // Calculate brightness
+    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+    
+    // Contrast factor (1.5 helps text pop)
+    const factor = 1.5; 
+    let val = ((avg / 255 - 0.5) * factor + 0.5) * 255;
+    
+    // Threshold: force near-black and near-white (optional, currently just contrast)
+    // val = val > 128 ? 255 : 0; // Uncomment for pure Black/White
+    
+    val = Math.max(0, Math.min(255, val));
+
+    data[i] = val;     // Red
+    data[i + 1] = val; // Green
+    data[i + 2] = val; // Blue
+    // data[i + 3] is Alpha, keep unchanged
+  }
+  
+  ctx.putImageData(imageData, 0, 0);
+  return canvas;
+}
+
+// -------------------------------------------------------
+// MAIN SUBMIT LOGIC
 // -------------------------------------------------------
 submitBtn.onclick = async () => {
   if (!selectedFile) return;
@@ -458,25 +482,27 @@ submitBtn.onclick = async () => {
     img.src = objectUrl;
 
     await new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error("Load timeout")), 4000);
+      const timer = setTimeout(() => reject(new Error("Load timeout")), 5000);
       img.onload = () => { clearTimeout(timer); resolve(); };
       img.onerror = () => reject(new Error("Invalid image"));
     });
 
     // 2. Canvas Preparation
-    const MAX_W = 1000;
+    const MAX_W = 1000; // High res for text detection
     const scale = Math.min(1, MAX_W / img.width);
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
 
     canvas.width = Math.floor(img.width * scale);
     canvas.height = Math.floor(img.height * scale);
+    
+    // Draw original image
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
     let detectedText = "";
 
     // -------------------------------------------------------
-    // CHECK 1: QR CODE
+    // CHECK 1: QR CODE (Uses Original Image)
     // -------------------------------------------------------
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const qr = jsQR(imageData.data, canvas.width, canvas.height);
@@ -487,24 +513,28 @@ submitBtn.onclick = async () => {
     } 
     
     // -------------------------------------------------------
-    // CHECK 2: OCR (NORMAL IMAGE)
+    // CHECK 2: OCR (Uses Preprocessed Image)
     // -------------------------------------------------------
     else {
-      loadingText.textContent = "Reading image text...";
+      loadingText.textContent = "Reading text (Paper/Screen)...";
+
+      // Pre-process: Convert to grayscale/high-contrast for better OCR
+      preprocessImage(canvas);
 
       try {
-        // 5 second limit
+        // 8 second limit for OCR
         const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Timeout")), 5000)
+          setTimeout(() => reject(new Error("Timeout")), 8000)
         );
 
+        // Run Tesseract on the cleaned canvas
         const ocrPromise = Tesseract.recognize(canvas, "eng");
         const { data: { text } } = await Promise.race([ocrPromise, timeoutPromise]);
 
         detectedText = text;
         console.log("✅ OCR Found:", detectedText);
       } catch (err) {
-        console.warn("OCR Failed or Timed out");
+        console.warn("OCR Failed:", err);
         detectedText = "";
       }
     }
@@ -512,25 +542,26 @@ submitBtn.onclick = async () => {
     // -------------------------------------------------------
     // VALIDATION
     // -------------------------------------------------------
+    // Clean: remove symbols, keep letters and numbers
     const cleanText = detectedText.replace(/[^a-zA-Z0-9]/g, "");
-    const isValid = cleanText.length >= 3;
+
+    // If we found 4+ characters, it's valid (raised from 3 to reduce noise)
+    const isValid = cleanText.length >= 4;
 
     if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
 
     if (isValid) {
-      // SUCCESS
-      startTimer(60); // 60 seconds
+      startTimer(60);
       timerButtons.style.display = "flex";
       showPage("timer");
     } else {
-      // FAILURE
-      alert("Invalid Proof: No text or QR code found.");
+      alert("Invalid Proof: No clear text or QR code found.\n\nPlease ensure the image shows:\n- A Receipt\n- A Screenshot\n- Or a QR Code.");
       showPage("pay");
     }
 
   } catch (error) {
     console.error("Error:", error);
-    alert("Processing error. Please try again.");
+    alert("Processing error. Try again.");
     showPage("pay");
   } finally {
     if (objectUrl) URL.revokeObjectURL(objectUrl);
