@@ -389,8 +389,8 @@ exitBtn.onclick = () => {
   localStorage.removeItem("sessionEnd");
   timerButtons.style.display = "none";
   showPage('main');
-};submitBtn.onclick = async () => {
-  // 1. Validate File
+};
+submitBtn.onclick = async () => {
   if (!selectedFile) return;
 
   if (!selectedFile.type.startsWith("image/")) {
@@ -403,98 +403,152 @@ exitBtn.onclick = () => {
   let objectUrl = null;
 
   try {
-    // 2. Load Image (Timeout 3s)
+    // -------------------------------------------------------
+    // 1. LOAD IMAGE (Safety Timeout)
+    // -------------------------------------------------------
     const img = new Image();
     objectUrl = URL.createObjectURL(selectedFile);
     img.src = objectUrl;
 
     await new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error("Image load timeout")), 3000);
+      const timer = setTimeout(() => reject(new Error("Image load timeout")), 4000);
       img.onload = () => { clearTimeout(timer); resolve(); };
       img.onerror = () => reject(new Error("Invalid image format"));
     });
 
-    // 3. Prepare Canvas (Resize for performance)
-    const MAX_W = 800;
+    // -------------------------------------------------------
+    // 2. CANVAS SETUP (High Detail for small text)
+    // -------------------------------------------------------
+    const MAX_W = 1280; // Higher resolution for better small-text detection
     const scale = Math.min(1, MAX_W / img.width);
+
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-    
+
     canvas.width = Math.floor(img.width * scale);
     canvas.height = Math.floor(img.height * scale);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-    // Variable to hold the extracted text
     let extractedText = "";
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
     // -------------------------------------------------------
-    // STEP A: Analyze QR Code (Treat as Text)
+    // 3. PRIORITY 1: QR CODE DETECTION
     // -------------------------------------------------------
     const qr = jsQR(imageData.data, canvas.width, canvas.height);
-    
+
     if (qr && qr.data) {
-      // We found text inside the QR code!
       extractedText = qr.data;
-      console.log("✅ Text found in QR Code:", extractedText);
+      console.log("✅ QR Detected:", extractedText);
     } 
     
     // -------------------------------------------------------
-    // STEP B: Analyze Normal Image (OCR)
+    // 4. PRIORITY 2: SMART OCR (Multi-Pass with Global Timeout)
     // -------------------------------------------------------
     else {
-      loadingText.textContent = "Reading image text...";
-      
-      // Strict 4s Timeout
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error("Analysis Timeout")), 4000)
-      );
+      loadingText.textContent = "Reading image (Deep Scan)...";
 
-      try {
-        const ocrPromise = Tesseract.recognize(canvas, "eng");
-        const { data: { text } } = await Promise.race([ocrPromise, timeoutPromise]);
-        
-        // Clean the text (remove symbols, keep letters/numbers)
-        extractedText = text.replace(/[^a-zA-Z0-9]/g, "");
-        console.log("✅ Text found in Image:", extractedText);
-      } catch (err) {
-        console.warn("OCR Analysis Failed:", err.message);
-        extractedText = ""; // Ensure empty on failure
+      // Helper: Create processed canvas
+      const getProcessedCanvas = (filterStyle) => {
+        const c = document.createElement("canvas");
+        const cCtx = c.getContext("2d");
+        c.width = canvas.width;
+        c.height = canvas.height;
+        cCtx.filter = filterStyle;
+        cCtx.drawImage(canvas, 0, 0);
+        return c;
+      };
+
+      // Prepare 3 variants: Original, High Contrast, Inverted
+      const variants = [
+        { name: "Original", canvas: canvas },
+        { name: "Contrast", canvas: getProcessedCanvas("grayscale(100%) contrast(200%) brightness(120%)") },
+        { name: "Inverted", canvas: getProcessedCanvas("grayscale(100%) invert(100%) contrast(150%)") }
+      ];
+
+      // Global Timeout of 7 seconds for the ENTIRE OCR process
+      const GLOBAL_TIMEOUT = 7000;
+      const startTime = Date.now();
+      let bestResult = "";
+
+      // Loop through variants until we find text or run out of time
+      for (const variant of variants) {
+        // Check time remaining
+        if (Date.now() - startTime > GLOBAL_TIMEOUT) {
+          console.warn("Global OCR timeout reached.");
+          break;
+        }
+
+        try {
+          loadingText.textContent = `Scanning (${variant.name})...`;
+          
+          const { data: { text } } = await Tesseract.recognize(variant.canvas, "eng", {
+            tessedit_pageseg_mode: 3, // Auto mode (handles blocks of text best)
+            logger: () => {} // Silence logs for speed
+          });
+
+          const clean = text.replace(/[^a-zA-Z0-9]/g, "");
+          
+          // Keep the longest result found so far
+          if (clean.length > bestResult.length) {
+            bestResult = clean;
+          }
+
+          // Early exit: If we found meaningful text, stop processing.
+          if (bestResult.length >= 4) break; 
+
+        } catch (err) {
+          console.warn(`Variant ${variant.name} failed:`, err);
+        }
       }
+
+      extractedText = bestResult;
+      console.log("✅ Best OCR Result:", extractedText);
     }
 
     // -------------------------------------------------------
-    // STEP C: Final Validation
+    // 5. VALIDATION
     // -------------------------------------------------------
     
-    // Cleanup memory
-    if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
+    // Clean the final extracted text
+    const finalText = extractedText.replace(/[^a-zA-Z0-9]/g, "");
 
-    // CHECK: Did we find any text? (Must have at least 3 characters to avoid noise)
-    if (extractedText.length >= 3) {
-      // ✅ VALID: Text was found (either via QR or OCR)
+    // VALIDATION RULE:
+    // Must have at least 3 characters to prove it's not just dust/noise.
+    const isValid = finalText.length >= 3;
+
+    // Cleanup memory
+    if (objectUrl) {
+      URL.revokeObjectURL(objectUrl);
+      objectUrl = null;
+    }
+
+    // -------------------------------------------------------
+    // 6. FINAL DECISION
+    // -------------------------------------------------------
+    if (isValid) {
+      console.log("✅ SUCCESS: Valid content detected.");
       
       const totalSeconds = 60;
-      const endTime = Date.now() + (totalSeconds * 1000);
+      const endTime = Date.now() + totalSeconds * 1000;
       localStorage.setItem("sessionEnd", endTime);
 
       startTimer(totalSeconds);
       timerButtons.style.display = "flex";
-      showPage('timer');
-      
+      showPage("timer");
+
     } else {
-      // ❌ INVALID: No text found anywhere
-      
-      alert("Invalid Proof: No text or QR code detected. Please upload a clear image.");
-      showPage('pay');
+      console.log("❌ FAILED: No content detected.");
+      alert("Invalid image. No readable text or QR code found. Please upload a clearer photo.");
+      showPage("pay");
     }
 
   } catch (error) {
     console.error("System Error:", error);
-    alert("An error occurred. Please try again.");
-    showPage('pay');
+    alert("An error occurred during analysis. Please try again.");
+    showPage("pay");
   } finally {
-    // Final safety cleanup
+    // Absolute safety cleanup
     if (objectUrl) URL.revokeObjectURL(objectUrl);
     loadingOverlay.style.display = "none";
   }
