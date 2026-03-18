@@ -160,10 +160,18 @@ let selectedFile = null;
 let timerInterval = null;
 
 // --- Auth Logic ---
-onAuthStateChanged(auth, (user) => {
+// onAuthStateChanged(auth, (user) => {
   if (user) {
     userDisplay.textContent = user.displayName;
-    showPage('main');
+
+    const endTime = localStorage.getItem("sessionEnd");
+
+    if (endTime && Date.now() < parseInt(endTime)) {
+      startTimerFromStorage();   // 🔥 restore timer immediately
+      showPage('timer');         // 🔥 go directly to timer
+    } else {
+      showPage('main');
+    }
   } else {
     userDisplay.style.display = "none";
     loginBtn.style.display = "block";
