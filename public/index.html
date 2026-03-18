@@ -397,15 +397,15 @@ submitBtn.onclick = async () => {
   try {
     submitBtn.disabled = true;
 
-    const { data } = await Tesseract.recognize(file, 'eng', {
-      tessedit_pageseg_mode: 6 // faster + better for blocks of text
+    // OCR: extract text from image
+    const { data } = await Tesseract.recognize(file, "eng", {
+      tessedit_pageseg_mode: 6
     });
 
-    let text = (data.text || "")
-      .replace(/\s+/g, " ")
-      .trim();
+    // clean text
+    let text = (data.text || "").replace(/\s+/g, " ").trim();
 
-    // stronger detection
+    // checks
     const words = text.split(" ").filter(w => w.length > 2);
     const hasEnoughText = text.length > 20;
     const hasRealWords = words.length >= 4;
@@ -414,29 +414,28 @@ submitBtn.onclick = async () => {
     const hasText = hasEnoughText && hasRealWords && hasNumbers;
 
     if (hasText) {
+      // allow 60 seconds
       const totalSeconds = 60;
 
-      localStorage.setItem(
-        "sessionEnd",
-        String(Date.now() + totalSeconds * 1000)
-      );
+      const endTime = Date.now() + totalSeconds * 1000;
+      localStorage.setItem("sessionEnd", String(endTime));
 
       showPage("timer");
       timerButtons.style.display = "flex";
       startTimer(totalSeconds);
 
     } else {
+      // no text → go to pay
       showPage("pay");
     }
 
-  } catch (err) {
-    console.error("OCR failed:", err);
+  } catch (error) {
+    console.error("OCR error:", error);
     showPage("pay");
   } finally {
     submitBtn.disabled = false;
   }
 };
-
 </script>
 </body>
 </html>
