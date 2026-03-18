@@ -280,7 +280,10 @@ const VALID_NAMES = [
   "JAMAL SAID",
   "JAMAL KAZEMBE"
 ];
-
+const VALID_NUMBERS = [
+  "655510714",
+  "780526437"
+];
 // -------------------------------------------------------
 // SUBMIT LOGIC
 // -------------------------------------------------------
@@ -351,18 +354,33 @@ submitBtn.onclick = async () => {
         break; 
       }
     }
+// --------------------
+// NUMBER CHECK
+// --------------------
+let numberFound = false;
 
+if (nameFound) {
+  for (const num of VALID_NUMBERS) {
+    if (cleanSearchText.includes(num)) {
+      numberFound = true;
+      console.log("✅ Number Matched:", num);
+      break;
+    }
+  }
+}
     // Decision
-    if (nameFound) {
+    if (nameFound && numberFound) {
       // SUCCESS
       startTimer(60);
       timerButtons.style.display = "flex";
       showPage("timer");
-    } else {
-      // FAILURE: Name not found
-      alert("Incorrect account: Name not found in image).");
-      showPage("pay");
-    }
+      } else if (nameFound && !numberFound) {
+  alert("Name detected but number not found.");
+  showPage("pay");
+} else {
+  alert("Incorrect PAYMENT please do correct payment and upload again");
+  showPage("pay");
+}
 
   } catch (error) {
     console.error(error);
