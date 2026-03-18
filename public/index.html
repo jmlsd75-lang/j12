@@ -6,7 +6,7 @@
 <title>Jamal Said Kazembe Multisystem Management</title>
 <!-- Tesseract.js for OCR -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<!-- jsQR for decoding QR Codes (more reliable than Tesseract for QR) -->
+<!-- jsQR for decoding QR Codes -->
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <style>
   body{
@@ -21,11 +21,11 @@
     text-align:center;
     padding-top:50px;
   }
-  h1{ font-size:32px; color:blue; margin:0; }
-  h2{ color:red; margin-top:5px; font-size:18px; }
+  h1{ font-size:28px; color:blue; margin:0; }
+  h2{ color:red; margin-top:5px; font-size:16px; }
 
   /* --- Main Menu Buttons --- */
-  .login-btn, .logout-btn, .pay-btn {
+  .login-btn, .logout-btn, .pay-btn, .access-btn {
     position: fixed;
     left: 50%;
     transform: translateX(-50%);
@@ -42,6 +42,12 @@
     transform: translate(-50%, -50%);
     padding:18px 50px; font-size:22px;
     background-color: #28a745; color:white; border-radius:8px;
+  }
+  .access-btn{
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    padding:18px 50px; font-size:22px;
+    background-color: #007bff; color:white; border-radius:8px;
   }
   .logout-btn{
     bottom: 30px; background:#dc3545; color:white;
@@ -130,7 +136,7 @@
   
 <button class="login-btn">LOGIN</button>
 <button class="pay-btn">PAY</button>
-<button class="access-btn" style="display:none;">ACCESS</button>
+<button class="access-btn">ACCESS</button>
 <button class="logout-btn">LOGOUT</button>
 
 <!-- Hidden Inputs -->
@@ -202,7 +208,7 @@ const firebaseConfig = {
   messagingSenderId: "167159607898",
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
-const accessBtn = document.querySelector(".access-btn");
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
@@ -211,6 +217,7 @@ const provider = new GoogleAuthProvider();
 const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
 const payBtn = document.querySelector(".pay-btn");
+const accessBtn = document.querySelector(".access-btn");
 const userDisplay = document.getElementById("userDisplay");
 
 const payPage = document.getElementById("payPage");
@@ -247,14 +254,12 @@ let timerInterval = null;
 onAuthStateChanged(auth, (user) => {
   if (user) {
     userDisplay.textContent = user.displayName;
-    userDisplay.style.display = "block";
-    loginBtn.style.display = "none";
-    payBtn.style.display = "block";
-    logoutBtn.style.display = "block";
+    showPage('main');
   } else {
     userDisplay.style.display = "none";
     loginBtn.style.display = "block";
     payBtn.style.display = "none";
+    accessBtn.style.display = "none";
     logoutBtn.style.display = "none";
   }
 });
@@ -272,6 +277,12 @@ logoutBtn.onclick = async () => {
   showPage('main');
 };
 
+accessBtn.onclick = () => {
+  // If user clicks ACCESS, just go to timer
+  startTimerFromStorage();
+  showPage('timer');
+};
+
 // --- Navigation Logic ---
 function showPage(page) {
   // Hide all pages
@@ -282,26 +293,24 @@ function showPage(page) {
   
   // Reset Main Buttons
   payBtn.style.display = "none";
+  accessBtn.style.display = "none";
   logoutBtn.style.display = "none";
   userDisplay.style.display = "none";
 
   if(page === 'main') {
     if(auth.currentUser) {
-  userDisplay.style.display = "block";
-  logoutBtn.style.display = "block";
+      userDisplay.style.display = "block";
+      logoutBtn.style.display = "block";
 
-  const endTime = localStorage.getItem("sessionEnd");
-
-  if (endTime && Date.now() < endTime) {
-    // 👉 Session still active
-    payBtn.style.display = "none";
-    accessBtn.style.display = "block";
-  } else {
-    // 👉 No session
-    payBtn.style.display = "block";
-    accessBtn.style.display = "none";
-  }
-}
+      const endTime = localStorage.getItem("sessionEnd");
+      if (endTime && Date.now() < parseInt(endTime)) {
+        // Session active
+        accessBtn.style.display = "block";
+      } else {
+        // No session
+        payBtn.style.display = "block";
+      }
+    }
   } else if (page === 'pay') {
     payPage.style.display = "flex";
   } else if (page === 'camera') {
@@ -320,14 +329,12 @@ nextBtn.onclick = () => showPage('camera');
 backFromCameraBtn.onclick = () => showPage('main');
 
 // --- Camera & Photos Logic ---
-
 openCameraBtn.onclick = () => cameraInput.click();
 openPhotosBtn.onclick = () => photosInput.click();
 
 function handleFile(file) {
   if (!file) {
-    // Requirement 1: No photo -> return to Main Page (Pay/Logout)
-    showPage('main');
+    showPage('camera'); // If file selection cancelled, go back to camera menu
     return;
   }
 
@@ -340,11 +347,9 @@ function handleFile(file) {
   };
   reader.readAsDataURL(file);
 
-  // Reset inputs to allow selecting same file again
-  setTimeout(() => {
-    cameraInput.value = "";
-    photosInput.value = "";
-  }, 100);
+  // Reset inputs
+  cameraInput.value = "";
+  photosInput.value = "";
 }
 
 cameraInput.onchange = (e) => handleFile(e.target.files[0]);
@@ -353,44 +358,88 @@ photosInput.onchange = (e) => handleFile(e.target.files[0]);
 cancelBtn.onclick = () => {
   selectedFile = null;
   previewImage.src = "";
-  showPage('main'); // Cancel returns to main
+  showPage('camera'); // Cancel returns to camera menu
 };
+
+// --- Timer Logic ---
 function startTimer(seconds) {
   clearInterval(timerInterval);
+  
+  const endTime = Date.now() + seconds * 1000;
+  localStorage.setItem("sessionEnd", String(endTime));
 
   timerInterval = setInterval(() => {
-  if (seconds <= 0) {
-  clearInterval(timerInterval);
-  timerDisplay.textContent = "00:00:00";
-  timerStatus.textContent = "Session Expired";
-  localStorage.removeItem("sessionEnd");
-  // 👉 wait 2 seconds then go to main page
-  setTimeout(() => {
-    showPage('main');
-    timerButtons.style.display = "none";
-  }, 2000);
+    const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+    
+    if (remaining <= 0) {
+      clearInterval(timerInterval);
+      timerDisplay.textContent = "00:00:00";
+      timerStatus.textContent = "Session Expired";
+      localStorage.removeItem("sessionEnd");
+      
+      setTimeout(() => {
+        showPage('main');
+        timerButtons.style.display = "none";
+      }, 2000);
+      return;
+    }
 
-  return;
-}
-    let mins = Math.floor(seconds / 60);
-    let secs = seconds % 60;
+    let mins = Math.floor(remaining / 60);
+    let secs = remaining % 60;
 
     timerDisplay.textContent =
       "00:" +
       String(mins).padStart(2, '0') + ":" +
       String(secs).padStart(2, '0');
-
-    seconds--;
   }, 1000);
 }
-    const totalSeconds = 60;
+
+function startTimerFromStorage() {
+  const endTime = parseInt(localStorage.getItem("sessionEnd"));
+  if (!endTime) return;
+
+  const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+  
+  // Resume display
+  let mins = Math.floor(remaining / 60);
+  let secs = remaining % 60;
+  timerDisplay.textContent = "00:" + String(mins).padStart(2, '0') + ":" + String(secs).padStart(2, '0');
+  timerButtons.style.display = "flex";
+
+  // Restart interval to keep counting
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    const now = Date.now();
+    if (now >= endTime) {
+      clearInterval(timerInterval);
+      timerDisplay.textContent = "00:00:00";
+      timerStatus.textContent = "Session Expired";
+      localStorage.removeItem("sessionEnd");
+      setTimeout(() => {
+        showPage('main');
+        timerButtons.style.display = "none";
+      }, 2000);
+      return;
+    }
+    
+    const rem = Math.floor((endTime - now) / 1000);
+    let m = Math.floor(rem / 60);
+    let s = rem % 60;
+    timerDisplay.textContent = "00:" + String(m).padStart(2, '0') + ":" + String(s).padStart(2, '0');
+  }, 1000);
+}
+
 exitBtn.onclick = () => {
   clearInterval(timerInterval);
   localStorage.removeItem("sessionEnd");
   timerButtons.style.display = "none";
   showPage('main');
 };
-async function handleSubmit() {
+
+// -------------------------------------------------------
+// MAIN SUBMIT LOGIC (SCANNER)
+// -------------------------------------------------------
+submitBtn.onclick = async () => {
   if (!selectedFile) return;
 
   if (!selectedFile.type.startsWith("image/")) {
@@ -414,7 +463,7 @@ async function handleSubmit() {
       img.onerror = () => reject(new Error("Invalid image"));
     });
 
-    // 2. Canvas
+    // 2. Canvas Preparation
     const MAX_W = 1000;
     const scale = Math.min(1, MAX_W / img.width);
     const canvas = document.createElement("canvas");
@@ -426,18 +475,25 @@ async function handleSubmit() {
 
     let detectedText = "";
 
-    // 3. QR CHECK
+    // -------------------------------------------------------
+    // CHECK 1: QR CODE
+    // -------------------------------------------------------
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const qr = jsQR(imageData.data, canvas.width, canvas.height);
 
     if (qr && qr.data) {
       detectedText = qr.data;
-      console.log("✅ QR:", detectedText);
-    } else {
-      // 4. OCR CHECK
+      console.log("✅ QR Found:", detectedText);
+    } 
+    
+    // -------------------------------------------------------
+    // CHECK 2: OCR (NORMAL IMAGE)
+    // -------------------------------------------------------
+    else {
       loadingText.textContent = "Reading image text...";
 
       try {
+        // 5 second limit
         const timeoutPromise = new Promise((_, reject) =>
           setTimeout(() => reject(new Error("Timeout")), 5000)
         );
@@ -446,154 +502,41 @@ async function handleSubmit() {
         const { data: { text } } = await Promise.race([ocrPromise, timeoutPromise]);
 
         detectedText = text;
-        console.log("✅ OCR:", detectedText);
-      } catch {
+        console.log("✅ OCR Found:", detectedText);
+      } catch (err) {
+        console.warn("OCR Failed or Timed out");
         detectedText = "";
       }
     }
 
-    // 5. VALIDATION
+    // -------------------------------------------------------
+    // VALIDATION
+    // -------------------------------------------------------
     const cleanText = detectedText.replace(/[^a-zA-Z0-9]/g, "");
     const isValid = cleanText.length >= 3;
 
-    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
 
-    // 6. RESULT
     if (isValid) {
-      const totalSeconds = 60;
-      const endTime = Date.now() + totalSeconds * 1000;
-      localStorage.setItem("sessionEnd", endTime);
-
-      startTimer(totalSeconds);
+      // SUCCESS
+      startTimer(60); // 60 seconds
       timerButtons.style.display = "flex";
       showPage("timer");
     } else {
-      alert("Invalid Proof: No text or QR found.");
+      // FAILURE
+      alert("Invalid Proof: No text or QR code found.");
       showPage("pay");
     }
 
   } catch (error) {
-    console.error(error);
-    alert("Processing error. Try again.");
+    console.error("Error:", error);
+    alert("Processing error. Please try again.");
     showPage("pay");
   } finally {
     if (objectUrl) URL.revokeObjectURL(objectUrl);
     loadingOverlay.style.display = "none";
   }
-}
-
-// -----------------------------
-// 2. FILE SELECTION
-// -----------------------------
-fileInput.addEventListener('change', (e) => {
-  if (e.target.files[0]) {
-    selectedFile = e.target.files[0];
-    submitBtn.disabled = false;
-  } else {
-    selectedFile = null;
-    submitBtn.disabled = true;
-  }
-});
-
-
-// -----------------------------
-// 3. CONNECT BUTTON ✅
-// -----------------------------
-submitBtn.onclick = handleSubmit;
-
-
-// -----------------------------
-// 4. SUBMIT FUNCTION
-// -----------------------------
-async function handleSubmit() {
-  if (!selectedFile) return;
-
-  if (!selectedFile.type.startsWith("image/")) {
-    alert("Please select a valid image file.");
-    return;
-  }
-
-  loadingOverlay.style.display = "flex";
-  loadingText.textContent = "Scanning image...";
-  let objectUrl = null;
-
-  try {
-    // Load image
-    const img = new Image();
-    objectUrl = URL.createObjectURL(selectedFile);
-    img.src = objectUrl;
-
-    await new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error("Load timeout")), 4000);
-      img.onload = () => { clearTimeout(timer); resolve(); };
-      img.onerror = () => reject(new Error("Invalid image"));
-    });
-
-    // Canvas
-    const MAX_W = 1000;
-    const scale = Math.min(1, MAX_W / img.width);
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-
-    canvas.width = Math.floor(img.width * scale);
-    canvas.height = Math.floor(img.height * scale);
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-    let detectedText = "";
-
-    // QR check
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const qr = jsQR(imageData.data, canvas.width, canvas.height);
-
-    if (qr && qr.data) {
-      detectedText = qr.data;
-    } else {
-      // OCR check
-      loadingText.textContent = "Reading image text...";
-
-      try {
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Timeout")), 5000)
-        );
-
-        const ocrPromise = Tesseract.recognize(canvas, "eng");
-        const { data: { text } } = await Promise.race([ocrPromise, timeoutPromise]);
-
-        detectedText = text;
-      } catch {
-        detectedText = "";
-      }
-    }
-
-    // Validation
-    const cleanText = detectedText.replace(/[^a-zA-Z0-9]/g, "");
-    const isValid = cleanText.length >= 3;
-
-    if (objectUrl) URL.revokeObjectURL(objectUrl);
-
-    // Result
-    if (isValid) {
-      const totalSeconds = 60;
-      const endTime = Date.now() + totalSeconds * 1000;
-      localStorage.setItem("sessionEnd", String(endTime));
-
-      startTimer(totalSeconds);
-      timerButtons.style.display = "flex";
-      showPage("timer");
-    } else {
-      alert("Invalid Proof: No text or QR found.");
-      showPage("pay");
-    }
-
-  } catch (error) {
-    console.error(error);
-    alert("Processing error. Try again.");
-    showPage("pay");
-  } finally {
-    if (objectUrl) URL.revokeObjectURL(objectUrl);
-    loadingOverlay.style.display = "none";
-  }
-}
+};
 </script>
 </body>
 </html>
