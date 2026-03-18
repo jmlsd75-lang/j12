@@ -6,117 +6,57 @@
 <title>Jamal Said Kazembe Multisystem Management</title>
 <!-- Tesseract.js for OCR -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<!-- jsQR for decoding QR Codes (more reliable than Tesseract for QR) -->
+<!-- jsQR for decoding QR Codes -->
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <style>
   body{
-    margin:0;
-    font-family:Arial, sans-serif;
-    background:#f4f4f4;
-    display:flex;
-    flex-direction:column;
-    justify-content:flex-start;
-    align-items:center;
-    min-height:100vh;
-    text-align:center;
-    padding-top:50px;
+    margin:0; font-family:Arial, sans-serif; background:#f4f4f4;
+    display:flex; flex-direction:column; justify-content:flex-start;
+    align-items:center; min-height:100vh; text-align:center; padding-top:50px;
   }
-  h1{ font-size:32px; color:blue; margin:0; }
-  h2{ color:red; margin-top:5px; font-size:18px; }
+  h1{ font-size:28px; color:blue; margin:0; }
+  h2{ color:red; margin-top:5px; font-size:16px; }
 
-  /* --- Main Menu Buttons --- */
-  .login-btn, .logout-btn, .pay-btn {
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    border:none;
-    cursor:pointer;
-    display: none; 
+  /* --- Buttons --- */
+  .login-btn, .logout-btn, .pay-btn, .access-btn {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    border:none; cursor:pointer; display: none; 
   }
-  .login-btn{
-    bottom: 30px; padding:15px 40px; font-size:20px;
-    background:#28a745; color:white; border-radius:6px;
-  }
-  .pay-btn{
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    padding:18px 50px; font-size:22px;
-    background-color: #28a745; color:white; border-radius:8px;
-  }
-  .logout-btn{
-    bottom: 30px; background:#dc3545; color:white;
-    padding:10px 25px; border-radius:6px; font-size:16px;
-  }
+  .login-btn{ bottom: 30px; padding:15px 40px; font-size:20px; background:#28a745; color:white; border-radius:6px; }
+  .pay-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #28a745; color:white; border-radius:8px; }
+  .access-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #007bff; color:white; border-radius:8px; }
+  .logout-btn{ bottom: 30px; background:#dc3545; color:white; padding:10px 25px; border-radius:6px; font-size:16px; }
   
-  /* User Display */
-  #userDisplay {
-    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-    font-size: 18px; font-weight: bold; color: #333;
-    display: none;
-  }
+  #userDisplay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); font-size: 18px; font-weight: bold; color: #333; display: none; }
 
-  /* --- Page 1: Payment Info --- */
-  #payPage{
-    position: fixed; top:0; left:0; width:100%; height:100%;
-    background:#ffffff; display:none; flex-direction:column;
-    justify-content:center; align-items:center; text-align:center; z-index: 10;
-  }
+  /* --- Pages --- */
+  #payPage{ position: fixed; top:0; left:0; width:100%; height:100%; background:#ffffff; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 10; }
   .pay-info p{ margin:10px; font-size:18px; }
   .mix{ color:green; } .airtel{ color:red; } .crdb{ color:blue; } .name{ color:black; font-weight:bold; }
-
   .pay-actions{ position: fixed; bottom: 30px; display:flex; gap:20px; }
   .back-btn{ padding:12px 25px; background:gray; color:white; border:none; border-radius:6px; cursor: pointer; }
   .next-btn{ padding:12px 25px; background:green; color:white; border:none; border-radius:6px; cursor: pointer; }
 
-  /* --- Page 2: Camera/Photos Menu --- */
-  #cameraMenuPage {
-    position: fixed; top:0; left:0; width:100%; height:100%;
-    background: #ffffff; display:none; flex-direction: column;
-    justify-content: center; align-items: center; gap: 20px; z-index: 20;
-  }
+  #cameraMenuPage { position: fixed; top:0; left:0; width:100%; height:100%; background: #ffffff; display:none; flex-direction: column; justify-content: center; align-items: center; gap: 20px; z-index: 20; }
   #openCameraBtn { padding: 15px 40px; font-size: 20px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; }
   #openPhotosBtn { padding: 15px 40px; font-size: 20px; background: #17a2b8; color: white; border: none; border-radius: 6px; cursor: pointer; }
   #backFromCameraBtn { padding: 15px 40px; font-size: 20px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; }
 
-  /* --- Page 3: Preview & Submit --- */
-  #previewPage {
-    position: fixed; top:0; left:0; width:100%; height:100%;
-    background: white; display:none; flex-direction: column;
-    justify-content: center; align-items: center; z-index: 30;
-  }
+  #previewPage { position: fixed; top:0; left:0; width:100%; height:100%; background: white; display:none; flex-direction: column; justify-content: center; align-items: center; z-index: 30; }
   #previewImage { max-width: 90%; max-height: 60%; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
   .preview-actions { display: flex; gap: 20px; }
   #submitBtn { padding: 12px 25px; background: green; color: white; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; }
   #cancelBtn { padding: 12px 25px; background: red; color: white; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; }
 
-  /* --- Page 4: System / Timer Page --- */
-  #timerPage {
-    position: fixed; top:0; left:0; width:100%; height:100%;
-    background: #f4f4f4; display:none; flex-direction: column;
-    justify-content: center; align-items: center; z-index: 40;
-  }
+  #timerPage { position: fixed; top:0; left:0; width:100%; height:100%; background: #f4f4f4; display:none; flex-direction: column; justify-content: center; align-items: center; z-index: 40; }
   #timerDisplay { font-size: 60px; font-weight: bold; color: #333; }
   #timerStatus { margin-top: 20px; font-size: 20px; color: #666; }
-
-  /* Timer Buttons Container */
-  #timerButtons {
-    margin-top: 30px;
-    display: none; /* Hidden by default */
-    gap: 20px;
-  }
-  .timer-action-btn {
-    padding: 15px 30px; font-size: 18px; color: white; border: none; border-radius: 6px; cursor: pointer;
-  }
+  #timerButtons { margin-top: 30px; display: none; gap: 20px; }
+  .timer-action-btn { padding: 15px 30px; font-size: 18px; color: white; border: none; border-radius: 6px; cursor: pointer; }
   #businessBtn { background: #007bff; }
   #exitBtn { background: #dc3545; }
 
-  /* Loading Overlay */
-  #loadingOverlay {
-    position: fixed; top:0; left:0; width:100%; height:100%;
-    background: rgba(255,255,255,0.9); display:none;
-    justify-content: center; align-items: center; flex-direction: column;
-    z-index: 100;
-  }
+  #loadingOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); display:none; justify-content: center; align-items: center; flex-direction: column; z-index: 100; }
   .loader { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 </style>
@@ -124,16 +64,14 @@
 <body>
 
 <div id="userDisplay"></div>
-
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
   
 <button class="login-btn">LOGIN</button>
 <button class="pay-btn">PAY</button>
-<button class="access-btn" style="display:none;">ACCESS</button>
+<button class="access-btn">ACCESS</button>
 <button class="logout-btn">LOGOUT</button>
 
-<!-- Hidden Inputs -->
 <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
 <input type="file" id="photosInput" accept="image/*" style="display:none;">
 
@@ -176,7 +114,6 @@
   <div id="userDisplayTimer" style="margin-bottom:20px; font-size:24px; font-weight:bold;"></div>
   <div id="timerDisplay">00:00:00</div>
   <div id="timerStatus">Session Active</div>
-  
   <div id="timerButtons">
     <button id="businessBtn" class="timer-action-btn">BUSINESS</button>
     <button id="exitBtn" class="timer-action-btn">EXIT</button>
@@ -186,14 +123,13 @@
 <!-- Loading Overlay -->
 <div id="loadingOverlay">
   <div class="loader"></div>
-  <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
+  <p id="loadingText" style="margin-top:20px;">Processing...</p>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// --- Firebase Config ---
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -202,7 +138,7 @@ const firebaseConfig = {
   messagingSenderId: "167159607898",
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
-const accessBtn = document.querySelector(".access-btn");
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
@@ -211,6 +147,7 @@ const provider = new GoogleAuthProvider();
 const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
 const payBtn = document.querySelector(".pay-btn");
+const accessBtn = document.querySelector(".access-btn");
 const userDisplay = document.getElementById("userDisplay");
 
 const payPage = document.getElementById("payPage");
@@ -235,7 +172,6 @@ const timerDisplay = document.getElementById("timerDisplay");
 const userDisplayTimer = document.getElementById("userDisplayTimer");
 const timerStatus = document.getElementById("timerStatus");
 const timerButtons = document.getElementById("timerButtons");
-const businessBtn = document.getElementById("businessBtn");
 const exitBtn = document.getElementById("exitBtn");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
@@ -247,71 +183,34 @@ let timerInterval = null;
 onAuthStateChanged(auth, (user) => {
   if (user) {
     userDisplay.textContent = user.displayName;
-    userDisplay.style.display = "block";
-    loginBtn.style.display = "none";
-    payBtn.style.display = "block";
-    logoutBtn.style.display = "block";
+    showPage('main');
   } else {
     userDisplay.style.display = "none";
     loginBtn.style.display = "block";
     payBtn.style.display = "none";
+    accessBtn.style.display = "none";
     logoutBtn.style.display = "none";
   }
 });
 
-loginBtn.onclick = async () => {
-  try { await signInWithPopup(auth, provider); } 
-  catch (e) { console.error("Login Error", e); alert("Login failed."); }
-};
-
-logoutBtn.onclick = async () => {
-  clearInterval(timerInterval);
-  localStorage.removeItem("sessionEnd");
-  try { await signOut(auth); } 
-  catch (e) { console.error("Logout Error", e); }
-  showPage('main');
-};
+loginBtn.onclick = async () => { try { await signInWithPopup(auth, provider); } catch (e) { alert("Login failed"); } };
+logoutBtn.onclick = async () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); await signOut(auth); showPage('main'); };
+accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
 
 // --- Navigation Logic ---
 function showPage(page) {
-  // Hide all pages
-  payPage.style.display = "none";
-  cameraMenuPage.style.display = "none";
-  previewPage.style.display = "none";
-  timerPage.style.display = "none";
-  
-  // Reset Main Buttons
-  payBtn.style.display = "none";
-  logoutBtn.style.display = "none";
-  userDisplay.style.display = "none";
+  payPage.style.display = "none"; cameraMenuPage.style.display = "none"; previewPage.style.display = "none"; timerPage.style.display = "none";
+  payBtn.style.display = "none"; accessBtn.style.display = "none"; logoutBtn.style.display = "none"; userDisplay.style.display = "none";
 
-  if(page === 'main') {
-    if(auth.currentUser) {
-  userDisplay.style.display = "block";
-  logoutBtn.style.display = "block";
-
-  const endTime = localStorage.getItem("sessionEnd");
-
-  if (endTime && Date.now() < endTime) {
-    // 👉 Session still active
-    payBtn.style.display = "none";
-    accessBtn.style.display = "block";
-  } else {
-    // 👉 No session
-    payBtn.style.display = "block";
-    accessBtn.style.display = "none";
-  }
-}
-  } else if (page === 'pay') {
-    payPage.style.display = "flex";
-  } else if (page === 'camera') {
-    cameraMenuPage.style.display = "flex";
-  } else if (page === 'preview') {
-    previewPage.style.display = "flex";
-  } else if (page === 'timer') {
-    timerPage.style.display = "flex";
-    userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User";
-  }
+  if(page === 'main' && auth.currentUser) {
+    userDisplay.style.display = "block"; logoutBtn.style.display = "block";
+    const endTime = localStorage.getItem("sessionEnd");
+    if (endTime && Date.now() < parseInt(endTime)) { accessBtn.style.display = "block"; } 
+    else { payBtn.style.display = "block"; }
+  } else if (page === 'pay') { payPage.style.display = "flex"; } 
+  else if (page === 'camera') { cameraMenuPage.style.display = "flex"; } 
+  else if (page === 'preview') { previewPage.style.display = "flex"; } 
+  else if (page === 'timer') { timerPage.style.display = "flex"; userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; }
 }
 
 payBtn.onclick = () => showPage('pay');
@@ -320,120 +219,168 @@ nextBtn.onclick = () => showPage('camera');
 backFromCameraBtn.onclick = () => showPage('main');
 
 // --- Camera & Photos Logic ---
-
 openCameraBtn.onclick = () => cameraInput.click();
 openPhotosBtn.onclick = () => photosInput.click();
 
 function handleFile(file) {
-  if (!file) {
-    // Requirement 1: No photo -> return to Main Page (Pay/Logout)
-    showPage('main');
-    return;
-  }
-
+  if (!file) { showPage('camera'); return; }
   selectedFile = file;
-
   const reader = new FileReader();
-  reader.onload = function(e) {
-    previewImage.src = e.target.result;
-    showPage('preview');
-  };
+  reader.onload = (e) => { previewImage.src = e.target.result; showPage('preview'); };
   reader.readAsDataURL(file);
-
-  // Reset inputs to allow selecting same file again
-  setTimeout(() => {
-    cameraInput.value = "";
-    photosInput.value = "";
-  }, 100);
+  cameraInput.value = ""; photosInput.value = "";
 }
 
 cameraInput.onchange = (e) => handleFile(e.target.files[0]);
 photosInput.onchange = (e) => handleFile(e.target.files[0]);
+cancelBtn.onclick = () => { selectedFile = null; previewImage.src = ""; showPage('camera'); };
 
-cancelBtn.onclick = () => {
-  selectedFile = null;
-  previewImage.src = "";
-  showPage('main'); // Cancel returns to main
-};
+// --- Timer Logic ---
 function startTimer(seconds) {
   clearInterval(timerInterval);
-
+  const endTime = Date.now() + seconds * 1000;
+  localStorage.setItem("sessionEnd", String(endTime));
   timerInterval = setInterval(() => {
-  if (seconds <= 0) {
-  clearInterval(timerInterval);
-  timerDisplay.textContent = "00:00:00";
-  timerStatus.textContent = "Session Expired";
-  localStorage.removeItem("sessionEnd");
-  // 👉 wait 2 seconds then go to main page
-  setTimeout(() => {
-    showPage('main');
-    timerButtons.style.display = "none";
-  }, 2000);
-
-  return;
-}
-    let mins = Math.floor(seconds / 60);
-    let secs = seconds % 60;
-
-    timerDisplay.textContent =
-      "00:" +
-      String(mins).padStart(2, '0') + ":" +
-      String(secs).padStart(2, '0');
-
-    seconds--;
+    const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+    if (remaining <= 0) {
+      clearInterval(timerInterval); timerDisplay.textContent = "00:00:00"; timerStatus.textContent = "Session Expired";
+      localStorage.removeItem("sessionEnd"); setTimeout(() => { showPage('main'); timerButtons.style.display = "none"; }, 2000);
+      return;
+    }
+    timerDisplay.textContent = "00:" + String(Math.floor(remaining / 60)).padStart(2, '0') + ":" + String(remaining % 60).padStart(2, '0');
   }, 1000);
 }
-    const totalSeconds = 60;
-exitBtn.onclick = () => {
-  clearInterval(timerInterval);
-  localStorage.removeItem("sessionEnd");
-  timerButtons.style.display = "none";
-  showPage('main');
-};
+
+function startTimerFromStorage() {
+  const endTime = parseInt(localStorage.getItem("sessionEnd")); if(!endTime) return;
+  timerButtons.style.display = "flex"; clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    const rem = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+    if(rem <= 0){ clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); showPage('main'); return; }
+    timerDisplay.textContent = "00:" + String(Math.floor(rem / 60)).padStart(2, '0') + ":" + String(rem % 60).padStart(2, '0');
+  }, 1000);
+}
+
+exitBtn.onclick = () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); timerButtons.style.display = "none"; showPage('main'); };
+
+// -------------------------------------------------------
+// IMAGE PREPROCESSING (Required for Screenshots/Receipts)
+// -------------------------------------------------------
+function preprocessImage(canvas) {
+  const ctx = canvas.getContext('2d');
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imageData.data;
+  let totalBrightness = 0;
+  
+  // 1. Grayscale
+  for (let i = 0; i < data.length; i += 4) {
+    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+    data[i] = avg; data[i + 1] = avg; data[i + 2] = avg;
+    totalBrightness += avg;
+  }
+
+  const avgBrightness = totalBrightness / (data.length / 4);
+
+  // 2. Inversion & Contrast
+  for (let i = 0; i < data.length; i += 4) {
+    let val = data[i];
+    // Invert if dark screenshot
+    if (avgBrightness < 128) val = 255 - val; 
+    // Contrast
+    if (val > 140) val = 255; else if (val < 120) val = 0; else val = 128;
+    data[i] = val; data[i+1] = val; data[i+2] = val;
+  }
+  ctx.putImageData(imageData, 0, 0);
+  return canvas;
+}
+
+// -------------------------------------------------------
+// SUBMIT LOGIC (Corrected & Strict)
+// -------------------------------------------------------
 submitBtn.onclick = async () => {
-  const file = imageInput.files[0];
-  if (!file) return;
+  // FIX: Use selectedFile instead of undefined imageInput
+  if (!selectedFile) return;
+
+  loadingOverlay.style.display = "flex";
+  loadingText.textContent = "Validating Proof...";
+  let objectUrl = null;
 
   try {
-    submitBtn.disabled = true;
+    const img = new Image();
+    objectUrl = URL.createObjectURL(selectedFile);
+    img.src = objectUrl;
 
-    // OCR: extract text from image
-    const { data } = await Tesseract.recognize(file, "eng", {
-      tessedit_pageseg_mode: 6
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error("Timeout")), 5000);
+      img.onload = () => { clearTimeout(timer); resolve(); };
+      img.onerror = () => reject(new Error("Invalid image"));
     });
 
-    // clean text
-    let text = (data.text || "").replace(/\s+/g, " ").trim();
+    // Canvas Prep
+    const MAX_W = 1500; // High res for small text
+    const scale = Math.min(1, MAX_W / img.width);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = Math.floor(img.width * scale);
+    canvas.height = Math.floor(img.height * scale);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-    // checks
-    const words = text.split(" ").filter(w => w.length > 2);
-    const hasEnoughText = text.length > 20;
-    const hasRealWords = words.length >= 4;
-    const hasNumbers = /\d/.test(text);
+    let detectedText = "";
 
-    const hasText = hasEnoughText && hasRealWords && hasNumbers;
+    // CHECK 1: QR CODE
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const qr = jsQR(imageData.data, canvas.width, canvas.height);
 
-    if (hasText) {
-      // allow 60 seconds
-      const totalSeconds = 60;
-
-      const endTime = Date.now() + totalSeconds * 1000;
-      localStorage.setItem("sessionEnd", String(endTime));
-
-      showPage("timer");
-      timerButtons.style.display = "flex";
-      startTimer(totalSeconds);
-
+    if (qr && qr.data) {
+      detectedText = qr.data;
+      console.log("✅ QR Found:", detectedText);
     } else {
-      // no text → go to pay
+      // CHECK 2: OCR
+      loadingText.textContent = "Reading Receipt...";
+      preprocessImage(canvas); // Apply filter for better reading
+
+      const { data: { text } } = await Tesseract.recognize(canvas, "eng", {
+        tessedit_pageseg_mode: '6'
+      });
+      detectedText = text;
+      console.log("✅ OCR Found:", detectedText);
+    }
+
+    if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
+
+    // --- VALIDATION RULES (Strict) ---
+    // Clean text: remove excess spaces
+    const cleanText = detectedText.replace(/\s+/g, " ").trim();
+
+    // 1. Must have total length > 20 chars
+    const hasEnoughText = cleanText.length > 20;
+    
+    // 2. Must have at least 4 words (length > 2)
+    const words = cleanText.split(" ").filter(w => w.length > 2);
+    const hasRealWords = words.length >= 4;
+
+    // 3. Must contain a number (crucial for receipts)
+    const hasNumbers = /\d/.test(cleanText);
+
+    const isValid = hasEnoughText && hasRealWords && hasNumbers;
+
+    if (isValid) {
+      startTimer(60);
+      timerButtons.style.display = "flex";
+      showPage("timer");
+    } else {
+      console.warn("Validation Failed", { cleanText, hasEnoughText, hasRealWords, hasNumbers });
+      alert("Invalid Proof: Image must look like a real receipt (Text, Words, Numbers).");
       showPage("pay");
     }
 
   } catch (error) {
-    console.error("OCR error:", error);
+    console.error(error);
+    alert("Processing error.");
     showPage("pay");
   } finally {
-    submitBtn.disabled = false;
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    loadingOverlay.style.display = "none";
   }
 };
 </script>
