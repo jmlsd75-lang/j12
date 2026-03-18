@@ -343,15 +343,36 @@ cancelBtn.onclick = () => {
   previewImage.src = "";
   showPage('main'); // Cancel returns to main
 };
+function startTimer(seconds) {
+  clearInterval(timerInterval);
+
+  timerInterval = setInterval(() => {
+    if (seconds <= 0) {
+      clearInterval(timerInterval);
+      timerDisplay.textContent = "00:00:00";
+      timerStatus.textContent = "Session Expired";
+      return;
+    }
+
+    let mins = Math.floor(seconds / 60);
+    let secs = seconds % 60;
+
+    timerDisplay.textContent =
+      "00:" +
+      String(mins).padStart(2, '0') + ":" +
+      String(secs).padStart(2, '0');
+
+    seconds--;
+  }, 1000);
+}
 submitBtn.onclick = async () => {
   if (!selectedFile) return;
-
   // Show loading
   loadingOverlay.style.display = "flex";
   loadingText.textContent = "Please wait...";
 
   // Small delay (optional)
-  await new Promise(resolve => setTimeout(resolve, 1000));
+  await new Promise(resolve => setTimeout(resolve, 300));
 
   // 👉 Fixed 60 seconds
   const totalSeconds = 60;
@@ -368,6 +389,6 @@ submitBtn.onclick = async () => {
   // Hide loading
   loadingOverlay.style.display = "none";
 };
-</script>
+  </script>
 </body>
 </html>
