@@ -386,27 +386,51 @@ function startTimer(seconds) {
 submitBtn.onclick = async () => {
   if (!selectedFile) return;
 
+  // Show loading
   loadingOverlay.style.display = "flex";
   loadingText.textContent = "Please wait...";
 
-  setTimeout(() => {
-    const totalSeconds = 60;
+  // Convert image to canvas
+  const img = new Image();
+  img.src = URL.createObjectURL(selectedFile);
+  await new Promise(resolve => img.onload = resolve);
 
-    const endTime = Date.now() + (totalSeconds * 1000);
-    localStorage.setItem("sessionEnd", endTime);
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
 
-    startTimer(totalSeconds);
+  canvas.width = img.width;
+  canvas.height = img.height;
+  ctx.drawImage(img, 0, 0);
 
-    timerButtons.style.display = "flex";
-    showPage('timer');
+  // --- QR CHECK ---
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const qr = jsQR(imageData.data, canvas.width, canvas.height);
 
+  // --- TEXT CHECK ---
+  const { data: { text } } = await Tesseract.recognize(canvas, 'eng');
+
+  // --- CONDITION ---
+  if (!qr && (!text || text.trim().length < 3)) {
+    // ❌ INVALID → back to main
     loadingOverlay.style.display = "none";
-  }, 3000); // wait 3 seconds
-};
-accessBtn.onclick = () => {
-  showPage('timer');
+    showPage('main');
+    return;
+  }
+
+  // ✅ VALID → start timer
+  const totalSeconds = 60;
+
+  const endTime = Date.now() + (totalSeconds * 1000);
+  localStorage.setItem("sessionEnd", endTime);
+
+  startTimer(totalSeconds);
+
   timerButtons.style.display = "flex";
+  showPage('timer');
+
+  loadingOverlay.style.display = "none";
 };
+    const totalSeconds = 60;
 exitBtn.onclick = () => {
   clearInterval(timerInterval);
   localStorage.removeItem("sessionEnd");
