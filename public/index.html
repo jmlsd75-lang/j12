@@ -383,58 +383,116 @@ function startTimer(seconds) {
     seconds--;
   }, 1000);
 }
-submitBtn.onclick = async () => {
-  if (!selectedFile) return;
-
-  // Show loading
-  loadingOverlay.style.display = "flex";
-  loadingText.textContent = "Please wait...";
-
-  // Convert image to canvas
-  const img = new Image();
-  img.src = URL.createObjectURL(selectedFile);
-  await new Promise(resolve => img.onload = resolve);
-
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-
-  canvas.width = img.width;
-  canvas.height = img.height;
-  ctx.drawImage(img, 0, 0);
-
-  // --- QR CHECK ---
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const qr = jsQR(imageData.data, canvas.width, canvas.height);
-
-  // --- TEXT CHECK ---
-  const { data: { text } } = await Tesseract.recognize(canvas, 'eng');
-// --- CONDITION ---
-const cleanText = text.replace(/[^a-zA-Z0-9]/g, ""); // remove symbols
-
-if (!qr && (!cleanText || cleanText.length < 5)) {
-  loadingOverlay.style.display = "none";
-  showPage('main');
-  return;
-}
-  // ✅ VALID → start timer
-  const totalSeconds = 60;
-
-  const endTime = Date.now() + (totalSeconds * 1000);
-  localStorage.setItem("sessionEnd", endTime);
-
-  startTimer(totalSeconds);
-
-  timerButtons.style.display = "flex";
-  showPage('timer');
-
-  loadingOverlay.style.display = "none";
-};
     const totalSeconds = 60;
 exitBtn.onclick = () => {
   clearInterval(timerInterval);
   localStorage.removeItem("sessionEnd");
   timerButtons.style.display = "none";
   showPage('main');
+};
+submitBtn.onclick = async () => {
+  // 1. Validate file
+  if (!selectedFile) return;
+
+  if (!selectedFile.type.startsWith("image/")) {
+    alert("Please select a valid image.");
+    return;
+  }
+
+  // 2. Show loading
+  loadingOverlay.style.display = "flex";
+  loadingText.textContent = "Processing payment...";
+
+  // Define objectUrl outside to allow cleanup in 'finally'
+  let objectUrl = null;
+
+  try {
+    // 3. Load image safely
+    const img = new Image();
+    objectUrl = URL.createObjectURL(selectedFile);
+    img.src = objectUrl;
+
+    await new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error("Image load timeout")), 5000);
+
+      img.onload = () => {
+        clearTimeout(timeout);
+        resolve();
+      };
+
+      img.onerror = () => reject(new Error("Invalid image"));
+    });
+
+    // 4. Resize image for SPEED (Max 800px width)
+    // This prevents lag on high-res phone photos
+    const MAX_WIDTH = 800;
+    const scale = Math.min(1, MAX_WIDTH / img.width);
+    
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = Math.floor(img.width * scale);
+    canvas.height = Math.floor(img.height * scale);
+
+    // Draw resized image
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    // (Optional) Grayscale for better OCR
+    // ctx.filter = 'grayscale(100%) contrast(120%)'; 
+
+    // 5. QR check (Fast)
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const qr = jsQR(imageData.data, canvas.width, canvas.height);
+
+    let isValid = false;
+
+    if (qr && qr.data) {
+      console.log("✅ QR detected:", qr.data);
+      isValid = true;
+    } else {
+      // 6. OCR fallback (Slower)
+      loadingText.textContent = "Reading text...";
+
+      const { data: { text } } = await Tesseract.recognize(canvas, "eng");
+
+      const cleanText = text.replace(/[^a-zA-Z0-9]/g, "");
+      console.log("OCR:", cleanText);
+
+      // Check for at least 3 letters OR 3 numbers
+      const hasMeaningfulText = /[A-Z]{3,}|\d{3,}/.test(cleanText);
+
+      if (hasMeaningfulText) {
+        console.log("✅ OCR valid");
+        isValid = true;
+      }
+    }
+
+    // 7. If invalid
+    if (!isValid) {
+      alert("Invalid proof. Please upload a clear receipt.");
+      showPage("pay");
+      return;
+    }
+
+    // 8. SUCCESS → Start session
+    const totalSeconds = 60;
+    const endTime = Date.now() + (totalSeconds * 1000);
+
+    localStorage.setItem("sessionEnd", endTime);
+
+    startTimer(totalSeconds);
+    timerButtons.style.display = "flex";
+    showPage("timer");
+
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Error: " + error.message);
+    showPage("pay");
+  } finally {
+    // 9. CRITICAL: Cleanup memory
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    loadingOverlay.style.display = "none";
+  }
 };
   </script>
 </body>
