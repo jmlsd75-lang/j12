@@ -130,6 +130,7 @@
   
 <button class="login-btn">LOGIN</button>
 <button class="pay-btn">PAY</button>
+<button class="access-btn" style="display:none;">ACCESS</button>
 <button class="logout-btn">LOGOUT</button>
 
 <!-- Hidden Inputs -->
@@ -201,7 +202,7 @@ const firebaseConfig = {
   messagingSenderId: "167159607898",
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
-
+const accessBtn = document.querySelector(".access-btn");
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
@@ -286,10 +287,21 @@ function showPage(page) {
 
   if(page === 'main') {
     if(auth.currentUser) {
-      userDisplay.style.display = "block";
-      payBtn.style.display = "block";
-      logoutBtn.style.display = "block";
-    }
+  userDisplay.style.display = "block";
+  logoutBtn.style.display = "block";
+
+  const endTime = localStorage.getItem("sessionEnd");
+
+  if (endTime && Date.now() < endTime) {
+    // 👉 Session still active
+    payBtn.style.display = "none";
+    accessBtn.style.display = "block";
+  } else {
+    // 👉 No session
+    payBtn.style.display = "block";
+    accessBtn.style.display = "none";
+  }
+}
   } else if (page === 'pay') {
     payPage.style.display = "flex";
   } else if (page === 'camera') {
@@ -347,13 +359,19 @@ function startTimer(seconds) {
   clearInterval(timerInterval);
 
   timerInterval = setInterval(() => {
-    if (seconds <= 0) {
-      clearInterval(timerInterval);
-      timerDisplay.textContent = "00:00:00";
-      timerStatus.textContent = "Session Expired";
-      return;
-    }
+  if (seconds <= 0) {
+  clearInterval(timerInterval);
+  timerDisplay.textContent = "00:00:00";
+  timerStatus.textContent = "Session Expired";
+  localStorage.removeItem("sessionEnd");
+  // 👉 wait 2 seconds then go to main page
+  setTimeout(() => {
+    showPage('main');
+    timerButtons.style.display = "none";
+  }, 2000);
 
+  return;
+}
     let mins = Math.floor(seconds / 60);
     let secs = seconds % 60;
 
@@ -384,6 +402,16 @@ submitBtn.onclick = async () => {
 
     loadingOverlay.style.display = "none";
   }, 3000); // wait 3 seconds
+};
+accessBtn.onclick = () => {
+  showPage('timer');
+  timerButtons.style.display = "flex";
+};
+exitBtn.onclick = () => {
+  clearInterval(timerInterval);
+  localStorage.removeItem("sessionEnd");
+  timerButtons.style.display = "none";
+  showPage('main');
 };
   </script>
 </body>
