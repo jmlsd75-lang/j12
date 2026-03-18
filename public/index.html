@@ -168,10 +168,25 @@ const loadingText = document.getElementById("loadingText");
 let selectedFile = null;
 let timerInterval = null;
 
-// --- Auth Logic ---
 onAuthStateChanged(auth, (user) => {
   if (user) {
     userDisplay.textContent = user.displayName;
+
+    // ✅ ADMIN USER (DIRECT ACCESS)
+    if (user.email === "camelazembe1@gmail.com") {
+      userDisplay.style.display = "block";
+
+      loginBtn.style.display = "none";
+      payBtn.style.display = "none";
+      accessBtn.style.display = "none";
+      logoutBtn.style.display = "none";
+
+      timerButtons.style.display = "flex"; // show BUSINESS + EXIT
+
+      showPage('business'); // 🔥 go directly
+      return;
+    }
+
     showPage('main');
   } else {
     userDisplay.style.display = "none";
@@ -194,6 +209,10 @@ previewPage.style.display = "none";
 timerPage.style.display = "none";
 businessPage.style.display = "none"; // ✅ ADD THIS
   if(page === 'main' && auth.currentUser) {
+    if (auth.currentUser.email === "camelazembe1@gmail.com") {
+  showPage('business');
+  return;
+}
     userDisplay.style.display = "block"; logoutBtn.style.display = "block";
     const endTime = localStorage.getItem("sessionEnd");
     if (endTime && Date.now() < parseInt(endTime)) { accessBtn.style.display = "block"; } 
