@@ -4,23 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Jamal Said Kazembe Multisystem Management</title>
-<!-- Tesseract.js for OCR -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<!-- jsQR for decoding QR Codes -->
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <style>
-  body{
-    margin:0; font-family:Arial, sans-serif; background:#f4f4f4;
-    display:flex; flex-direction:column; justify-content:flex-start;
-    align-items:center; min-height:100vh; text-align:center; padding-top:50px;
-  }
+  body{ margin:0; font-family:Arial, sans-serif; background:#f4f4f4; display:flex; flex-direction:column; justify-content:flex-start; align-items:center; min-height:100vh; text-align:center; padding-top:50px; }
   h1{ font-size:28px; color:blue; margin:0; }
   h2{ color:red; margin-top:5px; font-size:16px; }
 
-  /* --- Buttons --- */
   .login-btn, .logout-btn, .pay-btn, .access-btn {
-    position: fixed; left: 50%; transform: translateX(-50%);
-    border:none; cursor:pointer; display: none; 
+    position: fixed; left: 50%; transform: translateX(-50%); border:none; cursor:pointer; display: none; 
   }
   .login-btn{ bottom: 30px; padding:15px 40px; font-size:20px; background:#28a745; color:white; border-radius:6px; }
   .pay-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #28a745; color:white; border-radius:8px; }
@@ -29,8 +21,7 @@
   
   #userDisplay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); font-size: 18px; font-weight: bold; color: #333; display: none; }
 
-  /* --- Pages --- */
-  #payPage{ position: fixed; top:0; left:0; width:100%; height:100%; background:#ffffff; display:none; flex-direction:column; justify-content:center; align-items:center; z-index: 10; }
+  #payPage{ position: fixed; top:0; left:0; width:100%; height:100%; background:#ffffff; display:none; flex-direction:column; justify-content:center; align-items:center; text-align:center; z-index: 10; }
   .pay-info p{ margin:10px; font-size:18px; }
   .mix{ color:green; } .airtel{ color:red; } .crdb{ color:blue; } .name{ color:black; font-weight:bold; }
   .pay-actions{ position: fixed; bottom: 30px; display:flex; gap:20px; }
@@ -75,7 +66,6 @@
 <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
 <input type="file" id="photosInput" accept="image/*" style="display:none;">
 
-<!-- Page 1: Payment Info -->
 <div id="payPage">
   <div class="pay-info">
     <p>Pay through:</p>
@@ -93,14 +83,12 @@
   </div>
 </div>
 
-<!-- Page 2: Camera/Photos Options -->
 <div id="cameraMenuPage">
   <button id="openCameraBtn">CAMERA</button>
   <button id="openPhotosBtn">PHOTOS</button>
   <button id="backFromCameraBtn">BACK</button>
 </div>
 
-<!-- Page 3: Preview Page -->
 <div id="previewPage">
   <img id="previewImage" src="" alt="Payment Preview">
   <div class="preview-actions">
@@ -109,7 +97,6 @@
   </div>
 </div>
 
-<!-- Page 4: Timer Page -->
 <div id="timerPage">
   <div id="userDisplayTimer" style="margin-bottom:20px; font-size:24px; font-weight:bold;"></div>
   <div id="timerDisplay">00:00:00</div>
@@ -120,10 +107,9 @@
   </div>
 </div>
 
-<!-- Loading Overlay -->
 <div id="loadingOverlay">
   <div class="loader"></div>
-  <p id="loadingText" style="margin-top:20px;">Processing...</p>
+  <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
 </div>
 
 <script type="module">
@@ -149,29 +135,25 @@ const logoutBtn = document.querySelector(".logout-btn");
 const payBtn = document.querySelector(".pay-btn");
 const accessBtn = document.querySelector(".access-btn");
 const userDisplay = document.getElementById("userDisplay");
-
 const payPage = document.getElementById("payPage");
 const backBtn = document.querySelector(".back-btn");
 const nextBtn = document.querySelector(".next-btn");
-
 const cameraMenuPage = document.getElementById("cameraMenuPage");
 const openCameraBtn = document.getElementById("openCameraBtn");
 const openPhotosBtn = document.getElementById("openPhotosBtn");
 const backFromCameraBtn = document.getElementById("backFromCameraBtn");
-
 const cameraInput = document.getElementById("cameraInput");
 const photosInput = document.getElementById("photosInput");
-
 const previewPage = document.getElementById("previewPage");
 const previewImage = document.getElementById("previewImage");
 const submitBtn = document.getElementById("submitBtn");
 const cancelBtn = document.getElementById("cancelBtn");
-
 const timerPage = document.getElementById("timerPage");
 const timerDisplay = document.getElementById("timerDisplay");
 const userDisplayTimer = document.getElementById("userDisplayTimer");
 const timerStatus = document.getElementById("timerStatus");
 const timerButtons = document.getElementById("timerButtons");
+const businessBtn = document.getElementById("businessBtn");
 const exitBtn = document.getElementById("exitBtn");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
@@ -223,7 +205,7 @@ openCameraBtn.onclick = () => cameraInput.click();
 openPhotosBtn.onclick = () => photosInput.click();
 
 function handleFile(file) {
-  if (!file) { showPage('camera'); return; }
+  if (!file) { showPage('main'); return; }
   selectedFile = file;
   const reader = new FileReader();
   reader.onload = (e) => { previewImage.src = e.target.result; showPage('preview'); };
@@ -264,7 +246,7 @@ function startTimerFromStorage() {
 exitBtn.onclick = () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); timerButtons.style.display = "none"; showPage('main'); };
 
 // -------------------------------------------------------
-// IMAGE PREPROCESSING (Required for Screenshots/Receipts)
+// IMAGE PREPROCESSING
 // -------------------------------------------------------
 function preprocessImage(canvas) {
   const ctx = canvas.getContext('2d');
@@ -272,7 +254,6 @@ function preprocessImage(canvas) {
   const data = imageData.data;
   let totalBrightness = 0;
   
-  // 1. Grayscale
   for (let i = 0; i < data.length; i += 4) {
     const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
     data[i] = avg; data[i + 1] = avg; data[i + 2] = avg;
@@ -281,13 +262,10 @@ function preprocessImage(canvas) {
 
   const avgBrightness = totalBrightness / (data.length / 4);
 
-  // 2. Inversion & Contrast
   for (let i = 0; i < data.length; i += 4) {
     let val = data[i];
-    // Invert if dark screenshot
-    if (avgBrightness < 128) val = 255 - val; 
-    // Contrast
-    if (val > 140) val = 255; else if (val < 120) val = 0; else val = 128;
+    if (avgBrightness < 128) val = 255 - val;
+    if (val > 140) val = 255; else if (val < 120) val = 0;
     data[i] = val; data[i+1] = val; data[i+2] = val;
   }
   ctx.putImageData(imageData, 0, 0);
@@ -295,14 +273,22 @@ function preprocessImage(canvas) {
 }
 
 // -------------------------------------------------------
-// SUBMIT LOGIC (Corrected & Strict)
+// VALIDATION NAMES
+// -------------------------------------------------------
+const VALID_NAMES = [
+  "JAMAL SAID KAZEMBE",
+  "JAMAL SAID",
+  "JAMAL KAZEMBE"
+];
+
+// -------------------------------------------------------
+// SUBMIT LOGIC
 // -------------------------------------------------------
 submitBtn.onclick = async () => {
-  // FIX: Use selectedFile instead of undefined imageInput
-  if (!selectedFile) return;
+  if (!selectedFile) { alert("No file selected."); return; }
 
   loadingOverlay.style.display = "flex";
-  loadingText.textContent = "Validating Proof...";
+  loadingText.textContent = "Verifying Account...";
   let objectUrl = null;
 
   try {
@@ -316,8 +302,7 @@ submitBtn.onclick = async () => {
       img.onerror = () => reject(new Error("Invalid image"));
     });
 
-    // Canvas Prep
-    const MAX_W = 1500; // High res for small text
+    const MAX_W = 1500;
     const scale = Math.min(1, MAX_W / img.width);
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
@@ -326,57 +311,62 @@ submitBtn.onclick = async () => {
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
     let detectedText = "";
+    let isQR = false;
 
-    // CHECK 1: QR CODE
+    // Check QR first
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const qr = jsQR(imageData.data, canvas.width, canvas.height);
-
+    
     if (qr && qr.data) {
       detectedText = qr.data;
+      isQR = true;
       console.log("✅ QR Found:", detectedText);
     } else {
-      // CHECK 2: OCR
-      loadingText.textContent = "Reading Receipt...";
-      preprocessImage(canvas); // Apply filter for better reading
-
-      const { data: { text } } = await Tesseract.recognize(canvas, "eng", {
-        tessedit_pageseg_mode: '6'
+      loadingText.textContent = "Reading text...";
+      preprocessImage(canvas);
+      
+      const { data } = await Tesseract.recognize(canvas, "eng", {
+        tessedit_pageseg_mode: 6
       });
-      detectedText = text;
+      detectedText = (data.text || "").replace(/\s+/g, " ").trim();
       console.log("✅ OCR Found:", detectedText);
     }
 
-    if (objectUrl) { URL.revokeObjectURL(objectUrl); objectUrl = null; }
-
-    // --- VALIDATION RULES (Strict) ---
-    // Clean text: remove excess spaces
-    const cleanText = detectedText.replace(/\s+/g, " ").trim();
-
-    // 1. Must have total length > 20 chars
-    const hasEnoughText = cleanText.length > 20;
+    // -------------------------------------------------------
+    // NAME CHECK LOGIC
+    // -------------------------------------------------------
     
-    // 2. Must have at least 4 words (length > 2)
-    const words = cleanText.split(" ").filter(w => w.length > 2);
-    const hasRealWords = words.length >= 4;
+    // Convert detected text to uppercase for matching
+    const upperText = detectedText.toUpperCase();
+    // Remove extra spaces to handle "Jamal  Said" -> "JAMAL SAID"
+    const cleanSearchText = upperText.replace(/\s+/g, " ");
 
-    // 3. Must contain a number (crucial for receipts)
-    const hasNumbers = /\d/.test(cleanText);
+    let nameFound = false;
 
-    const isValid = hasEnoughText && hasRealWords && hasNumbers;
+    // Check if any of the valid names exist in the text
+    for (const name of VALID_NAMES) {
+      if (cleanSearchText.includes(name)) {
+        nameFound = true;
+        console.log("✅ Name Matched:", name);
+        break; 
+      }
+    }
 
-    if (isValid) {
+    // Decision
+    if (nameFound) {
+      // SUCCESS
       startTimer(60);
       timerButtons.style.display = "flex";
       showPage("timer");
     } else {
-      console.warn("Validation Failed", { cleanText, hasEnoughText, hasRealWords, hasNumbers });
-      alert("Invalid Proof: Image must look like a real receipt (Text, Words, Numbers).");
+      // FAILURE: Name not found
+      alert("Incorrect account: Name not found in image.\n\nRequired: JAMAL SAID KAZEMBE (or similar).");
       showPage("pay");
     }
 
   } catch (error) {
     console.error(error);
-    alert("Processing error.");
+    alert("Error processing image. Please try again.");
     showPage("pay");
   } finally {
     if (objectUrl) URL.revokeObjectURL(objectUrl);
