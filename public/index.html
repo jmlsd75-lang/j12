@@ -465,7 +465,45 @@ submitBtn.onclick = async () => {
           isProofValid = false;
         }
 
-      } catch (
-  </script>
+      } catch (err) {
+        // If OCR times out or fails, it remains invalid
+        console.warn("OCR Error:", err.message);
+        isProofValid = false;
+      }
+    }
+
+    // 6. --- FINAL DECISION ---
+    
+    // Revoke memory immediately after processing
+    URL.revokeObjectURL(objectUrl);
+    objectUrl = null; 
+
+    if (!isProofValid) {
+      // ❌ FAILED: No QR and No Text
+      alert("Invalid proof. Please upload an image with a clear QR code or receipt text.");
+      showPage("pay");
+      return;
+    }
+
+    // ✅ SUCCESS: Grant 1 Minute Access
+    const totalSeconds = 60;
+    const endTime = Date.now() + (totalSeconds * 1000);
+    localStorage.setItem("sessionEnd", endTime);
+
+    startTimer(totalSeconds);
+    timerButtons.style.display = "flex";
+    showPage("timer");
+
+  } catch (error) {
+    console.error("System Error:", error);
+    alert("Error processing image. Please try again.");
+    showPage("pay");
+  } finally {
+    // 7. Cleanup
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    loadingOverlay.style.display = "none";
+  }
+};
+</script>
 </body>
 </html>
