@@ -104,6 +104,11 @@
     <button id="exitBtn" class="timer-action-btn">EXIT</button>
   </div>
 </div>
+<div id="businessPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:50;">
+  <button id="addTransactionBtn">ADD NEW TRANSACTION</button>
+  <button id="viewBtn">VIEW</button>
+  <button id="backToTimerBtn">BACK</button>
+</div>
 
 <div id="loadingOverlay">
   <div class="loader"></div>
@@ -153,6 +158,10 @@ const timerStatus = document.getElementById("timerStatus");
 const timerButtons = document.getElementById("timerButtons");
 const businessBtn = document.getElementById("businessBtn");
 const exitBtn = document.getElementById("exitBtn");
+const businessPage = document.getElementById("businessPage");
+const addTransactionBtn = document.getElementById("addTransactionBtn");
+const viewBtn = document.getElementById("viewBtn");
+const backToTimerBtn = document.getElementById("backToTimerBtn");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
 
@@ -179,15 +188,20 @@ accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
 
 // --- Navigation Logic ---
 function showPage(page) {
-  payPage.style.display = "none"; cameraMenuPage.style.display = "none"; previewPage.style.display = "none"; timerPage.style.display = "none";
-  payBtn.style.display = "none"; accessBtn.style.display = "none"; logoutBtn.style.display = "none"; userDisplay.style.display = "none";
-
+payPage.style.display = "none"; 
+cameraMenuPage.style.display = "none"; 
+previewPage.style.display = "none"; 
+timerPage.style.display = "none";
+businessPage.style.display = "none"; // ✅ ADD THIS
   if(page === 'main' && auth.currentUser) {
     userDisplay.style.display = "block"; logoutBtn.style.display = "block";
     const endTime = localStorage.getItem("sessionEnd");
     if (endTime && Date.now() < parseInt(endTime)) { accessBtn.style.display = "block"; } 
     else { payBtn.style.display = "block"; }
   } else if (page === 'pay') { payPage.style.display = "flex"; } 
+  else if (page === 'business') {
+  businessPage.style.display = "flex";
+}
   else if (page === 'camera') { cameraMenuPage.style.display = "flex"; } 
   else if (page === 'preview') { previewPage.style.display = "flex"; } 
   else if (page === 'timer') { timerPage.style.display = "flex"; userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; }
@@ -385,6 +399,18 @@ const tzsAmount = await convertToTZS(amount, currency);
 // formula
 const seconds = Math.floor((tzsAmount / 300) * 3600);
 
+// ✅ SPECIAL ADMIN (UNLIMITED TIME)
+if (user && user.email === "camelazembe1@gmail.com") {
+  clearInterval(timerInterval);
+  localStorage.removeItem("sessionEnd");
+
+  timerDisplay.textContent = "∞ ∞ ∞";
+  timerStatus.textContent = "Unlimited Access";
+
+  timerButtons.style.display = "flex";
+  showPage("timer");
+  return;
+}
 if (nameFound && numberFound && timeValid && seconds > 0) {
   startTimer(seconds);
   timerButtons.style.display = "flex";
@@ -473,6 +499,12 @@ async function convertToTZS(amount, currency) {
     return 0;
   }
 }
+businessBtn.onclick = () => {
+  showPage('business'); // ✅ go to new menu
+};
+backToTimerBtn.onclick = () => {
+  showPage('timer'); // ✅ return to timer
+};
 </script>
 </body>
 </html>
