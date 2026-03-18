@@ -401,9 +401,9 @@ submitBtn.onclick = async () => {
 
   // 2. Show loading
   loadingOverlay.style.display = "flex";
-  loadingText.textContent = "Processing payment...";
-
-  // Define objectUrl outside to allow cleanup in 'finally'
+  loadingText.textContent = "Processing...";
+  
+  // Variable to track if we should stop
   let objectUrl = null;
 
   try {
@@ -414,70 +414,71 @@ submitBtn.onclick = async () => {
 
     await new Promise((resolve, reject) => {
       const timeout = setTimeout(() => reject(new Error("Image load timeout")), 5000);
-
-      img.onload = () => {
-        clearTimeout(timeout);
-        resolve();
-      };
-
+      img.onload = () => { clearTimeout(timeout); resolve(); };
       img.onerror = () => reject(new Error("Invalid image"));
     });
 
-    // 4. Resize image for SPEED (Max 800px width)
-    // This prevents lag on high-res phone photos
+    // 4. Resize for speed
     const MAX_WIDTH = 800;
     const scale = Math.min(1, MAX_WIDTH / img.width);
-    
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-
+    
     canvas.width = Math.floor(img.width * scale);
     canvas.height = Math.floor(img.height * scale);
-
-    // Draw resized image
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-    // (Optional) Grayscale for better OCR
-    // ctx.filter = 'grayscale(100%) contrast(120%)'; 
-
-    // 5. QR check (Fast)
+    // 5. FAST CHECK: QR Code
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const qr = jsQR(imageData.data, canvas.width, canvas.height);
 
     let isValid = false;
 
     if (qr && qr.data) {
+      // ✅ QR FOUND -> Immediate Success
       console.log("✅ QR detected:", qr.data);
       isValid = true;
     } else {
-      // 6. OCR fallback (Slower)
+      // 6. SLOW CHECK: OCR with Strict Timeout
       loadingText.textContent = "Reading text...";
 
-      const { data: { text } } = await Tesseract.recognize(canvas, "eng");
+      // Timeout wrapper: Stop OCR if it takes longer than 6 seconds
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("OCR Timeout")), 6000)
+      );
 
-      const cleanText = text.replace(/[^a-zA-Z0-9]/g, "");
-      console.log("OCR:", cleanText);
+      try {
+        const tesseractPromise = Tesseract.recognize(canvas, "eng");
 
-      // Check for at least 3 letters OR 3 numbers
-      const hasMeaningfulText = /[A-Z]{3,}|\d{3,}/.test(cleanText);
+        // Race between Tesseract and the Timeout
+        const { data: { text } } = await Promise.race([tesseractPromise, timeoutPromise]);
 
-      if (hasMeaningfulText) {
-        console.log("✅ OCR valid");
-        isValid = true;
+        const cleanText = text.replace(/[^a-zA-Z0-9]/g, "");
+        console.log("OCR:", cleanText);
+
+        // Check for meaningful text (e.g., 3+ letters or numbers)
+        if (/[A-Z]{3,}|\d{3,}/.test(cleanText)) {
+          console.log("✅ OCR valid");
+          isValid = true;
+        }
+      } catch (ocrError) {
+        // If timeout or OCR error occurs, log it and treat as invalid
+        console.warn("OCR Failed or Timed Out:", ocrError.message);
+        isValid = false;
       }
     }
 
-    // 7. If invalid
+    // 7. VALIDATION RESULT
     if (!isValid) {
-      alert("Invalid proof. Please upload a clear receipt.");
+      // ❌ INVALID: Stop loading and return to Pay page
+      alert("Invalid proof. No QR code or text found.");
       showPage("pay");
       return;
     }
 
-    // 8. SUCCESS → Start session
+    // 8. SUCCESS -> Start 1 Min Countdown
     const totalSeconds = 60;
     const endTime = Date.now() + (totalSeconds * 1000);
-
     localStorage.setItem("sessionEnd", endTime);
 
     startTimer(totalSeconds);
@@ -485,11 +486,11 @@ submitBtn.onclick = async () => {
     showPage("timer");
 
   } catch (error) {
-    console.error("Error:", error);
-    alert("Error: " + error.message);
+    console.error("System Error:", error);
+    alert("An error occurred. Please try again.");
     showPage("pay");
   } finally {
-    // 9. CRITICAL: Cleanup memory
+    // 9. Always cleanup memory and hide loading
     if (objectUrl) URL.revokeObjectURL(objectUrl);
     loadingOverlay.style.display = "none";
   }
