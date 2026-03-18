@@ -159,11 +159,19 @@ const loadingText = document.getElementById("loadingText");
 let selectedFile = null;
 let timerInterval = null;
 
-// --- Auth Logic ---
 onAuthStateChanged(auth, (user) => {
   if (user) {
     userDisplay.textContent = user.displayName;
-    showPage('main');
+
+    const endTime = localStorage.getItem("sessionEnd");
+
+    if (endTime && Date.now() < parseInt(endTime)) {
+      startTimerFromStorage(); // ✅ resume automatically
+      showPage('timer');
+    } else {
+      showPage('main');
+    }
+
   } else {
     userDisplay.style.display = "none";
     loginBtn.style.display = "block";
@@ -252,9 +260,11 @@ timerDisplay.textContent =
   String(secs).padStart(2, '0');
   }, 1000);
 }
-
-exitBtn.onclick = () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); timerButtons.style.display = "none"; showPage('main'); };
-
+exitBtn.onclick = () => { 
+  clearInterval(timerInterval); // stop UI only
+  timerButtons.style.display = "none"; 
+  showPage('main'); 
+};
 // -------------------------------------------------------
 // IMAGE PREPROCESSING
 // -------------------------------------------------------
