@@ -330,21 +330,26 @@ function handleFile(file) {
     showPage('main');
     return;
   }
+
   selectedFile = file;
+
   const reader = new FileReader();
   reader.onload = function(e) {
     previewImage.src = e.target.result;
     showPage('preview');
   };
   reader.readAsDataURL(file);
+
   // Reset inputs to allow selecting same file again
   setTimeout(() => {
     cameraInput.value = "";
     photosInput.value = "";
   }, 100);
 }
+
 cameraInput.onchange = (e) => handleFile(e.target.files[0]);
 photosInput.onchange = (e) => handleFile(e.target.files[0]);
+
 cancelBtn.onclick = () => {
   selectedFile = null;
   previewImage.src = "";
@@ -352,6 +357,7 @@ cancelBtn.onclick = () => {
 };
 function startTimer(seconds) {
   clearInterval(timerInterval);
+
   timerInterval = setInterval(() => {
   if (seconds <= 0) {
   clearInterval(timerInterval);
@@ -363,14 +369,17 @@ function startTimer(seconds) {
     showPage('main');
     timerButtons.style.display = "none";
   }, 2000);
+
   return;
 }
     let mins = Math.floor(seconds / 60);
     let secs = seconds % 60;
+
     timerDisplay.textContent =
       "00:" +
       String(mins).padStart(2, '0') + ":" +
       String(secs).padStart(2, '0');
+
     seconds--;
   }, 1000);
 }
@@ -381,21 +390,53 @@ exitBtn.onclick = () => {
   timerButtons.style.display = "none";
   showPage('main');
 };
-// -----------------------------
-// BUTTON CLICK ONLY
-// -----------------------------
-submitBtn.onclick = () => {
-  const totalSeconds = 60;
-  // save timer
-  const endTime = Date.now() + totalSeconds * 1000;
-  localStorage.setItem("sessionEnd", String(endTime));
-  // show timer page
-  showPage("timer");
-  // show buttons (Business + Exit)
-  timerButtons.style.display = "flex";
-// start countdown
-  startTimer(totalSeconds);
+submitBtn.onclick = async () => {
+  const file = imageInput.files[0];
+  if (!file) return;
+
+  try {
+    submitBtn.disabled = true;
+
+    const { data } = await Tesseract.recognize(file, 'eng', {
+      tessedit_pageseg_mode: 6 // faster + better for blocks of text
+    });
+
+    let text = (data.text || "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    // stronger detection
+    const words = text.split(" ").filter(w => w.length > 2);
+    const hasEnoughText = text.length > 20;
+    const hasRealWords = words.length >= 4;
+    const hasNumbers = /\d/.test(text);
+
+    const hasText = hasEnoughText && hasRealWords && hasNumbers;
+
+    if (hasText) {
+      const totalSeconds = 60;
+
+      localStorage.setItem(
+        "sessionEnd",
+        String(Date.now() + totalSeconds * 1000)
+      );
+
+      showPage("timer");
+      timerButtons.style.display = "flex";
+      startTimer(totalSeconds);
+
+    } else {
+      showPage("pay");
+    }
+
+  } catch (err) {
+    console.error("OCR failed:", err);
+    showPage("pay");
+  } finally {
+    submitBtn.disabled = false;
+  }
 };
+
 </script>
 </body>
 </html>
