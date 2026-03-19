@@ -422,25 +422,35 @@ onAuthStateChanged(auth, (user) => {
     isAdmin = user.email === ADMIN_EMAIL;
 
     userDisplay.textContent = user.displayName;
-if (isAdmin) {
-  userDisplay.style.display = "block";
+    userDisplay.style.display = "block";
 
-  showPage('timer'); // same page as normal user
-  timerDisplay.textContent = "UNLIMITED";
-  timerStatus.textContent = "Admin Access";
+    // ✅ SHOW logout only when logged in
+    logoutBtn.style.display = "block";
 
-  timerButtons.style.display = "flex"; // same buttons
-} else {
+    if (isAdmin) {
+      showPage('timer');
+      timerDisplay.textContent = "UNLIMITED";
+      timerStatus.textContent = "Admin Access";
+      timerButtons.style.display = "flex";
+    } else {
       showPage('main');
     }
 
+    // hide login
+    loginBtn.style.display = "none";
+
   } else {
     isAdmin = false;
+
+    // ✅ HIDE logout when NOT logged in
+    logoutBtn.style.display = "none";
     userDisplay.style.display = "none";
+
+    // show login
     loginBtn.style.display = "block";
+
     payBtn.style.display = "none";
     accessBtn.style.display = "none";
-    logoutBtn.style.display = "none";
   }
 });
 loginBtn.onclick = async () => { try { await signInWithPopup(auth, provider); } catch (e) { alert("Login failed"); } };
