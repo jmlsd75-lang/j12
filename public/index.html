@@ -422,9 +422,10 @@ if (isAdmin) {
 });
 loginBtn.onclick = async () => { try { await signInWithPopup(auth, provider); } catch (e) { alert("Login failed"); } };
 logoutBtn.onclick = async () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); await signOut(auth); showPage('main'); };
-accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
-
-// --- Navigation Logic ---
+accessBtn.onclick = () => { 
+  startTimerFromStorage(); 
+  showPage('business'); 
+};
 function showPage(page) {
   businessPage.style = "";
   document.getElementById("viewPage").style.display = "none";
