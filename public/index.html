@@ -472,8 +472,19 @@ document.getElementById("viewPage").style.display = "none";
   method = "";
 }
   else if (page === 'preview') { previewPage.style.display = "flex"; } 
-  else if (page === 'timer') { timerPage.style.display = "flex"; userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; }
-else if (page === 'business') { 
+else if (page === 'timer') { 
+  // HIDE EVERYTHING COMPLETELY
+  loginBtn.style.display = "none";
+  payBtn.style.display = "none";
+  accessBtn.style.display = "none";
+  logoutBtn.style.display = "none";
+  userDisplay.style.display = "none";
+
+  // SHOW ONLY TIMER PAGE
+  timerPage.style.display = "flex"; 
+  userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; 
+}
+  else if (page === 'business') { 
   businessPage.style.display = "flex"; 
 }
 }
