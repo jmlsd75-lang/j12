@@ -81,6 +81,10 @@
   gap:20px;
   text-align:center;
 }
+#listBtn {
+  pointer-events: auto;
+  z-index: 999;
+}
   #timerPage { position: fixed; top:0; left:0; width:100%; height:100%; background: #f4f4f4; display:none; flex-direction: column; justify-content: center; align-items: center; z-index: 40; }
   #timerDisplay { font-size: 60px; font-weight: bold; color: #333; }
   #timerStatus { margin-top: 20px; font-size: 20px; color: #666; }
@@ -763,12 +767,10 @@ const listTableContainer = document.getElementById("listTableContainer");
 listBtn.onclick = async () => {
   const user = auth.currentUser;
   if (!user) return;
-
-  // TOGGLE
-  if (listTableContainer.style.display === "block") {
-    listTableContainer.style.display = "none";
-    return;
-  }
+if (listTableContainer.style.display === "block") {
+  listTableContainer.style.display = "none";
+  return;
+}
 
   listTableBody.innerHTML = "";
 
