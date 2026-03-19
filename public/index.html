@@ -217,8 +217,16 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
 <button onclick="showPage('business')" 
 style="background:gray;color:white;padding:12px 25px;border:none;border-radius:6px;">
 BACK
-</butot>
+</button>
 <script type="module">
+  import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  getDocs, 
+  query, 
+  orderBy 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -232,6 +240,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 const ADMIN_EMAIL = "camelkazembe1@gmail.com";
@@ -351,22 +360,27 @@ function updateButtons() {
 }
 
 // FINAL ACTIONS
-document.getElementById("okBtn").onclick = () => {
+  document.getElementById("okBtn").onclick = async () => {
+  const user = auth.currentUser;
+  if (!user) return;
+
   const transaction = {
-    sn: transactions.length + 1,
     date: new Date().toLocaleString(),
     detail,
     type,
     method,
-    amount
+    amount: Number(amount),
+    createdAt: Date.now()
   };
 
-  transactions.push(transaction);
+  await addDoc(
+    collection(db, "users", user.email, "transactions"),
+    transaction
+  );
 
   alert("Saved!");
   showPage("business");
 };
-
 document.getElementById("cancelTransBtn").onclick = () => {
   showPage("business");
 };
@@ -736,10 +750,20 @@ async function convertToTZS(amount, currency) {
 const listBtn = document.getElementById("listBtn");
 const listTableBody = document.getElementById("listTableBody");
 const listTableContainer = document.getElementById("listTableContainer");
-listBtn.onclick = () => {
+listBtn.onclick = async () => {
+  const user = auth.currentUser;
+  if (!user) return;
+
   listTableBody.innerHTML = "";
 
-  if (transactions.length === 0) {
+  const q = query(
+    collection(db, "users", user.email, "transactions"),
+    orderBy("createdAt", "desc")
+  );
+
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) {
     listTableBody.innerHTML = `
       <tr>
         <td colspan="6" style="text-align:center; padding:20px;">
@@ -748,10 +772,14 @@ listBtn.onclick = () => {
       </tr>
     `;
   } else {
-    transactions.forEach(tx => {
+    let i = 1;
+
+    snapshot.forEach(doc => {
+      const tx = doc.data();
+
       listTableBody.innerHTML += `
         <tr>
-          <td>${tx.sn}</td>
+          <td>${i++}</td>
           <td>${tx.date}</td>
           <td>${tx.detail}</td>
           <td>${tx.type}</td>
