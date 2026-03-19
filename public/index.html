@@ -671,7 +671,7 @@ const { currency, amount } = detectCurrency(cleanSearchText);
 const tzsAmount = await convertToTZS(amount, currency);
 
 // formula
-const seconds = Math.floor((tzsAmount / 50) * 3600);
+const seconds = Math.floor((tzsAmount / 300) * 3600);
 
 if (nameFound && numberFound && timeValid && seconds > 0) {
   startTimer(seconds);
