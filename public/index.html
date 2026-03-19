@@ -146,8 +146,7 @@ VIEW
 </div>
 
 <div id="viewPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
-
-<button style="background:#0d6efd;color:white;" disabled>LIST</button>
+<button id="listBtn" style="background:#0d6efd;color:white;">LIST</button>
 
 <button style="background:#20c997;color:white;" disabled>CASH BOOK</button>
 
@@ -159,11 +158,25 @@ VIEW
 
 <button style="background:#198754;color:white;" disabled>BALANCE SHEET</button>
 
-<button onclick="showPage('business')" 
-style="background:gray;color:white;padding:12px 25px;border:none;border-radius:6px;">
-BACK
-</button>
+<button onclick="showPage('business')" >
+  <!-- TABLE -->
+<div id="listTableContainer" style="display:none; width:90%; overflow:auto;">
+  <table border="1" style="border-collapse:collapse; width:100%; margin-top:20px;">
+    <thead style="background:#333; color:white;">
+      <tr>
+        <th>S/N</th>
+        <th>DATE</th>
+        <th>DETAIL</th>
+        <th>TYPE</th>
+        <th>METHOD</th>
+        <th>AMOUNT</th>
+      </tr>
+    </thead>
+    <tbody id="listTableBody"></tbody>
+  </table>
+</div>
 
+</button>
 </div>
 <div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
 <input id="detailInput" placeholder="Enter detail"
@@ -199,6 +212,11 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
   <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
 </div>
 
+<!-- BACK BUTTON -->
+<button onclick="showPage('business')" 
+style="background:gray;color:white;padding:12px 25px;border:none;border-radius:6px;">
+BACK
+</butot>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -261,6 +279,7 @@ let detail = "";
 let amount = "";
 let type = "";
 let method = "";
+let transactions = [];
 
 // STEP 1 → DETAIL
 detailInput.oninput = () => {
@@ -332,8 +351,16 @@ function updateButtons() {
 
 // FINAL ACTIONS
 document.getElementById("okBtn").onclick = () => {
-  const transaction = { detail, amount, type, method };
-  console.log("Saved:", transaction);
+  const transaction = {
+    sn: transactions.length + 1,
+    date: new Date().toLocaleString(),
+    detail,
+    type,
+    method,
+    amount
+  };
+
+  transactions.push(transaction);
 
   alert("Saved!");
   showPage("business");
@@ -705,6 +732,28 @@ async function convertToTZS(amount, currency) {
     return 0;
   }
 }
+const listBtn = document.getElementById("listBtn");
+const listTableBody = document.getElementById("listTableBody");
+const listTableContainer = document.getElementById("listTableContainer");
+
+listBtn.onclick = () => {
+  listTableBody.innerHTML = "";
+
+  transactions.forEach(tx => {
+    listTableBody.innerHTML += `
+      <tr>
+        <td>${tx.sn}</td>
+        <td>${tx.date}</td>
+        <td>${tx.detail}</td>
+        <td>${tx.type}</td>
+        <td>${tx.method}</td>
+        <td>${tx.amount}</td>
+      </tr>
+    `;
+  });
+
+  listTableContainer.style.display = "block";
+};
 </script>
 </body>
 </html>
