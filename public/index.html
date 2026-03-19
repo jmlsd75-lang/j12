@@ -158,8 +158,9 @@ VIEW
 
 <button style="background:#198754;color:white;" disabled>BALANCE SHEET</button>
 
-<button onclick="showPage('business')" >
-  <!-- TABLE -->
+<button onclick="showPage('business')">BACK</button>
+
+<!-- TABLE -->
 <div id="listTableContainer" style="display:none; width:90%; overflow:auto;">
   <table border="1" style="border-collapse:collapse; width:100%; margin-top:20px;">
     <thead style="background:#333; color:white;">
@@ -735,22 +736,31 @@ async function convertToTZS(amount, currency) {
 const listBtn = document.getElementById("listBtn");
 const listTableBody = document.getElementById("listTableBody");
 const listTableContainer = document.getElementById("listTableContainer");
-
 listBtn.onclick = () => {
   listTableBody.innerHTML = "";
 
-  transactions.forEach(tx => {
-    listTableBody.innerHTML += `
+  if (transactions.length === 0) {
+    listTableBody.innerHTML = `
       <tr>
-        <td>${tx.sn}</td>
-        <td>${tx.date}</td>
-        <td>${tx.detail}</td>
-        <td>${tx.type}</td>
-        <td>${tx.method}</td>
-        <td>${tx.amount}</td>
+        <td colspan="6" style="text-align:center; padding:20px;">
+          No transactions found
+        </td>
       </tr>
     `;
-  });
+  } else {
+    transactions.forEach(tx => {
+      listTableBody.innerHTML += `
+        <tr>
+          <td>${tx.sn}</td>
+          <td>${tx.date}</td>
+          <td>${tx.detail}</td>
+          <td>${tx.type}</td>
+          <td>${tx.method}</td>
+          <td>${tx.amount}</td>
+        </tr>
+      `;
+    });
+  }
 
   listTableContainer.style.display = "block";
 };
