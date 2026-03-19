@@ -773,12 +773,12 @@ listBtn.onclick = async () => {
   const user = auth.currentUser;
   if (!user) return;
 
-  // TOGGLE
-  if (listTableContainer.style.display === "block") {
-    listTableContainer.style.display = "none";
-    return;
-  }
+  // HIDE ALL BUTTONS INSIDE VIEW PAGE
+  const buttons = document.querySelectorAll("#viewPage > button");
+  buttons.forEach(btn => btn.style.display = "none");
 
+  // SHOW TABLE
+  listTableContainer.style.display = "block";
   listTableBody.innerHTML = "";
 
   const q = query(
@@ -814,8 +814,6 @@ listBtn.onclick = async () => {
       `;
     });
   }
-
-  listTableContainer.style.display = "block";
 };
 document.getElementById("globalBackBtn").onclick = () => {
   if (document.getElementById("viewPage").style.display === "flex") {
