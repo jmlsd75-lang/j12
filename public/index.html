@@ -495,17 +495,14 @@ document.getElementById("viewPage").style.display = "none";
   method = "";
 }
   else if (page === 'preview') { previewPage.style.display = "flex"; } 
-  else if (page === 'timer') {
+ else if (page === 'timer') {
   timerPage.style.display = "flex";
   userDisplayTimer.textContent = auth.currentUser 
     ? auth.currentUser.displayName 
     : "User";
 
-  timerButtons.style.display = "none"; // 🔴 hide BUSINESS & EXIT
-}
-  else if (page === 'business') { 
-  businessPage.style.display = "flex"; 
-}
+  timerButtons.style.display = "none"; // ❌ remove this
+} 
 }
 
 payBtn.onclick = () => showPage('pay');
