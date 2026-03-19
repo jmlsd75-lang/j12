@@ -423,6 +423,7 @@ if (isAdmin) {
 loginBtn.onclick = async () => { try { await signInWithPopup(auth, provider); } catch (e) { alert("Login failed"); } };
 logoutBtn.onclick = async () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); await signOut(auth); showPage('main'); };
 accessBtn.onclick = () => { 
+  accessBtn.style.display = "none"; // 👈 hide button after click
   startTimerFromStorage(); 
   showPage('business'); 
 };
