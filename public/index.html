@@ -289,10 +289,7 @@ timerDisplay.textContent =
 }
 exitBtn.onclick = () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); timerButtons.style.display = "none"; showPage('main'); };
 businessBtn.onclick = () => {
-  if (isAdmin) {
-    alert("Admin Business Access"); 
-    return;
-  }
+  showPage('business');
 };
 function preprocessImage(canvas) {
   const ctx = canvas.getContext('2d');
