@@ -249,10 +249,6 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
   <div class="loader"></div>
   <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
 </div>
-<button id="globalBackBtn"
-style="background:gray;color:white;padding:12px 25px;border:none;border-radius:6px;">
-BACK
-</button>
 <script type="module">
   import { 
   getFirestore, 
@@ -841,17 +837,6 @@ listBtn.onclick = async () => {
   }
 
   listTableContainer.style.display = "block";
-};
-document.getElementById("globalBackBtn").onclick = () => {
-  if (document.getElementById("viewPage").style.display === "flex") {
-    showPage("business");
-  } 
-  else if (document.getElementById("businessPage").style.display === "flex") {
-    showPage("timer");
-  } 
-  else {
-    showPage("main");
-  }
 };
 const backFromListBtn = document.getElementById("backFromListBtn");
 
