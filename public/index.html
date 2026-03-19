@@ -188,6 +188,8 @@ VIEW
     <tbody id="listTableBody"></tbody>
   </table>
 </div>
+
+</button>
 </div>
 <div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
 <input id="detailInput" placeholder="Enter detail"
@@ -422,13 +424,10 @@ if (isAdmin) {
 });
 loginBtn.onclick = async () => { try { await signInWithPopup(auth, provider); } catch (e) { alert("Login failed"); } };
 logoutBtn.onclick = async () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); await signOut(auth); showPage('main'); };
-accessBtn.onclick = () => { 
-  accessBtn.style.display = "none"; // 👈 hide button after click
-  startTimerFromStorage(); 
-  showPage('business'); 
-};
+accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
+
+// --- Navigation Logic ---
 function showPage(page) {
-  businessPage.style = "";
   document.getElementById("viewPage").style.display = "none";
   document.getElementById("transactionPage").style.display = "none";
   payPage.style.display = "none"; 
@@ -475,12 +474,7 @@ document.getElementById("viewPage").style.display = "none";
   else if (page === 'preview') { previewPage.style.display = "flex"; } 
   else if (page === 'timer') { timerPage.style.display = "flex"; userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; }
 else if (page === 'business') { 
-  businessPage.style.display = "flex";
-
-  // ✅ force same layout for everyone
-  businessPage.style.flexDirection = "column";
-  businessPage.style.justifyContent = "center";
-  businessPage.style.alignItems = "center";
+  businessPage.style.display = "flex"; 
 }
 }
 
