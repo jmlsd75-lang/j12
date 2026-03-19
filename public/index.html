@@ -807,22 +807,19 @@ const cashBookBody = document.getElementById("cashBookBody");
 const cashBookContainer = document.getElementById("cashBookContainer");
 const listTableBody = document.getElementById("listTableBody");
 const listTableContainer = document.getElementById("listTableContainer");
-   listBtn.onclick = async () => {
+listBtn.onclick = async () => {
   const user = auth.currentUser;
   if (!user) return;
 
-  // 🔴 HIDE EVERYTHING FIRST
+  // ✅ hide cash book ONLY
   cashBookContainer.style.display = "none";
-  const buttons = document.querySelectorAll("#viewPage > button:not(#cashBookBtn)");
-buttons.forEach(btn => btn.style.display = "none");
-  // TOGGLE LIST
-  if (listTableContainer.style.display === "block") {
-    listTableContainer.style.display = "none";
 
-    // show buttons again
-    buttons.forEach(btn => btn.style.display = "inline-block");
-    return;
-  }
+  // ✅ hide buttons
+  const buttons = document.querySelectorAll("#viewPage > button");
+  buttons.forEach(btn => btn.style.display = "none");
+
+  // ✅ show list container
+  listTableContainer.style.display = "block";
 
   listTableBody.innerHTML = "";
 
@@ -836,14 +833,11 @@ buttons.forEach(btn => btn.style.display = "none");
   if (snapshot.empty) {
     listTableBody.innerHTML = `
       <tr>
-        <td colspan="6" style="text-align:center; padding:20px;">
-          No transactions found
-        </td>
+        <td colspan="6">No transactions</td>
       </tr>
     `;
   } else {
     let i = 1;
-
     snapshot.forEach(doc => {
       const tx = doc.data();
 
@@ -859,8 +853,6 @@ buttons.forEach(btn => btn.style.display = "none");
       `;
     });
   }
-
-  listTableContainer.style.display = "block";
 };
 const backFromListBtn = document.getElementById("backFromListBtn");
 
