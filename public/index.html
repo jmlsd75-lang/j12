@@ -159,9 +159,7 @@ VIEW
 
 <div id="viewPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
 <button id="listBtn" style="background:#0d6efd;color:white;">LIST</button>
-
-<button style="background:#20c997;color:white;" disabled>CASH BOOK</button>
-
+<button id="cashBookBtn" style="background:#20c997;color:white;">CASH BOOK</button>
 <button style="background:#6610f2;color:white;" disabled>LEDGERS</button>
 
 <button style="background:#fd7e14;color:white;" disabled>TRIAL BALANCE</button>
@@ -174,6 +172,37 @@ VIEW
 
 <!-- TABLE -->
 <div id="listTableContainer" style="display:none; width:90%; overflow:auto;">
+  <!-- CASH BOOK TABLE -->
+<div id="cashBookContainer" style="display:none; width:95%; overflow:auto;">
+
+<h2 style="text-align:center;">CASH BOOK</h2>
+
+<table border="1" style="border-collapse:collapse; width:100%; text-align:center;">
+<thead>
+<tr>
+<th colspan="4">DR (Debit)</th>
+<th colspan="4">CR (Credit)</th>
+</tr>
+<tr>
+<th>Date</th><th>Detail</th><th>Folio</th><th>Amt</th>
+<th>Date</th><th>Detail</th><th>Folio</th><th>Amt</th>
+</tr>
+</thead>
+
+<tbody id="cashBookBody"></tbody>
+
+</table>
+
+<button onclick="document.getElementById('cashBookContainer').style.display='none'" 
+style="margin-top:20px;background:#dc3545;color:white;padding:10px 20px;border:none;">
+BACK
+</button>
+
+</div>
+  <button id="backFromListBtn" 
+style="margin-top:20px; padding:12px 25px; background:#dc3545; color:white; border:none; border-radius:6px;">
+BACK
+</button>
   <table border="1" style="border-collapse:collapse; width:100%; margin-top:20px;">
     <thead style="background:#333; color:white;">
       <tr>
@@ -188,8 +217,6 @@ VIEW
     <tbody id="listTableBody"></tbody>
   </table>
 </div>
-
-</button>
 </div>
 <div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
 <input id="detailInput" placeholder="Enter detail"
@@ -224,6 +251,10 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
   <div class="loader"></div>
   <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
 </div>
+<button id="globalBackBtn"
+style="background:gray;color:white;padding:12px 25px;border:none;border-radius:6px;">
+BACK
+</button>
 <script type="module">
   import { 
   getFirestore, 
@@ -420,10 +451,13 @@ if (isAdmin) {
 });
 loginBtn.onclick = async () => { try { await signInWithPopup(auth, provider); } catch (e) { alert("Login failed"); } };
 logoutBtn.onclick = async () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); await signOut(auth); showPage('main'); };
-accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
-
-// --- Navigation Logic ---
+accessBtn.onclick = () => { 
+  accessBtn.style.display = "none"; // 👈 hide button after click
+  startTimerFromStorage(); 
+  showPage('business'); 
+};
 function showPage(page) {
+  businessPage.style = "";
   document.getElementById("viewPage").style.display = "none";
   document.getElementById("transactionPage").style.display = "none";
   payPage.style.display = "none"; 
@@ -468,20 +502,14 @@ document.getElementById("viewPage").style.display = "none";
   method = "";
 }
   else if (page === 'preview') { previewPage.style.display = "flex"; } 
-else if (page === 'timer') { 
-  // HIDE EVERYTHING COMPLETELY
-  loginBtn.style.display = "none";
-  payBtn.style.display = "none";
-  accessBtn.style.display = "none";
-  logoutBtn.style.display = "none";
-  userDisplay.style.display = "none";
+  else if (page === 'timer') { timerPage.style.display = "flex"; userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; }
+else if (page === 'business') { 
+  businessPage.style.display = "flex";
 
-  // SHOW ONLY TIMER PAGE
-  timerPage.style.display = "flex"; 
-  userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; 
-}
-  else if (page === 'business') { 
-  businessPage.style.display = "flex"; 
+  // ✅ force same layout for everyone
+  businessPage.style.flexDirection = "column";
+  businessPage.style.justifyContent = "center";
+  businessPage.style.alignItems = "center";
 }
 }
 
@@ -763,18 +791,21 @@ async function convertToTZS(amount, currency) {
   }
 }
 const listBtn = document.getElementById("listBtn");
+const cashBookBtn = document.getElementById("cashBookBtn");
+const cashBookBody = document.getElementById("cashBookBody");
+const cashBookContainer = document.getElementById("cashBookContainer");
 const listTableBody = document.getElementById("listTableBody");
 const listTableContainer = document.getElementById("listTableContainer");
 listBtn.onclick = async () => {
   const user = auth.currentUser;
   if (!user) return;
 
-  // HIDE ALL BUTTONS INSIDE VIEW PAGE
-  const buttons = document.querySelectorAll("#viewPage > button");
-  buttons.forEach(btn => btn.style.display = "none");
+  // TOGGLE
+  if (listTableContainer.style.display === "block") {
+    listTableContainer.style.display = "none";
+    return;
+  }
 
-  // SHOW TABLE
-  listTableContainer.style.display = "block";
   listTableBody.innerHTML = "";
 
   const q = query(
@@ -810,6 +841,110 @@ listBtn.onclick = async () => {
       `;
     });
   }
+
+  listTableContainer.style.display = "block";
+};
+document.getElementById("globalBackBtn").onclick = () => {
+  if (document.getElementById("viewPage").style.display === "flex") {
+    showPage("business");
+  } 
+  else if (document.getElementById("businessPage").style.display === "flex") {
+    showPage("timer");
+  } 
+  else {
+    showPage("main");
+  }
+};
+const backFromListBtn = document.getElementById("backFromListBtn");
+
+backFromListBtn.onclick = () => {
+  // hide table
+  listTableContainer.style.display = "none";
+
+  // show buttons again
+  const buttons = document.querySelectorAll("#viewPage > button");
+  buttons.forEach(btn => btn.style.display = "inline-block");
+};
+cashBookBtn.onclick = async () => {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  cashBookBody.innerHTML = "";
+
+  const q = query(
+    collection(db, "users", user.email, "transactions"),
+    orderBy("createdAt", "asc")
+  );
+
+  const snapshot = await getDocs(q);
+
+  let dr = [];
+  let cr = [];
+  let folio = 1;
+  let folioMap = {};
+
+  snapshot.forEach(doc => {
+    const tx = doc.data();
+
+    const key = tx.detail;
+
+    if (!folioMap[key]) {
+      folioMap[key] = folio++;
+    }
+
+    const row = {
+      date: tx.date,
+      detail: tx.detail,
+      folio: folioMap[key],
+      amount: tx.amount
+    };
+
+    if (tx.type === "IN") {
+      dr.push(row);
+    } else {
+      cr.push(row);
+    }
+  });
+
+  // BALANCING
+  const totalDr = dr.reduce((a,b)=>a+b.amount,0);
+  const totalCr = cr.reduce((a,b)=>a+b.amount,0);
+  const diff = Math.abs(totalDr - totalCr);
+
+  const today = new Date().toLocaleDateString();
+
+  if (totalDr > totalCr) {
+    cr.push({ date: today, detail: "Balance c/d", folio: "-", amount: diff });
+    dr.push({ date: today, detail: "Balance b/d", folio: "-", amount: diff });
+  } else if (totalCr > totalDr) {
+    dr.push({ date: today, detail: "Balance c/d", folio: "-", amount: diff });
+    cr.push({ date: today, detail: "Balance b/d", folio: "-", amount: diff });
+  }
+
+  const max = Math.max(dr.length, cr.length);
+
+  for (let i = 0; i < max; i++) {
+    const d = dr[i] || {};
+    const c = cr[i] || {};
+
+    cashBookBody.innerHTML += `
+      <tr>
+        <td>${d.date || ""}</td>
+        <td>${d.detail || ""}</td>
+        <td>${d.folio || ""}</td>
+        <td>${d.amount || ""}</td>
+
+        <td>${c.date || ""}</td>
+        <td>${c.detail || ""}</td>
+        <td>${c.folio || ""}</td>
+        <td>${c.amount || ""}</td>
+      </tr>
+    `;
+  }
+
+  // SHOW TABLE
+  document.getElementById("listTableContainer").style.display = "none";
+  cashBookContainer.style.display = "block";
 };
 </script>
 </body>
