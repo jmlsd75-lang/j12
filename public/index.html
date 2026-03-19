@@ -931,11 +931,33 @@ if (totalDr > totalCr) {
 
 // ✅ TOTAL (equal both sides)
 const finalTotal = Math.max(totalDr, totalCr);
+// ✅ ADD TOTAL ROW (same row both sides)
+cashBookBody.innerHTML += `
+<tr style="font-weight:bold; background:#eee;">
+  <td></td>
+  <td>TOTAL</td>
+  <td></td>
+  <td>${finalTotal}</td>
 
-dr.push({ date: "", detail: "TOTAL", folio: "", amount: finalTotal });
-cr.push({ date: "", detail: "TOTAL", folio: "", amount: finalTotal });
+  <td></td>
+  <td>TOTAL</td>
+  <td></td>
+  <td>${finalTotal}</td>
+</tr>
+`;
+cashBookBody.innerHTML += `
+<tr style="font-weight:bold; background:#eee;">
+  <td></td>
+  <td>TOTAL</td>
+  <td></td>
+  <td>${finalTotal}</td>
 
-// ✅ Balance b/d (after total)
+  <td></td>
+  <td>TOTAL</td>
+  <td></td>
+  <td>${finalTotal}</td>
+</tr>
+`;
 if (diff > 0) {
   if (totalDr > totalCr) {
     dr.push({ date: today, detail: "Balance b/d", folio: "", amount: diff });
@@ -944,24 +966,26 @@ if (diff > 0) {
   }
 }
   const max = Math.max(dr.length, cr.length);
+for (let i = 0; i < max; i++) {
+  const d = dr[i] || {};
+  const c = cr[i] || {};
 
-  for (let i = 0; i < max; i++) {
-    const d = dr[i] || {};
-    const c = cr[i] || {};
+  // ✅ FIX: ensure date appears both sides
+  const dateDr = d.date || "";
+  const dateCr = c.date || "";
+  cashBookBody.innerHTML += `
+  <tr>
+    <td>${dateDr}</td>
+    <td>${d.detail || ""}</td>
+    <td>${d.folio || ""}</td>
+    <td>${d.amount || ""}</td>
 
-    cashBookBody.innerHTML += `
-      <tr>
-        <td>${d.date || ""}</td>
-        <td>${d.detail || ""}</td>
-        <td>${d.folio || ""}</td>
-        <td>${d.amount || ""}</td>
-
-        <td>${c.date || ""}</td>
-        <td>${c.detail || ""}</td>
-        <td>${c.folio || ""}</td>
-        <td>${c.amount || ""}</td>
-      </tr>
-    `;
+    <td>${dateCr}</td>
+    <td>${c.detail || ""}</td>
+    <td>${c.folio || ""}</td>
+    <td>${c.amount || ""}</td>
+  </tr>
+`;
   }
 // ✅ HIDE MENU BUTTONS
 const buttons = document.querySelectorAll("#viewPage > button");
