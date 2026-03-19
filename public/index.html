@@ -444,8 +444,11 @@ if (isAdmin) {
 });
 loginBtn.onclick = async () => { try { await signInWithPopup(auth, provider); } catch (e) { alert("Login failed"); } };
 logoutBtn.onclick = async () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); await signOut(auth); showPage('main'); };
-accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
-
+accessBtn.onclick = () => {
+  accessBtn.style.display = "none";   // 🔴 hide ACCESS button
+  startTimerFromStorage();
+  showPage('timer');
+};
 // --- Navigation Logic ---
 function showPage(page) {
   document.getElementById("viewPage").style.display = "none";
@@ -492,8 +495,15 @@ document.getElementById("viewPage").style.display = "none";
   method = "";
 }
   else if (page === 'preview') { previewPage.style.display = "flex"; } 
-  else if (page === 'timer') { timerPage.style.display = "flex"; userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; }
-else if (page === 'business') { 
+  else if (page === 'timer') {
+  timerPage.style.display = "flex";
+  userDisplayTimer.textContent = auth.currentUser 
+    ? auth.currentUser.displayName 
+    : "User";
+
+  timerButtons.style.display = "none"; // 🔴 hide BUSINESS & EXIT
+}
+  else if (page === 'business') { 
   businessPage.style.display = "flex"; 
 }
 }
