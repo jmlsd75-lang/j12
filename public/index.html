@@ -252,8 +252,20 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
 
 <tbody id="cashBookBody"></tbody>
 </table>
-
-<button onclick="backFromCashBook()">BACK</button>
+<button onclick="backFromCashBook()" 
+style="
+margin-top:20px;
+padding:12px 30px;
+background:#dc3545;
+color:white;
+border:none;
+border-radius:6px;
+display:block;
+margin-left:auto;
+margin-right:auto;
+">
+BACK
+</button>
 
 </div>
 <script type="module">
@@ -904,22 +916,33 @@ cashBookBtn.onclick = async () => {
       cr.push(row);
     }
   });
+const totalDr = dr.reduce((a,b)=>a+b.amount,0);
+const totalCr = cr.reduce((a,b)=>a+b.amount,0);
+const diff = Math.abs(totalDr - totalCr);
 
-  // BALANCING
-  const totalDr = dr.reduce((a,b)=>a+b.amount,0);
-  const totalCr = cr.reduce((a,b)=>a+b.amount,0);
-  const diff = Math.abs(totalDr - totalCr);
+const today = new Date().toLocaleDateString();
 
-  const today = new Date().toLocaleDateString();
+// ✅ Balance c/d (before total)
+if (totalDr > totalCr) {
+  cr.push({ date: "", detail: "Balance c/d", folio: "", amount: diff });
+} else if (totalCr > totalDr) {
+  dr.push({ date: "", detail: "Balance c/d", folio: "", amount: diff });
+}
 
+// ✅ TOTAL (equal both sides)
+const finalTotal = Math.max(totalDr, totalCr);
+
+dr.push({ date: "", detail: "TOTAL", folio: "", amount: finalTotal });
+cr.push({ date: "", detail: "TOTAL", folio: "", amount: finalTotal });
+
+// ✅ Balance b/d (after total)
+if (diff > 0) {
   if (totalDr > totalCr) {
-    cr.push({ date: today, detail: "Balance c/d", folio: "-", amount: diff });
-    dr.push({ date: today, detail: "Balance b/d", folio: "-", amount: diff });
-  } else if (totalCr > totalDr) {
-    dr.push({ date: today, detail: "Balance c/d", folio: "-", amount: diff });
-    cr.push({ date: today, detail: "Balance b/d", folio: "-", amount: diff });
+    dr.push({ date: today, detail: "Balance b/d", folio: "", amount: diff });
+  } else {
+    cr.push({ date: today, detail: "Balance b/d", folio: "", amount: diff });
   }
-
+}
   const max = Math.max(dr.length, cr.length);
 
   for (let i = 0; i < max; i++) {
@@ -940,10 +963,15 @@ cashBookBtn.onclick = async () => {
       </tr>
     `;
   }
+// ✅ HIDE MENU BUTTONS
+const buttons = document.querySelectorAll("#viewPage > button");
+buttons.forEach(btn => btn.style.display = "none");
 
-  // SHOW TABLE
-  document.getElementById("listTableContainer").style.display = "none";
-  cashBookContainer.style.display = "block";
+// ✅ HIDE LIST
+listTableContainer.style.display = "none";
+
+// ✅ SHOW CASH BOOK
+cashBookContainer.style.display = "block";
 };
 function backFromCashBook() {
   document.getElementById("cashBookContainer").style.display = "none";
