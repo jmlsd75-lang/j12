@@ -368,9 +368,7 @@ function updateButtons() {
     selectedButtons.innerHTML += `<button style="background:#20c997;color:white;">${method}</button>`;
   }
 }
-
-// FINAL ACTIONS
-  document.getElementById("okBtn").onclick = async () => {
+document.getElementById("okBtn").onclick = async () => {
   const user = auth.currentUser;
   if (!user) return;
 
