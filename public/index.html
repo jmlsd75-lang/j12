@@ -402,7 +402,7 @@ document.getElementById("okBtn").onclick = async () => {
     alert("Saved successfully!");
 
     // OPTIONAL: auto go to view
-    showPage("view");
+    showPage("business");
 
   } catch (e) {
     console.error(e);
@@ -777,11 +777,19 @@ async function convertToTZS(amount, currency) {
 }
 const listBtn = document.getElementById("listBtn");
 const listTableBody = document.getElementById("listTableBody");
-const listTableContainer = document.getElementById("listTableContainer");
-listBtn.onclick = async () => {
-  const user = auth.currentUser;
-  if (!user) return;listTableContainer.style.display = "block";
 
+ listBtn.onclick = async () => {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  // ✅ HIDE MENU BUTTONS
+  listBtn.style.display = "none";
+  document.querySelectorAll("#viewPage button").forEach(btn => {
+    if (btn.id !== "globalBackBtn") btn.style.display = "none";
+  });
+
+  // ✅ SHOW TABLE
+  listTableContainer.style.display = "block";
   listTableBody.innerHTML = "";
 
   const q = query(
@@ -817,9 +825,9 @@ listBtn.onclick = async () => {
       `;
     });
   }
-
-  listTableContainer.style.display = "block";
 };
+
+
 document.getElementById("globalBackBtn").onclick = () => {
   if (document.getElementById("viewPage").style.display === "flex") {
     showPage("business");
