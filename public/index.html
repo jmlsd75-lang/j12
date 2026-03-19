@@ -790,13 +790,21 @@ const cashBookBody = document.getElementById("cashBookBody");
 const cashBookContainer = document.getElementById("cashBookContainer");
 const listTableBody = document.getElementById("listTableBody");
 const listTableContainer = document.getElementById("listTableContainer");
-listBtn.onclick = async () => {
+   listBtn.onclick = async () => {
   const user = auth.currentUser;
   if (!user) return;
 
-  // TOGGLE
+  // 🔴 HIDE EVERYTHING FIRST
+  cashBookContainer.style.display = "none";
+  const buttons = document.querySelectorAll("#viewPage > button");
+  buttons.forEach(btn => btn.style.display = "none");
+
+  // TOGGLE LIST
   if (listTableContainer.style.display === "block") {
     listTableContainer.style.display = "none";
+
+    // show buttons again
+    buttons.forEach(btn => btn.style.display = "inline-block");
     return;
   }
 
