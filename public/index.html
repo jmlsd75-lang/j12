@@ -104,6 +104,11 @@
     <button id="exitBtn" class="timer-action-btn">EXIT</button>
   </div>
 </div>
+<div id="businessPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:20px;">
+  <button>ADD NEW TRANSACTION</button>
+  <button>VIEW</button>
+  <button onclick="showPage('timer')">BACK</button>
+</div>
 
 <div id="loadingOverlay">
   <div class="loader"></div>
@@ -157,6 +162,7 @@ const businessBtn = document.getElementById("businessBtn");
 const exitBtn = document.getElementById("exitBtn");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
+const businessPage = document.getElementById("businessPage");
 
 let selectedFile = null;
 let timerInterval = null;
@@ -199,7 +205,11 @@ accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
 
 // --- Navigation Logic ---
 function showPage(page) {
-  payPage.style.display = "none"; cameraMenuPage.style.display = "none"; previewPage.style.display = "none"; timerPage.style.display = "none";
+payPage.style.display = "none"; 
+cameraMenuPage.style.display = "none"; 
+previewPage.style.display = "none"; 
+timerPage.style.display = "none";
+businessPage.style.display = "none";
   payBtn.style.display = "none"; accessBtn.style.display = "none"; logoutBtn.style.display = "none"; userDisplay.style.display = "none";
 
   if(page === 'main' && auth.currentUser) {
@@ -211,6 +221,9 @@ function showPage(page) {
   else if (page === 'camera') { cameraMenuPage.style.display = "flex"; } 
   else if (page === 'preview') { previewPage.style.display = "flex"; } 
   else if (page === 'timer') { timerPage.style.display = "flex"; userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; }
+else if (page === 'business') { 
+  businessPage.style.display = "flex"; 
+}
 }
 
 payBtn.onclick = () => showPage('pay');
@@ -274,45 +287,24 @@ timerDisplay.textContent =
   String(secs).padStart(2, '0');
   }, 1000);
 }
-businessBtn.onclick = () => {
-  if (isAdmin) {
-    // 👉 ADMIN goes straight to business system (no timer logic)
-    alert("Admin Business Access"); 
-    // 👉 replace this with your real business page logic
-    return;
-  }
-
-  // normal users (you can add logic later)
-};
-
 exitBtn.onclick = () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); timerButtons.style.display = "none"; showPage('main'); };
 businessBtn.onclick = () => {
   if (isAdmin) {
-    // 👉 ADMIN goes straight to business system (no timer logic)
     alert("Admin Business Access"); 
-    // 👉 replace this with your real business page logic
     return;
   }
-
-  // normal users (you can add logic later)
 };
-// -------------------------------------------------------
-// IMAGE PREPROCESSING
-// -------------------------------------------------------
 function preprocessImage(canvas) {
   const ctx = canvas.getContext('2d');
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const data = imageData.data;
   let totalBrightness = 0;
-  
   for (let i = 0; i < data.length; i += 4) {
     const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
     data[i] = avg; data[i + 1] = avg; data[i + 2] = avg;
     totalBrightness += avg;
   }
-
   const avgBrightness = totalBrightness / (data.length / 4);
-
   for (let i = 0; i < data.length; i += 4) {
     let val = data[i];
     if (avgBrightness < 128) val = 255 - val;
