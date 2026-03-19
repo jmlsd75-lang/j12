@@ -14,6 +14,28 @@
   .login-btn, .logout-btn, .pay-btn, .access-btn {
     position: fixed; left: 50%; transform: translateX(-50%); border:none; cursor:pointer; display: none; 
   }
+  .big-btn {
+  padding: 18px 40px;
+  font-size: 20px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+#typeButtons button,
+#methodButtons button,
+#finalButtons button {
+  padding: 15px 30px;
+  font-size: 18px;
+  border-radius: 8px;
+}
+.green {
+  background: #28a745;
+}
+
+.purple {
+  background: #6f42c1;
+}
   .login-btn{ bottom: 30px; padding:15px 40px; font-size:20px; background:#28a745; color:white; border-radius:6px; }
   .pay-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #28a745; color:white; border-radius:8px; }
   .access-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #007bff; color:white; border-radius:8px; }
@@ -38,7 +60,15 @@
   .preview-actions { display: flex; gap: 20px; }
   #submitBtn { padding: 12px 25px; background: green; color: white; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; }
   #cancelBtn { padding: 12px 25px; background: red; color: white; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; }
-
+#transactionPage {
+  display:none;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  gap:20px;
+  text-align:center;
+}
   #timerPage { position: fixed; top:0; left:0; width:100%; height:100%; background: #f4f4f4; display:none; flex-direction: column; justify-content: center; align-items: center; z-index: 40; }
   #timerDisplay { font-size: 60px; font-weight: bold; color: #333; }
   #timerStatus { margin-top: 20px; font-size: 20px; color: #666; }
@@ -113,20 +143,18 @@ ADD NEW TRANSACTION
   <button onclick="showPage('timer')">BACK</button>
 </div>
 <div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
+<input id="detailInput" placeholder="Enter detail"
+style="padding:15px; font-size:20px; text-align:center; width:250px;">
 
-  <!-- DETAIL INPUT -->
-  <input id="detailInput" placeholder="Enter detail" style="padding:12px; font-size:18px; text-align:center;">
-
-  <!-- AMOUNT INPUT -->
-  <input id="amountInput" placeholder="Enter amount" type="number" style="padding:12px; font-size:18px; text-align:center; display:none;">
-
+<input id="amountInput" placeholder="Enter amount" type="number"
+style="padding:15px; font-size:20px; text-align:center; width:250px; display:none;">
   <!-- BUTTON DISPLAY AREA -->
   <div id="selectedButtons" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
 
   <!-- IN / OUT -->
   <div id="typeButtons" style="display:none; gap:10px;">
-    <button id="inBtn" style="background:#28a745;color:white;">IN</button>
-    <button id="outBtn" style="background:#fd7e14;color:white;">OUT</button>
+    <button id="inBtn" class="big-btn green">IN</button>
+<button id="outBtn" class="big-btn purple">OUT</button>
   </div>
 
   <!-- PAYMENT -->
