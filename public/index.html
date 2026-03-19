@@ -139,7 +139,9 @@
 style="background:#28a745; color:white; padding:12px 25px; border:none; border-radius:6px;">
 ADD NEW TRANSACTION
 </button>
-  <button>VIEW</button>
+<button id="viewBtn" style="background:#6f42c1;color:white;padding:12px 25px;border:none;border-radius:6px;">
+VIEW
+</button>
   <button onclick="showPage('timer')">BACK</button>
 </div>
 <div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
@@ -156,6 +158,26 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
     <button id="inBtn" class="big-btn green">IN</button>
 <button id="outBtn" class="big-btn purple">OUT</button>
   </div>
+  <div id="viewPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
+
+<button style="background:#0d6efd;color:white;" disabled>LIST</button>
+
+<button style="background:#20c997;color:white;" disabled>CASH BOOK</button>
+
+<button style="background:#6610f2;color:white;" disabled>LEDGERS</button>
+
+<button style="background:#fd7e14;color:white;" disabled>TRIAL BALANCE</button>
+
+<button style="background:#dc3545;color:white;" disabled>INCOME STATEMENT</button>
+
+<button style="background:#198754;color:white;" disabled>BALANCE SHEET</button>
+
+<button onclick="showPage('business')" 
+style="background:gray;color:white;padding:12px 25px;border:none;border-radius:6px;">
+BACK
+</button>
+
+</div>
 
   <!-- PAYMENT -->
   <div id="methodButtons" style="display:none; gap:10px;">
@@ -256,7 +278,9 @@ amountInput.oninput = () => {
 // STEP 3 → IN / OUT
 document.getElementById("inBtn").onclick = () => selectType("IN");
 document.getElementById("outBtn").onclick = () => selectType("OUT");
-
+document.getElementById("viewBtn").onclick = () => {
+  showPage('view');
+};
 function selectType(t) {
   detail = detailInput.value;
   amount = amountInput.value;
@@ -366,11 +390,14 @@ businessPage.style.display = "none";
     const endTime = localStorage.getItem("sessionEnd");
     if (endTime && Date.now() < parseInt(endTime)) { accessBtn.style.display = "block"; } 
     else { payBtn.style.display = "block"; }
-  } else if (page === 'pay') { payPage.style.display = "flex"; } 
+  } else if (page === 'view') {
+  document.getElementById("viewPage").style.display = "flex";
+}
+  else if (page === 'pay') { payPage.style.display = "flex"; } 
   else if (page === 'camera') { cameraMenuPage.style.display = "flex"; } 
   else if (page === 'transaction') {
   document.getElementById("transactionPage").style.display = "flex";
-
+document.getElementById("viewPage").style.display = "none";
   // RESET EVERYTHING
   detailInput.value = "";
   amountInput.value = "";
