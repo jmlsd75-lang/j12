@@ -105,16 +105,12 @@
   </div>
 </div>
 <div id="businessPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:20px;">
-  <button>ADD NEW TRANSACTION</button>
+ <button onclick="showPage('transaction')" 
+style="background:#28a745; color:white; padding:12px 25px; border:none; border-radius:6px;">
+ADD NEW TRANSACTION
+</button>
   <button>VIEW</button>
   <button onclick="showPage('timer')">BACK</button>
-</div>
-<div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:20px;">
-  <input id="detailInput" placeholder="Enter detail" style="padding:15px; font-size:18px; text-align:center;">
-  
-  <button onclick="showPage('business')" style="background:#dc3545; color:white; padding:12px 25px; border:none; border-radius:6px;">
-    CANCEL
-  </button>
 </div>
 <div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
 
@@ -300,20 +296,15 @@ onAuthStateChanged(auth, (user) => {
     isAdmin = user.email === ADMIN_EMAIL;
 
     userDisplay.textContent = user.displayName;
+if (isAdmin) {
+  userDisplay.style.display = "block";
 
-    if (isAdmin) {
-      // 🔥 ADMIN MODE
-      userDisplay.style.display = "block";
-      logoutBtn.style.display = "none";
-      payBtn.style.display = "none";
-      accessBtn.style.display = "none";
+  showPage('timer'); // same page as normal user
+  timerDisplay.textContent = "UNLIMITED";
+  timerStatus.textContent = "Admin Access";
 
-      showPage('timer'); // go directly
-      timerDisplay.textContent = "UNLIMITED";
-      timerStatus.textContent = "Admin Access";
-
-      timerButtons.style.display = "flex";
-    } else {
+  timerButtons.style.display = "flex"; // same buttons
+} else {
       showPage('main');
     }
 
@@ -349,6 +340,23 @@ businessPage.style.display = "none";
   else if (page === 'camera') { cameraMenuPage.style.display = "flex"; } 
   else if (page === 'transaction') {
   document.getElementById("transactionPage").style.display = "flex";
+
+  // RESET EVERYTHING
+  detailInput.value = "";
+  amountInput.value = "";
+  selectedButtons.innerHTML = "";
+
+  detailInput.style.display = "block";
+  amountInput.style.display = "none";
+
+  typeButtons.style.display = "none";
+  methodButtons.style.display = "none";
+  finalButtons.style.display = "none";
+
+  detail = "";
+  amount = "";
+  type = "";
+  method = "";
 }
   else if (page === 'preview') { previewPage.style.display = "flex"; } 
   else if (page === 'timer') { timerPage.style.display = "flex"; userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; }
