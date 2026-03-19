@@ -224,9 +224,7 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
   <div class="loader"></div>
   <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
 </div>
-
-<!-- BACK BUTTON -->
-<button onclick="showPage('business')" 
+<button id="globalBackBtn"
 style="background:gray;color:white;padding:12px 25px;border:none;border-radius:6px;">
 BACK
 </button>
@@ -809,6 +807,17 @@ listBtn.onclick = async () => {
   }
 
   listTableContainer.style.display = "block";
+};
+document.getElementById("globalBackBtn").onclick = () => {
+  if (document.getElementById("viewPage").style.display === "flex") {
+    showPage("business");
+  } 
+  else if (document.getElementById("businessPage").style.display === "flex") {
+    showPage("timer");
+  } 
+  else {
+    showPage("main");
+  }
 };
 </script>
 </body>
