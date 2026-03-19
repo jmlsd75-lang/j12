@@ -182,33 +182,6 @@ BACK
 
 <!-- TABLE -->
 <div id="listTableContainer" style="display:none; width:90%; overflow:auto;">
-  <!-- CASH BOOK TABLE -->
-<div id="cashBookContainer" style="display:none; width:95%; overflow:auto;">
-
-<h2 style="text-align:center;">CASH BOOK</h2>
-
-<table border="1" style="border-collapse:collapse; width:100%; text-align:center;">
-<thead>
-<tr>
-<th colspan="4">DR (Debit)</th>
-<th colspan="4">CR (Credit)</th>
-</tr>
-<tr>
-<th>Date</th><th>Detail</th><th>Folio</th><th>Amt</th>
-<th>Date</th><th>Detail</th><th>Folio</th><th>Amt</th>
-</tr>
-</thead>
-
-<tbody id="cashBookBody"></tbody>
-
-</table>
-
-<button onclick="document.getElementById('cashBookContainer').style.display='none'" 
-style="margin-top:20px;background:#dc3545;color:white;padding:10px 20px;border:none;">
-BACK
-</button>
-
-</div>
   <button id="backFromListBtn" 
 style="margin-top:20px; padding:12px 25px; background:#dc3545; color:white; border:none; border-radius:6px;">
 BACK
@@ -260,6 +233,28 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
 <div id="loadingOverlay">
   <div class="loader"></div>
   <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
+</div>
+<div id="cashBookContainer" style="display:none; width:95%; overflow:auto;">
+
+<h2 style="text-align:center;">CASH BOOK</h2>
+
+<table border="1" style="border-collapse:collapse; width:100%; text-align:center;">
+<thead>
+<tr>
+<th colspan="4">DR (Debit)</th>
+<th colspan="4">CR (Credit)</th>
+</tr>
+<tr>
+<th>Date</th><th>Detail</th><th>Folio</th><th>Amt</th>
+<th>Date</th><th>Detail</th><th>Folio</th><th>Amt</th>
+</tr>
+</thead>
+
+<tbody id="cashBookBody"></tbody>
+</table>
+
+<button onclick="backFromCashBook()">BACK</button>
+
 </div>
 <script type="module">
   import { 
@@ -818,9 +813,8 @@ const listTableContainer = document.getElementById("listTableContainer");
 
   // 🔴 HIDE EVERYTHING FIRST
   cashBookContainer.style.display = "none";
-  const buttons = document.querySelectorAll("#viewPage > button");
-  buttons.forEach(btn => btn.style.display = "none");
-
+  const buttons = document.querySelectorAll("#viewPage > button:not(#cashBookBtn)");
+buttons.forEach(btn => btn.style.display = "none");
   // TOGGLE LIST
   if (listTableContainer.style.display === "block") {
     listTableContainer.style.display = "none";
@@ -959,6 +953,12 @@ cashBookBtn.onclick = async () => {
   document.getElementById("listTableContainer").style.display = "none";
   cashBookContainer.style.display = "block";
 };
+function backFromCashBook() {
+  document.getElementById("cashBookContainer").style.display = "none";
+
+  const buttons = document.querySelectorAll("#viewPage > button");
+  buttons.forEach(btn => btn.style.display = "inline-block");
+}
 </script>
 </body>
 </html>             
