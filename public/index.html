@@ -376,24 +376,40 @@ function updateButtons() {
 }
 document.getElementById("okBtn").onclick = async () => {
   const user = auth.currentUser;
-  if (!user) return;
+  if (!user) {
+    alert("Not logged in");
+    return;
+  }
 
-  const transaction = {
-    date: new Date().toLocaleString(),
-    detail,
-    type,
-    method,
-    amount: Number(amount),
-    createdAt: Date.now()
-  };
+  if (!detail || !amount || !type || !method) {
+    alert("Complete all fields");
+    return;
+  }
 
-  await addDoc(
-    collection(db, "users", user.email, "transactions"),
-    transaction
-  );
+  try {
+    const transaction = {
+      date: new Date().toLocaleString(),
+      detail,
+      type,
+      method,
+      amount: Number(amount),
+      createdAt: Date.now()
+    };
 
-  alert("Saved!");
-  showPage("business");
+    await addDoc(
+      collection(db, "users", user.email, "transactions"),
+      transaction
+    );
+
+    alert("Saved successfully!");
+
+    // OPTIONAL: auto go to view
+    showPage("view");
+
+  } catch (e) {
+    console.error(e);
+    alert("Error saving transaction");
+  }
 };
 document.getElementById("cancelTransBtn").onclick = () => {
   showPage("business");
@@ -766,11 +782,7 @@ const listTableBody = document.getElementById("listTableBody");
 const listTableContainer = document.getElementById("listTableContainer");
 listBtn.onclick = async () => {
   const user = auth.currentUser;
-  if (!user) return;
-if (listTableContainer.style.display === "block") {
-  listTableContainer.style.display = "none";
-  return;
-}
+  if (!user) return;listTableContainer.style.display = "block";
 
   listTableBody.innerHTML = "";
 
