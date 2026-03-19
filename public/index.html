@@ -188,8 +188,6 @@ VIEW
     <tbody id="listTableBody"></tbody>
   </table>
 </div>
-
-</button>
 </div>
 <div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
 <input id="detailInput" placeholder="Enter detail"
@@ -428,6 +426,7 @@ accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
 
 // --- Navigation Logic ---
 function showPage(page) {
+  businessPage.style = "";
   document.getElementById("viewPage").style.display = "none";
   document.getElementById("transactionPage").style.display = "none";
   payPage.style.display = "none"; 
@@ -474,7 +473,12 @@ document.getElementById("viewPage").style.display = "none";
   else if (page === 'preview') { previewPage.style.display = "flex"; } 
   else if (page === 'timer') { timerPage.style.display = "flex"; userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; }
 else if (page === 'business') { 
-  businessPage.style.display = "flex"; 
+  businessPage.style.display = "flex";
+
+  // ✅ force same layout for everyone
+  businessPage.style.flexDirection = "column";
+  businessPage.style.justifyContent = "center";
+  businessPage.style.alignItems = "center";
 }
 }
 
