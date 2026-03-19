@@ -144,21 +144,8 @@ VIEW
 </button>
   <button onclick="showPage('timer')">BACK</button>
 </div>
-<div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
-<input id="detailInput" placeholder="Enter detail"
-style="padding:15px; font-size:20px; text-align:center; width:250px;">
 
-<input id="amountInput" placeholder="Enter amount" type="number"
-style="padding:15px; font-size:20px; text-align:center; width:250px; display:none;">
-  <!-- BUTTON DISPLAY AREA -->
-  <div id="selectedButtons" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
-
-  <!-- IN / OUT -->
-  <div id="typeButtons" style="display:none; gap:10px;">
-    <button id="inBtn" class="big-btn green">IN</button>
-<button id="outBtn" class="big-btn purple">OUT</button>
-  </div>
-  <div id="viewPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
+<div id="viewPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
 
 <button style="background:#0d6efd;color:white;" disabled>LIST</button>
 
@@ -178,6 +165,20 @@ BACK
 </button>
 
 </div>
+<div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
+<input id="detailInput" placeholder="Enter detail"
+style="padding:15px; font-size:20px; text-align:center; width:250px;">
+
+<input id="amountInput" placeholder="Enter amount" type="number"
+style="padding:15px; font-size:20px; text-align:center; width:250px; display:none;">
+  <!-- BUTTON DISPLAY AREA -->
+  <div id="selectedButtons" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
+
+  <!-- IN / OUT -->
+  <div id="typeButtons" style="display:none; gap:10px;">
+    <button id="inBtn" class="big-btn green">IN</button>
+<button id="outBtn" class="big-btn purple">OUT</button>
+  </div>
 
   <!-- PAYMENT -->
   <div id="methodButtons" style="display:none; gap:10px;">
@@ -377,6 +378,7 @@ accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
 
 // --- Navigation Logic ---
 function showPage(page) {
+  document.getElementById("viewPage").style.display = "none";
 document.getElementById("transactionPage").style.display = "none";
 payPage.style.display = "none"; 
 cameraMenuPage.style.display = "none"; 
