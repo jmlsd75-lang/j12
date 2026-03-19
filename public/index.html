@@ -379,21 +379,25 @@ accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
 // --- Navigation Logic ---
 function showPage(page) {
   document.getElementById("viewPage").style.display = "none";
-document.getElementById("transactionPage").style.display = "none";
-payPage.style.display = "none"; 
-cameraMenuPage.style.display = "none"; 
-previewPage.style.display = "none"; 
-timerPage.style.display = "none";
-businessPage.style.display = "none";
-  payBtn.style.display = "none"; accessBtn.style.display = "none"; logoutBtn.style.display = "none"; userDisplay.style.display = "none";
-
+  document.getElementById("transactionPage").style.display = "none";
+  payPage.style.display = "none"; 
+  cameraMenuPage.style.display = "none"; 
+  previewPage.style.display = "none"; 
+  timerPage.style.display = "none";
+  businessPage.style.display = "none";
   if(page === 'main' && auth.currentUser) {
     userDisplay.style.display = "block"; logoutBtn.style.display = "block";
     const endTime = localStorage.getItem("sessionEnd");
     if (endTime && Date.now() < parseInt(endTime)) { accessBtn.style.display = "block"; } 
     else { payBtn.style.display = "block"; }
-  } else if (page === 'view') {
-  document.getElementById("viewPage").style.display = "flex";
+  }
+  else if (page === 'view') {
+  const vp = document.getElementById("viewPage");
+
+  vp.style.display = "flex";
+  vp.style.flexDirection = "column";
+  vp.style.justifyContent = "center";
+  vp.style.alignItems = "center";
 }
   else if (page === 'pay') { payPage.style.display = "flex"; } 
   else if (page === 'camera') { cameraMenuPage.style.display = "flex"; } 
