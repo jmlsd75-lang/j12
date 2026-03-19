@@ -109,7 +109,44 @@
   <button>VIEW</button>
   <button onclick="showPage('timer')">BACK</button>
 </div>
+<div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:20px;">
+  <input id="detailInput" placeholder="Enter detail" style="padding:15px; font-size:18px; text-align:center;">
+  
+  <button onclick="showPage('business')" style="background:#dc3545; color:white; padding:12px 25px; border:none; border-radius:6px;">
+    CANCEL
+  </button>
+</div>
+<div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
 
+  <!-- DETAIL INPUT -->
+  <input id="detailInput" placeholder="Enter detail" style="padding:12px; font-size:18px; text-align:center;">
+
+  <!-- AMOUNT INPUT -->
+  <input id="amountInput" placeholder="Enter amount" type="number" style="padding:12px; font-size:18px; text-align:center; display:none;">
+
+  <!-- BUTTON DISPLAY AREA -->
+  <div id="selectedButtons" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
+
+  <!-- IN / OUT -->
+  <div id="typeButtons" style="display:none; gap:10px;">
+    <button id="inBtn" style="background:#28a745;color:white;">IN</button>
+    <button id="outBtn" style="background:#fd7e14;color:white;">OUT</button>
+  </div>
+
+  <!-- PAYMENT -->
+  <div id="methodButtons" style="display:none; gap:10px;">
+    <button style="background:#20c997;color:white;" id="cashBtn">CASH</button>
+    <button style="background:#6610f2;color:white;" id="creditBtn">CREDIT</button>
+    <button style="background:#0d6efd;color:white;" id="bankBtn">BANK</button>
+  </div>
+
+  <!-- FINAL -->
+  <div id="finalButtons" style="display:none; gap:10px;">
+    <button id="okBtn" style="background:#198754;color:white;">OK</button>
+    <button id="cancelTransBtn" style="background:#dc3545;color:white;">CANCEL</button>
+  </div>
+
+</div>
 <div id="loadingOverlay">
   <div class="loader"></div>
   <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
@@ -163,7 +200,97 @@ const exitBtn = document.getElementById("exitBtn");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
 const businessPage = document.getElementById("businessPage");
+const detailInput = document.getElementById("detailInput");
+const amountInput = document.getElementById("amountInput");
+const selectedButtons = document.getElementById("selectedButtons");
 
+const typeButtons = document.getElementById("typeButtons");
+const methodButtons = document.getElementById("methodButtons");
+const finalButtons = document.getElementById("finalButtons");
+
+let detail = "";
+let amount = "";
+let type = "";
+let method = "";
+
+// STEP 1 → DETAIL
+detailInput.oninput = () => {
+  if (detailInput.value.trim().length > 0) {
+    amountInput.style.display = "block";
+  }
+};
+
+// STEP 2 → AMOUNT
+amountInput.oninput = () => {
+  if (amountInput.value.trim().length > 0) {
+    typeButtons.style.display = "flex";
+  }
+};
+
+// STEP 3 → IN / OUT
+document.getElementById("inBtn").onclick = () => selectType("IN");
+document.getElementById("outBtn").onclick = () => selectType("OUT");
+
+function selectType(t) {
+  detail = detailInput.value;
+  amount = amountInput.value;
+  type = t;
+
+  updateButtons();
+
+  typeButtons.style.display = "none";
+  methodButtons.style.display = "flex";
+}
+
+// STEP 4 → PAYMENT
+document.getElementById("cashBtn").onclick = () => selectMethod("CASH");
+document.getElementById("creditBtn").onclick = () => selectMethod("CREDIT");
+document.getElementById("bankBtn").onclick = () => selectMethod("BANK");
+
+function selectMethod(m) {
+  method = m;
+
+  updateButtons();
+
+  methodButtons.style.display = "none";
+  finalButtons.style.display = "flex";
+}
+
+// SHOW BUTTONS
+function updateButtons() {
+  selectedButtons.innerHTML = "";
+
+  if (detail) {
+    selectedButtons.innerHTML += `<button style="background:#007bff;color:white;">${detail}</button>`;
+    detailInput.style.display = "none";
+  }
+
+  if (amount) {
+    selectedButtons.innerHTML += `<button style="background:#6f42c1;color:white;">${amount}</button>`;
+    amountInput.style.display = "none";
+  }
+
+  if (type) {
+    selectedButtons.innerHTML += `<button style="background:${type==="IN"?"#28a745":"#fd7e14"};color:white;">${type}</button>`;
+  }
+
+  if (method) {
+    selectedButtons.innerHTML += `<button style="background:#20c997;color:white;">${method}</button>`;
+  }
+}
+
+// FINAL ACTIONS
+document.getElementById("okBtn").onclick = () => {
+  const transaction = { detail, amount, type, method };
+  console.log("Saved:", transaction);
+
+  alert("Saved!");
+  showPage("business");
+};
+
+document.getElementById("cancelTransBtn").onclick = () => {
+  showPage("business");
+};
 let selectedFile = null;
 let timerInterval = null;
 
@@ -205,6 +332,7 @@ accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
 
 // --- Navigation Logic ---
 function showPage(page) {
+document.getElementById("transactionPage").style.display = "none";
 payPage.style.display = "none"; 
 cameraMenuPage.style.display = "none"; 
 previewPage.style.display = "none"; 
@@ -219,6 +347,9 @@ businessPage.style.display = "none";
     else { payBtn.style.display = "block"; }
   } else if (page === 'pay') { payPage.style.display = "flex"; } 
   else if (page === 'camera') { cameraMenuPage.style.display = "flex"; } 
+  else if (page === 'transaction') {
+  document.getElementById("transactionPage").style.display = "flex";
+}
   else if (page === 'preview') { previewPage.style.display = "flex"; } 
   else if (page === 'timer') { timerPage.style.display = "flex"; userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; }
 else if (page === 'business') { 
