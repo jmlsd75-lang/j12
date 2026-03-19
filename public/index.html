@@ -754,6 +754,12 @@ listBtn.onclick = async () => {
   const user = auth.currentUser;
   if (!user) return;
 
+  // TOGGLE
+  if (listTableContainer.style.display === "block") {
+    listTableContainer.style.display = "none";
+    return;
+  }
+
   listTableBody.innerHTML = "";
 
   const q = query(
