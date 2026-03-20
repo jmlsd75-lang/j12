@@ -92,6 +92,16 @@
   #loadingOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); display:none; justify-content: center; align-items: center; flex-direction: column; z-index: 100; }
   .loader { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  
+  /* Cash Book Table Styles */
+  #cashBookContainer table {
+    border: 1px solid #000;
+    border-collapse: collapse;
+  }
+  #cashBookContainer th, #cashBookContainer td {
+    border: 1px solid #000;
+    padding: 5px;
+  }
 </style>
 </head>
 <body>
@@ -146,6 +156,7 @@
     <button id="exitBtn" class="timer-action-btn">EXIT</button>
   </div>
 </div>
+
 <div id="businessPage" style="
 display:none; 
 flex-direction:column; 
@@ -169,15 +180,13 @@ style="background:#dc3545;color:white;padding:15px 30px;border:none;border-radiu
 BACK
 </button>
 </div>
+
 <div id="viewPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
 <button id="listBtn" style="background:#0d6efd;color:white;">LIST</button>
 <button id="cashBookBtn" style="background:#20c997;color:white;">CASH BOOK</button>
 <button style="background:#6610f2;color:white;" disabled>LEDGERS</button>
-
 <button style="background:#fd7e14;color:white;" disabled>TRIAL BALANCE</button>
-
 <button style="background:#dc3545;color:white;" disabled>INCOME STATEMENT</button>
-
 <button style="background:#198754;color:white;" disabled>BALANCE SHEET</button>
 
 <!-- TABLE -->
@@ -201,19 +210,26 @@ BACK
   </table>
 </div>
 </div>
+
 <div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
 <input id="detailInput" placeholder="Enter detail"
 style="padding:15px; font-size:20px; text-align:center; width:250px;">
 
 <input id="amountInput" placeholder="Enter amount" type="number"
 style="padding:15px; font-size:20px; text-align:center; width:250px; display:none;">
+
+  <!-- CANCEL BUTTON FOR INPUT STAGE -->
+  <button id="cancelInputBtn" style="display:none; background:#dc3545;color:white;padding:15px 30px;border:none;border-radius:8px;font-size:18px;width:220px;">CANCEL</button>
+
   <!-- BUTTON DISPLAY AREA -->
   <div id="selectedButtons" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
 
   <!-- IN / OUT -->
   <div id="typeButtons" style="display:none; gap:10px;">
     <button id="inBtn" class="big-btn green">IN</button>
-<button id="outBtn" class="big-btn purple">OUT</button>
+    <button id="outBtn" class="big-btn purple">OUT</button>
+    <!-- CANCEL BUTTON FOR TYPE STAGE -->
+    <button id="cancelTypeBtn" style="padding: 18px 40px; font-size: 20px; border: none; border-radius: 8px; color: white; cursor: pointer; background:#dc3545;">CANCEL</button>
   </div>
 
   <!-- PAYMENT -->
@@ -221,6 +237,8 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
     <button style="background:#20c997;color:white;" id="cashBtn">CASH</button>
     <button style="background:#6610f2;color:white;" id="creditBtn">CREDIT</button>
     <button style="background:#0d6efd;color:white;" id="bankBtn">BANK</button>
+    <!-- CANCEL BUTTON FOR METHOD STAGE -->
+    <button id="cancelMethodBtn" style="background:#dc3545;color:white;padding:15px 30px;border:none;border-radius:8px;font-size:18px;">CANCEL</button>
   </div>
 
   <!-- FINAL -->
@@ -230,44 +248,43 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
   </div>
 
 </div>
+
 <div id="loadingOverlay">
   <div class="loader"></div>
   <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
 </div>
+
 <div id="cashBookContainer" style="display:none; width:95%; overflow:auto;">
-
-<h2 style="text-align:center;">CASH BOOK</h2>
-
-<table border="1" style="border-collapse:collapse; width:100%; text-align:center;">
-<thead>
-<tr>
-<th colspan="4">DR (Debit)</th>
-<th colspan="4">CR (Credit)</th>
-</tr>
-<tr>
-<th>Date</th><th>Detail</th><th>Folio</th><th>Amt</th>
-<th>Date</th><th>Detail</th><th>Folio</th><th>Amt</th>
-</tr>
-</thead>
-
-<tbody id="cashBookBody"></tbody>
-</table>
-<button onclick="backFromCashBook()" 
-style="
-margin-top:20px;
-padding:12px 30px;
-background:#dc3545;
-color:white;
-border:none;
-border-radius:6px;
-display:block;
-margin-left:auto;
-margin-right:auto;
-">
-BACK
-</button>
-
+  <h2 style="text-align:center;">CASH BOOK</h2>
+  <table border="1" style="border-collapse:collapse; width:100%; text-align:center;">
+    <thead>
+      <tr>
+        <th colspan="4">DR (Debit)</th>
+        <th colspan="4">CR (Credit)</th>
+      </tr>
+      <tr>
+        <th>Date</th><th>Detail</th><th>Folio</th><th>Amt</th>
+        <th>Date</th><th>Detail</th><th>Folio</th><th>Amt</th>
+      </tr>
+    </thead>
+    <tbody id="cashBookBody"></tbody>
+  </table>
+  <button onclick="backFromCashBook()" 
+  style="
+  margin-top:20px;
+  padding:12px 30px;
+  background:#dc3545;
+  color:white;
+  border:none;
+  border-radius:6px;
+  display:block;
+  margin-left:auto;
+  margin-right:auto;
+  ">
+  BACK
+  </button>
 </div>
+
 <script type="module">
   import { 
   getFirestore, 
@@ -328,8 +345,15 @@ const businessPage = document.getElementById("businessPage");
 const detailInput = document.getElementById("detailInput");
 const amountInput = document.getElementById("amountInput");
 const selectedButtons = document.getElementById("selectedButtons");
+
+// New Cancel Buttons
+const cancelInputBtn = document.getElementById("cancelInputBtn");
+const cancelTypeBtn = document.getElementById("cancelTypeBtn");
+const cancelMethodBtn = document.getElementById("cancelMethodBtn");
+const cancelTransBtn = document.getElementById("cancelTransBtn");
+
 document.getElementById("addTransactionBtn").onclick = () => {
-  resetTransaction();   // ✅ ADD THIS
+  resetTransaction();   
   showPage('transaction');
 };
 const typeButtons = document.getElementById("typeButtons");
@@ -342,26 +366,44 @@ let type = "";
 let method = "";
 let transactions = [];
 
+// --- CANCEL ACTION FUNCTION ---
+function cancelTransaction() {
+  resetTransaction();
+  showPage("business");
+}
+
+// ATTACH CANCEL LISTENERS
+cancelInputBtn.onclick = cancelTransaction;
+cancelTypeBtn.onclick = cancelTransaction;
+cancelMethodBtn.onclick = cancelTransaction;
+cancelTransBtn.onclick = cancelTransaction;
+
 // STEP 1 → DETAIL
 detailInput.oninput = () => {
   if (detailInput.value.trim().length > 0) {
     amountInput.style.display = "block";
+    cancelInputBtn.style.display = "block"; // Show cancel
+  } else {
+    cancelInputBtn.style.display = "none"; // Hide if empty
   }
 };
 
 // STEP 2 → AMOUNT
 amountInput.oninput = () => {
   if (amountInput.value.trim().length > 0) {
-    typeButtons.style.display = "flex";
+    cancelInputBtn.style.display = "none"; // Hide input cancel
+    typeButtons.style.display = "flex"; // Show next step
   }
 };
 
 // STEP 3 → IN / OUT
 document.getElementById("inBtn").onclick = () => selectType("IN");
 document.getElementById("outBtn").onclick = () => selectType("OUT");
+
 document.getElementById("viewBtn").onclick = () => {
   showPage('view');
 };
+
 function selectType(t) {
   detail = detailInput.value;
   amount = amountInput.value;
@@ -370,7 +412,7 @@ function selectType(t) {
   updateButtons();
 
   typeButtons.style.display = "none";
-  methodButtons.style.display = "flex";
+  methodButtons.style.display = "flex"; // Show next step
 }
 
 // STEP 4 → PAYMENT
@@ -380,9 +422,7 @@ document.getElementById("bankBtn").onclick = () => selectMethod("BANK");
 
 function selectMethod(m) {
   method = m;
-
   updateButtons();
-
   methodButtons.style.display = "none";
   finalButtons.style.display = "flex";
 }
@@ -409,6 +449,7 @@ function updateButtons() {
     selectedButtons.innerHTML += `<button style="background:#20c997;color:white;">${method}</button>`;
   }
 }
+
 document.getElementById("okBtn").onclick = async () => {
   const user = auth.currentUser;
   if (!user) return;
@@ -429,13 +470,10 @@ document.getElementById("okBtn").onclick = async () => {
 
   alert("Saved!");
 
-  resetTransaction();   // ✅ ADD THIS
+  resetTransaction();   
   showPage("business");
 };
-document.getElementById("cancelTransBtn").onclick = () => {
-  resetTransaction();   // clear everything
-  showPage("business"); // go back
-};
+
 let selectedFile = null;
 let timerInterval = null;
 
@@ -447,7 +485,6 @@ onAuthStateChanged(auth, (user) => {
     userDisplay.textContent = user.displayName;
     userDisplay.style.display = "block";
 
-    // ✅ SHOW logout only when logged in
     logoutBtn.style.display = "block";
 
     if (isAdmin) {
@@ -459,19 +496,13 @@ onAuthStateChanged(auth, (user) => {
       showPage('main');
     }
 
-    // hide login
     loginBtn.style.display = "none";
 
   } else {
     isAdmin = false;
-
-    // ✅ HIDE logout when NOT logged in
     logoutBtn.style.display = "none";
     userDisplay.style.display = "none";
-
-    // show login
     loginBtn.style.display = "block";
-
     payBtn.style.display = "none";
     accessBtn.style.display = "none";
   }
@@ -479,10 +510,11 @@ onAuthStateChanged(auth, (user) => {
 loginBtn.onclick = async () => { try { await signInWithPopup(auth, provider); } catch (e) { alert("Login failed"); } };
 logoutBtn.onclick = async () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); await signOut(auth); showPage('main'); };
 accessBtn.onclick = () => { 
-  accessBtn.style.display = "none"; // 👈 hide button after click
+  accessBtn.style.display = "none"; 
   startTimerFromStorage(); 
   showPage('business'); 
 };
+
 function showPage(page) {
   businessPage.style = "";
   document.getElementById("viewPage").style.display = "none";
@@ -493,8 +525,8 @@ function showPage(page) {
   previewPage.style.display = "none"; 
   timerPage.style.display = "none";
   businessPage.style.display = "none";
+  document.getElementById("listTableContainer").style.display = "none";
 
-  // ❌ HIDE logout by default on all pages
   logoutBtn.style.display = "none";
 
   if(page === 'main' && auth.currentUser) {
@@ -510,10 +542,7 @@ function showPage(page) {
 
   else if (page === 'business') { 
     businessPage.style.display = "flex";
-
-    // ✅ SHOW logout ONLY here
     logoutBtn.style.display = "block";
-
     businessPage.style.flexDirection = "column";
     businessPage.style.justifyContent = "center";
     businessPage.style.alignItems = "center";
@@ -525,6 +554,10 @@ function showPage(page) {
     vp.style.flexDirection = "column";
     vp.style.justifyContent = "center";
     vp.style.alignItems = "center";
+    
+    // Ensure buttons are visible when entering view page
+    const buttons = document.querySelectorAll("#viewPage > button");
+    buttons.forEach(btn => btn.style.display = "inline-block");
   }
 
   else if (page === 'transaction') {
@@ -667,7 +700,6 @@ submitBtn.onclick = async () => {
     let detectedText = "";
     let isQR = false;
 
-    // Check QR first
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const qr = jsQR(imageData.data, canvas.width, canvas.height);
     
@@ -685,19 +717,12 @@ submitBtn.onclick = async () => {
       detectedText = (data.text || "").replace(/\s+/g, " ").trim();
       console.log("✅ OCR Found:", detectedText);
     }
-
-    // -------------------------------------------------------
-    // NAME CHECK LOGIC
-    // -------------------------------------------------------
     
-    // Convert detected text to uppercase for matching
     const upperText = detectedText.toUpperCase();
-    // Remove extra spaces to handle "Jamal  Said" -> "JAMAL SAID"
     const cleanSearchText = upperText.replace(/\s+/g, " ");
     let timeValid = isTimeValidFromText(cleanSearchText);
     let nameFound = false;
 
-    // Check if any of the valid names exist in the text
     for (const name of VALID_NAMES) {
       if (cleanSearchText.includes(name)) {
         nameFound = true;
@@ -705,9 +730,7 @@ submitBtn.onclick = async () => {
         break; 
       }
     }
-// --------------------
-// NUMBER CHECK
-// --------------------
+
 let numberFound = false;
 
 if (nameFound) {
@@ -723,7 +746,6 @@ const { currency, amount } = detectCurrency(cleanSearchText);
 
 const tzsAmount = await convertToTZS(amount, currency);
 
-// formula
 const seconds = Math.floor((tzsAmount / 300) * 3600);
 
 if (nameFound && numberFound && timeValid && seconds > 0) {
@@ -745,8 +767,6 @@ if (nameFound && numberFound && timeValid && seconds > 0) {
 };
 function isTimeValidFromText(text) {
   const clean = text.toUpperCase().replace(/\s+/g, " ");
-
-  // Match time
   const match = clean.match(/\b(\d{1,2})[:. ](\d{2})([:. ](\d{2}))?\s?(AM|PM)?\b/);
 
   if (!match) {
@@ -758,21 +778,17 @@ function isTimeValidFromText(text) {
   const minutes = parseInt(match[2]);
   const ampm = match[5];
 
-  // Convert AM/PM → 24h
   if (ampm) {
     if (ampm === "PM" && hours < 12) hours += 12;
     if (ampm === "AM" && hours === 12) hours = 0;
   }
 
   const now = new Date();
-
-  // Create receipt time (TODAY first)
   const receipt = new Date();
   receipt.setHours(hours);
   receipt.setMinutes(minutes);
   receipt.setSeconds(0);
 
-  // 🔴 FIX: If receipt time is in future → assume it's from yesterday
   if (receipt > now) {
     receipt.setDate(receipt.getDate() - 1)
   }
@@ -820,18 +836,14 @@ const cashBookBody = document.getElementById("cashBookBody");
 const cashBookContainer = document.getElementById("cashBookContainer");
 const listTableBody = document.getElementById("listTableBody");
 const listTableContainer = document.getElementById("listTableContainer");
+
 listBtn.onclick = async () => {
   const user = auth.currentUser;
   if (!user) return;
 
-  // ✅ hide cash book ONLY
   cashBookContainer.style.display = "none";
-
-  // ✅ hide buttons
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "none");
-
-  // ✅ show list container
   listTableContainer.style.display = "block";
 
   listTableBody.innerHTML = "";
@@ -870,27 +882,26 @@ listBtn.onclick = async () => {
 const backFromListBtn = document.getElementById("backFromListBtn");
 
 backFromListBtn.onclick = () => {
-  // hide table
   listTableContainer.style.display = "none";
-
-  // show buttons again
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "inline-block");
 };
-// ✅ CASH BOOK
+
+// ✅ CASH BOOK LOGIC CORRECTED
 cashBookBtn.onclick = async () => {
-  folioMap = {};
-  folio = 1;
+  let folioMap = {}; // Initialize folio map
+  let folio = 1;     // Initialize folio counter
 
   const user = auth.currentUser;
   if (!user) return;
 
   cashBookBody.innerHTML = "";
-  cashBookContainer.style.display = "block";
+  
+  // UI Management
   listTableContainer.style.display = "none";
-
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "none");
+  cashBookContainer.style.display = "block";
 
   const q = query(
     collection(db, "users", user.email, "transactions"),
@@ -909,21 +920,22 @@ cashBookBtn.onclick = async () => {
     if (!folioMap[tx.detail]) {
       folioMap[tx.detail] = folio++;
     }
-const entry = {
-  date: tx.date || new Date(tx.createdAt).toLocaleDateString(),
-  detail: tx.detail,
-  folio: folioMap[tx.detail],
-  amount: Number(tx.amount) || 0
-};
-if (tx.method === "CASH") {
+    
+    const entry = {
+      date: tx.date || new Date(tx.createdAt).toLocaleDateString(),
+      detail: tx.detail,
+      folio: folioMap[tx.detail],
+      amount: Number(tx.amount) || 0
+    };
 
-  if (tx.type === "IN") {
-    dr.push(entry);
-  } else if (tx.type === "OUT") {
-    cr.push(entry);
-  }
-
-}
+    // ✅ Filter for CASH transactions
+    if (tx.method === "CASH") {
+      if (tx.type === "IN") {
+        dr.push(entry);
+      } else if (tx.type === "OUT") {
+        cr.push(entry);
+      }
+    }
   });
 
   // ✅ totals
@@ -1009,15 +1021,16 @@ if (tx.method === "CASH") {
     }
   }
 };
-function backFromCashBook() {
-  document.getElementById("cashBookContainer").style.display = "none";
 
-  showPage('view'); // ✅ use your page system
-  // show buttons again
+// ✅ BACK FROM CASH BOOK ACTIVATED
+window.backFromCashBook = function() {
+  document.getElementById("cashBookContainer").style.display = "none";
+  showPage('view'); 
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "inline-block");
-}
-// ✅ RESET TRANSACTION (CANCEL)
+};
+
+// ✅ RESET TRANSACTION
 function resetTransaction() {
   detail = "";
   amount = "";
@@ -1029,6 +1042,8 @@ function resetTransaction() {
 
   detailInput.style.display = "block";
   amountInput.style.display = "none";
+  
+  cancelInputBtn.style.display = "none";
 
   typeButtons.style.display = "none";
   methodButtons.style.display = "none";
