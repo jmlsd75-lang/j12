@@ -878,7 +878,7 @@ cashBookBtn.onclick = async () => {
 
   cashBookBody.innerHTML = "";
   cashBookContainer.style.display = "block";
-
+listTableContainer.style.display = "none"; // ✅ FIX
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "none");
 
@@ -951,7 +951,6 @@ cashBookBtn.onclick = async () => {
     <td></td>
     <td></td>
     <td style="border-top:2px solid black;">${finalTotal}</td>
-
     <td></td>
     <td></td>
     <td></td>
