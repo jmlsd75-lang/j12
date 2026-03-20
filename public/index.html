@@ -178,6 +178,9 @@ BACK
 <button style="background:#dc3545;color:white;" disabled>INCOME STATEMENT</button>
 
 <button style="background:#198754;color:white;" disabled>BALANCE SHEET</button>
+<button onclick="goBackToBusiness()" style="background:#6c757d;color:white;">
+  ⬅ BACK
+</button>
 
 <!-- TABLE -->
 <div id="listTableContainer" style="display:none; width:90%; overflow:auto;">
@@ -1132,6 +1135,9 @@ window.editTransaction = async (id) => {
   alert("Updated!");
   listBtn.click(); // 🔁 reload
 };
+function goBackToBusiness() {
+  showPage("business");
+}
 </script>
 </body>
 </html>     
