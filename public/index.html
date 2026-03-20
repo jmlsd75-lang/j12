@@ -908,16 +908,21 @@ cashBookBtn.onclick = async () => {
     if (!folioMap[tx.detail]) {
       folioMap[tx.detail] = folio++;
     }
+const entry = {
+  date: tx.date || new Date(tx.createdAt).toLocaleDateString(),
+  detail: tx.detail,
+  folio: folioMap[tx.detail],
+  amount: Number(tx.amount) || 0
+};
+if (tx.method === "CASH") {
 
-    const entry = {
-      date: new Date(tx.createdAt).toLocaleDateString(),
-      detail: tx.detail,
-      folio: folioMap[tx.detail],
-      amount: Number(tx.amount) || 0
-    };
+  if (tx.type === "IN") {
+    dr.push(entry);
+  } else if (tx.type === "OUT") {
+    cr.push(entry);
+  }
 
-    if (tx.type === "IN") dr.push(entry);
-    else cr.push(entry);
+}
   });
 
   // ✅ totals
