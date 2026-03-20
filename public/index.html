@@ -252,7 +252,8 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
 
 <tbody id="cashBookBody"></tbody>
 </table>
-<button onclick="backFromCashBook()" 
+<button id="backFromCashBookBtn"
+document.getElementById("backFromCashBookBtn").onclick = backFromCashBook;
 style="
 margin-top:20px;
 padding:12px 30px;
@@ -965,11 +966,16 @@ backFromListBtn.onclick = () => {
 function backFromCashBook() {
   cashBookContainer.style.display = "none";
 
-  const viewPage = document.getElementById("viewPage");
-  viewPage.style.display = "flex";
-
+  // show buttons again
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "inline-block");
+
+  // make sure view page layout is restored
+  const viewPage = document.getElementById("viewPage");
+  viewPage.style.display = "flex";
+  viewPage.style.flexDirection = "column";
+  viewPage.style.justifyContent = "center";
+  viewPage.style.alignItems = "center";
 }
 </script>
 </body>
