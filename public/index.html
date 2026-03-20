@@ -872,89 +872,124 @@ backFromListBtn.onclick = () => {
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "inline-block");
 };
-// totals
-const totalDr = dr.reduce((a, b) => a + b.amount, 0);
-const totalCr = cr.reduce((a, b) => a + b.amount, 0);
-const diff = Math.abs(totalDr - totalCr);
-const today = new Date().toLocaleDateString();
+cashBookBtn.onclick = async () => {
+  const user = auth.currentUser;
+  if (!user) return;
 
-// ✅ Balance c/d (before total)
-if (diff > 0) {
-  if (totalDr > totalCr) {
-    cr.push({ date: today, detail: "Balance", folio: "c/d", amount: diff });
-  } else {
-    dr.push({ date: today, detail: "Balance", folio: "c/d", amount: diff });
+  cashBookBody.innerHTML = "";
+  cashBookContainer.style.display = "block";
+
+  const buttons = document.querySelectorAll("#viewPage > button");
+  buttons.forEach(btn => btn.style.display = "none");
+
+  const q = query(
+    collection(db, "users", user.email, "transactions"),
+    orderBy("createdAt", "asc")
+  );
+
+  const snapshot = await getDocs(q);
+
+  let dr = [];
+  let cr = [];
+
+  snapshot.forEach(doc => {
+    const tx = doc.data();
+
+    const entry = {
+      date: new Date(tx.createdAt).toLocaleDateString(),
+      detail: tx.detail,
+      folio: "",
+      amount: tx.amount
+    };
+
+    if (tx.type === "IN") dr.push(entry);
+    else cr.push(entry);
+  });
+
+  // ✅ totals
+  const totalDr = dr.reduce((a, b) => a + b.amount, 0);
+  const totalCr = cr.reduce((a, b) => a + b.amount, 0);
+  const diff = Math.abs(totalDr - totalCr);
+  const today = new Date().toLocaleDateString();
+
+  // ✅ Balance c/d
+  if (diff > 0) {
+    if (totalDr > totalCr) {
+      cr.push({ date: today, detail: "Balance", folio: "c/d", amount: diff });
+    } else {
+      dr.push({ date: today, detail: "Balance", folio: "c/d", amount: diff });
+    }
   }
-}
 
-// ✅ Render rows
-const max = Math.max(dr.length, cr.length);
+  // ✅ render rows
+  const max = Math.max(dr.length, cr.length);
 
-for (let i = 0; i < max; i++) {
-  const d = dr[i] || {};
-  const c = cr[i] || {};
+  for (let i = 0; i < max; i++) {
+    const d = dr[i] || {};
+    const c = cr[i] || {};
+
+    cashBookBody.innerHTML += `
+    <tr>
+      <td>${d.date || ""}</td>
+      <td>${d.detail || ""}</td>
+      <td>${d.folio || ""}</td>
+      <td>${d.amount || ""}</td>
+
+      <td>${c.date || ""}</td>
+      <td>${c.detail || ""}</td>
+      <td>${c.folio || ""}</td>
+      <td>${c.amount || ""}</td>
+    </tr>`;
+  }
+
+  // ✅ totals row (amount column only + border)
+  const finalTotal = Math.max(totalDr, totalCr);
 
   cashBookBody.innerHTML += `
-  <tr>
-    <td>${d.date || ""}</td>
-    <td>${d.detail || ""}</td>
-    <td>${d.folio || ""}</td>
-    <td>${d.amount || ""}</td>
+  <tr style="font-weight:bold;">
+    <td></td>
+    <td></td>
+    <td></td>
+    <td style="border-top:2px solid black;">${finalTotal}</td>
 
-    <td>${c.date || ""}</td>
-    <td>${c.detail || ""}</td>
-    <td>${c.folio || ""}</td>
-    <td>${c.amount || ""}</td>
-  </tr>`;
-}
+    <td></td>
+    <td></td>
+    <td></td>
+    <td style="border-top:2px solid black;">${finalTotal}</td>
+  </tr>
+  `;
 
-// ✅ Totals (amount column ONLY)
-const finalTotal = Math.max(totalDr, totalCr);
+  // ✅ Balance b/d
+  if (diff > 0) {
+    if (totalDr > totalCr) {
+      cashBookBody.innerHTML += `
+      <tr>
+        <td>${today}</td>
+        <td>Balance</td>
+        <td>b/d</td>
+        <td>${diff}</td>
 
-cashBookBody.innerHTML += `
-<tr style="font-weight:bold; border-top:2px solid black;">
-  <td></td>
-  <td></td>
-  <td></td>
-  <td>${finalTotal}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>`;
+    } else {
+      cashBookBody.innerHTML += `
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
 
-  <td></td>
-  <td></td>
-  <td></td>
-  <td>${finalTotal}</td>
-</tr>
-`;
-
-// ✅ Balance b/d (after total)
-if (diff > 0) {
-  if (totalDr > totalCr) {
-    cashBookBody.innerHTML += `
-    <tr>
-      <td>${today}</td>
-      <td>Balance</td>
-      <td>b/d</td>
-      <td>${diff}</td>
-
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>`;
-  } else {
-    cashBookBody.innerHTML += `
-    <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-
-      <td>${today}</td>
-      <td>Balance</td>
-      <td>b/d</td>
-      <td>${diff}</td>
-    </tr>`;
+        <td>${today}</td>
+        <td>Balance</td>
+        <td>b/d</td>
+        <td>${diff}</td>
+      </tr>`;
+    }
   }
-}
+};
 function backFromCashBook() {
   // hide cash book
   document.getElementById("cashBookContainer").style.display = "none";
