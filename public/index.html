@@ -872,6 +872,7 @@ backFromListBtn.onclick = () => {
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "inline-block");
 };
+// totals
 const totalDr = dr.reduce((a, b) => a + b.amount, 0);
 const totalCr = cr.reduce((a, b) => a + b.amount, 0);
 const diff = Math.abs(totalDr - totalCr);
@@ -907,15 +908,19 @@ for (let i = 0; i < max; i++) {
   </tr>`;
 }
 
-// ✅ Totals row (amount column only)
+// ✅ Totals (amount column ONLY)
 const finalTotal = Math.max(totalDr, totalCr);
 
 cashBookBody.innerHTML += `
 <tr style="font-weight:bold; border-top:2px solid black;">
-  <td></td><td></td><td></td>
+  <td></td>
+  <td></td>
+  <td></td>
   <td>${finalTotal}</td>
 
-  <td></td><td></td><td></td>
+  <td></td>
+  <td></td>
+  <td></td>
   <td>${finalTotal}</td>
 </tr>
 `;
@@ -930,12 +935,18 @@ if (diff > 0) {
       <td>b/d</td>
       <td>${diff}</td>
 
-      <td></td><td></td><td></td><td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>`;
   } else {
     cashBookBody.innerHTML += `
     <tr>
-      <td></td><td></td><td></td><td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
 
       <td>${today}</td>
       <td>Balance</td>
