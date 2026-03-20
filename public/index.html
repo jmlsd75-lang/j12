@@ -891,20 +891,24 @@ listTableContainer.style.display = "none"; // ✅ FIX
 
   let dr = [];
   let cr = [];
+snapshot.forEach(doc => {
+  const tx = doc.data();
 
-  snapshot.forEach(doc => {
-    const tx = doc.data();
+  // ✅ assign folio number
+  if (!folioMap[tx.detail]) {
+    folioMap[tx.detail] = folio++;
+  }
 
-    const entry = {
-      date: new Date(tx.createdAt).toLocaleDateString(),
-      detail: tx.detail,
-      folio: "",
-      amount: tx.amount
-    };
+  const entry = {
+    date: new Date(tx.createdAt).toLocaleDateString(),
+    detail: tx.detail,
+    folio: folioMap[tx.detail], // 🔥 HERE
+    amount: tx.amount
+  };
 
-    if (tx.type === "IN") dr.push(entry);
-    else cr.push(entry);
-  });
+  if (tx.type === "IN") dr.push(entry);
+  else cr.push(entry);
+});
 
   // ✅ totals
   const totalDr = dr.reduce((a, b) => a + b.amount, 0);
