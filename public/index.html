@@ -488,54 +488,50 @@ function showPage(page) {
   previewPage.style.display = "none"; 
   timerPage.style.display = "none";
   businessPage.style.display = "none";
+
+  // ❌ HIDE logout by default on all pages
+  logoutBtn.style.display = "none";
+
   if(page === 'main' && auth.currentUser) {
-    userDisplay.style.display = "block"; logoutBtn.style.display = "block";
+    userDisplay.style.display = "block";
+
     const endTime = localStorage.getItem("sessionEnd");
-    if (endTime && Date.now() < parseInt(endTime)) { accessBtn.style.display = "block"; } 
-    else { payBtn.style.display = "block"; }
+    if (endTime && Date.now() < parseInt(endTime)) { 
+      accessBtn.style.display = "block"; 
+    } else { 
+      payBtn.style.display = "block"; 
+    }
   }
+
+  else if (page === 'business') { 
+    businessPage.style.display = "flex";
+
+    // ✅ SHOW logout ONLY here
+    logoutBtn.style.display = "block";
+
+    businessPage.style.flexDirection = "column";
+    businessPage.style.justifyContent = "center";
+    businessPage.style.alignItems = "center";
+  }
+
   else if (page === 'view') {
-  const vp = document.getElementById("viewPage");
+    const vp = document.getElementById("viewPage");
+    vp.style.display = "flex";
+    vp.style.flexDirection = "column";
+    vp.style.justifyContent = "center";
+    vp.style.alignItems = "center";
+  }
 
-  vp.style.display = "flex";
-  vp.style.flexDirection = "column";
-  vp.style.justifyContent = "center";
-  vp.style.alignItems = "center";
-}
-  else if (page === 'pay') { payPage.style.display = "flex"; } 
-  else if (page === 'camera') { cameraMenuPage.style.display = "flex"; } 
   else if (page === 'transaction') {
-  document.getElementById("transactionPage").style.display = "flex";
-document.getElementById("viewPage").style.display = "none";
-  // RESET EVERYTHING
-  detailInput.value = "";
-  amountInput.value = "";
-  selectedButtons.innerHTML = "";
+    document.getElementById("transactionPage").style.display = "flex";
+    document.getElementById("viewPage").style.display = "none";
+  }
 
-  detailInput.style.display = "block";
-  amountInput.style.display = "none";
-
-  typeButtons.style.display = "none";
-  methodButtons.style.display = "none";
-  finalButtons.style.display = "none";
-
-  detail = "";
-  amount = "";
-  type = "";
-  method = "";
+  else if (page === 'timer') {
+    timerPage.style.display = "flex";
+    userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User";
+  }
 }
-  else if (page === 'preview') { previewPage.style.display = "flex"; } 
-  else if (page === 'timer') { timerPage.style.display = "flex"; userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; }
-else if (page === 'business') { 
-  businessPage.style.display = "flex";
-
-  // ✅ force same layout for everyone
-  businessPage.style.flexDirection = "column";
-  businessPage.style.justifyContent = "center";
-  businessPage.style.alignItems = "center";
-}
-}
-
 payBtn.onclick = () => showPage('pay');
 backBtn.onclick = () => showPage('main');
 nextBtn.onclick = () => showPage('camera');
