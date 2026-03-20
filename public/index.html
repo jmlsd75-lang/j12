@@ -95,8 +95,6 @@
 </style>
 </head>
 <body>
-
-<div id="userDisplay"></div>
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
   
@@ -108,6 +106,11 @@
 <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
 <input type="file" id="photosInput" accept="image/*" style="display:none;">
 
+<div id="viewPage" class="page">...</div>
+<div id="cashBookContainer" class="page">...</div>
+<div id="listTableContainer" class="page">...</div>
+<div id="userDisplay"></div>
+<div id="previewPage">
 <div id="payPage">
   <div class="pay-info">
     <p>Pay through:</p>
@@ -129,7 +132,6 @@
   <button id="backFromCameraBtn">BACK</button>
 </div>
 
-<div id="previewPage">
   <img id="previewImage" src="" alt="Payment Preview">
   <div class="preview-actions">
     <button id="submitBtn">SUBMIT</button>
@@ -182,10 +184,19 @@ BACK
 
 <!-- TABLE -->
 <div id="listTableContainer" style="display:none; width:90%; overflow:auto;">
-  <button id="backFromListBtn" 
-style="margin-top:20px; padding:12px 25px; background:#dc3545; color:white; border:none; border-radius:6px;">
-BACK
-</button>
+  <div style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
+  <button id="backFromListBtn" style="padding:12px 25px; background:#dc3545; color:white; border:none; border-radius:6px;">
+    BACK
+  </button>
+
+  <button id="deleteModeBtn" style="padding:12px 25px; background:#fd7e14; color:white; border:none; border-radius:6px;">
+    DELETE
+  </button>
+
+  <button id="editModeBtn" style="padding:12px 25px; background:#0d6efd; color:white; border:none; border-radius:6px;">
+    EDIT
+  </button>
+</div>
   <table border="1" style="border-collapse:collapse; width:100%; margin-top:20px;">
     <thead style="background:#333; color:white;">
       <tr>
@@ -269,17 +280,25 @@ BACK
 
 </div>
 <script type="module">
-  import { 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { 
+  getAuth, 
+  GoogleAuthProvider, 
+  signInWithPopup, 
+  signOut, 
+  onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { 
   getFirestore, 
   collection, 
   addDoc, 
   getDocs, 
   query, 
-  orderBy 
+  orderBy,
+  deleteDoc,
+  doc,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -844,8 +863,8 @@ listBtn.onclick = async () => {
   } else {
     let i = 1;
     snapshot.forEach(doc => {
-      const tx = doc.data();
-
+  const tx = doc.data();
+  tx.id = doc.id; // ✅ ADD THIS
       transactions.push(tx); // ✅ SAVE HERE
 
       listTableBody.innerHTML += `
@@ -1011,6 +1030,108 @@ const backBtnCash = document.getElementById("backFromCashBookBtn");
 if (backBtnCash) {
   backBtnCash.onclick = backFromCashBook;
 }
+// OPEN CASH BOOK
+function openCashBook() {
+  cashBookContainer.style.display = "block";
+  document.getElementById("viewPage").style.display = "none";
+  listTableContainer.style.display = "none";
+
+  // ✅ save page
+  localStorage.setItem("currentPage", "cashBook");
+}
+window.addEventListener("load", () => {
+  const savedPage = localStorage.getItem("currentPage") || "viewPage";
+  showPage(savedPage);
+});
+const deleteModeBtn = document.getElementById("deleteModeBtn");
+
+deleteModeBtn.onclick = () => {
+  listTableBody.innerHTML = "";
+
+  transactions.forEach((tx, index) => {
+    listTableBody.innerHTML += `
+      <tr>
+        <td colspan="6">
+          <button style="width:100%; padding:15px; background:#fd7e14; color:white;"
+          onclick="deleteTransaction('${tx.id}')">
+            ${index+1} | ${tx.date} | ${tx.detail} | ${tx.type} | ${tx.method} | ${tx.amount}
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+};
+window.deleteTransaction = async (id) => {
+  if (!confirm("Delete this transaction?")) return;
+
+  const user = auth.currentUser;
+  if (!user) return;
+
+  await deleteDoc(doc(db, "users", user.email, "transactions", id));
+
+  alert("Deleted!");
+  listBtn.click(); // 🔁 reload table
+};
+const editModeBtn = document.getElementById("editModeBtn");
+
+editModeBtn.onclick = () => {
+  listTableBody.innerHTML = "";
+
+  transactions.forEach((tx, index) => {
+    listTableBody.innerHTML += `
+      <tr>
+        <td colspan="6">
+          <button style="width:100%; padding:15px; background:#0d6efd; color:white;"
+          onclick="editTransaction('${tx.id}')">
+            ${index+1} | ${tx.detail} | ${tx.amount}
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+};
+window.editTransaction = async (id) => {
+  const choice = prompt(
+    "Edit:\n1 Detail\n2 Amount\n3 Type(IN/OUT)\n4 Method(CASH/CREDIT/BANK)"
+  );
+
+  if (!choice) return;
+
+  let field = "";
+  let value = "";
+
+  if (choice === "1") {
+    field = "detail";
+    value = prompt("Enter new detail:");
+  }
+  else if (choice === "2") {
+    field = "amount";
+    value = Number(prompt("Enter new amount:"));
+  }
+  else if (choice === "3") {
+    field = "type";
+    value = prompt("Enter IN or OUT:");
+  }
+  else if (choice === "4") {
+    field = "method";
+    value = prompt("Enter CASH / CREDIT / BANK:");
+  }
+
+  if (!value) return;
+
+  if (!confirm("Confirm update?")) return;
+
+  const user = auth.currentUser;
+  if (!user) return;
+
+  await updateDoc(
+    doc(db, "users", user.email, "transactions", id),
+    { [field]: value }
+  );
+
+  alert("Updated!");
+  listBtn.click(); // 🔁 reload
+};
 </script>
 </body>
 </html>     
