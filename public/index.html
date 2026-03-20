@@ -964,6 +964,11 @@ backFromListBtn.onclick = () => {
 };
 function backFromCashBook() {
   cashBookContainer.style.display = "none";
+
+  // 🔥 SHOW buttons again
+  const buttons = document.querySelectorAll("#viewPage > button");
+  buttons.forEach(btn => btn.style.display = "inline-block");
+
   showPage('view');
 }
 </script>
