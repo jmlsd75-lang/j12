@@ -95,6 +95,8 @@
 </style>
 </head>
 <body>
+
+<div id="userDisplay"></div>
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
   
@@ -106,11 +108,6 @@
 <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
 <input type="file" id="photosInput" accept="image/*" style="display:none;">
 
-<div id="viewPage" class="page">...</div>
-<div id="cashBookContainer" class="page">...</div>
-<div id="listTableContainer" class="page">...</div>
-<div id="userDisplay"></div>
-<div id="previewPage">
 <div id="payPage">
   <div class="pay-info">
     <p>Pay through:</p>
@@ -132,6 +129,7 @@
   <button id="backFromCameraBtn">BACK</button>
 </div>
 
+<div id="previewPage">
   <img id="previewImage" src="" alt="Payment Preview">
   <div class="preview-actions">
     <button id="submitBtn">SUBMIT</button>
@@ -1013,35 +1011,6 @@ const backBtnCash = document.getElementById("backFromCashBookBtn");
 if (backBtnCash) {
   backBtnCash.onclick = backFromCashBook;
 }
-// OPEN CASH BOOK
-function openCashBook() {
-  cashBookContainer.style.display = "block";
-  document.getElementById("viewPage").style.display = "none";
-  listTableContainer.style.display = "none";
-
-  // ✅ save page
-  localStorage.setItem("currentPage", "cashBook");
-}
-
-function showPage(pageId) {
-  // hide ALL pages
-  document.querySelectorAll(".page").forEach(p => {
-    p.style.display = "none";
-  });
-
-  // show selected page
-  const page = document.getElementById(pageId);
-  if (page) {
-    page.style.display = "flex";
-  }
-
-  // save current page
-  localStorage.setItem("currentPage", pageId);
-}
-window.addEventListener("load", () => {
-  const savedPage = localStorage.getItem("currentPage") || "viewPage";
-  showPage(savedPage);
-});
 </script>
 </body>
 </html>     
