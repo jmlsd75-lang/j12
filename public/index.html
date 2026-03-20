@@ -941,19 +941,6 @@ cashBookBody.innerHTML += `
   <td>${finalTotal}</td>
 </tr>
 `;
-cashBookBody.innerHTML += `
-<tr style="font-weight:bold; background:#eee;">
-  <td></td>
-  <td>TOTAL</td>
-  <td></td>
-  <td>${finalTotal}</td>
-
-  <td></td>
-  <td>TOTAL</td>
-  <td></td>
-  <td>${finalTotal}</td>
-</tr>
-`;
 if (diff > 0) {
   if (totalDr > totalCr) {
     dr.push({ date: today, detail: "Balance b/d", folio: "", amount: diff });
@@ -994,8 +981,13 @@ listTableContainer.style.display = "none";
 cashBookContainer.style.display = "block";
 };
 function backFromCashBook() {
+  // hide cash book
   document.getElementById("cashBookContainer").style.display = "none";
 
+  // show view page
+  document.getElementById("viewPage").style.display = "flex";
+
+  // show all buttons again
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "inline-block");
 }
