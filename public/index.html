@@ -486,6 +486,7 @@ accessBtn.onclick = () => {
 function showPage(page) {
   businessPage.style = "";
   document.getElementById("viewPage").style.display = "none";
+  document.getElementById("cashBookContainer").style.display = "none";
   document.getElementById("transactionPage").style.display = "none";
   payPage.style.display = "none"; 
   cameraMenuPage.style.display = "none"; 
@@ -1008,16 +1009,14 @@ if (tx.method === "CASH") {
     }
   }
 };
-
-// ✅ BACK BUTTON
 function backFromCashBook() {
   document.getElementById("cashBookContainer").style.display = "none";
-  document.getElementById("viewPage").style.display = "flex";
 
+  showPage('view'); // ✅ use your page system
+  // show buttons again
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "inline-block");
 }
-
 // ✅ RESET TRANSACTION (CANCEL)
 function resetTransaction() {
   detail = "";
