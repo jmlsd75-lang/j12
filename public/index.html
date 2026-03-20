@@ -953,15 +953,8 @@ cashBookBtn.onclick = () => {
   </tr>`;
 };
 function backFromCashBook() {
-  // hide cash book
-  document.getElementById("cashBookContainer").style.display = "none";
-
-  // show view page
-  document.getElementById("viewPage").style.display = "flex";
-
-  // show all buttons again
-  const buttons = document.querySelectorAll("#viewPage > button");
-  buttons.forEach(btn => btn.style.display = "inline-block");
+  cashBookContainer.style.display = "none";
+  showPage('view');
 }
 </script>
 </body>
