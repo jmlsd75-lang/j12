@@ -870,12 +870,22 @@ backFromListBtn.onclick = () => {
   // show buttons again
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "inline-block");
-};
-cashBookBtn.onclick = () => {
-  if (transactions.length === 0) {
-    alert("Open LIST first");
-    return;
-  }
+};cashBookBtn.onclick = async () => {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  transactions = [];
+
+  const q = query(
+    collection(db, "users", user.email, "transactions"),
+    orderBy("createdAt", "desc")
+  );
+
+  const snapshot = await getDocs(q);
+
+  snapshot.forEach(doc => {
+    transactions.push(doc.data());
+  });
 
   cashBookBody.innerHTML = "";
   cashBookContainer.style.display = "block";
