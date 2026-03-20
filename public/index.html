@@ -106,9 +106,6 @@
 <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
 <input type="file" id="photosInput" accept="image/*" style="display:none;">
 
-<div id="viewPage" class="page">...</div>
-<div id="cashBookContainer" class="page">...</div>
-<div id="listTableContainer" class="page">...</div>
 <div id="userDisplay"></div>
 <div id="previewPage">
 <div id="payPage">
@@ -999,15 +996,6 @@ if (diff > 0) {
     `}
   </tr>`;
 }
-// OPEN CASH BOOK
-function openCashBook() {
-  cashBookContainer.style.display = "block";
-
-  // hide other sections
-  document.getElementById("viewPage").style.display = "none";
-  listTableContainer.style.display = "none";
-}
-
 }
 // BACK FROM CASH BOOK
 function backFromCashBook() {
@@ -1035,12 +1023,10 @@ function openCashBook() {
   cashBookContainer.style.display = "block";
   document.getElementById("viewPage").style.display = "none";
   listTableContainer.style.display = "none";
-
-  // ✅ save page
-  localStorage.setItem("currentPage", "cashBook");
+localStorage.setItem("currentPage", "view");
 }
 window.addEventListener("load", () => {
-  const savedPage = localStorage.getItem("currentPage") || "viewPage";
+  const savedPage = localStorage.getItem("currentPage") || "view";
   showPage(savedPage);
 });
 const deleteModeBtn = document.getElementById("deleteModeBtn");
