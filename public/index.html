@@ -822,16 +822,14 @@ listBtn.onclick = async () => {
   const user = auth.currentUser;
   if (!user) return;
 
-  // ✅ hide cash book ONLY
+  transactions = []; // ✅ store globally
+
   cashBookContainer.style.display = "none";
 
-  // ✅ hide buttons
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "none");
 
-  // ✅ show list container
   listTableContainer.style.display = "block";
-
   listTableBody.innerHTML = "";
 
   const q = query(
@@ -842,15 +840,13 @@ listBtn.onclick = async () => {
   const snapshot = await getDocs(q);
 
   if (snapshot.empty) {
-    listTableBody.innerHTML = `
-      <tr>
-        <td colspan="6">No transactions</td>
-      </tr>
-    `;
+    listTableBody.innerHTML = `<tr><td colspan="6">No transactions</td></tr>`;
   } else {
     let i = 1;
     snapshot.forEach(doc => {
       const tx = doc.data();
+
+      transactions.push(tx); // ✅ SAVE HERE
 
       listTableBody.innerHTML += `
         <tr>
@@ -875,51 +871,49 @@ backFromListBtn.onclick = () => {
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "inline-block");
 };
-cashBookBtn.onclick = async () => {
-  const user = auth.currentUser;
-  if (!user) return;
+cashBookBtn.onclick = () => {
+  if (transactions.length === 0) {
+    alert("Open LIST first");
+    return;
+  }
 
   cashBookBody.innerHTML = "";
   cashBookContainer.style.display = "block";
-listTableContainer.style.display = "none"; // ✅ FIX
+  listTableContainer.style.display = "none";
+
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "none");
 
-  const q = query(
-    collection(db, "users", user.email, "transactions"),
-    orderBy("createdAt", "asc")
-  );
-
-  const snapshot = await getDocs(q);
-
   let dr = [];
   let cr = [];
-snapshot.forEach(doc => {
-  const tx = doc.data();
 
-  // ✅ assign folio number
-  if (!folioMap[tx.detail]) {
-    folioMap[tx.detail] = folio++;
-  }
+  let folio = 1;
+  let folioMap = {};
 
-  const entry = {
-    date: new Date(tx.createdAt).toLocaleDateString(),
-    detail: tx.detail,
-    folio: folioMap[tx.detail], // 🔥 HERE
-    amount: tx.amount
-  };
+  transactions
+    .sort((a, b) => a.createdAt - b.createdAt) // oldest first
+    .forEach(tx => {
 
-  if (tx.type === "IN") dr.push(entry);
-  else cr.push(entry);
-});
+      if (!folioMap[tx.detail]) {
+        folioMap[tx.detail] = folio++;
+      }
 
-  // ✅ totals
+      const entry = {
+        date: new Date(tx.createdAt).toLocaleDateString(),
+        detail: tx.detail,
+        folio: folioMap[tx.detail],
+        amount: tx.amount
+      };
+
+      if (tx.type === "IN") dr.push(entry);
+      else cr.push(entry);
+    });
+
   const totalDr = dr.reduce((a, b) => a + b.amount, 0);
   const totalCr = cr.reduce((a, b) => a + b.amount, 0);
   const diff = Math.abs(totalDr - totalCr);
   const today = new Date().toLocaleDateString();
 
-  // ✅ Balance c/d
   if (diff > 0) {
     if (totalDr > totalCr) {
       cr.push({ date: today, detail: "Balance", folio: "c/d", amount: diff });
@@ -928,7 +922,6 @@ snapshot.forEach(doc => {
     }
   }
 
-  // ✅ render rows
   const max = Math.max(dr.length, cr.length);
 
   for (let i = 0; i < max; i++) {
@@ -949,52 +942,15 @@ snapshot.forEach(doc => {
     </tr>`;
   }
 
-  // ✅ totals row (amount column only + border)
   const finalTotal = Math.max(totalDr, totalCr);
 
   cashBookBody.innerHTML += `
   <tr style="font-weight:bold;">
-    <td></td>
-    <td></td>
-    <td></td>
+    <td></td><td></td><td></td>
     <td style="border-top:2px solid black;">${finalTotal}</td>
-    <td></td>
-    <td></td>
-    <td></td>
+    <td></td><td></td><td></td>
     <td style="border-top:2px solid black;">${finalTotal}</td>
-  </tr>
-  `;
-
-  // ✅ Balance b/d
-  if (diff > 0) {
-    if (totalDr > totalCr) {
-      cashBookBody.innerHTML += `
-      <tr>
-        <td>${today}</td>
-        <td>Balance</td>
-        <td>b/d</td>
-        <td>${diff}</td>
-
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>`;
-    } else {
-      cashBookBody.innerHTML += `
-      <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-
-        <td>${today}</td>
-        <td>Balance</td>
-        <td>b/d</td>
-        <td>${diff}</td>
-      </tr>`;
-    }
-  }
+  </tr>`;
 };
 function backFromCashBook() {
   // hide cash book
