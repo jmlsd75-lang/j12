@@ -444,7 +444,7 @@ onAuthStateChanged(auth, (user) => {
     userDisplay.style.display = "block";
 
     // ✅ SHOW logout only when logged in
-    logoutBtn.style.display = "block";
+    logoutBtn.style.display = "none";
 
     if (isAdmin) {
       showPage('timer');
@@ -480,6 +480,7 @@ accessBtn.onclick = () => {
   showPage('business'); 
 };
 function showPage(page) {
+  logoutBtn.style.display = "none";
   businessPage.style = "";
   document.getElementById("viewPage").style.display = "none";
   document.getElementById("transactionPage").style.display = "none";
@@ -488,54 +489,52 @@ function showPage(page) {
   previewPage.style.display = "none"; 
   timerPage.style.display = "none";
   businessPage.style.display = "none";
+
+  // ❌ HIDE logout by default on all pages
+  logoutBtn.style.display = "none";
+
   if(page === 'main' && auth.currentUser) {
-    userDisplay.style.display = "block"; logoutBtn.style.display = "block";
+    userDisplay.style.display = "block";
+
     const endTime = localStorage.getItem("sessionEnd");
-    if (endTime && Date.now() < parseInt(endTime)) { accessBtn.style.display = "block"; } 
-    else { payBtn.style.display = "block"; }
+    if (endTime && Date.now() < parseInt(endTime)) { 
+      accessBtn.style.display = "block"; 
+    } else { 
+      payBtn.style.display = "block"; 
+    }
   }
+
+  else if (page === 'business') { 
+    businessPage.style.display = "flex";
+
+    // ✅ SHOW logout ONLY here
+    logoutBtn.style.display = "block";
+
+    businessPage.style.flexDirection = "column";
+    businessPage.style.justifyContent = "center";
+    businessPage.style.alignItems = "center";
+  }
+
   else if (page === 'view') {
-  const vp = document.getElementById("viewPage");
+    const vp = document.getElementById("viewPage");
+    vp.style.display = "flex";
+    vp.style.flexDirection = "column";
+    vp.style.justifyContent = "center";
+    vp.style.alignItems = "center";
+  }
 
-  vp.style.display = "flex";
-  vp.style.flexDirection = "column";
-  vp.style.justifyContent = "center";
-  vp.style.alignItems = "center";
-}
-  else if (page === 'pay') { payPage.style.display = "flex"; } 
-  else if (page === 'camera') { cameraMenuPage.style.display = "flex"; } 
   else if (page === 'transaction') {
-  document.getElementById("transactionPage").style.display = "flex";
-document.getElementById("viewPage").style.display = "none";
-  // RESET EVERYTHING
-  detailInput.value = "";
-  amountInput.value = "";
-  selectedButtons.innerHTML = "";
-
-  detailInput.style.display = "block";
-  amountInput.style.display = "none";
-
-  typeButtons.style.display = "none";
-  methodButtons.style.display = "none";
-  finalButtons.style.display = "none";
-
-  detail = "";
-  amount = "";
-  type = "";
-  method = "";
-}
-  else if (page === 'preview') { previewPage.style.display = "flex"; } 
-  else if (page === 'timer') { timerPage.style.display = "flex"; userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; }
-else if (page === 'business') { 
-  businessPage.style.display = "flex";
-
-  // ✅ force same layout for everyone
-  businessPage.style.flexDirection = "column";
-  businessPage.style.justifyContent = "center";
-  businessPage.style.alignItems = "center";
+    document.getElementById("transactionPage").style.display = "flex";
+    document.getElementById("viewPage").style.display = "none";
+  }
+else if (page === 'timer') { 
+  timerPage.style.display = "flex"; 
+  userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; 
+  
+  // ✅ show logout only here
+  logoutBtn.style.display = "block";
 }
 }
-
 payBtn.onclick = () => showPage('pay');
 backBtn.onclick = () => showPage('main');
 nextBtn.onclick = () => showPage('camera');
@@ -881,6 +880,10 @@ cashBookBtn.onclick = async () => {
   if (!user) return;
 
   cashBookBody.innerHTML = "";
+  cashBookContainer.style.display = "block";
+listTableContainer.style.display = "none"; // ✅ FIX
+  const buttons = document.querySelectorAll("#viewPage > button");
+  buttons.forEach(btn => btn.style.display = "none");
 
   const q = query(
     collection(db, "users", user.email, "transactions"),
@@ -891,115 +894,116 @@ cashBookBtn.onclick = async () => {
 
   let dr = [];
   let cr = [];
-  let folio = 1;
-  let folioMap = {};
+snapshot.forEach(doc => {
+  const tx = doc.data();
 
-  snapshot.forEach(doc => {
-    const tx = doc.data();
+  // ✅ assign folio number
+  if (!folioMap[tx.detail]) {
+    folioMap[tx.detail] = folio++;
+  }
 
-    const key = tx.detail;
+  const entry = {
+    date: new Date(tx.createdAt).toLocaleDateString(),
+    detail: tx.detail,
+    folio: folioMap[tx.detail], // 🔥 HERE
+    amount: tx.amount
+  };
 
-    if (!folioMap[key]) {
-      folioMap[key] = folio++;
-    }
+  if (tx.type === "IN") dr.push(entry);
+  else cr.push(entry);
+});
 
-    const row = {
-      date: tx.date,
-      detail: tx.detail,
-      folio: folioMap[key],
-      amount: tx.amount
-    };
+  // ✅ totals
+  const totalDr = dr.reduce((a, b) => a + b.amount, 0);
+  const totalCr = cr.reduce((a, b) => a + b.amount, 0);
+  const diff = Math.abs(totalDr - totalCr);
+  const today = new Date().toLocaleDateString();
 
-    if (tx.type === "IN") {
-      dr.push(row);
+  // ✅ Balance c/d
+  if (diff > 0) {
+    if (totalDr > totalCr) {
+      cr.push({ date: today, detail: "Balance", folio: "c/d", amount: diff });
     } else {
-      cr.push(row);
+      dr.push({ date: today, detail: "Balance", folio: "c/d", amount: diff });
     }
-  });
-const totalDr = dr.reduce((a,b)=>a+b.amount,0);
-const totalCr = cr.reduce((a,b)=>a+b.amount,0);
-const diff = Math.abs(totalDr - totalCr);
-
-const today = new Date().toLocaleDateString();
-
-// ✅ Balance c/d (before total)
-if (totalDr > totalCr) {
-  cr.push({ date: "", detail: "Balance c/d", folio: "", amount: diff });
-} else if (totalCr > totalDr) {
-  dr.push({ date: "", detail: "Balance c/d", folio: "", amount: diff });
-}
-
-// ✅ TOTAL (equal both sides)
-const finalTotal = Math.max(totalDr, totalCr);
-// ✅ ADD TOTAL ROW (same row both sides)
-cashBookBody.innerHTML += `
-<tr style="font-weight:bold; background:#eee;">
-  <td></td>
-  <td>TOTAL</td>
-  <td></td>
-  <td>${finalTotal}</td>
-
-  <td></td>
-  <td>TOTAL</td>
-  <td></td>
-  <td>${finalTotal}</td>
-</tr>
-`;
-cashBookBody.innerHTML += `
-<tr style="font-weight:bold; background:#eee;">
-  <td></td>
-  <td>TOTAL</td>
-  <td></td>
-  <td>${finalTotal}</td>
-
-  <td></td>
-  <td>TOTAL</td>
-  <td></td>
-  <td>${finalTotal}</td>
-</tr>
-`;
-if (diff > 0) {
-  if (totalDr > totalCr) {
-    dr.push({ date: today, detail: "Balance b/d", folio: "", amount: diff });
-  } else {
-    cr.push({ date: today, detail: "Balance b/d", folio: "", amount: diff });
   }
-}
+
+  // ✅ render rows
   const max = Math.max(dr.length, cr.length);
-for (let i = 0; i < max; i++) {
-  const d = dr[i] || {};
-  const c = cr[i] || {};
 
-  // ✅ FIX: ensure date appears both sides
-  const dateDr = d.date || "";
-  const dateCr = c.date || "";
-  cashBookBody.innerHTML += `
-  <tr>
-    <td>${dateDr}</td>
-    <td>${d.detail || ""}</td>
-    <td>${d.folio || ""}</td>
-    <td>${d.amount || ""}</td>
+  for (let i = 0; i < max; i++) {
+    const d = dr[i] || {};
+    const c = cr[i] || {};
 
-    <td>${dateCr}</td>
-    <td>${c.detail || ""}</td>
-    <td>${c.folio || ""}</td>
-    <td>${c.amount || ""}</td>
-  </tr>
-`;
+    cashBookBody.innerHTML += `
+    <tr>
+      <td>${d.date || ""}</td>
+      <td>${d.detail || ""}</td>
+      <td>${d.folio || ""}</td>
+      <td>${d.amount || ""}</td>
+
+      <td>${c.date || ""}</td>
+      <td>${c.detail || ""}</td>
+      <td>${c.folio || ""}</td>
+      <td>${c.amount || ""}</td>
+    </tr>`;
   }
-// ✅ HIDE MENU BUTTONS
-const buttons = document.querySelectorAll("#viewPage > button");
-buttons.forEach(btn => btn.style.display = "none");
 
-// ✅ HIDE LIST
-listTableContainer.style.display = "none";
+  // ✅ totals row (amount column only + border)
+  const finalTotal = Math.max(totalDr, totalCr);
 
-// ✅ SHOW CASH BOOK
-cashBookContainer.style.display = "block";
+  cashBookBody.innerHTML += `
+  <tr style="font-weight:bold;">
+    <td></td>
+    <td></td>
+    <td></td>
+    <td style="border-top:2px solid black;">${finalTotal}</td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td style="border-top:2px solid black;">${finalTotal}</td>
+  </tr>
+  `;
+
+  // ✅ Balance b/d
+  if (diff > 0) {
+    if (totalDr > totalCr) {
+      cashBookBody.innerHTML += `
+      <tr>
+        <td>${today}</td>
+        <td>Balance</td>
+        <td>b/d</td>
+        <td>${diff}</td>
+
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+      </tr>`;
+    } else {
+      cashBookBody.innerHTML += `
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+
+        <td>${today}</td>
+        <td>Balance</td>
+        <td>b/d</td>
+        <td>${diff}</td>
+      </tr>`;
+    }
+  }
 };
 function backFromCashBook() {
+  // hide cash book
   document.getElementById("cashBookContainer").style.display = "none";
 
+  // show view page
+  document.getElementById("viewPage").style.display = "flex";
+
+  // show all buttons again
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "inline-block");
 }
