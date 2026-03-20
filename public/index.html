@@ -329,7 +329,6 @@ const detailInput = document.getElementById("detailInput");
 const amountInput = document.getElementById("amountInput");
 const selectedButtons = document.getElementById("selectedButtons");
 document.getElementById("addTransactionBtn").onclick = () => {
-  resetTransaction();   // ✅ ADD THIS
   showPage('transaction');
 };
 const typeButtons = document.getElementById("typeButtons");
@@ -428,13 +427,10 @@ document.getElementById("okBtn").onclick = async () => {
   );
 
   alert("Saved!");
-
-  resetTransaction();   // ✅ ADD THIS
   showPage("business");
 };
 document.getElementById("cancelTransBtn").onclick = () => {
-  resetTransaction();   // clear everything
-  showPage("business"); // go back
+  showPage("business");
 };
 let selectedFile = null;
 let timerInterval = null;
@@ -486,7 +482,6 @@ accessBtn.onclick = () => {
 function showPage(page) {
   businessPage.style = "";
   document.getElementById("viewPage").style.display = "none";
-  document.getElementById("cashBookContainer").style.display = "none";
   document.getElementById("transactionPage").style.display = "none";
   payPage.style.display = "none"; 
   cameraMenuPage.style.display = "none"; 
@@ -877,18 +872,13 @@ backFromListBtn.onclick = () => {
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "inline-block");
 };
-// ✅ CASH BOOK
 cashBookBtn.onclick = async () => {
-  folioMap = {};
-  folio = 1;
-
   const user = auth.currentUser;
   if (!user) return;
 
   cashBookBody.innerHTML = "";
   cashBookContainer.style.display = "block";
-  listTableContainer.style.display = "none";
-
+listTableContainer.style.display = "none"; // ✅ FIX
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "none");
 
@@ -901,30 +891,24 @@ cashBookBtn.onclick = async () => {
 
   let dr = [];
   let cr = [];
+snapshot.forEach(doc => {
+  const tx = doc.data();
 
-  snapshot.forEach(doc => {
-    const tx = doc.data();
-
-    // ✅ folio mapping
-    if (!folioMap[tx.detail]) {
-      folioMap[tx.detail] = folio++;
-    }
-const entry = {
-  date: tx.date || new Date(tx.createdAt).toLocaleDateString(),
-  detail: tx.detail,
-  folio: folioMap[tx.detail],
-  amount: Number(tx.amount) || 0
-};
-if (tx.method === "CASH") {
-
-  if (tx.type === "IN") {
-    dr.push(entry);
-  } else if (tx.type === "OUT") {
-    cr.push(entry);
+  // ✅ assign folio number
+  if (!folioMap[tx.detail]) {
+    folioMap[tx.detail] = folio++;
   }
 
-}
-  });
+  const entry = {
+    date: new Date(tx.createdAt).toLocaleDateString(),
+    detail: tx.detail,
+    folio: folioMap[tx.detail], // 🔥 HERE
+    amount: tx.amount
+  };
+
+  if (tx.type === "IN") dr.push(entry);
+  else cr.push(entry);
+});
 
   // ✅ totals
   const totalDr = dr.reduce((a, b) => a + b.amount, 0);
@@ -962,7 +946,7 @@ if (tx.method === "CASH") {
     </tr>`;
   }
 
-  // ✅ totals row
+  // ✅ totals row (amount column only + border)
   const finalTotal = Math.max(totalDr, totalCr);
 
   cashBookBody.innerHTML += `
@@ -1010,32 +994,16 @@ if (tx.method === "CASH") {
   }
 };
 function backFromCashBook() {
+  // hide cash book
   document.getElementById("cashBookContainer").style.display = "none";
 
-  showPage('view'); // ✅ use your page system
-  // show buttons again
+  // show view page
+  document.getElementById("viewPage").style.display = "flex";
+
+  // show all buttons again
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "inline-block");
 }
-// ✅ RESET TRANSACTION (CANCEL)
-function resetTransaction() {
-  detail = "";
-  amount = "";
-  type = "";
-  method = "";
-
-  detailInput.value = "";
-  amountInput.value = "";
-
-  detailInput.style.display = "block";
-  amountInput.style.display = "none";
-
-  typeButtons.style.display = "none";
-  methodButtons.style.display = "none";
-  finalButtons.style.display = "none";
-
-  selectedButtons.innerHTML = "";
-}
 </script>
 </body>
-</html>
+</html>             
