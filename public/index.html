@@ -108,6 +108,13 @@
 
 <div id="userDisplay"></div>
 <div id="previewPage">
+  <img id="previewImage" src="" alt="Payment Preview">
+  <div class="preview-actions">
+    <button id="submitBtn">SUBMIT</button>
+    <button id="cancelBtn">CANCEL</button>
+  </div>
+</div>
+
 <div id="payPage">
   <div class="pay-info">
     <p>Pay through:</p>
@@ -127,13 +134,6 @@
   <button id="openCameraBtn">CAMERA</button>
   <button id="openPhotosBtn">PHOTOS</button>
   <button id="backFromCameraBtn">BACK</button>
-</div>
-
-  <img id="previewImage" src="" alt="Payment Preview">
-  <div class="preview-actions">
-    <button id="submitBtn">SUBMIT</button>
-    <button id="cancelBtn">CANCEL</button>
-  </div>
 </div>
 
 <div id="timerPage">
@@ -355,6 +355,20 @@ let detail = "";
 let amount = "";
 let type = "";
 let method = "";
+detail = "";
+amount = "";
+type = "";
+method = "";
+
+detailInput.value = "";
+amountInput.value = "";
+
+detailInput.style.display = "block";
+amountInput.style.display = "none";
+typeButtons.style.display = "none";
+methodButtons.style.display = "none";
+finalButtons.style.display = "none";
+selectedButtons.innerHTML = "";
 let transactions = [];
 
 // STEP 1 → DETAIL
