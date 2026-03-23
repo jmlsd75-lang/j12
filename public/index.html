@@ -598,9 +598,14 @@ function handleFile(file) {
   if (!file) { showPage('main'); return; }
   selectedFile = file;
   const reader = new FileReader();
-  reader.onload = (e) => { previewImage.src = e.target.result; showPage('preview'); };
+  reader.onload = (e) => { 
+  previewImage.src = e.target.result; 
+  showPage('preview'); 
+
+  // ✅ MOVE HERE
   submitBtn.style.display = "inline-block";
-cancelBtn.style.display = "inline-block";
+  cancelBtn.style.display = "inline-block";
+};
   reader.readAsDataURL(file);
   cameraInput.value = ""; photosInput.value = "";
 }
@@ -699,7 +704,7 @@ submitBtn.onclick = async () => {
   cancelBtn.style.display = "none";
 
   currentMode = ""; // 👈 ADD THIS (VERY IMPORTANT)
-
+selectedFile = null; // 👈 ADD THIS
   return;
 }
   if (!selectedFile) { alert("No file selected."); return; }
@@ -931,7 +936,7 @@ listBtn.onclick = async () => {
 };
 const backFromListBtn = document.getElementById("backFromListBtn");
 backFromListBtn.onclick = () => {
-  showPage("view");
+  showPage("business");
 };
 cashBookBtn.onclick = async () => {
   const user = auth.currentUser;
@@ -1055,7 +1060,9 @@ function backFromCashBook() {
 const backBtnCash = document.getElementById("backFromCashBookBtn");
 
 if (backBtnCash) {
-  backBtnCash.onclick = backFromCashBook;
+  backBtnCash.onclick = () => {
+  showPage("business");
+};
 }
 // OPEN CASH BOOK
 function openCashBook() {
