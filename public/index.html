@@ -157,7 +157,10 @@ gap:25px;
 style="background:#28a745; color:white; padding:15px 30px; border:none; border-radius:8px; font-size:18px; width:220px;">
 ADD NEW TRANSACTION
 </button>
-
+<button id="stockBtn" 
+style="background:#ffc107; color:black; padding:15px 30px; border:none; border-radius:8px; font-size:18px; width:220px;">
+STOCK MANAGEMENT
+</button>
 <button id="viewBtn" 
 style="background:#6f42c1;color:white;padding:15px 30px;border:none;border-radius:8px;font-size:18px;width:220px;">
 VIEW
@@ -912,7 +915,7 @@ listBtn.onclick = async () => {
 };
 const backFromListBtn = document.getElementById("backFromListBtn");
 backFromListBtn.onclick = () => {
-  showPage("business");
+  showPage("view");
 };
 cashBookBtn.onclick = async () => {
   const user = auth.currentUser;
@@ -1030,7 +1033,7 @@ if (diff > 0) {
 }
 }
 function backFromCashBook() {
-  showPage("business");
+  showPage("view");
 }
 // BUTTON EVENT (safe)
 const backBtnCash = document.getElementById("backFromCashBookBtn");
