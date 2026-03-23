@@ -95,6 +95,8 @@
 </style>
 </head>
 <body>
+
+<div id="userDisplay"></div>
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
   
@@ -106,8 +108,6 @@
 <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
 <input type="file" id="photosInput" accept="image/*" style="display:none;">
 
-<div id="userDisplay"></div>
-<div id="previewPage">
 <div id="payPage">
   <div class="pay-info">
     <p>Pay through:</p>
@@ -129,6 +129,7 @@
   <button id="backFromCameraBtn">BACK</button>
 </div>
 
+<div id="previewPage">
   <img id="previewImage" src="" alt="Payment Preview">
   <div class="preview-actions">
     <button id="submitBtn">SUBMIT</button>
@@ -181,19 +182,10 @@ BACK
 
 <!-- TABLE -->
 <div id="listTableContainer" style="display:none; width:90%; overflow:auto;">
-  <div style="margin-top:20px; display:flex; gap:10px; justify-content:center;">
-  <button id="backFromListBtn" style="padding:12px 25px; background:#dc3545; color:white; border:none; border-radius:6px;">
-    BACK
-  </button>
-
-  <button id="deleteModeBtn" style="padding:12px 25px; background:#fd7e14; color:white; border:none; border-radius:6px;">
-    DELETE
-  </button>
-
-  <button id="editModeBtn" style="padding:12px 25px; background:#0d6efd; color:white; border:none; border-radius:6px;">
-    EDIT
-  </button>
-</div>
+  <button id="backFromListBtn" 
+style="margin-top:20px; padding:12px 25px; background:#dc3545; color:white; border:none; border-radius:6px;">
+BACK
+</button>
   <table border="1" style="border-collapse:collapse; width:100%; margin-top:20px;">
     <thead style="background:#333; color:white;">
       <tr>
@@ -260,7 +252,7 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
 
 <tbody id="cashBookBody"></tbody>
 </table>
-<button id="backFromCashBookBtn"
+<button onclick="backFromCashBook()" 
 style="
 margin-top:20px;
 padding:12px 30px;
@@ -277,25 +269,17 @@ BACK
 
 </div>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { 
-  getAuth, 
-  GoogleAuthProvider, 
-  signInWithPopup, 
-  signOut, 
-  onAuthStateChanged 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { 
+  import { 
   getFirestore, 
   collection, 
   addDoc, 
   getDocs, 
   query, 
-  orderBy,
-  deleteDoc,
-  doc,
-  updateDoc
+  orderBy 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -459,19 +443,27 @@ onAuthStateChanged(auth, (user) => {
     userDisplay.textContent = user.displayName;
     userDisplay.style.display = "block";
 
-if (isAdmin) {
-  showPage('timer');
-  timerDisplay.textContent = "UNLIMITED";
-  timerStatus.textContent = "Admin Access";
-  timerButtons.style.display = "flex";
+    // ✅ SHOW logout only when logged in
+    logoutBtn.style.display = "block";
 
-  logoutBtn.style.display = "block"; // ✅ ADD THIS
-}
+    if (isAdmin) {
+      showPage('timer');
+      timerDisplay.textContent = "UNLIMITED";
+      timerStatus.textContent = "Admin Access";
+      timerButtons.style.display = "flex";
+    } else {
+      showPage('main');
+    }
+
     // hide login
     loginBtn.style.display = "none";
 
   } else {
     isAdmin = false;
+
+    // ✅ HIDE logout when NOT logged in
+    logoutBtn.style.display = "none";
+    userDisplay.style.display = "none";
 
     // show login
     loginBtn.style.display = "block";
@@ -496,50 +488,54 @@ function showPage(page) {
   previewPage.style.display = "none"; 
   timerPage.style.display = "none";
   businessPage.style.display = "none";
-
-
   if(page === 'main' && auth.currentUser) {
-    userDisplay.style.display = "block";
-
+    userDisplay.style.display = "block"; logoutBtn.style.display = "block";
     const endTime = localStorage.getItem("sessionEnd");
-    if (endTime && Date.now() < parseInt(endTime)) { 
-      accessBtn.style.display = "block"; 
-    } else { 
-      payBtn.style.display = "block"; 
-    }
+    if (endTime && Date.now() < parseInt(endTime)) { accessBtn.style.display = "block"; } 
+    else { payBtn.style.display = "block"; }
   }
-
-  else if (page === 'business') { 
-    businessPage.style.display = "flex";
-
-    // ✅ SHOW logout ONLY here
-    logoutBtn.style.display = "block";
-
-    businessPage.style.flexDirection = "column";
-    businessPage.style.justifyContent = "center";
-    businessPage.style.alignItems = "center";
-  }
-
   else if (page === 'view') {
-    const vp = document.getElementById("viewPage");
-    vp.style.display = "flex";
-    vp.style.flexDirection = "column";
-    vp.style.justifyContent = "center";
-    vp.style.alignItems = "center";
-  }
+  const vp = document.getElementById("viewPage");
 
+  vp.style.display = "flex";
+  vp.style.flexDirection = "column";
+  vp.style.justifyContent = "center";
+  vp.style.alignItems = "center";
+}
+  else if (page === 'pay') { payPage.style.display = "flex"; } 
+  else if (page === 'camera') { cameraMenuPage.style.display = "flex"; } 
   else if (page === 'transaction') {
-    document.getElementById("transactionPage").style.display = "flex";
-    document.getElementById("viewPage").style.display = "none";
-  }
-else if (page === 'timer') { 
-  timerPage.style.display = "flex"; 
-  userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; 
-  
-  // ✅ show logout only here
-  logoutBtn.style.display = "block";
+  document.getElementById("transactionPage").style.display = "flex";
+document.getElementById("viewPage").style.display = "none";
+  // RESET EVERYTHING
+  detailInput.value = "";
+  amountInput.value = "";
+  selectedButtons.innerHTML = "";
+
+  detailInput.style.display = "block";
+  amountInput.style.display = "none";
+
+  typeButtons.style.display = "none";
+  methodButtons.style.display = "none";
+  finalButtons.style.display = "none";
+
+  detail = "";
+  amount = "";
+  type = "";
+  method = "";
+}
+  else if (page === 'preview') { previewPage.style.display = "flex"; } 
+  else if (page === 'timer') { timerPage.style.display = "flex"; userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; }
+else if (page === 'business') { 
+  businessPage.style.display = "flex";
+
+  // ✅ force same layout for everyone
+  businessPage.style.flexDirection = "column";
+  businessPage.style.justifyContent = "center";
+  businessPage.style.alignItems = "center";
 }
 }
+
 payBtn.onclick = () => showPage('pay');
 backBtn.onclick = () => showPage('main');
 nextBtn.onclick = () => showPage('camera');
@@ -827,14 +823,16 @@ listBtn.onclick = async () => {
   const user = auth.currentUser;
   if (!user) return;
 
-  transactions = []; // ✅ store globally
-
+  // ✅ hide cash book ONLY
   cashBookContainer.style.display = "none";
 
+  // ✅ hide buttons
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "none");
 
+  // ✅ show list container
   listTableContainer.style.display = "block";
+
   listTableBody.innerHTML = "";
 
   const q = query(
@@ -845,13 +843,15 @@ listBtn.onclick = async () => {
   const snapshot = await getDocs(q);
 
   if (snapshot.empty) {
-    listTableBody.innerHTML = `<tr><td colspan="6">No transactions</td></tr>`;
+    listTableBody.innerHTML = `
+      <tr>
+        <td colspan="6">No transactions</td>
+      </tr>
+    `;
   } else {
     let i = 1;
     snapshot.forEach(doc => {
-  const tx = doc.data();
-  tx.id = doc.id; // ✅ ADD THIS
-      transactions.push(tx); // ✅ SAVE HERE
+      const tx = doc.data();
 
       listTableBody.innerHTML += `
         <tr>
@@ -875,68 +875,74 @@ backFromListBtn.onclick = () => {
   // show buttons again
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "inline-block");
-};cashBookBtn.onclick = async () => {
+};
+cashBookBtn.onclick = async () => {
   const user = auth.currentUser;
   if (!user) return;
 
-  transactions = [];
+  cashBookBody.innerHTML = "";
 
   const q = query(
     collection(db, "users", user.email, "transactions"),
-    orderBy("createdAt", "desc")
+    orderBy("createdAt", "asc")
   );
 
   const snapshot = await getDocs(q);
 
-  snapshot.forEach(doc => {
-    transactions.push(doc.data());
-  });
-
-  cashBookBody.innerHTML = "";
-  cashBookContainer.style.display = "block";
-  listTableContainer.style.display = "none";
-
-  const buttons = document.querySelectorAll("#viewPage > button");
-  buttons.forEach(btn => btn.style.display = "none");
-
   let dr = [];
   let cr = [];
-
   let folio = 1;
   let folioMap = {};
 
-  transactions
-    .sort((a, b) => a.createdAt - b.createdAt) // oldest first
-    .forEach(tx => {
+  snapshot.forEach(doc => {
+    const tx = doc.data();
 
-      if (!folioMap[tx.detail]) {
-        folioMap[tx.detail] = folio++;
-      }
+    const key = tx.detail;
 
-      const entry = {
-        date: new Date(tx.createdAt).toLocaleDateString(),
-        detail: tx.detail,
-        folio: folioMap[tx.detail],
-        amount: tx.amount
-      };
-
-      if (tx.type === "IN") dr.push(entry);
-      else cr.push(entry);
-    });
-
-  const totalDr = dr.reduce((a, b) => a + b.amount, 0);
-  const totalCr = cr.reduce((a, b) => a + b.amount, 0);
-  const diff = Math.abs(totalDr - totalCr);
-  const today = new Date().toLocaleDateString();
-
-  if (diff > 0) {
-    if (totalDr > totalCr) {
-      cr.push({ date: today, detail: "Balance", folio: "c/d", amount: diff });
-    } else {
-      dr.push({ date: today, detail: "Balance", folio: "c/d", amount: diff });
+    if (!folioMap[key]) {
+      folioMap[key] = folio++;
     }
-  }
 
+    const row = {
+      date: tx.date,
+      detail: tx.detail,
+      folio: folioMap[key],
+      amount: tx.amount
+    };
+
+    if (tx.type === "IN") {
+      dr.push(row);
+    } else {
+      cr.push(row);
+    }
+  });
+const totalDr = dr.reduce((a,b)=>a+b.amount,0);
+const totalCr = cr.reduce((a,b)=>a+b.amount,0);
+const diff = Math.abs(totalDr - totalCr);
+
+const today = new Date().toLocaleDateString();
+
+// ✅ Balance c/d (before total)
+if (totalDr > totalCr) {
+  cr.push({ date: "", detail: "Balance c/d", folio: "", amount: diff });
+} else if (totalCr > totalDr) {
+  dr.push({ date: "", detail: "Balance c/d", folio: "", amount: diff });
+}
+
+// ✅ TOTAL (equal both sides)
+const finalTotal = Math.max(totalDr, totalCr);
+
+dr.push({ date: "", detail: "TOTAL", folio: "", amount: finalTotal });
+cr.push({ date: "", detail: "TOTAL", folio: "", amount: finalTotal });
+
+// ✅ Balance b/d (after total)
+if (diff > 0) {
+  if (totalDr > totalCr) {
+    dr.push({ date: today, detail: "Balance b/d", folio: "", amount: diff });
+  } else {
+    cr.push({ date: today, detail: "Balance b/d", folio: "", amount: diff });
+  }
+}
   const max = Math.max(dr.length, cr.length);
 
   for (let i = 0; i < max; i++) {
@@ -944,169 +950,35 @@ backFromListBtn.onclick = () => {
     const c = cr[i] || {};
 
     cashBookBody.innerHTML += `
-    <tr>
-      <td>${d.date || ""}</td>
-      <td>${d.detail || ""}</td>
-      <td>${d.folio || ""}</td>
-      <td>${d.amount || ""}</td>
+      <tr>
+        <td>${d.date || ""}</td>
+        <td>${d.detail || ""}</td>
+        <td>${d.folio || ""}</td>
+        <td>${d.amount || ""}</td>
 
-      <td>${c.date || ""}</td>
-      <td>${c.detail || ""}</td>
-      <td>${c.folio || ""}</td>
-      <td>${c.amount || ""}</td>
-    </tr>`;
+        <td>${c.date || ""}</td>
+        <td>${c.detail || ""}</td>
+        <td>${c.folio || ""}</td>
+        <td>${c.amount || ""}</td>
+      </tr>
+    `;
   }
+// ✅ HIDE MENU BUTTONS
+const buttons = document.querySelectorAll("#viewPage > button");
+buttons.forEach(btn => btn.style.display = "none");
 
-  const finalTotal = Math.max(totalDr, totalCr);
+// ✅ HIDE LIST
+listTableContainer.style.display = "none";
 
-  cashBookBody.innerHTML += `
-  <tr style="font-weight:bold;">
-    <td></td><td></td><td></td>
-    <td style="border-top:2px solid black;">${finalTotal}</td>
-    <td></td><td></td><td></td>
-    <td style="border-top:2px solid black;">${finalTotal}</td>
-  </tr>`;
-  // BALANCE b/d (next day)
-if (diff > 0) {
-  cashBookBody.innerHTML += `
-  <tr>
-    ${totalDr > totalCr ? `
-      <td>${today}</td>
-      <td>Balance</td>
-      <td>b/d</td>
-      <td>${diff}</td>
-      <td></td><td></td><td></td><td></td>
-    ` : `
-      <td></td><td></td><td></td><td></td>
-      <td>${today}</td>
-      <td>Balance</td>
-      <td>b/d</td>
-      <td>${diff}</td>
-    `}
-  </tr>`;
-}
-}
-// BACK FROM CASH BOOK
+// ✅ SHOW CASH BOOK
+cashBookContainer.style.display = "block";
+};
 function backFromCashBook() {
-  // hide cash book
-  cashBookContainer.style.display = "none";
+  document.getElementById("cashBookContainer").style.display = "none";
 
-  // show main view page
-  const viewPage = document.getElementById("viewPage");
-  viewPage.style.display = "flex";
-
-  // show buttons again
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "inline-block");
 }
-
-
-// BUTTON EVENT (safe)
-const backBtnCash = document.getElementById("backFromCashBookBtn");
-
-if (backBtnCash) {
-  backBtnCash.onclick = backFromCashBook;
-}
-// OPEN CASH BOOK
-function openCashBook() {
-  cashBookContainer.style.display = "block";
-  document.getElementById("viewPage").style.display = "none";
-  listTableContainer.style.display = "none";
-localStorage.setItem("currentPage", "view");
-}
-window.addEventListener("load", () => {
-  const savedPage = localStorage.getItem("currentPage") || "view";
-  showPage(savedPage);
-});
-const deleteModeBtn = document.getElementById("deleteModeBtn");
-
-deleteModeBtn.onclick = () => {
-  listTableBody.innerHTML = "";
-
-  transactions.forEach((tx, index) => {
-    listTableBody.innerHTML += `
-      <tr>
-        <td colspan="6">
-          <button style="width:100%; padding:15px; background:#fd7e14; color:white;"
-          onclick="deleteTransaction('${tx.id}')">
-            ${index+1} | ${tx.date} | ${tx.detail} | ${tx.type} | ${tx.method} | ${tx.amount}
-          </button>
-        </td>
-      </tr>
-    `;
-  });
-};
-window.deleteTransaction = async (id) => {
-  if (!confirm("Delete this transaction?")) return;
-
-  const user = auth.currentUser;
-  if (!user) return;
-
-  await deleteDoc(doc(db, "users", user.email, "transactions", id));
-
-  alert("Deleted!");
-  listBtn.click(); // 🔁 reload table
-};
-const editModeBtn = document.getElementById("editModeBtn");
-
-editModeBtn.onclick = () => {
-  listTableBody.innerHTML = "";
-
-  transactions.forEach((tx, index) => {
-    listTableBody.innerHTML += `
-      <tr>
-        <td colspan="6">
-          <button style="width:100%; padding:15px; background:#0d6efd; color:white;"
-          onclick="editTransaction('${tx.id}')">
-            ${index+1} | ${tx.detail} | ${tx.amount}
-          </button>
-        </td>
-      </tr>
-    `;
-  });
-};
-window.editTransaction = async (id) => {
-  const choice = prompt(
-    "Edit:\n1 Detail\n2 Amount\n3 Type(IN/OUT)\n4 Method(CASH/CREDIT/BANK)"
-  );
-
-  if (!choice) return;
-
-  let field = "";
-  let value = "";
-
-  if (choice === "1") {
-    field = "detail";
-    value = prompt("Enter new detail:");
-  }
-  else if (choice === "2") {
-    field = "amount";
-    value = Number(prompt("Enter new amount:"));
-  }
-  else if (choice === "3") {
-    field = "type";
-    value = prompt("Enter IN or OUT:");
-  }
-  else if (choice === "4") {
-    field = "method";
-    value = prompt("Enter CASH / CREDIT / BANK:");
-  }
-
-  if (!value) return;
-
-  if (!confirm("Confirm update?")) return;
-
-  const user = auth.currentUser;
-  if (!user) return;
-
-  await updateDoc(
-    doc(db, "users", user.email, "transactions", id),
-    { [field]: value }
-  );
-
-  alert("Updated!");
-  listBtn.click(); // 🔁 reload
-};
 </script>
 </body>
-</html>     
+</html>             
