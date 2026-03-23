@@ -459,27 +459,19 @@ onAuthStateChanged(auth, (user) => {
     userDisplay.textContent = user.displayName;
     userDisplay.style.display = "block";
 
-    // ✅ SHOW logout only when logged in
-    logoutBtn.style.display = "none";
+if (isAdmin) {
+  showPage('timer');
+  timerDisplay.textContent = "UNLIMITED";
+  timerStatus.textContent = "Admin Access";
+  timerButtons.style.display = "flex";
 
-    if (isAdmin) {
-      showPage('timer');
-      timerDisplay.textContent = "UNLIMITED";
-      timerStatus.textContent = "Admin Access";
-      timerButtons.style.display = "flex";
-    } else {
-      showPage('main');
-    }
-
+  logoutBtn.style.display = "block"; // ✅ ADD THIS
+}
     // hide login
     loginBtn.style.display = "none";
 
   } else {
     isAdmin = false;
-
-    // ✅ HIDE logout when NOT logged in
-    logoutBtn.style.display = "none";
-    userDisplay.style.display = "none";
 
     // show login
     loginBtn.style.display = "block";
@@ -496,7 +488,6 @@ accessBtn.onclick = () => {
   showPage('business'); 
 };
 function showPage(page) {
-  logoutBtn.style.display = "none";
   businessPage.style = "";
   document.getElementById("viewPage").style.display = "none";
   document.getElementById("transactionPage").style.display = "none";
@@ -506,8 +497,6 @@ function showPage(page) {
   timerPage.style.display = "none";
   businessPage.style.display = "none";
 
-  // ❌ HIDE logout by default on all pages
-  logoutBtn.style.display = "none";
 
   if(page === 'main' && auth.currentUser) {
     userDisplay.style.display = "block";
