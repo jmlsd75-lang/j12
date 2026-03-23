@@ -515,6 +515,10 @@ accessBtn.onclick = () => {
 function showPage(page) {
   logoutBtn.style.display = "none";
   document.getElementById("viewPage").style.display = "none";
+
+  const vpButtons = document.querySelectorAll("#viewPage > button");
+  vpButtons.forEach(btn => btn.style.display = "inline-block");
+
   document.getElementById("transactionPage").style.display = "none";
   payPage.style.display = "none"; 
   cameraMenuPage.style.display = "none"; 
