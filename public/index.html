@@ -894,15 +894,13 @@ listBtn.onclick = async () => {
   }
 };
 const backFromListBtn = document.getElementById("backFromListBtn");
-
 backFromListBtn.onclick = () => {
-  // hide table
   listTableContainer.style.display = "none";
 
-  // show buttons again
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "inline-block");
-};cashBookBtn.onclick = async () => {
+};
+cashBookBtn.onclick = async () => {
   const user = auth.currentUser;
   if (!user) return;
 
@@ -1013,20 +1011,14 @@ if (diff > 0) {
   </tr>`;
 }
 }
-// BACK FROM CASH BOOK
 function backFromCashBook() {
-  // hide cash book
   cashBookContainer.style.display = "none";
 
-  // show main view page
-  const viewPage = document.getElementById("viewPage");
-  viewPage.style.display = "flex";
-
-  // show buttons again
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "inline-block");
-}
 
+  document.getElementById("viewPage").style.display = "flex";
+}
 
 // BUTTON EVENT (safe)
 const backBtnCash = document.getElementById("backFromCashBookBtn");
@@ -1135,7 +1127,16 @@ window.editTransaction = async (id) => {
   listBtn.click(); // 🔁 reload
 };
 function goBackToBusiness() {
-  showPage("business");
+  // hide all sub views
+  listTableContainer.style.display = "none";
+  cashBookContainer.style.display = "none";
+
+  // show main view buttons again
+  const buttons = document.querySelectorAll("#viewPage > button");
+  buttons.forEach(btn => btn.style.display = "inline-block");
+
+  // stay inside view page OR go business (your choice)
+  showPage("business"); // 👈 if you want full back
 }
 </script>
 </body>
