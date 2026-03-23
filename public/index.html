@@ -599,6 +599,8 @@ function handleFile(file) {
   selectedFile = file;
   const reader = new FileReader();
   reader.onload = (e) => { previewImage.src = e.target.result; showPage('preview'); };
+  submitBtn.style.display = "inline-block";
+cancelBtn.style.display = "inline-block";
   reader.readAsDataURL(file);
   cameraInput.value = ""; photosInput.value = "";
 }
@@ -690,13 +692,15 @@ const VALID_NUMBERS = [
 // SUBMIT LOGIC
 // -------------------------------------------------------
 submitBtn.onclick = async () => {
-  if (currentMode === "stock") {
-  showPage("preview"); // stay on image
+ if (currentMode === "stock") {
+  showPage("preview");
 
   submitBtn.style.display = "none";
   cancelBtn.style.display = "none";
 
-  return; // stop payment logic
+  currentMode = ""; // 👈 ADD THIS (VERY IMPORTANT)
+
+  return;
 }
   if (!selectedFile) { alert("No file selected."); return; }
 
