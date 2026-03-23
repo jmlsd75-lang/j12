@@ -693,9 +693,6 @@ const VALID_NUMBERS = [
   "655510714",
   "780526437"
 ];
-// -------------------------------------------------------
-// SUBMIT LOGIC
-// -------------------------------------------------------
 submitBtn.onclick = async () => {
  if (currentMode === "stock") {
   showPage("preview");
@@ -703,8 +700,7 @@ submitBtn.onclick = async () => {
   submitBtn.style.display = "none";
   cancelBtn.style.display = "none";
 
-  currentMode = ""; // 👈 ADD THIS (VERY IMPORTANT)
-selectedFile = null; // 👈 ADD THIS
+  currentMode = ""; 
   return;
 }
   if (!selectedFile) { alert("No file selected."); return; }
