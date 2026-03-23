@@ -478,6 +478,7 @@ document.getElementById("cancelTransBtn").onclick = () => {
   showPage("business");
 };
 let selectedFile = null;
+let currentMode = "";
 let timerInterval = null;
 
 // --- Auth Logic ---
@@ -689,6 +690,14 @@ const VALID_NUMBERS = [
 // SUBMIT LOGIC
 // -------------------------------------------------------
 submitBtn.onclick = async () => {
+  if (currentMode === "stock") {
+  showPage("preview"); // stay on image
+
+  submitBtn.style.display = "none";
+  cancelBtn.style.display = "none";
+
+  return; // stop payment logic
+}
   if (!selectedFile) { alert("No file selected."); return; }
 
   loadingOverlay.style.display = "flex";
@@ -1143,7 +1152,8 @@ function goBackToBusiness() {
   showPage("business");
 }
 document.getElementById("stockBtn").onclick = () => {
-  cameraInput.click(); // open camera directly
+  currentMode = "stock"; // 👈 important
+  cameraInput.click();
 };
 </script>
 </body>
