@@ -178,7 +178,8 @@ BACK
 <button style="background:#dc3545;color:white;" disabled>INCOME STATEMENT</button>
 
 <button style="background:#198754;color:white;" disabled>BALANCE SHEET</button>
-<button onclick="goBackToBusiness()" style="background:black;color:white;">
+<button onclick="showPage('business')" 
+style="background:black;color:white;padding:12px 25px;border:none;border-radius:6px;">
   ⬅ BACK
 </button>
 <!-- TABLE -->
@@ -1016,12 +1017,7 @@ if (diff > 0) {
 }
 }
 function backFromCashBook() {
-  cashBookContainer.style.display = "none";
-
-  const buttons = document.querySelectorAll("#viewPage > button");
-  buttons.forEach(btn => btn.style.display = "inline-block");
-
-  document.getElementById("viewPage").style.display = "flex";
+  showPage("view");
 }
 
 // BUTTON EVENT (safe)
@@ -1035,12 +1031,7 @@ function openCashBook() {
   cashBookContainer.style.display = "block";
   document.getElementById("viewPage").style.display = "none";
   listTableContainer.style.display = "none";
-localStorage.setItem("currentPage", "view");
 }
-window.addEventListener("load", () => {
-  const savedPage = localStorage.getItem("currentPage") || "view";
-  showPage(savedPage);
-});
 const deleteModeBtn = document.getElementById("deleteModeBtn");
 
 deleteModeBtn.onclick = () => {
