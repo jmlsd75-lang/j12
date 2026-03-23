@@ -936,7 +936,11 @@ cashBookBtn.onclick = async () => {
   listTableContainer.style.display = "none";
 
   const buttons = document.querySelectorAll("#viewPage > button");
-  buttons.forEach(btn => btn.style.display = "none");
+  buttons.forEach(btn => {
+  if (btn.textContent.trim() !== "⬅ BACK") {
+    btn.style.display = "none";
+  }
+});
 
   let dr = [];
   let cr = [];
