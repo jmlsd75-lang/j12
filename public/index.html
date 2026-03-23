@@ -912,7 +912,7 @@ listBtn.onclick = async () => {
 };
 const backFromListBtn = document.getElementById("backFromListBtn");
 backFromListBtn.onclick = () => {
-  showPage("view");
+  showPage("business");
 };
 cashBookBtn.onclick = async () => {
   const user = auth.currentUser;
@@ -1030,9 +1030,8 @@ if (diff > 0) {
 }
 }
 function backFromCashBook() {
-  showPage("view");
+  showPage("business");
 }
-
 // BUTTON EVENT (safe)
 const backBtnCash = document.getElementById("backFromCashBookBtn");
 
