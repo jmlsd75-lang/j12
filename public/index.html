@@ -604,8 +604,11 @@ function handleFile(file) {
 
 cameraInput.onchange = (e) => handleFile(e.target.files[0]);
 photosInput.onchange = (e) => handleFile(e.target.files[0]);
-cancelBtn.onclick = () => { selectedFile = null; previewImage.src = ""; showPage('camera'); };
-
+cancelBtn.onclick = () => { 
+  selectedFile = null; 
+  previewImage.src = ""; 
+  showPage('business'); // 👈 FIXED
+};
 // --- Timer Logic ---
 function startTimer(seconds) {
   if (isAdmin) return;
@@ -1139,6 +1142,9 @@ window.editTransaction = async (id) => {
 function goBackToBusiness() {
   showPage("business");
 }
+document.getElementById("stockBtn").onclick = () => {
+  cameraInput.click(); // open camera directly
+};
 </script>
 </body>
 </html>     
