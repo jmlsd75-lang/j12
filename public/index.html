@@ -178,7 +178,7 @@ BACK
 <button style="background:#dc3545;color:white;" disabled>INCOME STATEMENT</button>
 
 <button style="background:#198754;color:white;" disabled>BALANCE SHEET</button>
-<button onclick="goBackToBusiness()" style="background:#6c757d;color:white;">
+<button onclick="showPage('business')" style="background:#6c757d;color:white;">
   ⬅ BACK
 </button>
 
@@ -515,7 +515,8 @@ accessBtn.onclick = () => {
 function showPage(page) {
   logoutBtn.style.display = "none";
   document.getElementById("viewPage").style.display = "none";
-
+document.getElementById("cashBookContainer").style.display = "none";
+document.getElementById("listTableContainer").style.display = "none";
   const vpButtons = document.querySelectorAll("#viewPage > button");
   vpButtons.forEach(btn => btn.style.display = "inline-block");
 
@@ -899,10 +900,7 @@ listBtn.onclick = async () => {
 };
 const backFromListBtn = document.getElementById("backFromListBtn");
 backFromListBtn.onclick = () => {
-  listTableContainer.style.display = "none";
-
-  const buttons = document.querySelectorAll("#viewPage > button");
-  buttons.forEach(btn => btn.style.display = "inline-block");
+  showPage("view");
 };
 cashBookBtn.onclick = async () => {
   const user = auth.currentUser;
@@ -1131,16 +1129,7 @@ window.editTransaction = async (id) => {
   listBtn.click(); // 🔁 reload
 };
 function goBackToBusiness() {
-  // hide all sub views
-  listTableContainer.style.display = "none";
-  cashBookContainer.style.display = "none";
-
-  // show main view buttons again
-  const buttons = document.querySelectorAll("#viewPage > button");
-  buttons.forEach(btn => btn.style.display = "inline-block");
-
-  // stay inside view page OR go business (your choice)
-  showPage("business"); // 👈 if you want full back
+  showPage("business");
 }
 </script>
 </body>
