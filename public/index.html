@@ -825,7 +825,7 @@ const backBtnCash = document.getElementById("backFromCashBookBtn");
 const backFromListBtn = document.getElementById("backFromListBtn");
 backBtnCash.onclick = () => {
   showPage("view");
-
+   document.querySelector("#viewPage button[onclick='goBackToBusiness()']").style.display = "block";
   document.querySelectorAll("#viewPage > button").forEach(btn => {
     btn.style.display = "block";
   });
@@ -839,6 +839,8 @@ backFromListBtn.onclick = () => {
   });
 };
 cashBookBtn.onclick = async () => {
+  document.querySelector("#viewPage button[onclick='goBackToBusiness()']").style.display = "none";
+  backFromCashBookBtn.style.display = "none";
   document.querySelector("h1").style.display = "none";
 document.querySelector("h2").style.display = "none";
 userDisplay.style.display = "none";
