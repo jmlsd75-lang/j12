@@ -614,17 +614,29 @@ openCameraBtn.onclick = () => cameraInput.click();
 openPhotosBtn.onclick = () => photosInput.click();
 function handleFile(file) {
   if (!file) { showPage('main'); return; }
+
   selectedFile = file;
   const reader = new FileReader();
-  reader.onload = (e) => { 
-  previewImage.src = e.target.result; 
-  showPage('preview'); 
-  // ✅ MOVE HERE
-  submitBtn.style.display = "inline-block";
-  cancelBtn.style.display = "inline-block";
-};
+
+  reader.onload = (e) => {
+    previewImage.src = e.target.result;
+
+    if (currentMode === "stock") {
+      // ✅ STOCK MODE (your demand)
+      previewPage.style.display = "flex";
+      submitBtn.style.display = "none";
+      cancelBtn.style.display = "none";
+    } else {
+      // ✅ NORMAL PAYMENT MODE
+      showPage('preview');
+      submitBtn.style.display = "inline-block";
+      cancelBtn.style.display = "inline-block";
+    }
+  };
+
   reader.readAsDataURL(file);
-  cameraInput.value = ""; photosInput.value = "";
+  cameraInput.value = "";
+  photosInput.value = "";
 }
 cameraInput.onchange = (e) => handleFile(e.target.files[0]);
 photosInput.onchange = (e) => handleFile(e.target.files[0]);
