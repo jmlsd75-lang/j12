@@ -232,14 +232,6 @@ font-size:18px;
   </table>
 </div>
 </div>
-<div id="stockActions" style="display:none; flex-direction:column; gap:10px;">
-  <button onclick="selectStockAction('SALES')">SALES</button>
-  <button onclick="selectStockAction('PURCHASES')">PURCHASES</button>
-  <button onclick="selectStockAction('DAMAGE')">DAMAGE</button>
-  <button onclick="selectStockAction('SALES RETURN')">SALES RETURN</button>
-  <button onclick="selectStockAction('PURCHASE RETURN')">PURCHASE RETURN</button>
-  <button onclick="selectStockAction('CHANGES')">CHANGES</button>
-</div>
 <div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
 <input id="detailInput" placeholder="Enter detail"
 style="padding:15px; font-size:20px; text-align:center; width:250px;">
@@ -1074,7 +1066,8 @@ window.goBackToBusiness = function () {
   showPage("business");
 };
 document.getElementById("stockBtn").onclick = () => {
-  document.getElementById("stockActions").style.display = "flex";
+  currentMode = "stock"; // 👈 important
+  cameraInput.click();
 };
 const salesJournalBtn = document.getElementById("salesJournalBtn");
 const salesJournalContainer = document.getElementById("salesJournalContainer");
@@ -1122,14 +1115,6 @@ backFromSalesJournalBtn.onclick = () => {
   salesJournalContainer.style.display = "none"; // ✅ hide it
   showPage("view");
 };
-let stockAction = "";
-
-function selectStockAction(action) {
-  stockAction = action;
-  document.getElementById("stockActions").style.display = "none";
-  currentMode = "stock";
-  cameraInput.click(); // 📷 open AFTER choice
-}
 </script>
 </body>
 </html>     
