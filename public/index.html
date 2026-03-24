@@ -578,6 +578,9 @@ document.getElementById("listTableContainer").style.display = "none";
       payBtn.style.display = "block"; 
     }
   }
+  else if (page === 'stock') {
+  document.getElementById("stockActions").style.display = "flex";
+}
  else if (page === 'preview') {
   previewPage.style.display = "flex";
 }
@@ -1107,8 +1110,7 @@ window.goBackToBusiness = function () {
   showPage("business");
 };
 document.getElementById("stockBtn").onclick = () => {
-  businessPage.style.display = "none";   // 🔥 hide previous menu
-  document.getElementById("stockActions").style.display = "flex";
+  showPage('stock');
 };
 const salesJournalBtn = document.getElementById("salesJournalBtn");
 const salesJournalContainer = document.getElementById("salesJournalContainer");
@@ -1165,7 +1167,6 @@ function selectStockAction(action) {
   cameraInput.click(); // 📷 open AFTER choice
 }
 function closeStockActions() {
-  document.getElementById("stockActions").style.display = "none";
   showPage("business");
 }
 </script>
