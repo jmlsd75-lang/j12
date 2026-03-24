@@ -184,7 +184,7 @@ VIEW
 <div id="viewPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
 <button id="listBtn" style="background:#0d6efd;color:white;">LIST</button>
 <button id="cashBookBtn" style="background:#20c997;color:white;">CASH BOOK</button>
-<button style="background:#0dcaf0;color:white;">SALES JOURNAL</button>
+<button id="salesJournalBtn" style="background:#0dcaf0;color:white;">SALES JOURNAL</button>
 <button style="background:#ffc107;color:black;">PURCHASES JOURNAL</button>
 <button style="background:#6c757d;color:white;">GENERAL JOURNAL</button>
 <button style="background:#6610f2;color:white;" disabled>LEDGERS</button>
@@ -284,6 +284,31 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
 </thead>
 <tbody id="cashBookBody"></tbody>
 </table>
+</div>
+<div id="salesJournalContainer" style="display:none; flex-direction:column; align-items:center; width:100%;">
+  <div style="width:90%; display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+    
+    <button id="backFromSalesJournalBtn"
+      style="padding:10px 20px; background:#dc3545; color:white; border:none; border-radius:6px;">
+      ⬅ BACK
+    </button>
+
+    <h2 style="margin:0;">SALES JOURNAL</h2>
+
+    <div style="width:80px;"></div>
+  </div>
+
+  <table border="1" style="border-collapse:collapse; width:90%; text-align:center;">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Customer</th>
+        <th>Folio</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody id="salesJournalBody"></tbody>
+  </table>
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -1024,6 +1049,48 @@ window.goBackToBusiness = function () {
 document.getElementById("stockBtn").onclick = () => {
   currentMode = "stock"; // 👈 important
   cameraInput.click();
+};
+const salesJournalBtn = document.getElementById("salesJournalBtn");
+const salesJournalContainer = document.getElementById("salesJournalContainer");
+const salesJournalBody = document.getElementById("salesJournalBody");
+const backFromSalesJournalBtn = document.getElementById("backFromSalesJournalBtn");
+
+salesJournalBtn.onclick = async () => {
+  document.getElementById("viewPage").style.display = "none";
+  salesJournalBody.innerHTML = "";
+  salesJournalContainer.style.display = "flex";
+
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const q = query(
+    collection(db, "users", user.email, "transactions"),
+    orderBy("createdAt", "asc")
+  );
+
+  const snapshot = await getDocs(q);
+
+  let folio = 1;
+
+  snapshot.forEach(doc => {
+    const tx = doc.data();
+
+    // ✅ ONLY CREDIT SALES
+    if (tx.type === "IN" && tx.method === "CREDIT") {
+      salesJournalBody.innerHTML += `
+        <tr>
+          <td>${new Date(tx.createdAt).toLocaleDateString()}</td>
+          <td>${tx.detail}</td>
+          <td>${folio++}</td>
+          <td>${tx.amount}</td>
+        </tr>
+      `;
+    }
+  });
+};
+
+backFromSalesJournalBtn.onclick = () => {
+  showPage("view");
 };
 </script>
 </body>
