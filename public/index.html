@@ -59,6 +59,7 @@
   justify-content: flex-start; /* 🔥 move to top */
   padding-top: 20px;
 }
+
 #cashBookContainer table {
   width: 90%;
   margin: 0 auto;
@@ -847,6 +848,7 @@ cashBookBtn.onclick = async () => {
   });
   cashBookBody.innerHTML = "";
   cashBookContainer.style.display = "flex";
+cashBookContainer.scrollTop = 0; // 🔥 ADD THIS LINE
   listTableContainer.style.display = "none";
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => {
