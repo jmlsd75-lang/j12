@@ -234,14 +234,19 @@ font-size:18px;
 </div>
 <div id="stockActions" style="
 display:none;
+position:fixed;           /* 🔥 IMPORTANT */
+top:0;
+left:0;
+width:100%;
+height:100vh;
+background:rgba(0,0,0,0.3);  /* optional dark overlay */
 justify-content:center;
 align-items:center;
-height:100vh;
+z-index:999;              /* 🔥 above everything */
 ">
-
   <div style="
     display:grid;
-    grid-template-columns: repeat(4, 150px);
+    grid-template-columns: repeat(3, 150px);
     gap:15px;
     justify-content:center;
   ">
@@ -252,6 +257,7 @@ height:100vh;
     <button style="background:#dc3545;color:white;" onclick="selectStockAction('DAMAGE')">DAMAGE</button>
     <button style="background:#20c997;color:white;" onclick="selectStockAction('SALES RETURN')">SALES RETURN</button>
     <button style="background:#6610f2;color:white;" onclick="selectStockAction('PURCHASE RETURN')">PURCHASE RETURN</button>
+    <button style="background:gray;color:white;" onclick="closeStockActions()">⬅ BACK</button>
   </div>
 </div>
 <div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
@@ -1088,6 +1094,7 @@ window.goBackToBusiness = function () {
   showPage("business");
 };
 document.getElementById("stockBtn").onclick = () => {
+  businessPage.style.display = "none";   // 🔥 hide previous menu
   document.getElementById("stockActions").style.display = "flex";
 };
 const salesJournalBtn = document.getElementById("salesJournalBtn");
@@ -1143,6 +1150,10 @@ function selectStockAction(action) {
   document.getElementById("stockActions").style.display = "none";
   currentMode = "stock";
   cameraInput.click(); // 📷 open AFTER choice
+}
+function closeStockActions() {
+  document.getElementById("stockActions").style.display = "none";
+  showPage("business"); // 🔥 bring back menu
 }
 </script>
 </body>
