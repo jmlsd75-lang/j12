@@ -1088,8 +1088,8 @@ salesJournalBtn.onclick = async () => {
     }
   });
 };
-
 backFromSalesJournalBtn.onclick = () => {
+  salesJournalContainer.style.display = "none"; // ✅ hide it
   showPage("view");
 };
 </script>
