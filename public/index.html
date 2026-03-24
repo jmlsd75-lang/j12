@@ -10,6 +10,7 @@
   body{ margin:0; font-family:Arial, sans-serif; background:#f4f4f4; display:flex; flex-direction:column; justify-content:flex-start; align-items:center; min-height:100vh; text-align:center; padding-top:50px; }
   h1{ font-size:28px; color:blue; margin:0; }
   h2{ color:red; margin-top:5px; font-size:16px; }
+
   .login-btn, .logout-btn, .pay-btn, .access-btn {
     position: fixed; left: 50%; transform: translateX(-50%); border:none; cursor:pointer; display: none; 
   }
@@ -50,10 +51,13 @@
   position: fixed;   /* 🔥 FIX */
   top: 0;
   left: 0;
+
   width: 100%;
   height: 100vh;
   overflow: auto;
+
   display: none;
+
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
@@ -92,6 +96,7 @@
   gap:20px;
   text-align:center;
 }
+
 #businessPage {
   overflow-y: auto;
 }
@@ -234,16 +239,20 @@ style="padding:15px; font-size:20px; text-align:center; width:250px;">
 style="padding:15px; font-size:20px; text-align:center; width:250px; display:none;">
 <input id="nameInput" placeholder="Enter name"
 style="padding:15px; font-size:20px; text-align:center; width:250px; display:none;">
+  <!-- BUTTON DISPLAY AREA -->
   <div id="selectedButtons" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
+  <!-- IN / OUT -->
   <div id="typeButtons" style="display:none; gap:10px;">
     <button id="inBtn" class="big-btn green">IN</button>
 <button id="outBtn" class="big-btn purple">OUT</button>
   </div>
+  <!-- PAYMENT -->
   <div id="methodButtons" style="display:none; gap:10px;">
     <button style="background:#20c997;color:white;" id="cashBtn">CASH</button>
     <button style="background:#6610f2;color:white;" id="creditBtn">CREDIT</button>
     <button style="background:#0d6efd;color:white;" id="bankBtn">BANK</button>
   </div>
+  <!-- FINAL -->
   <div id="finalButtons" style="display:none; gap:10px;">
     <button id="okBtn" style="background:#198754;color:white;">OK</button>
     <button id="cancelTransBtn" style="background:#dc3545;color:white;">CANCEL</button>
@@ -263,6 +272,7 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
   <h2 style="margin:0;">CASH BOOK</h2>
 <div style="width:80px;"></div>
 </div>
+
 <table border="1" style="border-collapse:collapse; width:90%; text-align:center;">
 <thead>
 <tr>
@@ -279,13 +289,17 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
 </div>
 <div id="salesJournalContainer" style="display:none; flex-direction:column; align-items:center; width:100%;">
   <div style="width:90%; display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+    
     <button id="backFromSalesJournalBtn"
       style="padding:10px 20px; background:#dc3545; color:white; border:none; border-radius:6px;">
       ⬅ BACK
     </button>
+
     <h2 style="margin:0;">SALES JOURNAL</h2>
+
     <div style="width:80px;"></div>
   </div>
+
   <table border="1" style="border-collapse:collapse; width:90%; text-align:center;">
     <thead>
       <tr>
@@ -314,7 +328,6 @@ import {
   getDocs, 
   query, 
   orderBy,
-  limit,
   deleteDoc,
   doc,
   updateDoc
@@ -371,6 +384,7 @@ const typeButtons = document.getElementById("typeButtons");
 const methodButtons = document.getElementById("methodButtons");
 const finalButtons = document.getElementById("finalButtons");
 const nameInput = document.getElementById("nameInput");
+
 nameInput.oninput = () => {
   if (nameInput.value.trim().length > 0) {
     name = nameInput.value;
@@ -396,12 +410,12 @@ typeButtons.style.display = "none";
 methodButtons.style.display = "none";
 finalButtons.style.display = "none";
 selectedButtons.innerHTML = "";
-if (transactions.length === 0) {
-  const snapshot = await getDocs(q);
-  snapshot.forEach(doc => {
-    transactions.push(doc.data());
-  });
-}
+let transactions = [];
+detailInput.oninput = () => {
+  if (detailInput.value.trim().length > 0) {
+    amountInput.style.display = "block";
+  }
+};
 amountInput.oninput = () => {
   if (amountInput.value.trim().length > 0) {
     typeButtons.style.display = "flex";
@@ -420,6 +434,7 @@ function selectType(t) {
   typeButtons.style.display = "none";
   methodButtons.style.display = "flex";
 }
+// STEP 4 → PAYMENT
 document.getElementById("cashBtn").onclick = () => selectMethod("CASH");
 document.getElementById("creditBtn").onclick = () => {
   method = "CREDIT";
@@ -434,6 +449,7 @@ function selectMethod(m) {
   methodButtons.style.display = "none";
   finalButtons.style.display = "flex";
 }
+// SHOW BUTTONS
 function updateButtons() {
   selectedButtons.innerHTML = "";
   if (detail) {
@@ -467,14 +483,6 @@ document.getElementById("okBtn").onclick = async () => {
     collection(db, "users", user.email, "transactions"),
     transaction
   );
-  detail = "";
-amount = "";
-type = "";
-method = "";
-name = "";
-document.getElementById("detailInput").value = "";
-document.getElementById("amountInput").value = "";
-document.getElementById("nameInput").value = "";
   alert("Saved!");
   showPage("business");
 };
@@ -484,11 +492,13 @@ document.getElementById("cancelTransBtn").onclick = () => {
 let selectedFile = null;
 let currentMode = "";
 let timerInterval = null;
+// --- Auth Logic ---
 onAuthStateChanged(auth, (user) => {
   if (user) {
     isAdmin = user.email === ADMIN_EMAIL;
     userDisplay.textContent = user.displayName;
     userDisplay.style.display = "block";
+    // ✅ SHOW logout only when logged in
     logoutBtn.style.display = "none";
     if (isAdmin) {
       showPage('timer');
@@ -498,11 +508,14 @@ onAuthStateChanged(auth, (user) => {
     } else {
       showPage('main');
     }
+    // hide login
     loginBtn.style.display = "none";
   } else {
     isAdmin = false;
+    // ✅ HIDE logout when NOT logged in
     logoutBtn.style.display = "none";
     userDisplay.style.display = "none";
+    // show login
     loginBtn.style.display = "block";
     payBtn.style.display = "none";
     accessBtn.style.display = "none";
@@ -567,6 +580,7 @@ payBtn.onclick = () => showPage('pay');
 backBtn.onclick = () => showPage('main');
 nextBtn.onclick = () => showPage('camera');
 backFromCameraBtn.onclick = () => showPage('main');
+// --- Camera & Photos Logic ---
 openCameraBtn.onclick = () => cameraInput.click();
 openPhotosBtn.onclick = () => photosInput.click();
 function handleFile(file) {
@@ -576,6 +590,7 @@ function handleFile(file) {
   reader.onload = (e) => { 
   previewImage.src = e.target.result; 
   showPage('preview'); 
+  // ✅ MOVE HERE
   submitBtn.style.display = "inline-block";
   cancelBtn.style.display = "inline-block";
 };
@@ -587,8 +602,9 @@ photosInput.onchange = (e) => handleFile(e.target.files[0]);
 cancelBtn.onclick = () => { 
   selectedFile = null; 
   previewImage.src = ""; 
-  showPage('business'); 
+  showPage('business'); // 👈 FIXED
 };
+// --- Timer Logic ---
 function startTimer(seconds) {
   if (isAdmin) return;
   clearInterval(timerInterval);
@@ -661,9 +677,12 @@ const VALID_NUMBERS = [
 ];
 submitBtn.onclick = async () => {
   if (currentMode === "stock") {
+  // 👇 ADD THIS LINE
   previewImage.src = URL.createObjectURL(selectedFile);
+
   submitBtn.style.display = "none";
   cancelBtn.style.display = "none";
+
   currentMode = ""; 
   return;
 }
@@ -689,6 +708,7 @@ submitBtn.onclick = async () => {
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     let detectedText = "";
     let isQR = false;
+    // Check QR first
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const qr = jsQR(imageData.data, canvas.width, canvas.height);
     if (qr && qr.data) {
@@ -843,6 +863,7 @@ listBtn.onclick = async () => {
       `;
     });
   }
+
 };
 const backBtnCash = document.getElementById("backFromCashBookBtn");
 const backFromListBtn = document.getElementById("backFromListBtn");
@@ -853,15 +874,15 @@ backBtnCash.onclick = () => {
     btn.style.display = "block";
   });
 };
+
 backFromListBtn.onclick = () => {
   showPage("view");
+
   document.querySelectorAll("#viewPage > button").forEach(btn => {
     btn.style.display = "block";
   });
 };
 cashBookBtn.onclick = async () => {
-  loadingOverlay.style.display = "flex";
-loadingText.textContent = "Loading Cash Book...";
   document.getElementById("viewPage").style.display = "none"; 
   document.querySelector("#viewPage button[onclick='goBackToBusiness()']").style.display = "none";
   document.querySelector("h1").style.display = "none";
@@ -872,8 +893,7 @@ userDisplay.style.display = "none";
   transactions = [];
   const q = query(
     collection(db, "users", user.email, "transactions"),
-    orderBy("createdAt", "desc"),
-     limit(50)
+    orderBy("createdAt", "desc")
   );
   const snapshot = await getDocs(q);
   snapshot.forEach(doc => {
@@ -883,6 +903,7 @@ userDisplay.style.display = "none";
   cashBookContainer.style.display = "none"; // reset
 cashBookContainer.offsetHeight; // 🔥 force reflow
 cashBookContainer.style.display = "flex";
+
 cashBookContainer.scrollTop = 0;
   listTableContainer.style.display = "none";
   const buttons = document.querySelectorAll("#viewPage > button");
@@ -1052,20 +1073,28 @@ const salesJournalBtn = document.getElementById("salesJournalBtn");
 const salesJournalContainer = document.getElementById("salesJournalContainer");
 const salesJournalBody = document.getElementById("salesJournalBody");
 const backFromSalesJournalBtn = document.getElementById("backFromSalesJournalBtn");
+
 salesJournalBtn.onclick = async () => {
   document.getElementById("viewPage").style.display = "none";
   salesJournalBody.innerHTML = "";
   salesJournalContainer.style.display = "flex";
+
   const user = auth.currentUser;
   if (!user) return;
+
   const q = query(
     collection(db, "users", user.email, "transactions"),
     orderBy("createdAt", "asc")
   );
-const snapshot = await getDocs(q);
+
+  const snapshot = await getDocs(q);
+
   let folio = 1;
+
   snapshot.forEach(doc => {
     const tx = doc.data();
+
+    // ✅ ONLY CREDIT SALES
     if (
   tx.type === "IN" &&
   tx.method === "CREDIT" &&
@@ -1074,7 +1103,7 @@ const snapshot = await getDocs(q);
       salesJournalBody.innerHTML += `
         <tr>
           <td>${new Date(tx.createdAt).toLocaleDateString()}</td>
-          <td>${tx.name}</td>
+          <td>${tx.detail}</td>
           <td>${folio++}</td>
           <td>${tx.amount}</td>
         </tr>
