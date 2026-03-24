@@ -47,6 +47,21 @@
 .purple {
   background: #6f42c1;
 }
+#cashBookContainer {
+  display: none;
+  width: 100%;
+  height: 100vh;
+  overflow: auto;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* center horizontally */
+  justify-content: center; /* center vertically */
+}
+#cashBookContainer table {
+  width: 90%;
+  margin: 0 auto;
+}
   .login-btn{ bottom: 30px; padding:15px 40px; font-size:20px; background:#28a745; color:white; border-radius:6px; }
   .pay-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #28a745; color:white; border-radius:8px; }
   .access-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #007bff; color:white; border-radius:8px; }
@@ -75,6 +90,18 @@
   height:100vh;
   gap:20px;
   text-align:center;
+}
+#backFromCashBookBtn {
+  margin-top: 20px;
+  padding: 12px 30px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 6px;
+
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 #businessPage {
   overflow-y: auto;
@@ -826,7 +853,7 @@ cashBookBtn.onclick = async () => {
     transactions.push(doc.data());
   });
   cashBookBody.innerHTML = "";
-  cashBookContainer.style.display = "block";
+  cashBookContainer.style.display = "flex";
   listTableContainer.style.display = "none";
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => {
