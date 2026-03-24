@@ -141,25 +141,6 @@
     <button class="next-btn">NEXT</button>
   </div>
 </div>
-<div id="stockMenuPage" style="
-display:none;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-height:100vh;
-gap:15px;
-">
-<button onclick="startStockAction('INITIAL')">INITIAL</button>
-<button onclick="startStockAction('SELL')">SELL</button>
-<button onclick="startStockAction('BUY')">BUY</button>
-<button onclick="startStockAction('DAMAGE')">DAMAGE</button>
-<button onclick="startStockAction('SALES RETURN')">SALES RETURN</button>
-<button onclick="startStockAction('PURCHASE RETURN')">PURCHASE RETURN</button>
-<button onclick="startStockAction('CHANGES')">CHANGES</button>
-<button onclick="showPage('business')" style="background:red;color:white;">
-⬅ BACK
-</button>
-</div>
 <div id="cameraMenuPage">
   <button id="openCameraBtn">CAMERA</button>
   <button id="openPhotosBtn">PHOTOS</button>
@@ -402,13 +383,11 @@ let amount = "";
 let type = "";
 let method = "";
 let name = "";
-let currentStockAction = "";
 detail = "";
 amount = "";
 type = "";
 method = "";
 name = "";
-currentStockAction = "";
 detailInput.value = "";
 amountInput.value = "";
 detailInput.style.display = "block";
@@ -537,7 +516,6 @@ accessBtn.onclick = () => {
   showPage('business'); 
 };
 function showPage(page) {
-  document.getElementById("stockMenuPage").style.display = "none";
   logoutBtn.style.display = "none";
   document.getElementById("viewPage").style.display = "none";
 document.getElementById("cashBookContainer").style.display = "none";
@@ -558,9 +536,6 @@ document.getElementById("listTableContainer").style.display = "none";
       payBtn.style.display = "block"; 
     }
   }
-  else if (page === 'stockMenu') {
-  document.getElementById("stockMenuPage").style.display = "flex";
-}
  else if (page === 'preview') {
   previewPage.style.display = "flex";
 }
@@ -690,7 +665,6 @@ submitBtn.onclick = async () => {
   submitBtn.style.display = "none";
   cancelBtn.style.display = "none";
   currentMode = ""; 
-  startStockFlow();
   return;
 }
   if (!selectedFile) { alert("No file selected."); return; }
@@ -1064,9 +1038,6 @@ window.editTransaction = async (id) => {
     doc(db, "users", user.email, "transactions", id),
     { [field]: value }
   );
-  if (product.currentUnits <= product.maxUnits / 3) {
-  alert("⚠ Low stock! Consider buying more.");
-}
   alert("Updated!");
   listBtn.click(); // 🔁 reload
 };
@@ -1074,7 +1045,8 @@ window.goBackToBusiness = function () {
   showPage("business");
 };
 document.getElementById("stockBtn").onclick = () => {
-  showPage('stockMenu');
+  currentMode = "stock"; // 👈 important
+  cameraInput.click();
 };
 const salesJournalBtn = document.getElementById("salesJournalBtn");
 const salesJournalContainer = document.getElementById("salesJournalContainer");
@@ -1114,131 +1086,6 @@ backFromSalesJournalBtn.onclick = () => {
   salesJournalContainer.style.display = "none"; // ✅ hide it
   showPage("view");
 };
-async function startStockFlow() {
-  const user = auth.currentUser;
-  if (!user) return;
-  const snapshot = await getDocs(
-    collection(db, "users", user.email, "products")
-  );
-  if (snapshot.empty) {
-    alert("No products found");
-    return;
-  }
-  let products = [];
-  snapshot.forEach(doc => {
-    products.push({ id: doc.id, ...doc.data() });
-  });
-  const productName = prompt(
-    "Select product:\n" + products.map(p => p.name).join("\n")
-  );
-  const product = products.find(p => p.name === productName);
-  if (!product) {
-    alert("Product not found");
-    return;
-  }
-  const units = Number(prompt("Units:"));
-  if (!units) return;
-  const method = prompt("CASH / BANK / CREDIT");
-  if (!method) return;
-  processStock(product, currentStockAction, units, method.toUpperCase());
-}
-async function processStock(product, action, units, method) {
-  let amount = 0;
-  let type = "";
-  let detail = action;
-  if (action === "SELL") {
-    if (product.currentUnits < units) {
-      alert("Not enough stock");
-      return;
-    }
-    product.currentUnits -= units;
-    amount = units * product.sp;
-    type = "IN";
-    detail = "Sales";
-  }
-  else if (action === "BUY") {
-    product.currentUnits += units;
-    amount = units * product.bp;
-    type = "OUT";
-  }
-  else if (action === "DAMAGE") {
-    product.currentUnits -= units;
-    amount = units * product.bp;
-    type = "OUT";
-  }
-  else if (action === "SALES RETURN") {
-    product.currentUnits += units;
-    amount = units * product.sp;
-    type = "IN";
-  }
-  else if (action === "PURCHASE RETURN") {
-    product.currentUnits -= units;
-    amount = units * product.bp;
-    type = "OUT";
-  }
-  const user = auth.currentUser;
-  if (!user) return;
-  const transaction = {
-    name: "",
-    date: new Date().toLocaleString(),
-    detail,
-    type,
-    method,
-    amount,
-    createdAt: Date.now()
-  };
-  await addDoc(
-    collection(db, "users", user.email, "transactions"),
-    transaction
-  );
-  alert("Stock transaction saved!");
-  showPage("business");
-}
-function startStockAction(action) {
-  currentStockAction = action;
-  if (action === "INITIAL") {
-    startInitialFlow();
-  }
-  else if (action === "CHANGES") {
-    startChangesFlow();
-  }
-  else {
-    currentMode = "stock";
-    cameraInput.click();
-  }
-}
-async function startInitialFlow() {
-  const name = prompt("Product name:");
-  if (!name) return;
-  const bp = Number(prompt("Buying price:"));
-  const sp = Number(prompt("Selling price:"));
-  const units = Number(prompt("Initial units:"));
-  const max = Number(prompt("Max units:"));
-  const user = auth.currentUser;
-  if (!user) return;
-  await addDoc(
-    collection(db, "users", user.email, "products"),
-    {
-      name,
-      bp,
-      sp,
-      currentUnits: units,
-      maxUnits: max,
-      createdAt: Date.now()
-    }
-  );
-  alert("Product created!");
-  showPage("business");
-}
-function startChangesFlow() {
-  const type = prompt("NEW or OLD");
-  if (type === "NEW") {
-    currentStockAction = "BUY";
-    startInitialFlow(); // reuse
-  } else {
-    alert("Only BP, SP, image editing later");
-  }
-}
 </script>
 </body>
 </html>     
