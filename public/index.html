@@ -314,6 +314,7 @@ import {
   getDocs, 
   query, 
   orderBy,
+  limit,
   deleteDoc,
   doc,
   updateDoc
@@ -395,12 +396,12 @@ typeButtons.style.display = "none";
 methodButtons.style.display = "none";
 finalButtons.style.display = "none";
 selectedButtons.innerHTML = "";
-let transactions = [];
-detailInput.oninput = () => {
-  if (detailInput.value.trim().length > 0) {
-    amountInput.style.display = "block";
-  }
-};
+if (transactions.length === 0) {
+  const snapshot = await getDocs(q);
+  snapshot.forEach(doc => {
+    transactions.push(doc.data());
+  });
+}
 amountInput.oninput = () => {
   if (amountInput.value.trim().length > 0) {
     typeButtons.style.display = "flex";
@@ -859,6 +860,8 @@ backFromListBtn.onclick = () => {
   });
 };
 cashBookBtn.onclick = async () => {
+  loadingOverlay.style.display = "flex";
+loadingText.textContent = "Loading Cash Book...";
   document.getElementById("viewPage").style.display = "none"; 
   document.querySelector("#viewPage button[onclick='goBackToBusiness()']").style.display = "none";
   document.querySelector("h1").style.display = "none";
@@ -869,7 +872,8 @@ userDisplay.style.display = "none";
   transactions = [];
   const q = query(
     collection(db, "users", user.email, "transactions"),
-    orderBy("createdAt", "desc")
+    orderBy("createdAt", "desc"),
+     limit(50)
   );
   const snapshot = await getDocs(q);
   snapshot.forEach(doc => {
