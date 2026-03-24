@@ -52,11 +52,12 @@
   height: 100vh;
   overflow: auto;
 
-  display: none; /* ONLY this */
+  display: none;
 
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start; /* 🔥 move to top */
+  padding-top: 20px;
 }
 #cashBookContainer table {
   width: 90%;
@@ -267,8 +268,18 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
   <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
 </div>
 <div id="cashBookContainer">
-<h2 style="text-align:center;">CASH BOOK</h2>
-<table border="1" style="border-collapse:collapse; width:100%; text-align:center;">
+  <div style="width:90%; display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+  <button id="backFromCashBookBtn"
+    style="padding:10px 20px; background:#dc3545; color:white; border:none; border-radius:6px;">
+    ⬅ BACK
+  </button>
+
+  <h2 style="margin:0;">CASH BOOK</h2>
+
+  <div></div> <!-- spacer -->
+</div>
+
+<table border="1" style="border-collapse:collapse; width:90%; text-align:center;">
 <thead>
 <tr>
 <th colspan="4">DR (Debit)</th>
@@ -281,20 +292,6 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
 </thead>
 <tbody id="cashBookBody"></tbody>
 </table>
-<button id="backFromCashBookBtn"
-style="
-margin-top:20px;
-padding:12px 30px;
-background:#dc3545;
-color:white;
-border:none;
-border-radius:6px;
-display:block;
-margin-left:auto;
-margin-right:auto;
-">
-BACK
-</button>
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
