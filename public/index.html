@@ -237,6 +237,8 @@ font-size:18px;
 style="padding:15px; font-size:20px; text-align:center; width:250px;">
 <input id="amountInput" placeholder="Enter amount" type="number"
 style="padding:15px; font-size:20px; text-align:center; width:250px; display:none;">
+<input id="nameInput" placeholder="Enter name"
+style="padding:15px; font-size:20px; text-align:center; width:250px; display:none;">
   <!-- BUTTON DISPLAY AREA -->
   <div id="selectedButtons" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
   <!-- IN / OUT -->
@@ -381,14 +383,25 @@ document.getElementById("addTransactionBtn").onclick = () => {
 const typeButtons = document.getElementById("typeButtons");
 const methodButtons = document.getElementById("methodButtons");
 const finalButtons = document.getElementById("finalButtons");
+const nameInput = document.getElementById("nameInput");
+
+nameInput.oninput = () => {
+  if (nameInput.value.trim().length > 0) {
+    name = nameInput.value;
+    nameInput.style.display = "none";
+    finalButtons.style.display = "flex";
+  }
+};
 let detail = "";
 let amount = "";
 let type = "";
 let method = "";
+let name = "";
 detail = "";
 amount = "";
 type = "";
 method = "";
+name = "";
 detailInput.value = "";
 amountInput.value = "";
 detailInput.style.display = "block";
@@ -423,7 +436,12 @@ function selectType(t) {
 }
 // STEP 4 → PAYMENT
 document.getElementById("cashBtn").onclick = () => selectMethod("CASH");
-document.getElementById("creditBtn").onclick = () => selectMethod("CREDIT");
+document.getElementById("creditBtn").onclick = () => {
+  method = "CREDIT";
+  updateButtons();
+  methodButtons.style.display = "none";
+  document.getElementById("nameInput").style.display = "block";
+};
 document.getElementById("bankBtn").onclick = () => selectMethod("BANK");
 function selectMethod(m) {
   method = m;
@@ -453,6 +471,7 @@ document.getElementById("okBtn").onclick = async () => {
   const user = auth.currentUser;
   if (!user) return;
   const transaction = {
+    name: method === "CREDIT" ? name : "",
     date: new Date().toLocaleString(),
     detail,
     type,
@@ -836,7 +855,7 @@ listBtn.onclick = async () => {
         <tr>
           <td>${i++}</td>
           <td>${tx.date}</td>
-          <td>${tx.detail}</td>
+          <td>${tx.name || tx.detail}</td>
           <td>${tx.type}</td>
           <td>${tx.method}</td>
           <td>${tx.amount}</td>
@@ -1076,7 +1095,11 @@ salesJournalBtn.onclick = async () => {
     const tx = doc.data();
 
     // ✅ ONLY CREDIT SALES
-    if (tx.type === "IN" && tx.method === "CREDIT") {
+    if (
+  tx.type === "IN" &&
+  tx.method === "CREDIT" &&
+  tx.detail.toLowerCase().includes("sale")
+) {
       salesJournalBody.innerHTML += `
         <tr>
           <td>${new Date(tx.createdAt).toLocaleDateString()}</td>
