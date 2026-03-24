@@ -44,7 +44,6 @@
 .green {
   background: #28a745;
 }
-
 .purple {
   background: #6f42c1;
 }
@@ -52,21 +51,17 @@
   .pay-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #28a745; color:white; border-radius:8px; }
   .access-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #007bff; color:white; border-radius:8px; }
   .logout-btn{ bottom: 30px; background:#dc3545; color:white; padding:10px 25px; border-radius:6px; font-size:16px; }
-  
   #userDisplay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); font-size: 18px; font-weight: bold; color: #333; display: none; }
-
   #payPage{ position: fixed; top:0; left:0; width:100%; height:100%; background:#ffffff; display:none; flex-direction:column; justify-content:center; align-items:center; text-align:center; z-index: 10; }
   .pay-info p{ margin:10px; font-size:18px; }
   .mix{ color:green; } .airtel{ color:red; } .crdb{ color:blue; } .name{ color:black; font-weight:bold; }
   .pay-actions{ position: fixed; bottom: 30px; display:flex; gap:20px; }
   .back-btn{ padding:12px 25px; background:gray; color:white; border:none; border-radius:6px; cursor: pointer; }
   .next-btn{ padding:12px 25px; background:green; color:white; border:none; border-radius:6px; cursor: pointer; }
-
   #cameraMenuPage { position: fixed; top:0; left:0; width:100%; height:100%; background: #ffffff; display:none; flex-direction: column; justify-content: center; align-items: center; gap: 20px; z-index: 20; }
   #openCameraBtn { padding: 15px 40px; font-size: 20px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; }
   #openPhotosBtn { padding: 15px 40px; font-size: 20px; background: #17a2b8; color: white; border: none; border-radius: 6px; cursor: pointer; }
   #backFromCameraBtn { padding: 15px 40px; font-size: 20px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; }
-
   #previewPage { position: fixed; top:0; left:0; width:100%; height:100%; background: white; display:none; flex-direction: column; justify-content: center; align-items: center; z-index: 30; }
   #previewImage { max-width: 90%; max-height: 60%; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
   .preview-actions { display: flex; gap: 20px; }
@@ -88,7 +83,6 @@
   .timer-action-btn { padding: 15px 30px; font-size: 18px; color: white; border: none; border-radius: 6px; cursor: pointer; }
   #businessBtn { background: #007bff; }
   #exitBtn { background: #dc3545; }
-
   #loadingOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); display:none; justify-content: center; align-items: center; flex-direction: column; z-index: 100; }
   .loader { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -97,15 +91,12 @@
 <body>
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
-  
 <button class="login-btn">LOGIN</button>
 <button class="pay-btn">PAY</button>
 <button class="access-btn">ACCESS</button>
 <button class="logout-btn">LOGOUT</button>
-
 <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
 <input type="file" id="photosInput" accept="image/*" style="display:none;">
-
 <div id="userDisplay"></div>
 <div id="previewPage">
   <img id="previewImage" src="" alt="Payment Preview">
@@ -114,7 +105,6 @@
     <button id="cancelBtn">CANCEL</button>
   </div>
 </div>
-
 <div id="payPage">
   <div class="pay-info">
     <p>Pay through:</p>
@@ -129,13 +119,11 @@
     <button class="next-btn">NEXT</button>
   </div>
 </div>
-
 <div id="cameraMenuPage">
   <button id="openCameraBtn">CAMERA</button>
   <button id="openPhotosBtn">PHOTOS</button>
   <button id="backFromCameraBtn">BACK</button>
 </div>
-
 <div id="timerPage">
   <div id="userDisplayTimer" style="margin-bottom:20px; font-size:24px; font-weight:bold;"></div>
   <div id="timerDisplay">00:00:00</div>
@@ -170,13 +158,9 @@ VIEW
 <button id="listBtn" style="background:#0d6efd;color:white;">LIST</button>
 <button id="cashBookBtn" style="background:#20c997;color:white;">CASH BOOK</button>
 <button style="background:#6610f2;color:white;" disabled>LEDGERS</button>
-
 <button style="background:#fd7e14;color:white;" disabled>TRIAL BALANCE</button>
-
 <button style="background:#dc3545;color:white;" disabled>INCOME STATEMENT</button>
-
 <button style="background:#198754;color:white;" disabled>BALANCE SHEET</button>
-
 <button onclick="goBackToBusiness()" 
 style="
 position: fixed;
@@ -192,7 +176,6 @@ font-size:18px;
 ">
 ⬅ BACK
 </button>
-
 </div>
 <!-- TABLE -->
 <div id="listTableContainer" style="display:none; width:90%; overflow:auto;">
@@ -200,11 +183,9 @@ font-size:18px;
   <button id="backFromListBtn" style="padding:12px 25px; background:#dc3545; color:white; border:none; border-radius:6px;">
     BACK
   </button>
-
   <button id="deleteModeBtn" style="padding:12px 25px; background:#fd7e14; color:white; border:none; border-radius:6px;">
     DELETE
   </button>
-
   <button id="editModeBtn" style="padding:12px 25px; background:#0d6efd; color:white; border:none; border-radius:6px;">
     EDIT
   </button>
@@ -227,40 +208,33 @@ font-size:18px;
 <div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
 <input id="detailInput" placeholder="Enter detail"
 style="padding:15px; font-size:20px; text-align:center; width:250px;">
-
 <input id="amountInput" placeholder="Enter amount" type="number"
 style="padding:15px; font-size:20px; text-align:center; width:250px; display:none;">
   <!-- BUTTON DISPLAY AREA -->
   <div id="selectedButtons" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
-
   <!-- IN / OUT -->
   <div id="typeButtons" style="display:none; gap:10px;">
     <button id="inBtn" class="big-btn green">IN</button>
 <button id="outBtn" class="big-btn purple">OUT</button>
   </div>
-
   <!-- PAYMENT -->
   <div id="methodButtons" style="display:none; gap:10px;">
     <button style="background:#20c997;color:white;" id="cashBtn">CASH</button>
     <button style="background:#6610f2;color:white;" id="creditBtn">CREDIT</button>
     <button style="background:#0d6efd;color:white;" id="bankBtn">BANK</button>
   </div>
-
   <!-- FINAL -->
   <div id="finalButtons" style="display:none; gap:10px;">
     <button id="okBtn" style="background:#198754;color:white;">OK</button>
     <button id="cancelTransBtn" style="background:#dc3545;color:white;">CANCEL</button>
   </div>
-
 </div>
 <div id="loadingOverlay">
   <div class="loader"></div>
   <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
 </div>
 <div id="cashBookContainer" style="display:none; width:95%; overflow:auto;">
-
 <h2 style="text-align:center;">CASH BOOK</h2>
-
 <table border="1" style="border-collapse:collapse; width:100%; text-align:center;">
 <thead>
 <tr>
@@ -272,7 +246,6 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
 <th>Date</th><th>Detail</th><th>Folio</th><th>Amt</th>
 </tr>
 </thead>
-
 <tbody id="cashBookBody"></tbody>
 </table>
 <button id="backFromCashBookBtn"
@@ -289,7 +262,6 @@ margin-right:auto;
 ">
 BACK
 </button>
-
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -319,15 +291,12 @@ const firebaseConfig = {
   messagingSenderId: "167159607898",
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 const ADMIN_EMAIL = "camelkazembe1@gmail.com";
 let isAdmin = false;
-
-// --- DOM Elements ---
 const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
 const payBtn = document.querySelector(".pay-btn");
@@ -365,7 +334,6 @@ document.getElementById("addTransactionBtn").onclick = () => {
 const typeButtons = document.getElementById("typeButtons");
 const methodButtons = document.getElementById("methodButtons");
 const finalButtons = document.getElementById("finalButtons");
-
 let detail = "";
 let amount = "";
 let type = "";
@@ -374,10 +342,8 @@ detail = "";
 amount = "";
 type = "";
 method = "";
-
 detailInput.value = "";
 amountInput.value = "";
-
 detailInput.style.display = "block";
 amountInput.style.display = "none";
 typeButtons.style.display = "none";
@@ -385,22 +351,16 @@ methodButtons.style.display = "none";
 finalButtons.style.display = "none";
 selectedButtons.innerHTML = "";
 let transactions = [];
-
-// STEP 1 → DETAIL
 detailInput.oninput = () => {
   if (detailInput.value.trim().length > 0) {
     amountInput.style.display = "block";
   }
 };
-
-// STEP 2 → AMOUNT
 amountInput.oninput = () => {
   if (amountInput.value.trim().length > 0) {
     typeButtons.style.display = "flex";
   }
 };
-
-// STEP 3 → IN / OUT
 document.getElementById("inBtn").onclick = () => selectType("IN");
 document.getElementById("outBtn").onclick = () => selectType("OUT");
 document.getElementById("viewBtn").onclick = () => {
@@ -410,45 +370,34 @@ function selectType(t) {
   detail = detailInput.value;
   amount = amountInput.value;
   type = t;
-
   updateButtons();
-
   typeButtons.style.display = "none";
   methodButtons.style.display = "flex";
 }
-
 // STEP 4 → PAYMENT
 document.getElementById("cashBtn").onclick = () => selectMethod("CASH");
 document.getElementById("creditBtn").onclick = () => selectMethod("CREDIT");
 document.getElementById("bankBtn").onclick = () => selectMethod("BANK");
-
 function selectMethod(m) {
   method = m;
-
   updateButtons();
-
   methodButtons.style.display = "none";
   finalButtons.style.display = "flex";
 }
-
 // SHOW BUTTONS
 function updateButtons() {
   selectedButtons.innerHTML = "";
-
   if (detail) {
     selectedButtons.innerHTML += `<button style="background:#007bff;color:white;">${detail}</button>`;
     detailInput.style.display = "none";
   }
-
   if (amount) {
     selectedButtons.innerHTML += `<button style="background:#6f42c1;color:white;">${amount}</button>`;
     amountInput.style.display = "none";
   }
-
   if (type) {
     selectedButtons.innerHTML += `<button style="background:${type==="IN"?"#28a745":"#fd7e14"};color:white;">${type}</button>`;
   }
-
   if (method) {
     selectedButtons.innerHTML += `<button style="background:#20c997;color:white;">${method}</button>`;
   }
@@ -456,7 +405,6 @@ function updateButtons() {
 document.getElementById("okBtn").onclick = async () => {
   const user = auth.currentUser;
   if (!user) return;
-
   const transaction = {
     date: new Date().toLocaleString(),
     detail,
@@ -465,12 +413,10 @@ document.getElementById("okBtn").onclick = async () => {
     amount: Number(amount),
     createdAt: Date.now()
   };
-
   await addDoc(
     collection(db, "users", user.email, "transactions"),
     transaction
   );
-
   alert("Saved!");
   showPage("business");
 };
@@ -480,18 +426,14 @@ document.getElementById("cancelTransBtn").onclick = () => {
 let selectedFile = null;
 let currentMode = "";
 let timerInterval = null;
-
 // --- Auth Logic ---
 onAuthStateChanged(auth, (user) => {
   if (user) {
     isAdmin = user.email === ADMIN_EMAIL;
-
     userDisplay.textContent = user.displayName;
     userDisplay.style.display = "block";
-
     // ✅ SHOW logout only when logged in
     logoutBtn.style.display = "none";
-
     if (isAdmin) {
       showPage('timer');
       timerDisplay.textContent = "UNLIMITED";
@@ -500,20 +442,15 @@ onAuthStateChanged(auth, (user) => {
     } else {
       showPage('main');
     }
-
     // hide login
     loginBtn.style.display = "none";
-
   } else {
     isAdmin = false;
-
     // ✅ HIDE logout when NOT logged in
     logoutBtn.style.display = "none";
     userDisplay.style.display = "none";
-
     // show login
     loginBtn.style.display = "block";
-
     payBtn.style.display = "none";
     accessBtn.style.display = "none";
   }
@@ -532,20 +469,15 @@ document.getElementById("cashBookContainer").style.display = "none";
 document.getElementById("listTableContainer").style.display = "none";
   const vpButtons = document.querySelectorAll("#viewPage > button");
   vpButtons.forEach(btn => btn.style.display = "inline-block");
-
   document.getElementById("transactionPage").style.display = "none";
   payPage.style.display = "none"; 
   cameraMenuPage.style.display = "none"; 
   previewPage.style.display = "none"; 
   timerPage.style.display = "none";
   businessPage.style.display = "none";
-
-  // ❌ HIDE logout by default on all pages
   logoutBtn.style.display = "none";
-
   if(page === 'main' && auth.currentUser) {
     userDisplay.style.display = "block";
-
     const endTime = localStorage.getItem("sessionEnd");
     if (endTime && Date.now() < parseInt(endTime)) { 
       accessBtn.style.display = "block"; 
@@ -553,18 +485,16 @@ document.getElementById("listTableContainer").style.display = "none";
       payBtn.style.display = "block"; 
     }
   }
-
+ else if (page === 'preview') {
+  previewPage.style.display = "flex";
+}
   else if (page === 'business') { 
     businessPage.style.display = "flex";
-
-    // ✅ SHOW logout ONLY here
     logoutBtn.style.display = "block";
-
     businessPage.style.flexDirection = "column";
     businessPage.style.justifyContent = "center";
     businessPage.style.alignItems = "center";
   }
-
   else if (page === 'view') {
     const vp = document.getElementById("viewPage");
     vp.style.display = "flex";
@@ -572,7 +502,6 @@ document.getElementById("listTableContainer").style.display = "none";
     vp.style.justifyContent = "center";
     vp.style.alignItems = "center";
   }
-
   else if (page === 'transaction') {
     document.getElementById("transactionPage").style.display = "flex";
     document.getElementById("viewPage").style.display = "none";
@@ -580,8 +509,6 @@ document.getElementById("listTableContainer").style.display = "none";
 else if (page === 'timer') { 
   timerPage.style.display = "flex"; 
   userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; 
-  
-  // ✅ show logout only here
   logoutBtn.style.display = "block";
 }
 }
@@ -589,11 +516,9 @@ payBtn.onclick = () => showPage('pay');
 backBtn.onclick = () => showPage('main');
 nextBtn.onclick = () => showPage('camera');
 backFromCameraBtn.onclick = () => showPage('main');
-
 // --- Camera & Photos Logic ---
 openCameraBtn.onclick = () => cameraInput.click();
 openPhotosBtn.onclick = () => photosInput.click();
-
 function handleFile(file) {
   if (!file) { showPage('main'); return; }
   selectedFile = file;
@@ -601,7 +526,6 @@ function handleFile(file) {
   reader.onload = (e) => { 
   previewImage.src = e.target.result; 
   showPage('preview'); 
-
   // ✅ MOVE HERE
   submitBtn.style.display = "inline-block";
   cancelBtn.style.display = "inline-block";
@@ -609,7 +533,6 @@ function handleFile(file) {
   reader.readAsDataURL(file);
   cameraInput.value = ""; photosInput.value = "";
 }
-
 cameraInput.onchange = (e) => handleFile(e.target.files[0]);
 photosInput.onchange = (e) => handleFile(e.target.files[0]);
 cancelBtn.onclick = () => { 
@@ -639,7 +562,6 @@ timerDisplay.textContent =
   String(secs).padStart(2, '0');
   }, 1000);
 }
-
 function startTimerFromStorage() {
   if (isAdmin) return;
   const endTime = parseInt(localStorage.getItem("sessionEnd")); if(!endTime) return;
@@ -680,10 +602,6 @@ function preprocessImage(canvas) {
   ctx.putImageData(imageData, 0, 0);
   return canvas;
 }
-
-// -------------------------------------------------------
-// VALIDATION NAMES
-// -------------------------------------------------------
 const VALID_NAMES = [
   "JAMAL SAID KAZEMBE",
   "JAMAL SAID",
@@ -694,8 +612,9 @@ const VALID_NUMBERS = [
   "780526437"
 ];
 submitBtn.onclick = async () => {
- if (currentMode === "stock") {
-  showPage("preview");
+  if (currentMode === "stock") {
+  // 👇 ADD THIS LINE
+  previewImage.src = URL.createObjectURL(selectedFile);
 
   submitBtn.style.display = "none";
   cancelBtn.style.display = "none";
@@ -704,22 +623,18 @@ submitBtn.onclick = async () => {
   return;
 }
   if (!selectedFile) { alert("No file selected."); return; }
-
   loadingOverlay.style.display = "flex";
   loadingText.textContent = "Verifying Account...";
   let objectUrl = null;
-
   try {
     const img = new Image();
     objectUrl = URL.createObjectURL(selectedFile);
     img.src = objectUrl;
-
     await new Promise((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error("Timeout")), 5000);
       img.onload = () => { clearTimeout(timer); resolve(); };
       img.onerror = () => reject(new Error("Invalid image"));
     });
-
     const MAX_W = 1500;
     const scale = Math.min(1, MAX_W / img.width);
     const canvas = document.createElement("canvas");
@@ -727,14 +642,11 @@ submitBtn.onclick = async () => {
     canvas.width = Math.floor(img.width * scale);
     canvas.height = Math.floor(img.height * scale);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
     let detectedText = "";
     let isQR = false;
-
     // Check QR first
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const qr = jsQR(imageData.data, canvas.width, canvas.height);
-    
     if (qr && qr.data) {
       detectedText = qr.data;
       isQR = true;
@@ -742,26 +654,16 @@ submitBtn.onclick = async () => {
     } else {
       loadingText.textContent = "Reading text...";
       preprocessImage(canvas);
-      
       const { data } = await Tesseract.recognize(canvas, "eng", {
         tessedit_pageseg_mode: 6
       });
       detectedText = (data.text || "").replace(/\s+/g, " ").trim();
       console.log("✅ OCR Found:", detectedText);
     }
-
-    // -------------------------------------------------------
-    // NAME CHECK LOGIC
-    // -------------------------------------------------------
-    
-    // Convert detected text to uppercase for matching
     const upperText = detectedText.toUpperCase();
-    // Remove extra spaces to handle "Jamal  Said" -> "JAMAL SAID"
     const cleanSearchText = upperText.replace(/\s+/g, " ");
     let timeValid = isTimeValidFromText(cleanSearchText);
     let nameFound = false;
-
-    // Check if any of the valid names exist in the text
     for (const name of VALID_NAMES) {
       if (cleanSearchText.includes(name)) {
         nameFound = true;
@@ -769,11 +671,7 @@ submitBtn.onclick = async () => {
         break; 
       }
     }
-// --------------------
-// NUMBER CHECK
-// --------------------
 let numberFound = false;
-
 if (nameFound) {
   for (const num of VALID_NUMBERS) {
     if (cleanSearchText.includes(num)) {
@@ -784,12 +682,8 @@ if (nameFound) {
   }
 }
 const { currency, amount } = detectCurrency(cleanSearchText);
-
 const tzsAmount = await convertToTZS(amount, currency);
-
-// formula
 const seconds = Math.floor((tzsAmount / 300) * 3600);
-
 if (nameFound && numberFound && timeValid && seconds > 0) {
   startTimer(seconds);
   timerButtons.style.display = "flex";
@@ -809,66 +703,48 @@ if (nameFound && numberFound && timeValid && seconds > 0) {
 };
 function isTimeValidFromText(text) {
   const clean = text.toUpperCase().replace(/\s+/g, " ");
-
-  // Match time
   const match = clean.match(/\b(\d{1,2})[:. ](\d{2})([:. ](\d{2}))?\s?(AM|PM)?\b/);
-
   if (!match) {
     console.log("❌ No time found");
     return false;
   }
-
   let hours = parseInt(match[1]);
   const minutes = parseInt(match[2]);
   const ampm = match[5];
-
-  // Convert AM/PM → 24h
   if (ampm) {
     if (ampm === "PM" && hours < 12) hours += 12;
     if (ampm === "AM" && hours === 12) hours = 0;
   }
-
   const now = new Date();
-
-  // Create receipt time (TODAY first)
   const receipt = new Date();
   receipt.setHours(hours);
   receipt.setMinutes(minutes);
   receipt.setSeconds(0);
-
-  // 🔴 FIX: If receipt time is in future → assume it's from yesterday
   if (receipt > now) {
     receipt.setDate(receipt.getDate() - 1)
   }
-
   const diff = Math.abs((now - receipt) / 60000);
-
   console.log("⏱ Now:", now);
   console.log("⏱ Receipt:", receipt);
   console.log("⏱ Diff (mins):", diff);
-
   return diff <= 10;
 }
 function detectCurrency(text) {
   const match = text.match(/([A-Z]{3}|[$€£¥₦₵₱₴])\s?([\d,]+)/i);
-
   if (match) {
     return {
       currency: match[1].toUpperCase(),
       amount: parseInt(match[2].replace(/,/g, ""))
     };
   }
-
   const nums = text.match(/\d{3,7}/g);
   return {
     currency: "TZS",
     amount: nums ? Math.max(...nums.map(n => parseInt(n))) : 0
   };
 }
-
 async function convertToTZS(amount, currency) {
   if (currency === "TZS" || currency === "TSH") return amount;
-
   try {
     const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${currency}`);
     const data = await res.json();
@@ -887,11 +763,8 @@ const listTableContainer = document.getElementById("listTableContainer");
 listBtn.onclick = async () => {
   const user = auth.currentUser;
   if (!user) return;
-
   transactions = []; // ✅ store globally
-
   cashBookContainer.style.display = "none";
-
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => {
   if (btn.textContent.trim() !== "⬅ BACK") {
@@ -900,14 +773,11 @@ listBtn.onclick = async () => {
 });
   listTableContainer.style.display = "block";
   listTableBody.innerHTML = "";
-
   const q = query(
     collection(db, "users", user.email, "transactions"),
     orderBy("createdAt", "desc")
   );
-
   const snapshot = await getDocs(q);
-
   if (snapshot.empty) {
     listTableBody.innerHTML = `<tr><td colspan="6">No transactions</td></tr>`;
   } else {
@@ -916,7 +786,6 @@ listBtn.onclick = async () => {
   const tx = doc.data();
   tx.id = doc.id; // ✅ ADD THIS
       transactions.push(tx); // ✅ SAVE HERE
-
       listTableBody.innerHTML += `
         <tr>
           <td>${i++}</td>
@@ -931,67 +800,54 @@ listBtn.onclick = async () => {
   }
 };
 const backFromListBtn = document.getElementById("backFromListBtn");
-backFromListBtn.onclick = () => {
-  showPage("business");
+const backBtnCash = document.getElementById("backFromCashBookBtn");
+backBtnCash.onclick = () => {
+  showPage("view"); // ✅ FIXED
 };
 cashBookBtn.onclick = async () => {
   const user = auth.currentUser;
   if (!user) return;
-
   transactions = [];
-
   const q = query(
     collection(db, "users", user.email, "transactions"),
     orderBy("createdAt", "desc")
   );
-
   const snapshot = await getDocs(q);
-
   snapshot.forEach(doc => {
     transactions.push(doc.data());
   });
-
   cashBookBody.innerHTML = "";
   cashBookContainer.style.display = "block";
   listTableContainer.style.display = "none";
-
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => {
   if (btn.textContent.trim() !== "⬅ BACK") {
     btn.style.display = "none";
   }
 });
-
   let dr = [];
   let cr = [];
-
   let folio = 1;
   let folioMap = {};
-
   transactions
     .sort((a, b) => a.createdAt - b.createdAt) // oldest first
     .forEach(tx => {
-
       if (!folioMap[tx.detail]) {
         folioMap[tx.detail] = folio++;
       }
-
       const entry = {
         date: new Date(tx.createdAt).toLocaleDateString(),
         detail: tx.detail,
         folio: folioMap[tx.detail],
         amount: tx.amount
       };
-
       if (tx.type === "IN") dr.push(entry);
       else cr.push(entry);
     });
-
   const totalDr = dr.reduce((a, b) => a + b.amount, 0);
   const totalCr = cr.reduce((a, b) => a + b.amount, 0);
   const diff = Math.abs(totalDr - totalCr);
   const today = new Date().toLocaleDateString();
-
   if (diff > 0) {
     if (totalDr > totalCr) {
       cr.push({ date: today, detail: "Balance", folio: "c/d", amount: diff });
@@ -999,29 +855,23 @@ cashBookBtn.onclick = async () => {
       dr.push({ date: today, detail: "Balance", folio: "c/d", amount: diff });
     }
   }
-
   const max = Math.max(dr.length, cr.length);
-
   for (let i = 0; i < max; i++) {
     const d = dr[i] || {};
     const c = cr[i] || {};
-
     cashBookBody.innerHTML += `
     <tr>
       <td>${d.date || ""}</td>
       <td>${d.detail || ""}</td>
       <td>${d.folio || ""}</td>
       <td>${d.amount || ""}</td>
-
       <td>${c.date || ""}</td>
       <td>${c.detail || ""}</td>
       <td>${c.folio || ""}</td>
       <td>${c.amount || ""}</td>
     </tr>`;
   }
-
   const finalTotal = Math.max(totalDr, totalCr);
-
   cashBookBody.innerHTML += `
   <tr style="font-weight:bold;">
     <td></td><td></td><td></td>
@@ -1029,7 +879,6 @@ cashBookBtn.onclick = async () => {
     <td></td><td></td><td></td>
     <td style="border-top:2px solid black;">${finalTotal}</td>
   </tr>`;
-  // BALANCE b/d (next day)
 if (diff > 0) {
   cashBookBody.innerHTML += `
   <tr>
@@ -1052,25 +901,15 @@ if (diff > 0) {
 function backFromCashBook() {
   showPage("view");
 }
-// BUTTON EVENT (safe)
 const backBtnCash = document.getElementById("backFromCashBookBtn");
-
-if (backBtnCash) {
-  backBtnCash.onclick = () => {
-  showPage("business");
-};
-}
-// OPEN CASH BOOK
 function openCashBook() {
   cashBookContainer.style.display = "block";
   document.getElementById("viewPage").style.display = "none";
   listTableContainer.style.display = "none";
 }
 const deleteModeBtn = document.getElementById("deleteModeBtn");
-
 deleteModeBtn.onclick = () => {
   listTableBody.innerHTML = "";
-
   transactions.forEach((tx, index) => {
     listTableBody.innerHTML += `
       <tr>
@@ -1086,20 +925,15 @@ deleteModeBtn.onclick = () => {
 };
 window.deleteTransaction = async (id) => {
   if (!confirm("Delete this transaction?")) return;
-
   const user = auth.currentUser;
   if (!user) return;
-
   await deleteDoc(doc(db, "users", user.email, "transactions", id));
-
   alert("Deleted!");
   listBtn.click(); // 🔁 reload table
 };
 const editModeBtn = document.getElementById("editModeBtn");
-
 editModeBtn.onclick = () => {
   listTableBody.innerHTML = "";
-
   transactions.forEach((tx, index) => {
     listTableBody.innerHTML += `
       <tr>
@@ -1117,12 +951,9 @@ window.editTransaction = async (id) => {
   const choice = prompt(
     "Edit:\n1 Detail\n2 Amount\n3 Type(IN/OUT)\n4 Method(CASH/CREDIT/BANK)"
   );
-
   if (!choice) return;
-
   let field = "";
   let value = "";
-
   if (choice === "1") {
     field = "detail";
     value = prompt("Enter new detail:");
@@ -1139,19 +970,14 @@ window.editTransaction = async (id) => {
     field = "method";
     value = prompt("Enter CASH / CREDIT / BANK:");
   }
-
   if (!value) return;
-
   if (!confirm("Confirm update?")) return;
-
   const user = auth.currentUser;
   if (!user) return;
-
   await updateDoc(
     doc(db, "users", user.email, "transactions", id),
     { [field]: value }
   );
-
   alert("Updated!");
   listBtn.click(); // 🔁 reload
 };
