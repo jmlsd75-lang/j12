@@ -839,6 +839,9 @@ backFromListBtn.onclick = () => {
   });
 };
 cashBookBtn.onclick = async () => {
+  document.querySelector("h1").style.display = "none";
+document.querySelector("h2").style.display = "none";
+userDisplay.style.display = "none";
   const user = auth.currentUser;
   if (!user) return;
   transactions = [];
@@ -851,8 +854,11 @@ cashBookBtn.onclick = async () => {
     transactions.push(doc.data());
   });
   cashBookBody.innerHTML = "";
-  cashBookContainer.style.display = "flex";
-cashBookContainer.scrollTop = 0; // 🔥 ADD THIS LINE
+  cashBookContainer.style.display = "none"; // reset
+cashBookContainer.offsetHeight; // 🔥 force reflow
+cashBookContainer.style.display = "flex";
+
+cashBookContainer.scrollTop = 0;
   listTableContainer.style.display = "none";
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => {
