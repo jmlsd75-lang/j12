@@ -187,7 +187,7 @@ async function saveUserData(collectionName, data) {
     await addDoc(collection(db, "users", user.uid, collectionName), {
       ...data,
       userId: user.uid,
-      createdAt: new Date()
+  createdAt: new Date()
     });
   } catch (e) {
     console.error("Save error:", e);
@@ -614,9 +614,14 @@ async function loadBusinessData() {
   snapshot.forEach(doc => {
     const data = doc.data();
     const tr = document.createElement("tr");
-    const date = data.createdAt?.toDate
-      ? data.createdAt.toDate().toLocaleDateString()
-      : "";
+    let date = "";
+if (data.createdAt) {
+  if (data.createdAt.toDate) {
+    date = data.createdAt.toDate().toLocaleDateString();
+  } else {
+    date = new Date(data.createdAt).toLocaleDateString();
+  }
+}
     tr.innerHTML = `
       <td>${sn++}</td>
       <td>${data.detail || ""}</td>
