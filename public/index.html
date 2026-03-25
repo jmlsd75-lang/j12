@@ -22,32 +22,6 @@
   color: white;
   cursor: pointer;
 }
-#viewPage button {
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  padding: 12px 25px;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-}
-#viewPage button:disabled {
-  opacity: 1; /* remove faded look */
-}
-#typeButtons button,
-#methodButtons button,
-#finalButtons button {
-  padding: 15px 30px;
-  font-size: 18px;
-  border-radius: 8px;
-}
-.green {
-  background: #28a745;
-}
-
-.purple {
-  background: #6f42c1;
-}
   .login-btn{ bottom: 30px; padding:15px 40px; font-size:20px; background:#28a745; color:white; border-radius:6px; }
   .pay-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #28a745; color:white; border-radius:8px; }
   .access-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #007bff; color:white; border-radius:8px; }
@@ -136,7 +110,6 @@
     <button id="cancelBtn">CANCEL</button>
   </div>
 </div>
-
 <div id="timerPage">
   <div id="userDisplayTimer" style="margin-bottom:20px; font-size:24px; font-weight:bold;"></div>
   <div id="timerDisplay">00:00:00</div>
@@ -144,10 +117,6 @@
   <div id="timerButtons">
     <button id="exitBtn" class="timer-action-btn">EXIT</button>
   </div>
-</div>
-<div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
-<input id="detailInput" placeholder="Enter detail"
-style="padding:15px; font-size:20px; text-align:center; width:250px;">
 </div>
 <div id="loadingOverlay">
   <div class="loader"></div>
@@ -209,122 +178,9 @@ const timerDisplay = document.getElementById("timerDisplay");
 const userDisplayTimer = document.getElementById("userDisplayTimer");
 const timerStatus = document.getElementById("timerStatus");
 const timerButtons = document.getElementById("timerButtons");
-const businessBtn = document.getElementById("businessBtn");
 const exitBtn = document.getElementById("exitBtn");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
-const businessPage = document.getElementById("businessPage");
-const detailInput = document.getElementById("detailInput");
-const amountInput = document.getElementById("amountInput");
-const selectedButtons = document.getElementById("selectedButtons");
-document.getElementById("addTransactionBtn").onclick = () => {
-  showPage('transaction');
-};
-const typeButtons = document.getElementById("typeButtons");
-const methodButtons = document.getElementById("methodButtons");
-const finalButtons = document.getElementById("finalButtons");
-
-let detail = "";
-let amount = "";
-let type = "";
-let method = "";
-let transactions = [];
-
-// STEP 1 → DETAIL
-detailInput.oninput = () => {
-  if (detailInput.value.trim().length > 0) {
-    amountInput.style.display = "block";
-  }
-};
-
-// STEP 2 → AMOUNT
-amountInput.oninput = () => {
-  if (amountInput.value.trim().length > 0) {
-    typeButtons.style.display = "flex";
-  }
-};
-
-// STEP 3 → IN / OUT
-document.getElementById("inBtn").onclick = () => selectType("IN");
-document.getElementById("outBtn").onclick = () => selectType("OUT");
-document.getElementById("viewBtn").onclick = () => {
-  showPage('view');
-};
-function selectType(t) {
-  detail = detailInput.value;
-  amount = amountInput.value;
-  type = t;
-
-  updateButtons();
-
-  typeButtons.style.display = "none";
-  methodButtons.style.display = "flex";
-}
-
-// STEP 4 → PAYMENT
-document.getElementById("cashBtn").onclick = () => selectMethod("CASH");
-document.getElementById("creditBtn").onclick = () => selectMethod("CREDIT");
-document.getElementById("bankBtn").onclick = () => selectMethod("BANK");
-
-function selectMethod(m) {
-  method = m;
-
-  updateButtons();
-
-  methodButtons.style.display = "none";
-  finalButtons.style.display = "flex";
-}
-
-// SHOW BUTTONS
-function updateButtons() {
-  selectedButtons.innerHTML = "";
-
-  if (detail) {
-    selectedButtons.innerHTML += `<button style="background:#007bff;color:white;">${detail}</button>`;
-    detailInput.style.display = "none";
-  }
-
-  if (amount) {
-    selectedButtons.innerHTML += `<button style="background:#6f42c1;color:white;">${amount}</button>`;
-    amountInput.style.display = "none";
-  }
-
-  if (type) {
-    selectedButtons.innerHTML += `<button style="background:${type==="IN"?"#28a745":"#fd7e14"};color:white;">${type}</button>`;
-  }
-
-  if (method) {
-    selectedButtons.innerHTML += `<button style="background:#20c997;color:white;">${method}</button>`;
-  }
-}
-document.getElementById("okBtn").onclick = async () => {
-  const user = auth.currentUser;
-  if (!user) return;
-
-  const transaction = {
-    date: new Date().toLocaleString(),
-    detail,
-    type,
-    method,
-    amount: Number(amount),
-    createdAt: Date.now()
-  };
-
-  await addDoc(
-    collection(db, "users", user.email, "transactions"),
-    transaction
-  );
-
-  alert("Saved!");
-  showPage("business");
-};
-document.getElementById("cancelTransBtn").onclick = () => {
-  showPage("business");
-};
-let selectedFile = null;
-let timerInterval = null;
-
-// --- Auth Logic ---
 onAuthStateChanged(auth, (user) => {
   if (user) {
     isAdmin = user.email === ADMIN_EMAIL;
@@ -357,49 +213,18 @@ accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
 
 // --- Navigation Logic ---
 function showPage(page) {
-  document.getElementById("viewPage").style.display = "none";
-  document.getElementById("transactionPage").style.display = "none";
   payPage.style.display = "none"; 
   cameraMenuPage.style.display = "none"; 
   previewPage.style.display = "none"; 
   timerPage.style.display = "none";
-  businessPage.style.display = "none";
   if(page === 'main' && auth.currentUser) {
     userDisplay.style.display = "block"; logoutBtn.style.display = "block";
     const endTime = localStorage.getItem("sessionEnd");
     if (endTime && Date.now() < parseInt(endTime)) { accessBtn.style.display = "block"; } 
     else { payBtn.style.display = "block"; }
   }
-  else if (page === 'view') {
-  const vp = document.getElementById("viewPage");
-
-  vp.style.display = "flex";
-  vp.style.flexDirection = "column";
-  vp.style.justifyContent = "center";
-  vp.style.alignItems = "center";
-}
   else if (page === 'pay') { payPage.style.display = "flex"; } 
   else if (page === 'camera') { cameraMenuPage.style.display = "flex"; } 
-  else if (page === 'transaction') {
-  document.getElementById("transactionPage").style.display = "flex";
-document.getElementById("viewPage").style.display = "none";
-  // RESET EVERYTHING
-  detailInput.value = "";
-  amountInput.value = "";
-  selectedButtons.innerHTML = "";
-
-  detailInput.style.display = "block";
-  amountInput.style.display = "none";
-
-  typeButtons.style.display = "none";
-  methodButtons.style.display = "none";
-  finalButtons.style.display = "none";
-
-  detail = "";
-  amount = "";
-  type = "";
-  method = "";
-}
   else if (page === 'preview') { previewPage.style.display = "flex"; } 
 else if (page === 'timer') { 
   // HIDE EVERYTHING COMPLETELY
@@ -412,9 +237,6 @@ else if (page === 'timer') {
   // SHOW ONLY TIMER PAGE
   timerPage.style.display = "flex"; 
   userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; 
-}
-  else if (page === 'business') { 
-  businessPage.style.display = "flex"; 
 }
 }
 
@@ -480,9 +302,7 @@ timerDisplay.textContent =
   }, 1000);
 }
 exitBtn.onclick = () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); timerButtons.style.display = "none"; showPage('main'); };
-businessBtn.onclick = () => {
-  showPage('business');
-};
+
 function preprocessImage(canvas) {
   const ctx = canvas.getContext('2d');
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -566,12 +386,6 @@ submitBtn.onclick = async () => {
       detectedText = (data.text || "").replace(/\s+/g, " ").trim();
       console.log("✅ OCR Found:", detectedText);
     }
-
-    // -------------------------------------------------------
-    // NAME CHECK LOGIC
-    // -------------------------------------------------------
-    
-    // Convert detected text to uppercase for matching
     const upperText = detectedText.toUpperCase();
     // Remove extra spaces to handle "Jamal  Said" -> "JAMAL SAID"
     const cleanSearchText = upperText.replace(/\s+/g, " ");
@@ -586,11 +400,7 @@ submitBtn.onclick = async () => {
         break; 
       }
     }
-// --------------------
-// NUMBER CHECK
-// --------------------
 let numberFound = false;
-
 if (nameFound) {
   for (const num of VALID_NUMBERS) {
     if (cleanSearchText.includes(num)) {
@@ -601,12 +411,9 @@ if (nameFound) {
   }
 }
 const { currency, amount } = detectCurrency(cleanSearchText);
-
 const tzsAmount = await convertToTZS(amount, currency);
-
 // formula
 const seconds = Math.floor((tzsAmount / 300) * 3600);
-
 if (nameFound && numberFound && timeValid && seconds > 0) {
   startTimer(seconds);
   timerButtons.style.display = "flex";
@@ -695,66 +502,6 @@ async function convertToTZS(amount, currency) {
     return 0;
   }
 }
-const listBtn = document.getElementById("listBtn");
-const listTableBody = document.getElementById("listTableBody");
-const listTableContainer = document.getElementById("listTableContainer");
-listBtn.onclick = async () => {
-  const user = auth.currentUser;
-  if (!user) return;
-
-  // HIDE ALL BUTTONS INSIDE VIEW PAGE
-  const buttons = document.querySelectorAll("#viewPage > button");
-  buttons.forEach(btn => btn.style.display = "none");
-
-  // SHOW TABLE
-  listTableContainer.style.display = "block";
-  listTableBody.innerHTML = "";
-
-  const q = query(
-    collection(db, "users", user.email, "transactions"),
-    orderBy("createdAt", "desc")
-  );
-
-  const snapshot = await getDocs(q);
-
-  if (snapshot.empty) {
-    listTableBody.innerHTML = `
-      <tr>
-        <td colspan="6" style="text-align:center; padding:20px;">
-          No transactions found
-        </td>
-      </tr>
-    `;
-  } else {
-    let i = 1;
-
-    snapshot.forEach(doc => {
-      const tx = doc.data();
-
-      listTableBody.innerHTML += `
-        <tr>
-          <td>${i++}</td>
-          <td>${tx.date}</td>
-          <td>${tx.detail}</td>
-          <td>${tx.type}</td>
-          <td>${tx.method}</td>
-          <td>${tx.amount}</td>
-        </tr>
-      `;
-    });
-  }
-};
-document.getElementById("globalBackBtn").onclick = () => {
-  if (document.getElementById("viewPage").style.display === "flex") {
-    showPage("business");
-  } 
-  else if (document.getElementById("businessPage").style.display === "flex") {
-    showPage("timer");
-  } 
-  else {
-    showPage("main");
-  }
-};
 </script>
 </body>
 </html>             
