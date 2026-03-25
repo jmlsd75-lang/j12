@@ -139,8 +139,7 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 const ADMIN_EMAIL = "camelkazembe1@gmail.com";
 let isAdmin = false;
-
-// --- DOM Elements ---
+let timerInterval = null;
 const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
 const payBtn = document.querySelector(".pay-btn");
