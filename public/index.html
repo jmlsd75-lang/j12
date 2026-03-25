@@ -94,6 +94,7 @@
   <div id="timerStatus">Session Active</div>
   <div id="timerButtons">
     <button id="healthBtn" class="timer-action-btn" style="background: green;">HEALTH</button>
+   <button id="educationBtn" class="timer-action-btn" style="background: blue;">EDUCATION</button>
     <button id="exitBtn" class="timer-action-btn">EXIT</button>
   </div>
 </div>
@@ -289,6 +290,9 @@ document.getElementById("healthBtn").onclick = () => {
     return;
   }
   alert("Hello " + name + ", health check started ✅");
+};
+document.getElementById("educationBtn").onclick = () => {
+  alert("Education section 📘");
 };
 function preprocessImage(canvas) {
   const ctx = canvas.getContext('2d');
