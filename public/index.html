@@ -142,83 +142,12 @@
   <div id="timerDisplay">00:00:00</div>
   <div id="timerStatus">Session Active</div>
   <div id="timerButtons">
-    <button id="businessBtn" class="timer-action-btn">BUSINESS</button>
     <button id="exitBtn" class="timer-action-btn">EXIT</button>
   </div>
-</div>
-<div id="businessPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:20px;">
-<button id="addTransactionBtn" 
-style="background:#28a745; color:white; padding:12px 25px; border:none; border-radius:6px;">
-ADD NEW TRANSACTION
-</button>
-<button id="viewBtn" style="background:#6f42c1;color:white;padding:12px 25px;border:none;border-radius:6px;">
-VIEW
-</button>
-  <button onclick="showPage('timer')">BACK</button>
-</div>
-
-<div id="viewPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
-<button id="listBtn" style="background:#0d6efd;color:white;">LIST</button>
-
-<button style="background:#20c997;color:white;" disabled>CASH BOOK</button>
-
-<button style="background:#6610f2;color:white;" disabled>LEDGERS</button>
-
-<button style="background:#fd7e14;color:white;" disabled>TRIAL BALANCE</button>
-
-<button style="background:#dc3545;color:white;" disabled>INCOME STATEMENT</button>
-
-<button style="background:#198754;color:white;" disabled>BALANCE SHEET</button>
-
-<button onclick="showPage('business')">BACK</button>
-
-<!-- TABLE -->
-<div id="listTableContainer" style="display:none; width:90%; overflow:auto;">
-  <table border="1" style="border-collapse:collapse; width:100%; margin-top:20px;">
-    <thead style="background:#333; color:white;">
-      <tr>
-        <th>S/N</th>
-        <th>DATE</th>
-        <th>DETAIL</th>
-        <th>TYPE</th>
-        <th>METHOD</th>
-        <th>AMOUNT</th>
-      </tr>
-    </thead>
-    <tbody id="listTableBody"></tbody>
-  </table>
-</div>
-
-</button>
 </div>
 <div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
 <input id="detailInput" placeholder="Enter detail"
 style="padding:15px; font-size:20px; text-align:center; width:250px;">
-
-<input id="amountInput" placeholder="Enter amount" type="number"
-style="padding:15px; font-size:20px; text-align:center; width:250px; display:none;">
-  <!-- BUTTON DISPLAY AREA -->
-  <div id="selectedButtons" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
-
-  <!-- IN / OUT -->
-  <div id="typeButtons" style="display:none; gap:10px;">
-    <button id="inBtn" class="big-btn green">IN</button>
-<button id="outBtn" class="big-btn purple">OUT</button>
-  </div>
-
-  <!-- PAYMENT -->
-  <div id="methodButtons" style="display:none; gap:10px;">
-    <button style="background:#20c997;color:white;" id="cashBtn">CASH</button>
-    <button style="background:#6610f2;color:white;" id="creditBtn">CREDIT</button>
-    <button style="background:#0d6efd;color:white;" id="bankBtn">BANK</button>
-  </div>
-
-  <!-- FINAL -->
-  <div id="finalButtons" style="display:none; gap:10px;">
-    <button id="okBtn" style="background:#198754;color:white;">OK</button>
-    <button id="cancelTransBtn" style="background:#dc3545;color:white;">CANCEL</button>
-  </div>
-
 </div>
 <div id="loadingOverlay">
   <div class="loader"></div>
