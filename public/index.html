@@ -134,6 +134,24 @@
   <button id="viewBusinessBtn" class="big-btn" style="background:orange;">VIEW</button>
   <button id="exitBusinessBtn" class="big-btn" style="background:red;">EXIT</button>
 </div>
+<div id="businessViewPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; align-items:center; padding:20px; z-index:70; overflow:auto;">
+  <h2>BUSINESS RECORDS</h2>
+  <table border="1" style="width:100%; max-width:900px; border-collapse:collapse; text-align:center;">
+    <thead>
+      <tr>
+        <th>S/N</th>
+        <th>DETAIL</th>
+        <th>TYPE</th>
+        <th>METHOD</th>
+        <th>AMOUNT</th>
+        <th>USER</th>
+        <th>DATE</th>
+      </tr>
+    </thead>
+    <tbody id="businessTableBody"></tbody>
+  </table>
+  <button id="backViewBtn" class="big-btn" style="background:red; margin-top:20px;">BACK</button>
+</div>
 <div id="loadingOverlay">
   <div class="loader"></div>
   <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
@@ -518,6 +536,7 @@ document.getElementById("backHealthBtn").onclick = () => {
 document.getElementById("backEduBtn").onclick = () => {
   showPage('timer');
 };
+const creditNameInput = document.getElementById("creditNameInput");
 const businessFormPage = document.getElementById("businessFormPage");
 let flowData = {
   type: null,   // IN / OUT
@@ -574,12 +593,13 @@ document.getElementById("viewBusinessBtn").onclick = async () => {
   businessPage.style.display = "none";
   businessViewPage.style.display = "flex";
 };
-// BACK BUTTON
-document.getElementById("backViewBtn").onclick = () => {
-  businessViewPage.style.display = "none";
-  businessPage.style.display = "flex";
-};
-// LOAD DATA FROM FIRESTORE
+const backViewBtn = document.getElementById("backViewBtn");
+if (backViewBtn) {
+  backViewBtn.onclick = () => {
+    businessViewPage.style.display = "none";
+    businessPage.style.display = "flex";
+  };
+}
 async function loadBusinessData() {
   tableBody.innerHTML = "";
   const user = auth.currentUser;
