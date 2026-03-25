@@ -566,6 +566,48 @@ document.getElementById("okBtn").onclick = async () => {
   flowData = { type: null, method: null };
   businessFormPage.style.display = "none";
 };
+const businessViewPage = document.getElementById("businessViewPage");
+const tableBody = document.getElementById("businessTableBody");
+// OPEN VIEW PAGE
+document.getElementById("viewBusinessBtn").onclick = async () => {
+  await loadBusinessData();
+  businessPage.style.display = "none";
+  businessViewPage.style.display = "flex";
+};
+// BACK BUTTON
+document.getElementById("backViewBtn").onclick = () => {
+  businessViewPage.style.display = "none";
+  businessPage.style.display = "flex";
+};
+// LOAD DATA FROM FIRESTORE
+async function loadBusinessData() {
+  tableBody.innerHTML = "";
+  const user = auth.currentUser;
+  if (!user) return;
+  const q = query(
+    collection(db, "users", user.uid, "business_records"),
+    orderBy("createdAt", "desc")
+  );
+  const snapshot = await getDocs(q);
+  let sn = 1;
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    const tr = document.createElement("tr");
+    const date = data.createdAt?.toDate
+      ? data.createdAt.toDate().toLocaleDateString()
+      : "";
+    tr.innerHTML = `
+      <td>${sn++}</td>
+      <td>${data.detail || ""}</td>
+      <td>${data.type || ""}</td>
+      <td>${data.method || ""}</td>
+      <td>${data.amount || ""}</td>
+      <td>${auth.currentUser.displayName || ""}</td>
+      <td>${date}</td>
+    `;
+    tableBody.appendChild(tr);
+  });
+}
 </script>
 </body>
 </html>             
