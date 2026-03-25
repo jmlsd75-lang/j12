@@ -230,14 +230,15 @@ function showPage(page) {
 }
   else if (page === 'pay') { payPage.style.display = "flex"; } 
   else if (page === 'camera') { cameraMenuPage.style.display = "flex"; } 
-  else if (page === 'preview') { previewPage.style.display = "flex"; } 
-else if (page === 'timer') { 
+  else if (page === 'preview') { previewPage.style.display = "flex"; }
+  else if (page === 'timer') { 
   loginBtn.style.display = "none";
   payBtn.style.display = "none";
   accessBtn.style.display = "none";
   logoutBtn.style.display = "none";
   userDisplay.style.display = "none";
   timerPage.style.display = "flex"; 
+  timerButtons.style.display = "flex";   // ✅ ADD THIS LINE
   userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; 
 }
 }
