@@ -99,6 +99,24 @@
     <button id="exitBtn" class="timer-action-btn">EXIT</button>
   </div>
 </div>
+<div id="businessFormPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:15px; z-index:60;">
+  <input id="detailInput" placeholder="Enter Details" class="big-btn" style="color:black; background:#eee;">
+  <input id="amountInput" type="number" placeholder="Enter Amount" class="big-btn" style="color:black; background:#eee;">
+  <div>
+    <button id="inBtn" class="big-btn" style="background:green;">IN</button>
+    <button id="outBtn" class="big-btn" style="background:red;">OUT</button>
+  </div>
+  <div>
+    <button id="cashBtn" class="big-btn" style="background:orange;">CASH</button>
+    <button id="creditBtn" class="big-btn" style="background:blue;">CREDIT</button>
+    <button id="bankBtn" class="big-btn" style="background:purple;">BANK</button>
+  </div>
+  <input id="creditNameInput" placeholder="Enter Credit Name" class="big-btn" style="color:black; background:#eee; display:none;">
+  <div>
+    <button id="okBtn" class="big-btn" style="background:green;">OK</button>
+    <button id="cancelFormBtn" class="big-btn" style="background:red;">CANCEL</button>
+  </div>
+</div>
 <div id="healthPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:50;">
   <button id="registerNewBtn" class="big-btn" style="background:green;">REGISTER NEW</button>  
   <button id="searchBtn" class="big-btn" style="background:orange;">SEARCH</button>
@@ -499,6 +517,54 @@ document.getElementById("backHealthBtn").onclick = () => {
 };
 document.getElementById("backEduBtn").onclick = () => {
   showPage('timer');
+};
+const businessFormPage = document.getElementById("businessFormPage");
+let flowData = {
+  type: null,   // IN / OUT
+  method: null  // CASH / CREDIT / BANK
+};
+document.getElementById("addBusinessBtn").onclick = () => {
+  businessFormPage.style.display = "flex";
+};
+document.getElementById("inBtn").onclick = () => flowData.type = "IN";
+document.getElementById("outBtn").onclick = () => flowData.type = "OUT";
+document.getElementById("cashBtn").onclick = () => {
+  flowData.method = "CASH";
+  creditNameInput.style.display = "none";
+};
+document.getElementById("bankBtn").onclick = () => {
+  flowData.method = "BANK";
+  creditNameInput.style.display = "none";
+};
+document.getElementById("creditBtn").onclick = () => {
+  flowData.method = "CREDIT";
+  creditNameInput.style.display = "block";
+};
+document.getElementById("cancelFormBtn").onclick = () => {
+  businessFormPage.style.display = "none";
+};
+document.getElementById("okBtn").onclick = async () => {
+  const detail = document.getElementById("detailInput").value;
+  const amount = document.getElementById("amountInput").value;
+  const creditName = document.getElementById("creditNameInput").value;
+  if (!detail || !amount || !flowData.type || !flowData.method) {
+    alert("Fill all fields");
+    return;
+  }
+  await saveUserData("business_records", {
+    detail,
+    amount: Number(amount),
+    type: flowData.type,
+    method: flowData.method,
+    creditName: flowData.method === "CREDIT" ? creditName : null
+  });
+  alert("Saved!");
+  document.getElementById("detailInput").value = "";
+  document.getElementById("amountInput").value = "";
+  document.getElementById("creditNameInput").value = "";
+  creditNameInput.style.display = "none";
+  flowData = { type: null, method: null };
+  businessFormPage.style.display = "none";
 };
 </script>
 </body>
