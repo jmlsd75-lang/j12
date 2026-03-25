@@ -287,14 +287,6 @@ exitBtn.onclick = () => { clearInterval(timerInterval); localStorage.removeItem(
 document.getElementById("businessBtn").onclick = () => {
   alert("Business section 💼");
 };
-document.getElementById("healthBtn").onclick = () => {
-  const name = prompt("Enter your first name:");
-  if (!name || name.trim() === "") {
-    alert("Name is required");
-    return;
-  }
-  alert("Hello " + name + ", health check started ✅");
-};
 document.getElementById("educationBtn").onclick = () => {
   alert("Education section 📘");
 };
