@@ -156,41 +156,6 @@ VIEW
 </button>
   <button onclick="showPage('timer')">BACK</button>
 </div>
-
-<div id="viewPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
-<button id="listBtn" style="background:#0d6efd;color:white;">LIST</button>
-
-<button style="background:#20c997;color:white;" disabled>CASH BOOK</button>
-
-<button style="background:#6610f2;color:white;" disabled>LEDGERS</button>
-
-<button style="background:#fd7e14;color:white;" disabled>TRIAL BALANCE</button>
-
-<button style="background:#dc3545;color:white;" disabled>INCOME STATEMENT</button>
-
-<button style="background:#198754;color:white;" disabled>BALANCE SHEET</button>
-
-<button onclick="showPage('business')">BACK</button>
-
-<!-- TABLE -->
-<div id="listTableContainer" style="display:none; width:90%; overflow:auto;">
-  <table border="1" style="border-collapse:collapse; width:100%; margin-top:20px;">
-    <thead style="background:#333; color:white;">
-      <tr>
-        <th>S/N</th>
-        <th>DATE</th>
-        <th>DETAIL</th>
-        <th>TYPE</th>
-        <th>METHOD</th>
-        <th>AMOUNT</th>
-      </tr>
-    </thead>
-    <tbody id="listTableBody"></tbody>
-  </table>
-</div>
-
-</button>
-</div>
 <div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
 <input id="detailInput" placeholder="Enter detail"
 style="padding:15px; font-size:20px; text-align:center; width:250px;">
@@ -224,6 +189,10 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
   <div class="loader"></div>
   <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
 </div>
+<button id="globalBackBtn"
+style="background:gray;color:white;padding:12px 25px;border:none;border-radius:6px;">
+BACK
+</button>
 <script type="module">
   import { 
   getFirestore, 
@@ -762,66 +731,6 @@ async function convertToTZS(amount, currency) {
     return 0;
   }
 }
-const listBtn = document.getElementById("listBtn");
-const listTableBody = document.getElementById("listTableBody");
-const listTableContainer = document.getElementById("listTableContainer");
-listBtn.onclick = async () => {
-  const user = auth.currentUser;
-  if (!user) return;
-
-  // HIDE ALL BUTTONS INSIDE VIEW PAGE
-  const buttons = document.querySelectorAll("#viewPage > button");
-  buttons.forEach(btn => btn.style.display = "none");
-
-  // SHOW TABLE
-  listTableContainer.style.display = "block";
-  listTableBody.innerHTML = "";
-
-  const q = query(
-    collection(db, "users", user.email, "transactions"),
-    orderBy("createdAt", "desc")
-  );
-
-  const snapshot = await getDocs(q);
-
-  if (snapshot.empty) {
-    listTableBody.innerHTML = `
-      <tr>
-        <td colspan="6" style="text-align:center; padding:20px;">
-          No transactions found
-        </td>
-      </tr>
-    `;
-  } else {
-    let i = 1;
-
-    snapshot.forEach(doc => {
-      const tx = doc.data();
-
-      listTableBody.innerHTML += `
-        <tr>
-          <td>${i++}</td>
-          <td>${tx.date}</td>
-          <td>${tx.detail}</td>
-          <td>${tx.type}</td>
-          <td>${tx.method}</td>
-          <td>${tx.amount}</td>
-        </tr>
-      `;
-    });
-  }
-};
-document.getElementById("globalBackBtn").onclick = () => {
-  if (document.getElementById("viewPage").style.display === "flex") {
-    showPage("business");
-  } 
-  else if (document.getElementById("businessPage").style.display === "flex") {
-    showPage("timer");
-  } 
-  else {
-    showPage("main");
-  }
-};
 </script>
 </body>
 </html>             
