@@ -10,7 +10,6 @@
   body{ margin:0; font-family:Arial, sans-serif; background:#f4f4f4; display:flex; flex-direction:column; justify-content:flex-start; align-items:center; min-height:100vh; text-align:center; padding-top:50px; }
   h1{ font-size:28px; color:blue; margin:0; }
   h2{ color:red; margin-top:5px; font-size:16px; }
-
   .login-btn, .logout-btn, .pay-btn, .access-btn {
     position: fixed; left: 50%; transform: translateX(-50%); border:none; cursor:pointer; display: none; 
   }
@@ -26,21 +25,17 @@
   .pay-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #28a745; color:white; border-radius:8px; }
   .access-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #007bff; color:white; border-radius:8px; }
   .logout-btn{ bottom: 30px; background:#dc3545; color:white; padding:10px 25px; border-radius:6px; font-size:16px; }
-  
   #userDisplay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); font-size: 18px; font-weight: bold; color: #333; display: none; }
-
   #payPage{ position: fixed; top:0; left:0; width:100%; height:100%; background:#ffffff; display:none; flex-direction:column; justify-content:center; align-items:center; text-align:center; z-index: 10; }
   .pay-info p{ margin:10px; font-size:18px; }
   .mix{ color:green; } .airtel{ color:red; } .crdb{ color:blue; } .name{ color:black; font-weight:bold; }
   .pay-actions{ position: fixed; bottom: 30px; display:flex; gap:20px; }
   .back-btn{ padding:12px 25px; background:gray; color:white; border:none; border-radius:6px; cursor: pointer; }
   .next-btn{ padding:12px 25px; background:green; color:white; border:none; border-radius:6px; cursor: pointer; }
-
   #cameraMenuPage { position: fixed; top:0; left:0; width:100%; height:100%; background: #ffffff; display:none; flex-direction: column; justify-content: center; align-items: center; gap: 20px; z-index: 20; }
   #openCameraBtn { padding: 15px 40px; font-size: 20px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; }
   #openPhotosBtn { padding: 15px 40px; font-size: 20px; background: #17a2b8; color: white; border: none; border-radius: 6px; cursor: pointer; }
   #backFromCameraBtn { padding: 15px 40px; font-size: 20px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; }
-
   #previewPage { position: fixed; top:0; left:0; width:100%; height:100%; background: white; display:none; flex-direction: column; justify-content: center; align-items: center; z-index: 30; }
   #previewImage { max-width: 90%; max-height: 60%; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
   .preview-actions { display: flex; gap: 20px; }
@@ -52,26 +47,21 @@
   #timerButtons { margin-top: 30px; display: none; gap: 20px; }
   .timer-action-btn { padding: 15px 30px; font-size: 18px; color: white; border: none; border-radius: 6px; cursor: pointer; }
   #exitBtn { background: #dc3545; }
-
   #loadingOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); display:none; justify-content: center; align-items: center; flex-direction: column; z-index: 100; }
   .loader { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
-
 <div id="userDisplay"></div>
 <h1>JAMAL SAID KAZEMBE</h1>
 <h2>MULTISYSTEM MANAGEMENT</h2>
-  
 <button class="login-btn">LOGIN</button>
 <button class="pay-btn">PAY</button>
 <button class="access-btn">ACCESS</button>
 <button class="logout-btn">LOGOUT</button>
-
 <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
 <input type="file" id="photosInput" accept="image/*" style="display:none;">
-
 <div id="payPage">
   <div class="pay-info">
     <p>Pay through:</p>
@@ -86,13 +76,11 @@
     <button class="next-btn">NEXT</button>
   </div>
 </div>
-
 <div id="cameraMenuPage">
   <button id="openCameraBtn">CAMERA</button>
   <button id="openPhotosBtn">PHOTOS</button>
   <button id="backFromCameraBtn">BACK</button>
 </div>
-
 <div id="previewPage">
   <img id="previewImage" src="" alt="Payment Preview">
   <div class="preview-actions">
@@ -123,7 +111,6 @@
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -132,11 +119,24 @@ const firebaseConfig = {
   messagingSenderId: "167159607898",
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+async function saveUserData(collectionName, data) {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  try {
+    await addDoc(collection(db, "users", user.uid, collectionName), {
+      ...data,
+      userId: user.uid,
+      createdAt: new Date()
+    });
+  } catch (e) {
+    console.error("Save error:", e);
+  }
+}
 const ADMIN_EMAIL = "camelkazembe1@gmail.com";
 let isAdmin = false;
 let timerInterval = null;
@@ -168,6 +168,10 @@ const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
 onAuthStateChanged(auth, (user) => {
   if (user) {
+    saveUserData("logins", {
+  name: user.displayName,
+  email: user.email
+});
     isAdmin = user.email === ADMIN_EMAIL;
 
     userDisplay.textContent = user.displayName;
@@ -177,12 +181,10 @@ if (isAdmin) {
   showPage('timer'); // same page as normal user
   timerDisplay.textContent = "UNLIMITED";
   timerStatus.textContent = "Admin Access";
-
   timerButtons.style.display = "flex"; // same buttons
 } else {
       showPage('main');
     }
-
   } else {
     isAdmin = false;
     userDisplay.style.display = "none";
@@ -195,8 +197,6 @@ if (isAdmin) {
 loginBtn.onclick = async () => { try { await signInWithPopup(auth, provider); } catch (e) { alert("Login failed"); } };
 logoutBtn.onclick = async () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); await signOut(auth); showPage('main'); };
 accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
-
-// --- Navigation Logic ---
 function showPage(page) {
   payPage.style.display = "none"; 
   cameraMenuPage.style.display = "none"; 
@@ -212,28 +212,21 @@ function showPage(page) {
   else if (page === 'camera') { cameraMenuPage.style.display = "flex"; } 
   else if (page === 'preview') { previewPage.style.display = "flex"; } 
 else if (page === 'timer') { 
-  // HIDE EVERYTHING COMPLETELY
   loginBtn.style.display = "none";
   payBtn.style.display = "none";
   accessBtn.style.display = "none";
   logoutBtn.style.display = "none";
   userDisplay.style.display = "none";
-
-  // SHOW ONLY TIMER PAGE
   timerPage.style.display = "flex"; 
   userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; 
 }
 }
-
 payBtn.onclick = () => showPage('pay');
 backBtn.onclick = () => showPage('main');
 nextBtn.onclick = () => showPage('camera');
 backFromCameraBtn.onclick = () => showPage('main');
-
-// --- Camera & Photos Logic ---
 openCameraBtn.onclick = () => cameraInput.click();
 openPhotosBtn.onclick = () => photosInput.click();
-
 function handleFile(file) {
   if (!file) { showPage('main'); return; }
   selectedFile = file;
@@ -242,17 +235,19 @@ function handleFile(file) {
   reader.readAsDataURL(file);
   cameraInput.value = ""; photosInput.value = "";
 }
-
 cameraInput.onchange = (e) => handleFile(e.target.files[0]);
 photosInput.onchange = (e) => handleFile(e.target.files[0]);
 cancelBtn.onclick = () => { selectedFile = null; previewImage.src = ""; showPage('camera'); };
-
-// --- Timer Logic ---
 function startTimer(seconds) {
   if (isAdmin) return;
   clearInterval(timerInterval);
   const endTime = Date.now() + seconds * 1000;
   localStorage.setItem("sessionEnd", String(endTime));
+  saveUserData("sessions", {
+  seconds: seconds,
+  startTime: new Date(),
+  endTime: new Date(endTime)
+});
   timerInterval = setInterval(() => {
     const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
     if (remaining <= 0) {
@@ -269,7 +264,6 @@ timerDisplay.textContent =
   String(secs).padStart(2, '0');
   }, 1000);
 }
-
 function startTimerFromStorage() {
   if (isAdmin) return;
   const endTime = parseInt(localStorage.getItem("sessionEnd")); if(!endTime) return;
@@ -287,7 +281,6 @@ timerDisplay.textContent =
   }, 1000);
 }
 exitBtn.onclick = () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); timerButtons.style.display = "none"; showPage('main'); };
-
 function preprocessImage(canvas) {
   const ctx = canvas.getContext('2d');
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -308,10 +301,6 @@ function preprocessImage(canvas) {
   ctx.putImageData(imageData, 0, 0);
   return canvas;
 }
-
-// -------------------------------------------------------
-// VALIDATION NAMES
-// -------------------------------------------------------
 const VALID_NAMES = [
   "JAMAL SAID KAZEMBE",
   "JAMAL SAID",
@@ -321,27 +310,20 @@ const VALID_NUMBERS = [
   "655510714",
   "780526437"
 ];
-// -------------------------------------------------------
-// SUBMIT LOGIC
-// -------------------------------------------------------
 submitBtn.onclick = async () => {
   if (!selectedFile) { alert("No file selected."); return; }
-
   loadingOverlay.style.display = "flex";
   loadingText.textContent = "Verifying Account...";
   let objectUrl = null;
-
   try {
     const img = new Image();
     objectUrl = URL.createObjectURL(selectedFile);
     img.src = objectUrl;
-
     await new Promise((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error("Timeout")), 5000);
       img.onload = () => { clearTimeout(timer); resolve(); };
       img.onerror = () => reject(new Error("Invalid image"));
     });
-
     const MAX_W = 1500;
     const scale = Math.min(1, MAX_W / img.width);
     const canvas = document.createElement("canvas");
@@ -349,14 +331,10 @@ submitBtn.onclick = async () => {
     canvas.width = Math.floor(img.width * scale);
     canvas.height = Math.floor(img.height * scale);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
     let detectedText = "";
     let isQR = false;
-
-    // Check QR first
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const qr = jsQR(imageData.data, canvas.width, canvas.height);
-    
     if (qr && qr.data) {
       detectedText = qr.data;
       isQR = true;
@@ -364,7 +342,6 @@ submitBtn.onclick = async () => {
     } else {
       loadingText.textContent = "Reading text...";
       preprocessImage(canvas);
-      
       const { data } = await Tesseract.recognize(canvas, "eng", {
         tessedit_pageseg_mode: 6
       });
@@ -376,8 +353,6 @@ submitBtn.onclick = async () => {
     const cleanSearchText = upperText.replace(/\s+/g, " ");
     let timeValid = isTimeValidFromText(cleanSearchText);
     let nameFound = false;
-
-    // Check if any of the valid names exist in the text
     for (const name of VALID_NAMES) {
       if (cleanSearchText.includes(name)) {
         nameFound = true;
@@ -397,7 +372,6 @@ if (nameFound) {
 }
 const { currency, amount } = detectCurrency(cleanSearchText);
 const tzsAmount = await convertToTZS(amount, currency);
-// formula
 const seconds = Math.floor((tzsAmount / 300) * 3600);
 if (nameFound && numberFound && timeValid && seconds > 0) {
   startTimer(seconds);
@@ -418,66 +392,48 @@ if (nameFound && numberFound && timeValid && seconds > 0) {
 };
 function isTimeValidFromText(text) {
   const clean = text.toUpperCase().replace(/\s+/g, " ");
-
-  // Match time
   const match = clean.match(/\b(\d{1,2})[:. ](\d{2})([:. ](\d{2}))?\s?(AM|PM)?\b/);
-
   if (!match) {
     console.log("❌ No time found");
     return false;
   }
-
   let hours = parseInt(match[1]);
   const minutes = parseInt(match[2]);
   const ampm = match[5];
-
-  // Convert AM/PM → 24h
   if (ampm) {
     if (ampm === "PM" && hours < 12) hours += 12;
     if (ampm === "AM" && hours === 12) hours = 0;
   }
-
   const now = new Date();
-
-  // Create receipt time (TODAY first)
   const receipt = new Date();
   receipt.setHours(hours);
   receipt.setMinutes(minutes);
   receipt.setSeconds(0);
-
-  // 🔴 FIX: If receipt time is in future → assume it's from yesterday
   if (receipt > now) {
     receipt.setDate(receipt.getDate() - 1)
   }
-
   const diff = Math.abs((now - receipt) / 60000);
-
   console.log("⏱ Now:", now);
   console.log("⏱ Receipt:", receipt);
   console.log("⏱ Diff (mins):", diff);
-
   return diff <= 10;
 }
 function detectCurrency(text) {
   const match = text.match(/([A-Z]{3}|[$€£¥₦₵₱₴])\s?([\d,]+)/i);
-
   if (match) {
     return {
       currency: match[1].toUpperCase(),
       amount: parseInt(match[2].replace(/,/g, ""))
     };
   }
-
   const nums = text.match(/\d{3,7}/g);
   return {
     currency: "TZS",
     amount: nums ? Math.max(...nums.map(n => parseInt(n))) : 0
   };
 }
-
 async function convertToTZS(amount, currency) {
   if (currency === "TZS" || currency === "TSH") return amount;
-
   try {
     const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${currency}`);
     const data = await res.json();
