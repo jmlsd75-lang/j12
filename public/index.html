@@ -100,15 +100,21 @@
   </div>
 </div>
 <div id="healthPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:50;">
-  
-  <button id="registerNewBtn" class="big-btn" style="background:green;">REGISTER NEW</button>
-  
+  <button id="registerNewBtn" class="big-btn" style="background:green;">REGISTER NEW</button>  
   <button id="searchBtn" class="big-btn" style="background:orange;">SEARCH</button>
-  
-  <button id="editBtn" class="big-btn" style="background:purple;">EDIT</button>
-  
+  <button id="editBtn" class="big-btn" style="background:purple;">EDIT</button>  
   <button id="backHealthBtn" class="big-btn" style="background:red;">BACK</button>
-
+</div>
+<div id="educationPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:50;">
+  <button id="registerEduBtn" class="big-btn" style="background:green;">REGISTER NEW</button>
+  <button id="searchEduBtn" class="big-btn" style="background:orange;">SEARCH</button>
+  <button id="editEduBtn" class="big-btn" style="background:purple;">EDIT</button>
+  <button id="backEduBtn" class="big-btn" style="background:red;">BACK</button>
+</div>
+<div id="businessPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:50;">
+  <button id="addBusinessBtn" class="big-btn" style="background:green;">ADD NEW</button>  
+  <button id="viewBusinessBtn" class="big-btn" style="background:orange;">VIEW</button>
+  <button id="exitBusinessBtn" class="big-btn" style="background:red;">EXIT</button>
 </div>
 <div id="loadingOverlay">
   <div class="loader"></div>
@@ -154,6 +160,8 @@ async function saveUserData(collectionName, data) {
 const ADMIN_EMAIL = "camelkazembe1@gmail.com";
 let isAdmin = false;
 let timerInterval = null;
+const businessPage = document.getElementById("businessPage");
+const educationPage = document.getElementById("educationPage");
 const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
 const payBtn = document.querySelector(".pay-btn");
@@ -213,8 +221,10 @@ loginBtn.onclick = async () => { try { await signInWithPopup(auth, provider); } 
 logoutBtn.onclick = async () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); await signOut(auth); showPage('main'); };
 accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
 function showPage(page) {
+  businessPage.style.display = "none";
   payPage.style.display = "none"; 
   healthPage.style.display = "none";
+  educationPage.style.display = "none";
   cameraMenuPage.style.display = "none"; 
   previewPage.style.display = "none"; 
   timerPage.style.display = "none";
@@ -224,9 +234,17 @@ function showPage(page) {
     if (endTime && Date.now() < parseInt(endTime)) { accessBtn.style.display = "block"; } 
     else { payBtn.style.display = "block"; }
   }
+  else if (page === 'business') {
+  timerPage.style.display = "none";
+  businessPage.style.display = "flex";
+}
   else if (page === 'health') {
   timerPage.style.display = "none";
   healthPage.style.display = "flex";
+}
+else if (page === 'education') {
+  timerPage.style.display = "none";
+  educationPage.style.display = "flex";
 }
   else if (page === 'pay') { payPage.style.display = "flex"; } 
   else if (page === 'camera') { cameraMenuPage.style.display = "flex"; } 
@@ -303,10 +321,13 @@ timerDisplay.textContent =
 }
 exitBtn.onclick = () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); timerButtons.style.display = "none"; showPage('main'); };
 document.getElementById("businessBtn").onclick = () => {
-  alert("Business section 💼");
+  showPage('business');
+};
+document.getElementById("exitBusinessBtn").onclick = () => {
+  showPage('timer');
 };
 document.getElementById("educationBtn").onclick = () => {
-  alert("Education section 📘");
+  showPage('education');
 };
 function preprocessImage(canvas) {
   const ctx = canvas.getContext('2d');
@@ -474,6 +495,9 @@ document.getElementById("healthBtn").onclick = () => {
   showPage('health');
 };
 document.getElementById("backHealthBtn").onclick = () => {
+  showPage('timer');
+};
+document.getElementById("backEduBtn").onclick = () => {
   showPage('timer');
 };
 </script>
