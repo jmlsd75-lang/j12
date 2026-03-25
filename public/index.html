@@ -282,6 +282,14 @@ timerDisplay.textContent =
   }, 1000);
 }
 exitBtn.onclick = () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); timerButtons.style.display = "none"; showPage('main'); };
+document.getElementById("healthBtn").onclick = () => {
+  const name = prompt("Enter your first name:");
+  if (!name || name.trim() === "") {
+    alert("Name is required");
+    return;
+  }
+  alert("Hello " + name + ", health check started ✅");
+};
 function preprocessImage(canvas) {
   const ctx = canvas.getContext('2d');
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
