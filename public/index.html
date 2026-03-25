@@ -258,7 +258,7 @@ logoutBtn.onclick = async () => { clearInterval(timerInterval); localStorage.rem
 accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
 function showPage(page) {
   businessViewPage.style.display = "none";
-  
+
   businessPage.style.display = "none";
   payPage.style.display = "none"; 
   healthPage.style.display = "none";
@@ -607,9 +607,8 @@ async function loadBusinessData() {
   const user = auth.currentUser;
   if (!user) return;
   const q = query(
-    collection(db, "users", user.uid, "business_records"),
-    orderBy("createdAt", "desc")
-  );
+  collection(db, "users", user.uid, "business_records")
+);
   const snapshot = await getDocs(q);
   let sn = 1;
   snapshot.forEach(doc => {
