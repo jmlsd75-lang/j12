@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+         in  many times'<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -47,6 +47,26 @@
 .purple {
   background: #6f42c1;
 }
+#cashBookContainer {
+  position: fixed;   /* 🔥 FIX */
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100vh;
+  overflow: auto;
+
+  display: none;
+
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 20px;
+}
+#cashBookContainer table {
+  width: 90%;
+  margin: 0 auto;
+}
   .login-btn{ bottom: 30px; padding:15px 40px; font-size:20px; background:#28a745; color:white; border-radius:6px; }
   .pay-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #28a745; color:white; border-radius:8px; }
   .access-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #007bff; color:white; border-radius:8px; }
@@ -76,6 +96,7 @@
   gap:20px;
   text-align:center;
 }
+
 #businessPage {
   overflow-y: auto;
 }
@@ -163,16 +184,16 @@ VIEW
 <div id="viewPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
 <button id="listBtn" style="background:#0d6efd;color:white;">LIST</button>
 <button id="cashBookBtn" style="background:#20c997;color:white;">CASH BOOK</button>
+<button id="salesJournalBtn" style="background:#0dcaf0;color:white;">SALES JOURNAL</button>
+<button style="background:#ffc107;color:black;">PURCHASES JOURNAL</button>
+<button style="background:#6c757d;color:white;">GENERAL JOURNAL</button>
 <button style="background:#6610f2;color:white;" disabled>LEDGERS</button>
 <button style="background:#fd7e14;color:white;" disabled>TRIAL BALANCE</button>
 <button style="background:#dc3545;color:white;" disabled>INCOME STATEMENT</button>
 <button style="background:#198754;color:white;" disabled>BALANCE SHEET</button>
 <button onclick="goBackToBusiness()" 
 style="
-position: fixed;
-bottom: 30px;
-left: 50%;
-transform: translateX(-50%);
+margin-top: 20px;
 background:#dc3545;
 color:white;
 padding:15px 30px;
@@ -211,10 +232,40 @@ font-size:18px;
   </table>
 </div>
 </div>
+<div id="stockActions" style="
+display:none;
+position:fixed;           /* 🔥 IMPORTANT */
+top:0;
+left:0;
+width:100%;
+height:100vh;
+background:rgba(0,0,0,0.3);  /* optional dark overlay */
+justify-content:center;
+align-items:center;
+z-index:999;              /* 🔥 above everything */
+">
+  <div style="
+    display:grid;
+    grid-template-columns: repeat(3, 150px);
+    gap:15px;
+    justify-content:center;
+  ">
+    <button style="background:#198754;color:white;" onclick="selectStockAction('INITIAL')">INITIAL</button>
+    <button style="background:#6c757d;color:white;" onclick="selectStockAction('CHANGES')">CHANGES</button>
+    <button style="background:#0d6efd;color:white;" onclick="selectStockAction('SALES')">SALES</button>
+    <button style="background:#ffc107;color:black;" onclick="selectStockAction('PURCHASES')">PURCHASES</button>
+    <button style="background:#dc3545;color:white;" onclick="selectStockAction('DAMAGE')">DAMAGE</button>
+    <button style="background:#20c997;color:white;" onclick="selectStockAction('SALES RETURN')">SALES RETURN</button>
+    <button style="background:#6610f2;color:white;" onclick="selectStockAction('PURCHASE RETURN')">PURCHASE RETURN</button>
+    <button style="background:gray;color:white;" onclick="closeStockActions()">⬅ BACK</button>
+  </div>
+</div>
 <div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
 <input id="detailInput" placeholder="Enter detail"
 style="padding:15px; font-size:20px; text-align:center; width:250px;">
 <input id="amountInput" placeholder="Enter amount" type="number"
+style="padding:15px; font-size:20px; text-align:center; width:250px; display:none;">
+<input id="nameInput" placeholder="Enter name"
 style="padding:15px; font-size:20px; text-align:center; width:250px; display:none;">
   <!-- BUTTON DISPLAY AREA -->
   <div id="selectedButtons" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
@@ -239,9 +290,18 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
   <div class="loader"></div>
   <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
 </div>
-<div id="cashBookContainer" style="display:none; width:95%; overflow:auto;">
-<h2 style="text-align:center;">CASH BOOK</h2>
-<table border="1" style="border-collapse:collapse; width:100%; text-align:center;">
+<div id="cashBookContainer">
+  <div style="width:90%; display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+  <button id="backFromCashBookBtn"
+    style="padding:10px 20px; background:#dc3545; color:white; border:none; border-radius:6px;">
+    ⬅ BACK
+  </button>
+
+  <h2 style="margin:0;">CASH BOOK</h2>
+<div style="width:80px;"></div>
+</div>
+
+<table border="1" style="border-collapse:collapse; width:90%; text-align:center;">
 <thead>
 <tr>
 <th colspan="4">DR (Debit)</th>
@@ -254,20 +314,31 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
 </thead>
 <tbody id="cashBookBody"></tbody>
 </table>
-<button id="backFromCashBookBtn"
-style="
-margin-top:20px;
-padding:12px 30px;
-background:#dc3545;
-color:white;
-border:none;
-border-radius:6px;
-display:block;
-margin-left:auto;
-margin-right:auto;
-">
-BACK
-</button>
+</div>
+<div id="salesJournalContainer" style="display:none; flex-direction:column; align-items:center; width:100%;">
+  <div style="width:90%; display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+    
+    <button id="backFromSalesJournalBtn"
+      style="padding:10px 20px; background:#dc3545; color:white; border:none; border-radius:6px;">
+      ⬅ BACK
+    </button>
+
+    <h2 style="margin:0;">SALES JOURNAL</h2>
+
+    <div style="width:80px;"></div>
+  </div>
+
+  <table border="1" style="border-collapse:collapse; width:90%; text-align:center;">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Customer</th>
+        <th>Folio</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody id="salesJournalBody"></tbody>
+  </table>
 </div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -340,14 +411,25 @@ document.getElementById("addTransactionBtn").onclick = () => {
 const typeButtons = document.getElementById("typeButtons");
 const methodButtons = document.getElementById("methodButtons");
 const finalButtons = document.getElementById("finalButtons");
+const nameInput = document.getElementById("nameInput");
+
+nameInput.oninput = () => {
+  if (nameInput.value.trim().length > 0) {
+    name = nameInput.value;
+    nameInput.style.display = "none";
+    finalButtons.style.display = "flex";
+  }
+};
 let detail = "";
 let amount = "";
 let type = "";
 let method = "";
+let name = "";
 detail = "";
 amount = "";
 type = "";
 method = "";
+name = "";
 detailInput.value = "";
 amountInput.value = "";
 detailInput.style.display = "block";
@@ -382,7 +464,12 @@ function selectType(t) {
 }
 // STEP 4 → PAYMENT
 document.getElementById("cashBtn").onclick = () => selectMethod("CASH");
-document.getElementById("creditBtn").onclick = () => selectMethod("CREDIT");
+document.getElementById("creditBtn").onclick = () => {
+  method = "CREDIT";
+  updateButtons();
+  methodButtons.style.display = "none";
+  document.getElementById("nameInput").style.display = "block";
+};
 document.getElementById("bankBtn").onclick = () => selectMethod("BANK");
 function selectMethod(m) {
   method = m;
@@ -412,6 +499,7 @@ document.getElementById("okBtn").onclick = async () => {
   const user = auth.currentUser;
   if (!user) return;
   const transaction = {
+    name: method === "CREDIT" ? name : "",
     date: new Date().toLocaleString(),
     detail,
     type,
@@ -470,6 +558,7 @@ accessBtn.onclick = () => {
 };
 function showPage(page) {
   logoutBtn.style.display = "none";
+document.getElementById("stockActions").style.display = "none";
   document.getElementById("viewPage").style.display = "none";
 document.getElementById("cashBookContainer").style.display = "none";
 document.getElementById("listTableContainer").style.display = "none";
@@ -489,6 +578,9 @@ document.getElementById("listTableContainer").style.display = "none";
       payBtn.style.display = "block"; 
     }
   }
+  else if (page === 'stock') {
+  document.getElementById("stockActions").style.display = "flex";
+}
  else if (page === 'preview') {
   previewPage.style.display = "flex";
 }
@@ -525,24 +617,37 @@ openCameraBtn.onclick = () => cameraInput.click();
 openPhotosBtn.onclick = () => photosInput.click();
 function handleFile(file) {
   if (!file) { showPage('main'); return; }
+
   selectedFile = file;
   const reader = new FileReader();
-  reader.onload = (e) => { 
-  previewImage.src = e.target.result; 
-  showPage('preview'); 
-  // ✅ MOVE HERE
-  submitBtn.style.display = "inline-block";
+
+  reader.onload = (e) => {
+    previewImage.src = e.target.result;
+if (currentMode === "stock") {
+  showPage('preview');
+
+  submitBtn.style.display = "none";
   cancelBtn.style.display = "inline-block";
-};
+}
+    else {
+      // ✅ NORMAL PAYMENT MODE
+      showPage('preview');
+      submitBtn.style.display = "inline-block";
+      cancelBtn.style.display = "inline-block";
+    }
+  };
+
   reader.readAsDataURL(file);
-  cameraInput.value = ""; photosInput.value = "";
+  cameraInput.value = "";
+  photosInput.value = "";
 }
 cameraInput.onchange = (e) => handleFile(e.target.files[0]);
 photosInput.onchange = (e) => handleFile(e.target.files[0]);
-cancelBtn.onclick = () => { 
-  selectedFile = null; 
-  previewImage.src = ""; 
-  showPage('business'); // 👈 FIXED
+cancelBtn.onclick = () => {
+  selectedFile = null;
+  previewImage.src = "";
+  currentMode = "";
+  showPage("business");
 };
 // --- Timer Logic ---
 function startTimer(seconds) {
@@ -619,10 +724,8 @@ submitBtn.onclick = async () => {
   if (currentMode === "stock") {
   // 👇 ADD THIS LINE
   previewImage.src = URL.createObjectURL(selectedFile);
-
   submitBtn.style.display = "none";
   cancelBtn.style.display = "none";
-
   currentMode = ""; 
   return;
 }
@@ -795,7 +898,7 @@ listBtn.onclick = async () => {
         <tr>
           <td>${i++}</td>
           <td>${tx.date}</td>
-          <td>${tx.detail}</td>
+          <td>${tx.name || tx.detail}</td>
           <td>${tx.type}</td>
           <td>${tx.method}</td>
           <td>${tx.amount}</td>
@@ -806,14 +909,28 @@ listBtn.onclick = async () => {
 
 };
 const backBtnCash = document.getElementById("backFromCashBookBtn");
-backBtnCash.onclick = () => {
-  showPage("view"); // ✅ FIXED
-};
 const backFromListBtn = document.getElementById("backFromListBtn");
+backBtnCash.onclick = () => {
+  showPage("view");
+   document.querySelector("#viewPage button[onclick='goBackToBusiness()']").style.display = "block";
+  document.querySelectorAll("#viewPage > button").forEach(btn => {
+    btn.style.display = "block";
+  });
+};
+
 backFromListBtn.onclick = () => {
   showPage("view");
+
+  document.querySelectorAll("#viewPage > button").forEach(btn => {
+    btn.style.display = "block";
+  });
 };
 cashBookBtn.onclick = async () => {
+  document.getElementById("viewPage").style.display = "none"; 
+  document.querySelector("#viewPage button[onclick='goBackToBusiness()']").style.display = "none";
+  document.querySelector("h1").style.display = "none";
+document.querySelector("h2").style.display = "none";
+userDisplay.style.display = "none";
   const user = auth.currentUser;
   if (!user) return;
   transactions = [];
@@ -826,7 +943,11 @@ cashBookBtn.onclick = async () => {
     transactions.push(doc.data());
   });
   cashBookBody.innerHTML = "";
-  cashBookContainer.style.display = "block";
+  cashBookContainer.style.display = "none"; // reset
+cashBookContainer.offsetHeight; // 🔥 force reflow
+cashBookContainer.style.display = "flex";
+
+cashBookContainer.scrollTop = 0;
   listTableContainer.style.display = "none";
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => {
@@ -908,9 +1029,7 @@ if (diff > 0) {
 }
 }
 function openCashBook() {
-  cashBookContainer.style.display = "block";
-  document.getElementById("viewPage").style.display = "none";
-  listTableContainer.style.display = "none";
+  cashBookContainer.style.display = "flex";
 }
 const deleteModeBtn = document.getElementById("deleteModeBtn");
 deleteModeBtn.onclick = () => {
@@ -990,9 +1109,66 @@ window.goBackToBusiness = function () {
   showPage("business");
 };
 document.getElementById("stockBtn").onclick = () => {
-  currentMode = "stock"; // 👈 important
-  cameraInput.click();
+  showPage('stock');
 };
+const salesJournalBtn = document.getElementById("salesJournalBtn");
+const salesJournalContainer = document.getElementById("salesJournalContainer");
+const salesJournalBody = document.getElementById("salesJournalBody");
+const backFromSalesJournalBtn = document.getElementById("backFromSalesJournalBtn");
+
+salesJournalBtn.onclick = async () => {
+  document.getElementById("viewPage").style.display = "none";
+  salesJournalBody.innerHTML = "";
+  salesJournalContainer.style.display = "flex";
+
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const q = query(
+    collection(db, "users", user.email, "transactions"),
+    orderBy("createdAt", "asc")
+  );
+
+  const snapshot = await getDocs(q);
+
+  let folio = 1;
+
+  snapshot.forEach(doc => {
+    const tx = doc.data();
+
+    // ✅ ONLY CREDIT SALES
+    if (
+  tx.type === "IN" &&
+  tx.method === "CREDIT" &&
+  tx.detail.toLowerCase().includes("sale")
+) {
+      salesJournalBody.innerHTML += `
+        <tr>
+          <td>${new Date(tx.createdAt).toLocaleDateString()}</td>
+          <td>${tx.detail}</td>
+          <td>${folio++}</td>
+          <td>${tx.amount}</td>
+        </tr>
+      `;
+    }
+  });
+};
+backFromSalesJournalBtn.onclick = () => {
+  salesJournalContainer.style.display = "none"; // ✅ hide it
+  showPage("view");
+};
+let stockAction = "";
+
+function selectStockAction(action) {
+  stockAction = action;
+  document.getElementById("stockActions").style.display = "none";
+  currentMode = "stock";
+  cameraInput.click(); // 📷 open AFTER choice
+}
+function closeStockActions() {
+  document.getElementById("stockActions").style.display = "none";
+  showPage("business"); // 👈 go back to previous page
+}
 </script>
 </body>
-</html>     
+</html>        delete all things just remain with the part this code to be online and system name'
