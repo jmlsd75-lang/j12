@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+]<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -99,6 +99,17 @@
     <button id="exitBtn" class="timer-action-btn">EXIT</button>
   </div>
 </div>
+<div id="healthPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:50;">
+  
+  <button id="registerNewBtn" class="big-btn" style="background:green;">REGISTER NEW</button>
+  
+  <button id="searchBtn" class="big-btn" style="background:orange;">SEARCH</button>
+  
+  <button id="editBtn" class="big-btn" style="background:purple;">EDIT</button>
+  
+  <button id="backHealthBtn" class="big-btn" style="background:red;">BACK</button>
+
+</div>
 <div id="loadingOverlay">
   <div class="loader"></div>
   <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
@@ -169,6 +180,7 @@ const timerButtons = document.getElementById("timerButtons");
 const exitBtn = document.getElementById("exitBtn");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
+const healthPage = document.getElementById("healthPage");
 onAuthStateChanged(auth, (user) => {
   if (user) {
     saveUserData("logins", {
@@ -202,6 +214,7 @@ logoutBtn.onclick = async () => { clearInterval(timerInterval); localStorage.rem
 accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
 function showPage(page) {
   payPage.style.display = "none"; 
+  healthPage.style.display = "none";
   cameraMenuPage.style.display = "none"; 
   previewPage.style.display = "none"; 
   timerPage.style.display = "none";
@@ -211,6 +224,10 @@ function showPage(page) {
     if (endTime && Date.now() < parseInt(endTime)) { accessBtn.style.display = "block"; } 
     else { payBtn.style.display = "block"; }
   }
+  else if (page === 'health') {
+  timerPage.style.display = "none";
+  healthPage.style.display = "flex";
+}
   else if (page === 'pay') { payPage.style.display = "flex"; } 
   else if (page === 'camera') { cameraMenuPage.style.display = "flex"; } 
   else if (page === 'preview') { previewPage.style.display = "flex"; } 
@@ -452,6 +469,9 @@ async function convertToTZS(amount, currency) {
     return 0;
   }
 }
+document.getElementById("backHealthBtn").onclick = () => {
+  showPage('timer');
+};
 </script>
 </body>
 </html>             
