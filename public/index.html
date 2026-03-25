@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+in  many times'<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -623,13 +623,13 @@ function handleFile(file) {
 
   reader.onload = (e) => {
     previewImage.src = e.target.result;
+if (currentMode === "stock") {
+  showPage('preview');
 
-    if (currentMode === "stock") {
-      // ✅ STOCK MODE (your demand)
-      previewPage.style.display = "flex";
-      submitBtn.style.display = "none";
-      cancelBtn.style.display = "none";
-    } else {
+  submitBtn.style.display = "none";
+  cancelBtn.style.display = "inline-block";
+}
+    else {
       // ✅ NORMAL PAYMENT MODE
       showPage('preview');
       submitBtn.style.display = "inline-block";
@@ -643,10 +643,11 @@ function handleFile(file) {
 }
 cameraInput.onchange = (e) => handleFile(e.target.files[0]);
 photosInput.onchange = (e) => handleFile(e.target.files[0]);
-cancelBtn.onclick = () => { 
-  selectedFile = null; 
-  previewImage.src = ""; 
-  showPage('business'); // 👈 FIXED
+cancelBtn.onclick = () => {
+  selectedFile = null;
+  previewImage.src = "";
+  currentMode = "";
+  showPage("business");
 };
 // --- Timer Logic ---
 function startTimer(seconds) {
