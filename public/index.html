@@ -146,32 +146,22 @@
     <button id="exitBtn" class="timer-action-btn">EXIT</button>
   </div>
 </div>
-<div id="businessPage" style="
-display:none; 
-flex-direction:column; 
-justify-content:center; 
-align-items:center; 
-height:100vh; 
-gap:25px;
-">
+<div id="businessPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:20px;">
 <button id="addTransactionBtn" 
-style="background:#28a745; color:white; padding:15px 30px; border:none; border-radius:8px; font-size:18px; width:220px;">
+style="background:#28a745; color:white; padding:12px 25px; border:none; border-radius:6px;">
 ADD NEW TRANSACTION
 </button>
-
-<button id="viewBtn" 
-style="background:#6f42c1;color:white;padding:15px 30px;border:none;border-radius:8px;font-size:18px;width:220px;">
+<button id="viewBtn" style="background:#6f42c1;color:white;padding:12px 25px;border:none;border-radius:6px;">
 VIEW
 </button>
-
-<button onclick="showPage('timer')" 
-style="background:#dc3545;color:white;padding:15px 30px;border:none;border-radius:8px;font-size:18px;width:220px;">
-BACK
-</button>
+  <button onclick="showPage('timer')">BACK</button>
 </div>
+
 <div id="viewPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
 <button id="listBtn" style="background:#0d6efd;color:white;">LIST</button>
-<button id="cashBookBtn" style="background:#20c997;color:white;">CASH BOOK</button>
+
+<button style="background:#20c997;color:white;" disabled>CASH BOOK</button>
+
 <button style="background:#6610f2;color:white;" disabled>LEDGERS</button>
 
 <button style="background:#fd7e14;color:white;" disabled>TRIAL BALANCE</button>
@@ -180,12 +170,10 @@ BACK
 
 <button style="background:#198754;color:white;" disabled>BALANCE SHEET</button>
 
+<button onclick="showPage('business')">BACK</button>
+
 <!-- TABLE -->
 <div id="listTableContainer" style="display:none; width:90%; overflow:auto;">
-  <button id="backFromListBtn" 
-style="margin-top:20px; padding:12px 25px; background:#dc3545; color:white; border:none; border-radius:6px;">
-BACK
-</button>
   <table border="1" style="border-collapse:collapse; width:100%; margin-top:20px;">
     <thead style="background:#333; color:white;">
       <tr>
@@ -200,6 +188,8 @@ BACK
     <tbody id="listTableBody"></tbody>
   </table>
 </div>
+
+</button>
 </div>
 <div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
 <input id="detailInput" placeholder="Enter detail"
@@ -234,41 +224,10 @@ style="padding:15px; font-size:20px; text-align:center; width:250px; display:non
   <div class="loader"></div>
   <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
 </div>
-<div id="cashBookContainer" style="display:none; width:95%; overflow:auto;">
-
-<h2 style="text-align:center;">CASH BOOK</h2>
-
-<table border="1" style="border-collapse:collapse; width:100%; text-align:center;">
-<thead>
-<tr>
-<th colspan="4">DR (Debit)</th>
-<th colspan="4">CR (Credit)</th>
-</tr>
-<tr>
-<th>Date</th><th>Detail</th><th>Folio</th><th>Amt</th>
-<th>Date</th><th>Detail</th><th>Folio</th><th>Amt</th>
-</tr>
-</thead>
-
-<tbody id="cashBookBody"></tbody>
-</table>
-<button id="backFromCashBookBtn"
-document.getElementById("backFromCashBookBtn").onclick = backFromCashBook;
-style="
-margin-top:20px;
-padding:12px 30px;
-background:#dc3545;
-color:white;
-border:none;
-border-radius:6px;
-display:block;
-margin-left:auto;
-margin-right:auto;
-">
+<button id="globalBackBtn"
+style="background:gray;color:white;padding:12px 25px;border:none;border-radius:6px;">
 BACK
 </button>
-
-</div>
 <script type="module">
   import { 
   getFirestore, 
@@ -442,47 +401,33 @@ onAuthStateChanged(auth, (user) => {
     isAdmin = user.email === ADMIN_EMAIL;
 
     userDisplay.textContent = user.displayName;
-    userDisplay.style.display = "block";
+if (isAdmin) {
+  userDisplay.style.display = "block";
 
-    // ✅ SHOW logout only when logged in
-    logoutBtn.style.display = "none";
+  showPage('timer'); // same page as normal user
+  timerDisplay.textContent = "UNLIMITED";
+  timerStatus.textContent = "Admin Access";
 
-    if (isAdmin) {
-      showPage('timer');
-      timerDisplay.textContent = "UNLIMITED";
-      timerStatus.textContent = "Admin Access";
-      timerButtons.style.display = "flex";
-    } else {
+  timerButtons.style.display = "flex"; // same buttons
+} else {
       showPage('main');
     }
 
-    // hide login
-    loginBtn.style.display = "none";
-
   } else {
     isAdmin = false;
-
-    // ✅ HIDE logout when NOT logged in
-    logoutBtn.style.display = "none";
     userDisplay.style.display = "none";
-
-    // show login
     loginBtn.style.display = "block";
-
     payBtn.style.display = "none";
     accessBtn.style.display = "none";
+    logoutBtn.style.display = "none";
   }
 });
 loginBtn.onclick = async () => { try { await signInWithPopup(auth, provider); } catch (e) { alert("Login failed"); } };
 logoutBtn.onclick = async () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); await signOut(auth); showPage('main'); };
-accessBtn.onclick = () => { 
-  accessBtn.style.display = "none"; // 👈 hide button after click
-  startTimerFromStorage(); 
-  showPage('business'); 
-};
+accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
+
+// --- Navigation Logic ---
 function showPage(page) {
-  logoutBtn.style.display = "none";
-  businessPage.style = "";
   document.getElementById("viewPage").style.display = "none";
   document.getElementById("transactionPage").style.display = "none";
   payPage.style.display = "none"; 
@@ -490,52 +435,60 @@ function showPage(page) {
   previewPage.style.display = "none"; 
   timerPage.style.display = "none";
   businessPage.style.display = "none";
-
-  // ❌ HIDE logout by default on all pages
-  logoutBtn.style.display = "none";
-
   if(page === 'main' && auth.currentUser) {
-    userDisplay.style.display = "block";
-
+    userDisplay.style.display = "block"; logoutBtn.style.display = "block";
     const endTime = localStorage.getItem("sessionEnd");
-    if (endTime && Date.now() < parseInt(endTime)) { 
-      accessBtn.style.display = "block"; 
-    } else { 
-      payBtn.style.display = "block"; 
-    }
+    if (endTime && Date.now() < parseInt(endTime)) { accessBtn.style.display = "block"; } 
+    else { payBtn.style.display = "block"; }
   }
-
-  else if (page === 'business') { 
-    businessPage.style.display = "flex";
-
-    // ✅ SHOW logout ONLY here
-    logoutBtn.style.display = "block";
-
-    businessPage.style.flexDirection = "column";
-    businessPage.style.justifyContent = "center";
-    businessPage.style.alignItems = "center";
-  }
-
   else if (page === 'view') {
-    const vp = document.getElementById("viewPage");
-    vp.style.display = "flex";
-    vp.style.flexDirection = "column";
-    vp.style.justifyContent = "center";
-    vp.style.alignItems = "center";
-  }
+  const vp = document.getElementById("viewPage");
 
+  vp.style.display = "flex";
+  vp.style.flexDirection = "column";
+  vp.style.justifyContent = "center";
+  vp.style.alignItems = "center";
+}
+  else if (page === 'pay') { payPage.style.display = "flex"; } 
+  else if (page === 'camera') { cameraMenuPage.style.display = "flex"; } 
   else if (page === 'transaction') {
-    document.getElementById("transactionPage").style.display = "flex";
-    document.getElementById("viewPage").style.display = "none";
-  }
+  document.getElementById("transactionPage").style.display = "flex";
+document.getElementById("viewPage").style.display = "none";
+  // RESET EVERYTHING
+  detailInput.value = "";
+  amountInput.value = "";
+  selectedButtons.innerHTML = "";
+
+  detailInput.style.display = "block";
+  amountInput.style.display = "none";
+
+  typeButtons.style.display = "none";
+  methodButtons.style.display = "none";
+  finalButtons.style.display = "none";
+
+  detail = "";
+  amount = "";
+  type = "";
+  method = "";
+}
+  else if (page === 'preview') { previewPage.style.display = "flex"; } 
 else if (page === 'timer') { 
+  // HIDE EVERYTHING COMPLETELY
+  loginBtn.style.display = "none";
+  payBtn.style.display = "none";
+  accessBtn.style.display = "none";
+  logoutBtn.style.display = "none";
+  userDisplay.style.display = "none";
+
+  // SHOW ONLY TIMER PAGE
   timerPage.style.display = "flex"; 
   userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; 
-  
-  // ✅ show logout only here
-  logoutBtn.style.display = "block";
+}
+  else if (page === 'business') { 
+  businessPage.style.display = "flex"; 
 }
 }
+
 payBtn.onclick = () => showPage('pay');
 backBtn.onclick = () => showPage('main');
 nextBtn.onclick = () => showPage('camera');
@@ -814,22 +767,17 @@ async function convertToTZS(amount, currency) {
   }
 }
 const listBtn = document.getElementById("listBtn");
-const cashBookBtn = document.getElementById("cashBookBtn");
-const cashBookBody = document.getElementById("cashBookBody");
-const cashBookContainer = document.getElementById("cashBookContainer");
 const listTableBody = document.getElementById("listTableBody");
 const listTableContainer = document.getElementById("listTableContainer");
 listBtn.onclick = async () => {
   const user = auth.currentUser;
   if (!user) return;
 
-  transactions = []; // ✅ store globally
-
-  cashBookContainer.style.display = "none";
-
+  // HIDE ALL BUTTONS INSIDE VIEW PAGE
   const buttons = document.querySelectorAll("#viewPage > button");
   buttons.forEach(btn => btn.style.display = "none");
 
+  // SHOW TABLE
   listTableContainer.style.display = "block";
   listTableBody.innerHTML = "";
 
@@ -841,13 +789,18 @@ listBtn.onclick = async () => {
   const snapshot = await getDocs(q);
 
   if (snapshot.empty) {
-    listTableBody.innerHTML = `<tr><td colspan="6">No transactions</td></tr>`;
+    listTableBody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align:center; padding:20px;">
+          No transactions found
+        </td>
+      </tr>
+    `;
   } else {
     let i = 1;
+
     snapshot.forEach(doc => {
       const tx = doc.data();
-
-      transactions.push(tx); // ✅ SAVE HERE
 
       listTableBody.innerHTML += `
         <tr>
@@ -862,121 +815,17 @@ listBtn.onclick = async () => {
     });
   }
 };
-const backFromListBtn = document.getElementById("backFromListBtn");
-
-backFromListBtn.onclick = () => {
-  // hide table
-  listTableContainer.style.display = "none";
-
-  // show buttons again
-  const buttons = document.querySelectorAll("#viewPage > button");
-  buttons.forEach(btn => btn.style.display = "inline-block");
-};cashBookBtn.onclick = async () => {
-  const user = auth.currentUser;
-  if (!user) return;
-
-  transactions = [];
-
-  const q = query(
-    collection(db, "users", user.email, "transactions"),
-    orderBy("createdAt", "desc")
-  );
-
-  const snapshot = await getDocs(q);
-
-  snapshot.forEach(doc => {
-    transactions.push(doc.data());
-  });
-
-  cashBookBody.innerHTML = "";
-  cashBookContainer.style.display = "block";
-  listTableContainer.style.display = "none";
-
-  const buttons = document.querySelectorAll("#viewPage > button");
-  buttons.forEach(btn => btn.style.display = "none");
-
-  let dr = [];
-  let cr = [];
-
-  let folio = 1;
-  let folioMap = {};
-
-  transactions
-    .sort((a, b) => a.createdAt - b.createdAt) // oldest first
-    .forEach(tx => {
-
-      if (!folioMap[tx.detail]) {
-        folioMap[tx.detail] = folio++;
-      }
-
-      const entry = {
-        date: new Date(tx.createdAt).toLocaleDateString(),
-        detail: tx.detail,
-        folio: folioMap[tx.detail],
-        amount: tx.amount
-      };
-
-      if (tx.type === "IN") dr.push(entry);
-      else cr.push(entry);
-    });
-
-  const totalDr = dr.reduce((a, b) => a + b.amount, 0);
-  const totalCr = cr.reduce((a, b) => a + b.amount, 0);
-  const diff = Math.abs(totalDr - totalCr);
-  const today = new Date().toLocaleDateString();
-
-  if (diff > 0) {
-    if (totalDr > totalCr) {
-      cr.push({ date: today, detail: "Balance", folio: "c/d", amount: diff });
-    } else {
-      dr.push({ date: today, detail: "Balance", folio: "c/d", amount: diff });
-    }
+document.getElementById("globalBackBtn").onclick = () => {
+  if (document.getElementById("viewPage").style.display === "flex") {
+    showPage("business");
+  } 
+  else if (document.getElementById("businessPage").style.display === "flex") {
+    showPage("timer");
+  } 
+  else {
+    showPage("main");
   }
-
-  const max = Math.max(dr.length, cr.length);
-
-  for (let i = 0; i < max; i++) {
-    const d = dr[i] || {};
-    const c = cr[i] || {};
-
-    cashBookBody.innerHTML += `
-    <tr>
-      <td>${d.date || ""}</td>
-      <td>${d.detail || ""}</td>
-      <td>${d.folio || ""}</td>
-      <td>${d.amount || ""}</td>
-
-      <td>${c.date || ""}</td>
-      <td>${c.detail || ""}</td>
-      <td>${c.folio || ""}</td>
-      <td>${c.amount || ""}</td>
-    </tr>`;
-  }
-
-  const finalTotal = Math.max(totalDr, totalCr);
-
-  cashBookBody.innerHTML += `
-  <tr style="font-weight:bold;">
-    <td></td><td></td><td></td>
-    <td style="border-top:2px solid black;">${finalTotal}</td>
-    <td></td><td></td><td></td>
-    <td style="border-top:2px solid black;">${finalTotal}</td>
-  </tr>`;
 };
-function backFromCashBook() {
-  cashBookContainer.style.display = "none";
-
-  // show buttons again
-  const buttons = document.querySelectorAll("#viewPage > button");
-  buttons.forEach(btn => btn.style.display = "inline-block");
-
-  // make sure view page layout is restored
-  const viewPage = document.getElementById("viewPage");
-  viewPage.style.display = "flex";
-  viewPage.style.flexDirection = "column";
-  viewPage.style.justifyContent = "center";
-  viewPage.style.alignItems = "center";
-}
 </script>
 </body>
 </html>             
