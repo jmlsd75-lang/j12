@@ -558,7 +558,7 @@ accessBtn.onclick = () => {
 };
 function showPage(page) {
   logoutBtn.style.display = "none";
-  document.getElementById("stockActions").style.display = "none";
+document.getElementById("stockActions").style.display = "none";
   document.getElementById("viewPage").style.display = "none";
 document.getElementById("cashBookContainer").style.display = "none";
 document.getElementById("listTableContainer").style.display = "none";
@@ -1166,7 +1166,7 @@ function selectStockAction(action) {
 }
 function closeStockActions() {
   document.getElementById("stockActions").style.display = "none";
-  showPage("business");
+  showPage("business"); // 👈 go back to previous page
 }
 </script>
 </body>
