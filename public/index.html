@@ -94,7 +94,8 @@
   <div id="timerStatus">Session Active</div>
   <div id="timerButtons">
     <button id="healthBtn" class="timer-action-btn" style="background: green;">HEALTH</button>
-   <button id="educationBtn" class="timer-action-btn" style="background: blue;">EDUCATION</button>
+   <button id="businessBtn" class="timer-action-btn" style="background: orange;">BUSINESS</button>
+    <button id="educationBtn" class="timer-action-btn" style="background: blue;">EDUCATION</button>
     <button id="exitBtn" class="timer-action-btn">EXIT</button>
   </div>
 </div>
@@ -283,6 +284,9 @@ timerDisplay.textContent =
   }, 1000);
 }
 exitBtn.onclick = () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); timerButtons.style.display = "none"; showPage('main'); };
+document.getElementById("businessBtn").onclick = () => {
+  alert("Business section 💼");
+};
 document.getElementById("healthBtn").onclick = () => {
   const name = prompt("Enter your first name:");
   if (!name || name.trim() === "") {
