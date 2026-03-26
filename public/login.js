@@ -2,7 +2,6 @@ import {
   getAuth, 
   GoogleAuthProvider, 
   signInWithRedirect, 
-  getRedirectResult,
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -34,17 +33,16 @@ export function setupLogin(app) {
     signOut(auth);
   };
 
-  // handle redirect
-  getRedirectResult(auth).catch(console.error);
-
-  // auth state
+  // 🔥 IMPORTANT: this controls UI correctly
   onAuthStateChanged(auth, (user) => {
     if (user) {
+      // user is logged in
       loginBtn.style.display = "none";
       logoutBtn.style.display = "inline-block";
 
       title.textContent = "Welcome " + (user.displayName || "User");
     } else {
+      // user is logged out
       loginBtn.style.display = "inline-block";
       logoutBtn.style.display = "none";
 
