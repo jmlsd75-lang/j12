@@ -10,43 +10,45 @@ import {
 export function setupLogin(app) {
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
-  const btn = document.getElementById("loginBtn");
+  const loginBtn = document.getElementById("loginBtn");
+  const container = document.querySelector(".container");
+  const title = document.getElementById("title");
 
   // create logout button
-  const logoutBtn = document.createElement("button");
-  logoutBtn.textContent = "Logout";
-  logoutBtn.style.display = "none";
-  document.querySelector(".container").appendChild(logoutBtn);
+  let logoutBtn = document.getElementById("logoutBtn");
+  if (!logoutBtn) {
+    logoutBtn = document.createElement("button");
+    logoutBtn.id = "logoutBtn";
+    logoutBtn.textContent = "Logout";
+    logoutBtn.style.display = "none";
+    container.appendChild(logoutBtn);
+  }
 
-  // click login
-  btn.onclick = () => {
+  // login
+  loginBtn.onclick = () => {
     signInWithRedirect(auth, provider);
   };
 
-  // click logout
+  // logout
   logoutBtn.onclick = () => {
     signOut(auth);
   };
 
-  // after redirect (login)
+  // handle redirect
   getRedirectResult(auth).catch(console.error);
 
-  // track user state
+  // auth state
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      // logged in
-      btn.style.display = "none";
+      loginBtn.style.display = "none";
       logoutBtn.style.display = "inline-block";
 
-      document.querySelector("header h1").textContent =
-        "Welcome " + user.displayName;
+      title.textContent = "Welcome " + (user.displayName || "User");
     } else {
-      // logged out
-      btn.style.display = "inline-block";
+      loginBtn.style.display = "inline-block";
       logoutBtn.style.display = "none";
 
-      document.querySelector("header h1").textContent =
-        "JAMAL SAID KAZEMBE";
+      title.textContent = "JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT";
     }
   });
 }
