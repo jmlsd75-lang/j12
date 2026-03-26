@@ -14,10 +14,12 @@
     position: fixed; left: 50%; transform: translateX(-50%); border:none; cursor:pointer; display: none; 
   }
   .big-btn {
-  padding: 18px 40px;
-  font-size: 20px;
+  width: 80%;                 /* responsive width */
+  max-width: 400px;          /* don’t get too big on desktop */
+  padding: 4vh 0;            /* responsive height */
+  font-size: 2.5vh;          /* text scales with screen */
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   color: white;
   cursor: pointer;
 }
