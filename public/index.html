@@ -750,21 +750,22 @@ okBtn.onclick = async () => {
       alert("Please complete all required fields");
       return; // finally will still run → safe
     }
+    // 🚀 SAVE IN BACKGROUND (no wait)
+saveUserData("records", {
+  category: "health",
+  firstName: data.first,
+  secondName: data.second,
+  thirdName: data.third,
+  age: data.age,
+  gender: data.gender,
+  tribe: data.tribe,
+  userName: auth.currentUser?.displayName || "User"
+}).catch(err => console.error(err));
 
-    // ✅ SAVE
-    await saveUserData("records", {
-      category: "health",
-      firstName: data.first,
-      secondName: data.second,
-      thirdName: data.third,
-      age: data.age,
-      gender: data.gender,
-      tribe: data.tribe,
-      userName: auth.currentUser?.displayName || "User"
-    });
-
-    // ✅ SUCCESS
-    alert("Patient saved!");
+// 🚀 GO BACK IMMEDIATELY
+resetHealthForm();
+healthRegisterPage.style.display = "none";
+healthPage.style.display = "flex";
 resetHealthForm();
 
     // ✅ KEEP BUTTON READY FOR NEXT OPEN
@@ -864,14 +865,21 @@ okBusinessBtn.onclick = async () => {
       alert("Fill required fields");
       return;
     }
+    // 🚀 SAVE IN BACKGROUND
+saveUserData("records", {
+  category: "business",
+  name: businessData.name,
+  amount: Number(businessData.amount),
+  type: businessData.type,
+  method: businessData.method,
+  creditName: businessData.creditName || "",
+  userName: auth.currentUser?.displayName || "User"
+}).catch(err => console.error(err));
 
-    await saveUserData("records", {
-      category: "business",
-      ...businessData,
-      userName: auth.currentUser?.displayName || "User"
-    });
-
-    alert("Transaction saved!");
+// 🚀 GO BACK FAST
+resetBusinessForm();
+businessRegisterPage.style.display = "none";
+businessPage.style.display = "flex";
 
     resetBusinessForm();
 
