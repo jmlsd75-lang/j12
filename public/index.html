@@ -140,28 +140,8 @@
   <button id="addBusinessBtn" class="big-btn" style="background:green;">ADD NEW TRANSACTION</button>  
   <button id="viewBusinessBtn" class="big-btn" style="background:orange;">VIEW</button>
 
-  <div id="viewOptions" style="display:none; flex-direction:column; gap:15px;">
-  <button id="listBtn" class="big-btn" style="background:blue;">LIST</button>
-
-  <!-- ✅ TABLE (hidden first) -->
-  <div id="listTableBox" style="display:none; max-height:300px; overflow:auto;">
-    <table border="1" style="border-collapse:collapse; width:100%; background:white;">
-      <thead>
-        <tr>
-          <th>S/N</th>
-          <th>DATE</th>
-          <th>DETAIL</th>
-          <th>TYPE</th>
-          <th>METHOD</th>
-          <th>AMOUNT</th>
-        </tr>
-      </thead>
-      <tbody id="listTableBody"></tbody>
-    </table>
-  </div>
-
-  <button id="backViewBtn" class="big-btn" style="background:red;">BACK</button>
-</div>
+<!-- NEW (hidden initially) -->
+<div id="viewOptions" style="display:none; flex-direction:column; gap:15px;">
   <button id="listBtn" class="big-btn" style="background:blue;">LIST</button>
   <button id="backViewBtn" class="big-btn" style="background:red;">BACK</button>
 </div>
@@ -776,17 +756,17 @@ okBtn.onclick = async () => {
       alert("Please complete all required fields");
       return; // finally will still run → safe
     }
-    saveUserData("records", {
-  category: "business",
-  name: businessData.name,
-  amount: Number(businessData.amount),
-  type: businessData.type,
-  method: businessData.method,
-  creditName: businessData.creditName || "",
-  date: new Date().toISOString().split("T")[0], // ✅ ADD THIS
+    // 🚀 SAVE IN BACKGROUND (no wait)
+saveUserData("records", {
+  category: "health",
+  firstName: data.first,
+  secondName: data.second,
+  thirdName: data.third,
+  age: data.age,
+  gender: data.gender,
+  tribe: data.tribe,
   userName: auth.currentUser?.displayName || "User"
-}).
-    catch(err => console.error(err));
+}).catch(err => console.error(err));
 
 // 🚀 GO BACK IMMEDIATELY
 resetHealthForm();
@@ -935,68 +915,21 @@ function addBusinessButton(text) {
 const viewBusinessBtn = document.getElementById("viewBusinessBtn");
 const viewOptions = document.getElementById("viewOptions");
 const backViewBtn = document.getElementById("backViewBtn");
+
+// Show LIST + BACK
 viewBusinessBtn.onclick = () => {
   viewBusinessBtn.style.display = "none";
   document.getElementById("addBusinessBtn").style.display = "none";
 
-  // 🔴 ADD THIS LINE (hide extra BACK)
-  document.getElementById("backBusinessBtn").style.display = "none";
-
   viewOptions.style.display = "flex";
 };
+
+// Back to business menu
 backViewBtn.onclick = () => {
   viewOptions.style.display = "none";
 
   viewBusinessBtn.style.display = "block";
   document.getElementById("addBusinessBtn").style.display = "block";
-
-  // 🔴 ADD THIS LINE (bring BACK button again)
-  document.getElementById("backBusinessBtn").style.display = "block";
-};
-const listBtn = document.getElementById("listBtn");
-const listTableBox = document.getElementById("listTableBox");
-const listTableBody = document.getElementById("listTableBody");
-
-listBtn.onclick = async () => {
-  listTableBox.style.display = "block";
-  listTableBody.innerHTML = "Loading...";
-
-  const user = auth.currentUser;
-  if (!user) return;
-
-  const q = query(
-    collection(db, "users", user.uid, "records"),
-    orderBy("createdAt", "desc")
-  );
-
-  const snapshot = await getDocs(q);
-
-  listTableBody.innerHTML = "";
-
-  let sn = 1;
-
-  snapshot.forEach(doc => {
-    const d = doc.data();
-
-    if (d.category !== "business") return;
-
-    const row = `
-      <tr>
-        <td>${sn++}</td>
-        <td>${d.date || ""}</td>
-        <td>${d.name || ""}</td>
-        <td>${d.type || ""}</td>
-        <td>${d.method || ""}</td>
-        <td>${d.amount || ""}</td>
-      </tr>
-    `;
-
-    listTableBody.innerHTML += row;
-  });
-
-  if (sn === 1) {
-    listTableBody.innerHTML = "<tr><td colspan='6'>No data</td></tr>";
-  }
 };
 </script>
 </body>
