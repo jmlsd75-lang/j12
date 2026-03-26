@@ -139,8 +139,30 @@
 <div id="businessPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:50;">
   <button id="addBusinessBtn" class="big-btn" style="background:green;">ADD NEW TRANSACTION</button>  
   <button id="viewBusinessBtn" class="big-btn" style="background:orange;">VIEW</button>
-
   <button id="backBusinessBtn" class="big-btn" style="background:red;">BACK</button>
+</div>
+<div id="businessTopDisplay" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
+  <!-- INPUTS -->
+  <input id="businessNameInput" placeholder="Enter Name" class="big-btn" style="color:black; background:#eee;">
+  <input id="businessAmountInput" type="number" placeholder="Enter Amount" class="big-btn" style="color:black; background:#eee; display:none;">
+  <!-- IN / OUT -->
+  <div id="inOutBox" style="display:none;">
+    <button id="inBtn" class="big-btn" style="background:green;">IN</button>
+    <button id="outBtn" class="big-btn" style="background:red;">OUT</button>
+  </div>
+  <!-- METHOD -->
+  <div id="methodBox" style="display:none;">
+    <button id="cashBtn" class="big-btn" style="background:blue;">CASH</button>
+    <button id="creditBtn" class="big-btn" style="background:orange;">CREDIT</button>
+    <button id="bankBtn" class="big-btn" style="background:purple;">BANK</button>
+  </div>
+  <!-- CREDIT NAME -->
+  <input id="creditNameInput" placeholder="Credit Person Name" class="big-btn" style="color:black; background:#eee; display:none;">
+  <!-- ACTIONS -->
+  <div>
+    <button id="okBusinessBtn" class="big-btn" style="background:green; display:none;">OK</button>
+    <button id="cancelBusinessBtn" class="big-btn" style="background:red;">CANCEL</button>
+  </div>
 </div>
 <div id="loadingOverlay">
   <div class="loader"></div>
@@ -364,9 +386,29 @@ document.getElementById("businessBtn").onclick = () => {
 document.getElementById("backBusinessBtn").onclick = () => {
   showPage('timer');
 };
-document.getElementById("addBusinessBtn").onclick = () => {
-  alert("Add new transaction clicked");
-};
+function resetBusinessForm() {
+  businessNameInput.value = "";
+  businessAmountInput.value = "";
+  creditNameInput.value = "";
+
+  businessTopDisplay.innerHTML = "";
+
+  businessNameInput.style.display = "block";
+  businessAmountInput.style.display = "none";
+  inOutBox.style.display = "none";
+  methodBox.style.display = "none";
+  creditNameInput.style.display = "none";
+
+  okBusinessBtn.style.display = "none";
+
+  businessData = {
+    name: "",
+    amount: "",
+    type: "",
+    method: "",
+    creditName: ""
+  };
+}
 
 document.getElementById("viewBusinessBtn").onclick = () => {
   alert("View transactions clicked");
@@ -558,7 +600,33 @@ const femaleBtn = document.getElementById("femaleBtn");
 
 const okBtn = document.getElementById("okHealthBtn");
 const cancelBtnH = document.getElementById("cancelHealthBtn");
+const businessRegisterPage = document.getElementById("businessRegisterPage");
+const businessTopDisplay = document.getElementById("businessTopDisplay");
 
+const businessNameInput = document.getElementById("businessNameInput");
+const businessAmountInput = document.getElementById("businessAmountInput");
+
+const inOutBox = document.getElementById("inOutBox");
+const inBtn = document.getElementById("inBtn");
+const outBtn = document.getElementById("outBtn");
+
+const methodBox = document.getElementById("methodBox");
+const cashBtn = document.getElementById("cashBtn");
+const creditBtn = document.getElementById("creditBtn");
+const bankBtn = document.getElementById("bankBtn");
+
+const creditNameInput = document.getElementById("creditNameInput");
+
+const okBusinessBtn = document.getElementById("okBusinessBtn");
+const cancelBusinessBtn = document.getElementById("cancelBusinessBtn");
+
+let businessData = {
+  name: "",
+  amount: "",
+  type: "",
+  method: "",
+  creditName: ""
+};
 let data = {
   first: "", second: "", third: "",
   age: "", gender: "", tribe: ""
@@ -715,6 +783,108 @@ function updateNameButton() {
   topDisplay.innerHTML = "";
   const full = firstInput.value + " " + secondInput.value + " " + thirdInput.value;
   addButton(full.trim());
+}
+// STEP 1 → NAME
+businessNameInput.oninput = () => {
+  if (businessNameInput.value.length === 1) {
+    businessAmountInput.style.display = "block";
+  }
+};
+
+// STEP 2 → AMOUNT
+businessAmountInput.oninput = () => {
+  if (businessAmountInput.value.length === 1) {
+    businessData.name = businessNameInput.value;
+
+    addBusinessButton(businessData.name);
+
+    businessNameInput.style.display = "none";
+    inOutBox.style.display = "block";
+  }
+};
+
+// STEP 3 → IN / OUT
+inBtn.onclick = () => setType("IN");
+outBtn.onclick = () => setType("OUT");
+
+function setType(type) {
+  businessData.amount = businessAmountInput.value;
+  businessData.type = type;
+
+  addBusinessButton(type);
+
+  businessAmountInput.style.display = "none";
+  inOutBox.style.display = "none";
+  methodBox.style.display = "block";
+}
+
+// STEP 4 → METHOD
+cashBtn.onclick = () => setMethod("CASH");
+bankBtn.onclick = () => setMethod("BANK");
+creditBtn.onclick = () => {
+  businessData.method = "CREDIT";
+  addBusinessButton("CREDIT");
+
+  methodBox.style.display = "none";
+  creditNameInput.style.display = "block";
+  okBusinessBtn.style.display = "inline-block";
+};
+
+function setMethod(method) {
+  businessData.method = method;
+
+  addBusinessButton(method);
+
+  methodBox.style.display = "none";
+  okBusinessBtn.style.display = "inline-block";
+}
+
+// CREDIT NAME
+creditNameInput.oninput = () => {
+  businessData.creditName = creditNameInput.value;
+};
+okBusinessBtn.onclick = async () => {
+  okBusinessBtn.disabled = true;
+  okBusinessBtn.textContent = "Saving...";
+
+  try {
+    if (!businessData.name || !businessData.amount) {
+      alert("Fill required fields");
+      return;
+    }
+
+    await saveUserData("records", {
+      category: "business",
+      ...businessData,
+      userName: auth.currentUser?.displayName || "User"
+    });
+
+    alert("Transaction saved!");
+
+    resetBusinessForm();
+
+    businessRegisterPage.style.display = "none";
+    businessPage.style.display = "flex";
+
+  } catch (e) {
+    console.error(e);
+    alert("Error saving transaction");
+  } finally {
+    okBusinessBtn.disabled = false;
+    okBusinessBtn.textContent = "OK";
+  }
+};
+cancelBusinessBtn.onclick = () => {
+  resetBusinessForm();
+  businessRegisterPage.style.display = "none";
+  businessPage.style.display = "flex";
+};
+function addBusinessButton(text) {
+  const btn = document.createElement("button");
+  btn.className = "big-btn";
+  btn.style.background = "#007bff";
+  btn.textContent = text;
+  businessTopDisplay.appendChild(btn);
 }
 </script>
 </body>
