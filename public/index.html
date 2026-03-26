@@ -592,7 +592,8 @@ document.getElementById("okBtn").onclick = async () => {
   creditName: flowData.method === "CREDIT" ? creditName : null,
   userName: auth.currentUser?.displayName || "User" // ✅ ADD THIS
 });
-  alert("Saved!");
+alert("Saved!");
+await loadBusinessData();   // ✅ ADD THIS LINE
   document.getElementById("detailInput").value = "";
   document.getElementById("amountInput").value = "";
   document.getElementById("creditNameInput").value = "";
@@ -636,11 +637,9 @@ const q = query(
     const data = doc.data();
 
     let date = "";
-    if (data.createdAt) {
-      date = data.createdAt.toDate
-        ? data.createdAt.toDate().toLocaleDateString()
-        : new Date(data.createdAt).toLocaleDateString();
-    }
+    if (data.createdAt && data.createdAt.toDate) {
+  date = data.createdAt.toDate().toLocaleDateString();
+}
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
