@@ -311,6 +311,7 @@ function showPage(page) {
   else if (page === 'business') {
   timerPage.style.display = "none";
   businessPage.style.display = "flex";
+  logoutBtn.style.display = isAdmin ? "block" : "none"; // ✅ FIX
 }
   else if (page === 'health') {
   timerPage.style.display = "none";
