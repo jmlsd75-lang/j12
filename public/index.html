@@ -268,14 +268,16 @@ onAuthStateChanged(auth, (user) => {
     isAdmin = user.email === ADMIN_EMAIL;
 
     userDisplay.textContent = user.displayName;
-if (isAdmin) {
+    if (isAdmin) {
   userDisplay.style.display = "block";
+  logoutBtn.style.display = "block"; // ✅ ADD THIS
 
-  showPage('timer'); // same page as normal user
+  showPage('timer');
   timerDisplay.textContent = "UNLIMITED";
   timerStatus.textContent = "Admin Access";
-  timerButtons.style.display = "flex"; // same buttons
-} else {
+  timerButtons.style.display = "flex";
+}
+    else {
       showPage('main');
     }
   } else {
@@ -323,7 +325,11 @@ else if (page === 'education') {
   loginBtn.style.display = "none";
   payBtn.style.display = "none";
   accessBtn.style.display = "none";
+  if (!isAdmin) {
   logoutBtn.style.display = "none";
+} else {
+  logoutBtn.style.display = "block";
+}
   userDisplay.style.display = "none";
   timerPage.style.display = "flex"; 
   timerButtons.style.display = "flex";   // ✅ ADD THIS LINE
