@@ -123,6 +123,28 @@
   <button id="editBtn" class="big-btn" style="background:purple;">EDIT</button>  
   <button id="backHealthBtn" class="big-btn" style="background:red;">BACK</button>
 </div>
+<div id="healthRegisterPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; align-items:center; gap:15px; z-index:55; padding-top:40px;">
+
+  <!-- TOP BUTTONS -->
+  <div id="topDisplay" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
+
+  <!-- INPUTS -->
+  <input id="firstNameInput" placeholder="Enter First Name" class="big-btn" style="color:black; background:#eee;">
+  <input id="secondNameInput" placeholder="Enter Second Name" class="big-btn" style="color:black; background:#eee; display:none;">
+  <input id="thirdNameInput" placeholder="Enter Third Name" class="big-btn" style="color:black; background:#eee; display:none;">
+  <input id="ageInput" type="number" placeholder="Enter Age" class="big-btn" style="color:black; background:#eee; display:none;">
+  <input id="tribeInput" placeholder="Enter Tribe" class="big-btn" style="color:black; background:#eee; display:none;">
+  <!-- GENDER -->
+  <div id="genderBox" style="display:none;">
+    <button id="maleBtn" class="big-btn" style="background:blue;">MALE</button>
+    <button id="femaleBtn" class="big-btn" style="background:pink;">FEMALE</button>
+  </div>
+  <!-- ACTIONS -->
+  <div>
+    <button id="okHealthBtn" class="big-btn" style="background:green; display:none;">OK</button>
+    <button id="cancelHealthBtn" class="big-btn" style="background:red;">CANCEL</button>
+  </div>
+</div>
 <div id="educationPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:50;">
   <button id="registerEduBtn" class="big-btn" style="background:green;">REGISTER NEW</button>
   <button id="searchEduBtn" class="big-btn" style="background:orange;">SEARCH</button>
@@ -189,8 +211,13 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 async function saveUserData(collectionName, data) {
   const user = auth.currentUser;
-  if (!user) return;
 
+if (!user) {
+  console.log("❌ No user logged in");
+  return;
+}
+
+console.log("✅ USER ID:", user.uid);
   try {
     await addDoc(collection(db, "users", user.uid, collectionName), {
       ...data,
@@ -620,12 +647,9 @@ async function loadBusinessData() {
 
   const user = auth.currentUser;
   if (!user) return;
-const q = query(
-  collection(db, "users", user.uid, "business_records"),
-  orderBy("createdAt", "desc") // ✅ newest first
-);
+  const q = collection(db, "users", user.uid, "business_records");
   const snapshot = await getDocs(q);
-
+console.log("📦 Docs count:", snapshot.size);
   let sn = 1;
 
   if (snapshot.empty) {
@@ -654,6 +678,120 @@ const q = query(
 
     tableBody.appendChild(tr);
   });
+}
+// ===== HEALTH FLOW =====
+const healthRegisterPage = document.getElementById("healthRegisterPage");
+const topDisplay = document.getElementById("topDisplay");
+
+const firstInput = document.getElementById("firstNameInput");
+const secondInput = document.getElementById("secondNameInput");
+const thirdInput = document.getElementById("thirdNameInput");
+const ageInput = document.getElementById("ageInput");
+const tribeInput = document.getElementById("tribeInput");
+
+const genderBox = document.getElementById("genderBox");
+const maleBtn = document.getElementById("maleBtn");
+const femaleBtn = document.getElementById("femaleBtn");
+
+const okBtn = document.getElementById("okHealthBtn");
+const cancelBtnH = document.getElementById("cancelHealthBtn");
+
+let data = {
+  first: "", second: "", third: "",
+  age: "", gender: "", tribe: ""
+};
+
+// OPEN PAGE
+document.getElementById("registerNewBtn").onclick = () => {
+  healthPage.style.display = "none";
+  healthRegisterPage.style.display = "flex";
+};
+
+// CANCEL
+cancelBtnH.onclick = () => {
+  location.reload(); // simple reset
+};
+
+// STEP 1 → typing first name
+firstInput.oninput = () => {
+  if (firstInput.value.length === 1) {
+    secondInput.style.display = "block";
+  }
+};
+
+// STEP 2 → typing second name
+secondInput.oninput = () => {
+  if (secondInput.value.length === 1) {
+    data.first = firstInput.value;
+
+    addButton(data.first);
+
+    firstInput.style.display = "none";
+    thirdInput.style.display = "block";
+  }
+};
+
+// STEP 3 → typing third name
+thirdInput.oninput = () => {
+  if (thirdInput.value.length === 1) {
+    data.second = secondInput.value;
+
+    updateNameButton();
+
+    secondInput.style.display = "none";
+    ageInput.style.display = "block";
+  }
+};
+
+// STEP 4 → typing age
+ageInput.oninput = () => {
+  if (ageInput.value.length === 1) {
+    data.third = thirdInput.value;
+
+    updateNameButton();
+
+    thirdInput.style.display = "none";
+    genderBox.style.display = "block";
+  }
+};
+maleBtn.onclick = () => setGender("MALE");
+femaleBtn.onclick = () => setGender("FEMALE");
+function setGender(g) {
+  data.age = ageInput.value;
+  data.gender = g;
+  addButton(data.age);
+  addButton(g);
+  ageInput.style.display = "none";
+  genderBox.style.display = "none";
+
+  tribeInput.style.display = "block";
+  okBtn.style.display = "inline-block";
+}
+// FINAL STEP
+tribeInput.oninput = () => {
+  data.tribe = tribeInput.value;
+};
+// OK
+okBtn.onclick = () => {
+  alert(
+    data.first + " " + data.second + " " + data.third +
+    "\nAge: " + data.age +
+    "\nGender: " + data.gender +
+    "\nTribe: " + data.tribe
+  );
+};
+// HELPERS
+function addButton(text) {
+  const btn = document.createElement("button");
+  btn.className = "big-btn";
+  btn.style.background = "#007bff";
+  btn.textContent = text;
+  topDisplay.appendChild(btn);
+}
+function updateNameButton() {
+  topDisplay.innerHTML = "";
+  const full = firstInput.value + " " + secondInput.value + " " + thirdInput.value;
+  addButton(full.trim());
 }
 </script>
 </body>
