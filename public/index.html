@@ -771,14 +771,23 @@ function setGender(g) {
 tribeInput.oninput = () => {
   data.tribe = tribeInput.value;
 };
-// OK
-okBtn.onclick = () => {
-  alert(
-    data.first + " " + data.second + " " + data.third +
-    "\nAge: " + data.age +
-    "\nGender: " + data.gender +
-    "\nTribe: " + data.tribe
-  );
+okBtn.onclick = async () => {
+  // OPTIONAL: save to Firestore
+  await saveUserData("health_records", {
+    firstName: data.first,
+    secondName: data.second,
+    thirdName: data.third,
+    age: data.age,
+    gender: data.gender,
+    tribe: data.tribe,
+    userName: auth.currentUser?.displayName || "User"
+  });
+
+  alert("Patient saved!");
+
+  // ✅ GO BACK to previous page
+  healthRegisterPage.style.display = "none";
+  healthPage.style.display = "flex";
 };
 // HELPERS
 function addButton(text) {
