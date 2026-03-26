@@ -597,32 +597,36 @@ document.getElementById("viewBusinessBtn").onclick = async () => {
   showPage('businessView');   // go to view page
 };
 const backViewBtn = document.getElementById("backViewBtn");
-if (backViewBtn) {
-  backViewBtn.onclick = () => {
-    businessViewPage.style.display = "none";
-    businessPage.style.display = "flex";
-  };
-}
+document.getElementById("backViewBtn").onclick = () => {
+  showPage('business');
+};
 async function loadBusinessData() {
   tableBody.innerHTML = "";
+
   const user = auth.currentUser;
   if (!user) return;
-  const q = query(
-  collection(db, "users", user.uid, "business_records")
-);
+
+  const q = query(collection(db, "users", user.uid, "business_records"));
   const snapshot = await getDocs(q);
+
   let sn = 1;
+
+  if (snapshot.empty) {
+    tableBody.innerHTML = `<tr><td colspan="7">No records found</td></tr>`;
+    return;
+  }
+
   snapshot.forEach(doc => {
     const data = doc.data();
-    const tr = document.createElement("tr");
+
     let date = "";
-if (data.createdAt) {
-  if (data.createdAt.toDate) {
-    date = data.createdAt.toDate().toLocaleDateString();
-  } else {
-    date = new Date(data.createdAt).toLocaleDateString();
-  }
-}
+    if (data.createdAt) {
+      date = data.createdAt.toDate
+        ? data.createdAt.toDate().toLocaleDateString()
+        : new Date(data.createdAt).toLocaleDateString();
+    }
+
+    const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${sn++}</td>
       <td>${data.detail || ""}</td>
@@ -632,6 +636,7 @@ if (data.createdAt) {
       <td>${auth.currentUser.displayName || ""}</td>
       <td>${date}</td>
     `;
+
     tableBody.appendChild(tr);
   });
 }
