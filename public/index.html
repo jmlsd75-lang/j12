@@ -94,27 +94,8 @@
   <div id="timerStatus">Session Active</div>
   <div id="timerButtons">
     <button id="healthBtn" class="timer-action-btn" style="background: green;">HEALTH</button>
-   <button id="businessBtn" class="timer-action-btn" style="background: orange;">BUSINESS</button>
     <button id="educationBtn" class="timer-action-btn" style="background: blue;">EDUCATION</button>
     <button id="exitBtn" class="timer-action-btn">EXIT</button>
-  </div>
-</div>
-<div id="businessFormPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:15px; z-index:60;">
-  <input id="detailInput" placeholder="Enter Details" class="big-btn" style="color:black; background:#eee;">
-  <input id="amountInput" type="number" placeholder="Enter Amount" class="big-btn" style="color:black; background:#eee;">
-  <div>
-    <button id="inBtn" class="big-btn" style="background:green;">IN</button>
-    <button id="outBtn" class="big-btn" style="background:red;">OUT</button>
-  </div>
-  <div>
-    <button id="cashBtn" class="big-btn" style="background:orange;">CASH</button>
-    <button id="creditBtn" class="big-btn" style="background:blue;">CREDIT</button>
-    <button id="bankBtn" class="big-btn" style="background:purple;">BANK</button>
-  </div>
-  <input id="creditNameInput" placeholder="Enter Credit Name" class="big-btn" style="color:black; background:#eee; display:none;">
-  <div>
-    <button id="okBtn" class="big-btn" style="background:green;">OK</button>
-    <button id="cancelFormBtn" class="big-btn" style="background:red;">CANCEL</button>
   </div>
 </div>
 <div id="healthPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:50;">
@@ -150,36 +131,6 @@
   <button id="searchEduBtn" class="big-btn" style="background:orange;">SEARCH</button>
   <button id="editEduBtn" class="big-btn" style="background:purple;">EDIT</button>
   <button id="backEduBtn" class="big-btn" style="background:red;">BACK</button>
-</div>
-<div id="businessPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:50;">
-  <button id="addBusinessBtn" class="big-btn" style="background:green;">ADD NEW</button>  
-  <button id="viewBusinessBtn" class="big-btn" style="background:orange;">VIEW</button>
-  <button id="exitBusinessBtn" class="big-btn" style="background:red;">EXIT</button>
-</div>
-<div id="businessViewPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:70;">
-
-  <button id="listBtn" class="big-btn" style="background:green;">LIST</button>
-
-  <div id="tableContainer" style="display:none; width:100%; max-width:900px;">
-    <h2>BUSINESS RECORDS</h2>
-    <table border="1" style="width:100%; border-collapse:collapse; text-align:center;">
-      <thead>
-        <tr>
-          <th>S/N</th>
-          <th>DETAIL</th>
-          <th>TYPE</th>
-          <th>METHOD</th>
-          <th>AMOUNT</th>
-          <th>USER</th>
-          <th>DATE</th>
-        </tr>
-      </thead>
-      <tbody id="businessTableBody"></tbody>
-    </table>
-  </div>
-
-  <button id="backViewBtn" class="big-btn" style="background:red;">BACK</button>
-
 </div>
 <div id="loadingOverlay">
   <div class="loader"></div>
@@ -231,10 +182,8 @@ console.log("✅ USER ID:", user.uid);
 const ADMIN_EMAIL = "camelkazembe1@gmail.com";
 let isAdmin = false;
 let timerInterval = null;
-const businessPage = document.getElementById("businessPage");
 const educationPage = document.getElementById("educationPage");
 const healthPage = document.getElementById("healthPage");
-const businessViewPage = document.getElementById("businessViewPage"); 
 const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
 const payBtn = document.querySelector(".pay-btn");
@@ -293,9 +242,6 @@ loginBtn.onclick = async () => { try { await signInWithPopup(auth, provider); } 
 logoutBtn.onclick = async () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); await signOut(auth); showPage('main'); };
 accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
 function showPage(page) {
-  businessViewPage.style.display = "none";
-  businessFormPage.style.display = "none";
-  businessPage.style.display = "none";
   payPage.style.display = "none"; 
   healthPage.style.display = "none";
   educationPage.style.display = "none";
@@ -308,13 +254,6 @@ function showPage(page) {
     if (endTime && Date.now() < parseInt(endTime)) { accessBtn.style.display = "block"; } 
     else { payBtn.style.display = "block"; }
   }
-  else if (page === 'businessView') {
-  businessViewPage.style.display = "flex";
-}
-  else if (page === 'business') {
-  timerPage.style.display = "none";
-  businessPage.style.display = "flex";
-}
   else if (page === 'health') {
   timerPage.style.display = "none";
   healthPage.style.display = "flex";
@@ -397,12 +336,6 @@ timerDisplay.textContent =
   }, 1000);
 }
 exitBtn.onclick = () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); timerButtons.style.display = "none"; showPage('main'); };
-document.getElementById("businessBtn").onclick = () => {
-  showPage('business');
-};
-document.getElementById("exitBusinessBtn").onclick = () => {
-  showPage('timer');
-};
 document.getElementById("educationBtn").onclick = () => {
   showPage('education');
 };
@@ -577,109 +510,6 @@ document.getElementById("backHealthBtn").onclick = () => {
 document.getElementById("backEduBtn").onclick = () => {
   showPage('timer');
 };
-const creditNameInput = document.getElementById("creditNameInput");
-const businessFormPage = document.getElementById("businessFormPage");
-let flowData = {
-  type: null,   // IN / OUT
-  method: null  // CASH / CREDIT / BANK
-};
-document.getElementById("addBusinessBtn").onclick = () => {
-  businessFormPage.style.display = "flex";
-};
-document.getElementById("inBtn").onclick = () => flowData.type = "IN";
-document.getElementById("outBtn").onclick = () => flowData.type = "OUT";
-document.getElementById("cashBtn").onclick = () => {
-  flowData.method = "CASH";
-  creditNameInput.style.display = "none";
-};
-document.getElementById("bankBtn").onclick = () => {
-  flowData.method = "BANK";
-  creditNameInput.style.display = "none";
-};
-document.getElementById("creditBtn").onclick = () => {
-  flowData.method = "CREDIT";
-  creditNameInput.style.display = "block";
-};
-document.getElementById("cancelFormBtn").onclick = () => {
-  businessFormPage.style.display = "none";
-};
-document.getElementById("okBtn").onclick = async () => {
-  const detail = document.getElementById("detailInput").value;
-  const amount = document.getElementById("amountInput").value;
-  const creditName = document.getElementById("creditNameInput").value;
-  if (!detail || !amount || !flowData.type || !flowData.method) {
-    alert("Fill all fields");
-    return;
-  }
-  await saveUserData("records", {
-  category: "business",
-  detail,
-  amount: Number(amount),
-  type: flowData.type,
-  method: flowData.method,
-  creditName: flowData.method === "CREDIT" ? creditName : null,
-  userName: auth.currentUser?.displayName || "User" // ✅ ADD THIS
-});
-alert("Saved!");
-await loadBusinessData();   // ✅ ADD THIS LINE
-  document.getElementById("detailInput").value = "";
-  document.getElementById("amountInput").value = "";
-  document.getElementById("creditNameInput").value = "";
-  creditNameInput.style.display = "none";
-  flowData = { type: null, method: null };
-  businessFormPage.style.display = "none";
-}
-const tableBody = document.getElementById("businessTableBody");
-document.getElementById("viewBusinessBtn").onclick = () => {
-  showPage('businessView');
-  loadBusinessData(); // ✅ auto load immediately
-  document.getElementById("tableContainer").style.display = "block";
-};
-document.getElementById("listBtn").onclick = () => {
-  document.getElementById("tableContainer").style.display = "block"; // show table
-  loadBusinessData(); // load only when LIST clicked
-};
-const backViewBtn = document.getElementById("backViewBtn");
-document.getElementById("backViewBtn").onclick = () => {
-  showPage('business');
-};
-async function loadBusinessData() {
-  tableBody.innerHTML = "";
-
-  const user = auth.currentUser;
-  if (!user) return;
-  const q = collection(db, "users", user.uid, "records");
-  const snapshot = await getDocs(q);
-console.log("📦 Docs count:", snapshot.size);
-  let sn = 1;
-
-  if (snapshot.empty) {
-    tableBody.innerHTML = `<tr><td colspan="7">No records found</td></tr>`;
-    return;
-  }
-  snapshot.forEach(doc => {
-  const data = doc.data();   // ✅ FIRST
-
-  if (data.category !== "business") return;   // ✅ THEN FILTER
-    let date = "";
-    if (data.createdAt && data.createdAt.toDate) {
-  date = data.createdAt.toDate().toLocaleDateString();
-}
-
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-  <td>${sn++}</td>
-  <td>${data.detail || "-"}</td>
-  <td>${data.type || "-"}</td>
-  <td>${data.method || "-"}</td>
-  <td>${data.amount || 0}</td>
-  <td>${data.userName || auth.currentUser?.displayName || "-"}</td>
-  <td>${date || "-"}</td>
-`;
-
-    tableBody.appendChild(tr);
-  });
-}
 // ===== HEALTH FLOW =====
 const healthRegisterPage = document.getElementById("healthRegisterPage");
 const topDisplay = document.getElementById("topDisplay");
