@@ -194,7 +194,7 @@ async function saveUserData(collectionName, data) {
     await addDoc(collection(db, "users", user.uid, collectionName), {
       ...data,
       userId: user.uid,
-  createdAt: new Date()
+      createdAt: new Date()
     });
   } catch (e) {
     console.error("Save error:", e);
@@ -630,14 +630,17 @@ const q = query(
     tableBody.innerHTML = `<tr><td colspan="7">No records found</td></tr>`;
     return;
   }
+
   snapshot.forEach(doc => {
     const data = doc.data();
+
     let date = "";
     if (data.createdAt) {
       date = data.createdAt.toDate
         ? data.createdAt.toDate().toLocaleDateString()
         : new Date(data.createdAt).toLocaleDateString();
     }
+
     const tr = document.createElement("tr");
     tr.innerHTML = `
   <td>${sn++}</td>
@@ -648,9 +651,10 @@ const q = query(
   <td>${data.userName || auth.currentUser?.displayName || "-"}</td>
   <td>${date || "-"}</td>
 `;
+
     tableBody.appendChild(tr);
   });
 }
 </script>
 </body>
-</html>             
+</html>
