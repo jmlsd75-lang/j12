@@ -261,6 +261,8 @@ const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
 onAuthStateChanged(auth, (user) => {
   if (user) {
+  loginBtn.style.display = "none";   // ✅ hide LOGIN
+  logoutBtn.style.display = "block"; // ✅ show LOGOUT
     saveUserData("logins", {
   name: user.displayName,
   email: user.email
@@ -270,7 +272,6 @@ onAuthStateChanged(auth, (user) => {
     userDisplay.textContent = user.displayName;
     if (isAdmin) {
   userDisplay.style.display = "block";
-  logoutBtn.style.display = "block"; // ✅ ADD THIS
 
   showPage('timer');
   timerDisplay.textContent = "UNLIMITED";
