@@ -600,7 +600,9 @@ document.getElementById("okBtn").onclick = async () => {
 }
 const tableBody = document.getElementById("businessTableBody");
 document.getElementById("viewBusinessBtn").onclick = () => {
-  showPage('businessView');   // show page FIRST
+  showPage('businessView');
+  loadBusinessData(); // ✅ auto load immediately
+  document.getElementById("tableContainer").style.display = "block";
 };
 document.getElementById("listBtn").onclick = () => {
   document.getElementById("tableContainer").style.display = "block"; // show table
@@ -615,8 +617,10 @@ async function loadBusinessData() {
 
   const user = auth.currentUser;
   if (!user) return;
-
-  const q = query(collection(db, "users", user.uid, "business_records"));
+const q = query(
+  collection(db, "users", user.uid, "business_records"),
+  orderBy("createdAt", "desc") // ✅ newest first
+);
   const snapshot = await getDocs(q);
 
   let sn = 1;
@@ -638,14 +642,14 @@ async function loadBusinessData() {
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${sn++}</td>
-      <td>${data.detail || ""}</td>
-      <td>${data.type || ""}</td>
-      <td>${data.method || ""}</td>
-      <td>${data.amount || ""}</td>
-      <td>${auth.currentUser.displayName || ""}</td>
-      <td>${date}</td>
-    `;
+  <td>${sn++}</td>
+  <td>${data.detail || "-"}</td>
+  <td>${data.type || "-"}</td>
+  <td>${data.method || "-"}</td>
+  <td>${data.amount || 0}</td>
+  <td>${data.userName || "-"}</td>
+  <td>${date || "-"}</td>
+`;
 
     tableBody.appendChild(tr);
   });
