@@ -531,18 +531,43 @@ let data = {
   first: "", second: "", third: "",
   age: "", gender: "", tribe: ""
 };
+function resetHealthForm() {
+  firstInput.value = "";
+  secondInput.value = "";
+  thirdInput.value = "";
+  ageInput.value = "";
+  tribeInput.value = "";
 
-// OPEN PAGE
+  data = {
+    first: "",
+    second: "",
+    third: "",
+    age: "",
+    gender: "",
+    tribe: ""
+  };
+
+  topDisplay.innerHTML = "";
+
+  firstInput.style.display = "block";
+  secondInput.style.display = "none";
+  thirdInput.style.display = "none";
+  ageInput.style.display = "none";
+  tribeInput.style.display = "none";
+  genderBox.style.display = "none";
+
+  okBtn.style.display = "none";
+}
 document.getElementById("registerNewBtn").onclick = () => {
+  resetHealthForm(); // ✅ added
   healthPage.style.display = "none";
   healthRegisterPage.style.display = "flex";
 };
-
-// CANCEL
 cancelBtnH.onclick = () => {
-  location.reload(); // simple reset
+  resetHealthForm();
+  healthRegisterPage.style.display = "none";
+  healthPage.style.display = "flex";
 };
-
 // STEP 1 → typing first name
 firstInput.oninput = () => {
   if (firstInput.value.length === 1) {
@@ -628,33 +653,7 @@ okBtn.onclick = async () => {
 
     // ✅ SUCCESS
     alert("Patient saved!");
-
-    // ✅ CLEAR INPUTS
-    firstInput.value = "";
-    secondInput.value = "";
-    thirdInput.value = "";
-    ageInput.value = "";
-    tribeInput.value = "";
-
-    // ✅ RESET DATA
-    data = {
-      first: "",
-      second: "",
-      third: "",
-      age: "",
-      gender: "",
-      tribe: ""
-    };
-
-    // ✅ RESET UI FLOW
-    topDisplay.innerHTML = "";
-
-    firstInput.style.display = "block";
-    secondInput.style.display = "none";
-    thirdInput.style.display = "none";
-    ageInput.style.display = "none";
-    tribeInput.style.display = "none";
-    genderBox.style.display = "none";
+resetHealthForm();
 
     // ✅ KEEP BUTTON READY FOR NEXT OPEN
     okBtn.style.display = "inline-block";
