@@ -141,29 +141,39 @@
   <button id="viewBusinessBtn" class="big-btn" style="background:orange;">VIEW</button>
   <button id="backBusinessBtn" class="big-btn" style="background:red;">BACK</button>
 </div>
-<div id="businessTopDisplay" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
+<div id="businessRegisterPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; align-items:center; gap:15px; z-index:55; padding-top:40px;">
+
+  <!-- TOP DISPLAY -->
+  <div id="businessTopDisplay" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
+
   <!-- INPUTS -->
   <input id="businessNameInput" placeholder="Enter Name" class="big-btn" style="color:black; background:#eee;">
   <input id="businessAmountInput" type="number" placeholder="Enter Amount" class="big-btn" style="color:black; background:#eee; display:none;">
+
   <!-- IN / OUT -->
   <div id="inOutBox" style="display:none;">
     <button id="inBtn" class="big-btn" style="background:green;">IN</button>
     <button id="outBtn" class="big-btn" style="background:red;">OUT</button>
   </div>
+
   <!-- METHOD -->
   <div id="methodBox" style="display:none;">
     <button id="cashBtn" class="big-btn" style="background:blue;">CASH</button>
     <button id="creditBtn" class="big-btn" style="background:orange;">CREDIT</button>
     <button id="bankBtn" class="big-btn" style="background:purple;">BANK</button>
   </div>
+
   <!-- CREDIT NAME -->
   <input id="creditNameInput" placeholder="Credit Person Name" class="big-btn" style="color:black; background:#eee; display:none;">
+
   <!-- ACTIONS -->
   <div>
     <button id="okBusinessBtn" class="big-btn" style="background:green; display:none;">OK</button>
     <button id="cancelBusinessBtn" class="big-btn" style="background:red;">CANCEL</button>
   </div>
+
 </div>
+
 <div id="loadingOverlay">
   <div class="loader"></div>
   <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
@@ -409,10 +419,12 @@ function resetBusinessForm() {
     creditName: ""
   };
 }
-
-document.getElementById("viewBusinessBtn").onclick = () => {
-  alert("View transactions clicked");
+document.getElementById("addBusinessBtn").onclick = () => {
+  resetBusinessForm();
+  businessPage.style.display = "none";
+  businessRegisterPage.style.display = "flex";
 };
+
 function preprocessImage(canvas) {
   const ctx = canvas.getContext('2d');
   const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
