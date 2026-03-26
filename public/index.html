@@ -134,23 +134,30 @@
   <button id="viewBusinessBtn" class="big-btn" style="background:orange;">VIEW</button>
   <button id="exitBusinessBtn" class="big-btn" style="background:red;">EXIT</button>
 </div>
-<div id="businessViewPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; align-items:center; padding:20px; z-index:70; overflow:auto;">
-  <h2>BUSINESS RECORDS</h2>
-  <table border="1" style="width:100%; max-width:900px; border-collapse:collapse; text-align:center;">
-    <thead>
-      <tr>
-        <th>S/N</th>
-        <th>DETAIL</th>
-        <th>TYPE</th>
-        <th>METHOD</th>
-        <th>AMOUNT</th>
-        <th>USER</th>
-        <th>DATE</th>
-      </tr>
-    </thead>
-    <tbody id="businessTableBody"></tbody>
-  </table>
-  <button id="backViewBtn" class="big-btn" style="background:red; margin-top:20px;">BACK</button>
+<div id="businessViewPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:70;">
+
+  <button id="listBtn" class="big-btn" style="background:green;">LIST</button>
+
+  <div id="tableContainer" style="display:none; width:100%; max-width:900px;">
+    <h2>BUSINESS RECORDS</h2>
+    <table border="1" style="width:100%; border-collapse:collapse; text-align:center;">
+      <thead>
+        <tr>
+          <th>S/N</th>
+          <th>DETAIL</th>
+          <th>TYPE</th>
+          <th>METHOD</th>
+          <th>AMOUNT</th>
+          <th>USER</th>
+          <th>DATE</th>
+        </tr>
+      </thead>
+      <tbody id="businessTableBody"></tbody>
+    </table>
+  </div>
+
+  <button id="backViewBtn" class="big-btn" style="background:red;">BACK</button>
+
 </div>
 <div id="loadingOverlay">
   <div class="loader"></div>
@@ -594,7 +601,10 @@ document.getElementById("okBtn").onclick = async () => {
 const tableBody = document.getElementById("businessTableBody");
 document.getElementById("viewBusinessBtn").onclick = () => {
   showPage('businessView');   // show page FIRST
-  loadBusinessData();         // then load data
+};
+document.getElementById("listBtn").onclick = () => {
+  document.getElementById("tableContainer").style.display = "block"; // show table
+  loadBusinessData(); // load only when LIST clicked
 };
 const backViewBtn = document.getElementById("backViewBtn");
 document.getElementById("backViewBtn").onclick = () => {
@@ -642,4 +652,4 @@ async function loadBusinessData() {
 }
 </script>
 </body>
-</html>
+</html>             
