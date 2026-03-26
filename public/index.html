@@ -139,6 +139,12 @@
 <div id="businessPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:50;">
   <button id="addBusinessBtn" class="big-btn" style="background:green;">ADD NEW TRANSACTION</button>  
   <button id="viewBusinessBtn" class="big-btn" style="background:orange;">VIEW</button>
+
+<!-- NEW (hidden initially) -->
+<div id="viewOptions" style="display:none; flex-direction:column; gap:15px;">
+  <button id="listBtn" class="big-btn" style="background:blue;">LIST</button>
+  <button id="backViewBtn" class="big-btn" style="background:red;">BACK</button>
+</div>
   <button id="backBusinessBtn" class="big-btn" style="background:red;">BACK</button>
 </div>
 <div id="businessRegisterPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; align-items:center; gap:15px; z-index:55; padding-top:40px;">
@@ -906,6 +912,25 @@ function addBusinessButton(text) {
   btn.textContent = text;
   businessTopDisplay.appendChild(btn);
 }
+const viewBusinessBtn = document.getElementById("viewBusinessBtn");
+const viewOptions = document.getElementById("viewOptions");
+const backViewBtn = document.getElementById("backViewBtn");
+
+// Show LIST + BACK
+viewBusinessBtn.onclick = () => {
+  viewBusinessBtn.style.display = "none";
+  document.getElementById("addBusinessBtn").style.display = "none";
+
+  viewOptions.style.display = "flex";
+};
+
+// Back to business menu
+backViewBtn.onclick = () => {
+  viewOptions.style.display = "none";
+
+  viewBusinessBtn.style.display = "block";
+  document.getElementById("addBusinessBtn").style.display = "block";
+};
 </script>
 </body>
 </html>
