@@ -170,7 +170,8 @@
   addDoc, 
   getDocs, 
   query, 
-  orderBy 
+  orderBy,
+  serverTimestamp   
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -194,7 +195,7 @@ async function saveUserData(collectionName, data) {
     await addDoc(collection(db, "users", user.uid, collectionName), {
       ...data,
       userId: user.uid,
-      createdAt: new Date()
+      createdAt: serverTimestamp()
     });
   } catch (e) {
     console.error("Save error:", e);
