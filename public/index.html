@@ -773,24 +773,75 @@ tribeInput.oninput = () => {
   data.tribe = tribeInput.value;
 };
 okBtn.onclick = async () => {
-  // OPTIONAL: save to Firestore
-  await saveUserData("records", {
-  category: "health",
-    firstName: data.first,
-    secondName: data.second,
-    thirdName: data.third,
-    age: data.age,
-    gender: data.gender,
-    tribe: data.tribe,
-    userName: auth.currentUser?.displayName || "User"
-  });
+  // 🔒 lock button
+  okBtn.disabled = true;
+  okBtn.textContent = "Saving...";
 
-  alert("Patient saved!");
+  try {
+    // ✅ VALIDATION
+    if (!data.first || !data.age || !data.gender) {
+      alert("Please complete all required fields");
+      return; // finally will still run → safe
+    }
 
-  // ✅ GO BACK to previous page
-  healthRegisterPage.style.display = "none";
-  healthPage.style.display = "flex";
-};
+    // ✅ SAVE
+    await saveUserData("records", {
+      category: "health",
+      firstName: data.first,
+      secondName: data.second,
+      thirdName: data.third,
+      age: data.age,
+      gender: data.gender,
+      tribe: data.tribe,
+      userName: auth.currentUser?.displayName || "User"
+    });
+
+    // ✅ SUCCESS
+    alert("Patient saved!");
+
+    // ✅ CLEAR INPUTS
+    firstInput.value = "";
+    secondInput.value = "";
+    thirdInput.value = "";
+    ageInput.value = "";
+    tribeInput.value = "";
+
+    // ✅ RESET DATA
+    data = {
+      first: "",
+      second: "",
+      third: "",
+      age: "",
+      gender: "",
+      tribe: ""
+    };
+
+    // ✅ RESET UI FLOW
+    topDisplay.innerHTML = "";
+
+    firstInput.style.display = "block";
+    secondInput.style.display = "none";
+    thirdInput.style.display = "none";
+    ageInput.style.display = "none";
+    tribeInput.style.display = "none";
+    genderBox.style.display = "none";
+
+    // ✅ KEEP BUTTON READY FOR NEXT OPEN
+    okBtn.style.display = "inline-block";
+
+    // ✅ NAVIGATION
+    healthRegisterPage.style.display = "none";
+    healthPage.style.display = "flex";
+
+  } catch (error) {
+    console.error(error);
+    alert("Error saving patient!");
+  } finally {
+    // 🔓 ALWAYS UNLOCK BUTTON (covers ALL cases)
+    okBtn.disabled = false;
+    okBtn.textContent = "OK";
+  }
+};/*  */
 // HELPERS
 function addButton(text) {
   const btn = document.createElement("button");
