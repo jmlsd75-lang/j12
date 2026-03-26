@@ -101,7 +101,7 @@
   <button id="educationBtn" class="timer-action-btn" style="background: blue;">EDUCATION</button>
   <button id="exitBtn" class="timer-action-btn">EXIT</button>
 </div>
-</div>
+</di>
 <div id="healthPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:50;">
   <button id="registerNewBtn" class="big-btn" style="background:green;">REGISTER NEW</button>  
   <button id="searchBtn" class="big-btn" style="background:orange;">SEARCH</button>
@@ -324,18 +324,23 @@ else if (page === 'education') {
   else if (page === 'pay') { payPage.style.display = "flex"; } 
   else if (page === 'camera') { cameraMenuPage.style.display = "flex"; } 
   else if (page === 'preview') { previewPage.style.display = "flex"; }
+
   else if (page === 'timer') { 
   loginBtn.style.display = "none";
   payBtn.style.display = "none";
   accessBtn.style.display = "none";
+
   if (!isAdmin) {
-  logoutBtn.style.display = "none";
-} else {
-  logoutBtn.style.display = "block";
-}
+    logoutBtn.style.display = "none";
+    exitBtn.style.display = "inline-block"; // ✅ show for normal users
+  } else {
+    logoutBtn.style.display = "block";
+    exitBtn.style.display = "none"; // ❌ hide for admin
+  }
+
   userDisplay.style.display = "none";
   timerPage.style.display = "flex"; 
-  timerButtons.style.display = "flex";   // ✅ ADD THIS LINE
+  timerButtons.style.display = "flex";
   userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; 
 }
 }
