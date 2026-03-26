@@ -15,7 +15,6 @@
     background:#f4f4f4;
   }
 
-  /* Top name */
   header{
     text-align:center;
     padding:20px;
@@ -26,7 +25,6 @@
     margin:0;
   }
 
-  /* Center content */
   .container{
     flex:1;
     display:flex;
@@ -62,9 +60,8 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { setupLogin } from "./login.js"; // 👈 from new file
 
-// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -75,12 +72,9 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 
-// Button click
-document.getElementById("loginBtn").addEventListener("click", () => {
-  alert("Login button clicked!");
-});
+// start login system
+setupLogin(app);
 
 console.log("✅ System is ONLINE");
 </script>
