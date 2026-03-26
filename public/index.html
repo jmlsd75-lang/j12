@@ -915,21 +915,23 @@ function addBusinessButton(text) {
 const viewBusinessBtn = document.getElementById("viewBusinessBtn");
 const viewOptions = document.getElementById("viewOptions");
 const backViewBtn = document.getElementById("backViewBtn");
-
-// Show LIST + BACK
 viewBusinessBtn.onclick = () => {
   viewBusinessBtn.style.display = "none";
   document.getElementById("addBusinessBtn").style.display = "none";
 
+  // 🔴 ADD THIS LINE (hide extra BACK)
+  document.getElementById("backBusinessBtn").style.display = "none";
+
   viewOptions.style.display = "flex";
 };
-
-// Back to business menu
 backViewBtn.onclick = () => {
   viewOptions.style.display = "none";
 
   viewBusinessBtn.style.display = "block";
   document.getElementById("addBusinessBtn").style.display = "block";
+
+  // 🔴 ADD THIS LINE (bring BACK button again)
+  document.getElementById("backBusinessBtn").style.display = "block";
 };
 </script>
 </body>
