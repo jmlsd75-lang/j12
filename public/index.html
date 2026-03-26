@@ -198,6 +198,8 @@ let isAdmin = false;
 let timerInterval = null;
 const businessPage = document.getElementById("businessPage");
 const educationPage = document.getElementById("educationPage");
+const healthPage = document.getElementById("healthPage");
+const businessViewPage = document.getElementById("businessViewPage"); 
 const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
 const payBtn = document.querySelector(".pay-btn");
@@ -224,7 +226,6 @@ const timerButtons = document.getElementById("timerButtons");
 const exitBtn = document.getElementById("exitBtn");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
-const healthPage = document.getElementById("healthPage");
 onAuthStateChanged(auth, (user) => {
   if (user) {
     saveUserData("logins", {
@@ -589,8 +590,7 @@ document.getElementById("okBtn").onclick = async () => {
   creditNameInput.style.display = "none";
   flowData = { type: null, method: null };
   businessFormPage.style.display = "none";
-};
-const businessViewPage = document.getElementById("businessViewPage");
+}
 const tableBody = document.getElementById("businessTableBody");
 document.getElementById("viewBusinessBtn").onclick = async () => {
   await loadBusinessData();   // load data first
