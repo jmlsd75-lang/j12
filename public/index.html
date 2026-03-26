@@ -611,7 +611,8 @@ document.getElementById("okBtn").onclick = async () => {
     alert("Fill all fields");
     return;
   }
-  await saveUserData("business_records", {
+  await saveUserData("records", {
+  category: "business",
   detail,
   amount: Number(amount),
   type: flowData.type,
@@ -647,7 +648,7 @@ async function loadBusinessData() {
 
   const user = auth.currentUser;
   if (!user) return;
-  const q = collection(db, "users", user.uid, "business_records");
+  const q = collection(db, "users", user.uid, "records");
   const snapshot = await getDocs(q);
 console.log("📦 Docs count:", snapshot.size);
   let sn = 1;
@@ -656,10 +657,10 @@ console.log("📦 Docs count:", snapshot.size);
     tableBody.innerHTML = `<tr><td colspan="7">No records found</td></tr>`;
     return;
   }
-
   snapshot.forEach(doc => {
-    const data = doc.data();
+  const data = doc.data();   // ✅ FIRST
 
+  if (data.category !== "business") return;   // ✅ THEN FILTER
     let date = "";
     if (data.createdAt && data.createdAt.toDate) {
   date = data.createdAt.toDate().toLocaleDateString();
@@ -773,7 +774,8 @@ tribeInput.oninput = () => {
 };
 okBtn.onclick = async () => {
   // OPTIONAL: save to Firestore
-  await saveUserData("health_records", {
+  await saveUserData("records", {
+  category: "health",
     firstName: data.first,
     secondName: data.second,
     thirdName: data.third,
