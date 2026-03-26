@@ -30,6 +30,7 @@
     display:flex;
     justify-content:center;
     align-items:center;
+    gap:10px;
   }
 
   button{
@@ -51,7 +52,7 @@
 <body>
 
 <header>
-  <h1>JAMAL SAID KAZEMBE</h1>
+  <h1 id="title">JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT</h1>
 </header>
 
 <div class="container">
@@ -60,7 +61,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { setupLogin } from "./login.js"; // 👈 from new file
+import { setupLogin } from "./login.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
