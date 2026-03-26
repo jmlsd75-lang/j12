@@ -592,9 +592,9 @@ document.getElementById("okBtn").onclick = async () => {
   businessFormPage.style.display = "none";
 }
 const tableBody = document.getElementById("businessTableBody");
-document.getElementById("viewBusinessBtn").onclick = async () => {
-  await loadBusinessData();   // load data first
-  showPage('businessView');   // go to view page
+document.getElementById("viewBusinessBtn").onclick = () => {
+  showPage('businessView');   // show page FIRST
+  loadBusinessData();         // then load data
 };
 const backViewBtn = document.getElementById("backViewBtn");
 document.getElementById("backViewBtn").onclick = () => {
@@ -642,4 +642,4 @@ async function loadBusinessData() {
 }
 </script>
 </body>
-</html>             
+</html>
