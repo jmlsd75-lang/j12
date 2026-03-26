@@ -136,6 +136,12 @@
   <button id="editEduBtn" class="big-btn" style="background:purple;">EDIT</button>
   <button id="backEduBtn" class="big-btn" style="background:red;">BACK</button>
 </div>
+<div id="businessPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:50;">
+  <button id="addBusinessBtn" class="big-btn" style="background:green;">ADD NEW TRANSACTION</button>  
+  <button id="viewBusinessBtn" class="big-btn" style="background:orange;">VIEW</button>
+
+  <button id="backBusinessBtn" class="big-btn" style="background:red;">BACK</button>
+</div>
 <div id="loadingOverlay">
   <div class="loader"></div>
   <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
@@ -188,6 +194,7 @@ let isAdmin = false;
 let timerInterval = null;
 const educationPage = document.getElementById("educationPage");
 const healthPage = document.getElementById("healthPage");
+const businessPage = document.getElementById("businessPage");
 const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
 const payBtn = document.querySelector(".pay-btn");
@@ -246,6 +253,7 @@ loginBtn.onclick = async () => { try { await signInWithPopup(auth, provider); } 
 logoutBtn.onclick = async () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); await signOut(auth); showPage('main'); };
 accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
 function showPage(page) {
+  businessPage.style.display = "none";
   payPage.style.display = "none"; 
   healthPage.style.display = "none";
   educationPage.style.display = "none";
@@ -258,6 +266,10 @@ function showPage(page) {
     if (endTime && Date.now() < parseInt(endTime)) { accessBtn.style.display = "block"; } 
     else { payBtn.style.display = "block"; }
   }
+  else if (page === 'business') {
+  timerPage.style.display = "none";
+  businessPage.style.display = "flex";
+}
   else if (page === 'health') {
   timerPage.style.display = "none";
   healthPage.style.display = "flex";
@@ -342,6 +354,22 @@ timerDisplay.textContent =
 exitBtn.onclick = () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); timerButtons.style.display = "none"; showPage('main'); };
 document.getElementById("educationBtn").onclick = () => {
   showPage('education');
+};
+// OPEN BUSINESS PAGE
+document.getElementById("businessBtn").onclick = () => {
+  showPage('business');
+};
+
+// BACK TO TIMER
+document.getElementById("backBusinessBtn").onclick = () => {
+  showPage('timer');
+};
+document.getElementById("addBusinessBtn").onclick = () => {
+  alert("Add new transaction clicked");
+};
+
+document.getElementById("viewBusinessBtn").onclick = () => {
+  alert("View transactions clicked");
 };
 function preprocessImage(canvas) {
   const ctx = canvas.getContext('2d');
