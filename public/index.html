@@ -584,12 +584,13 @@ document.getElementById("okBtn").onclick = async () => {
     return;
   }
   await saveUserData("business_records", {
-    detail,
-    amount: Number(amount),
-    type: flowData.type,
-    method: flowData.method,
-    creditName: flowData.method === "CREDIT" ? creditName : null
-  });
+  detail,
+  amount: Number(amount),
+  type: flowData.type,
+  method: flowData.method,
+  creditName: flowData.method === "CREDIT" ? creditName : null,
+  userName: auth.currentUser?.displayName || "User" // ✅ ADD THIS
+});
   alert("Saved!");
   document.getElementById("detailInput").value = "";
   document.getElementById("amountInput").value = "";
@@ -629,17 +630,14 @@ const q = query(
     tableBody.innerHTML = `<tr><td colspan="7">No records found</td></tr>`;
     return;
   }
-
   snapshot.forEach(doc => {
     const data = doc.data();
-
     let date = "";
     if (data.createdAt) {
       date = data.createdAt.toDate
         ? data.createdAt.toDate().toLocaleDateString()
         : new Date(data.createdAt).toLocaleDateString();
     }
-
     const tr = document.createElement("tr");
     tr.innerHTML = `
   <td>${sn++}</td>
@@ -647,10 +645,9 @@ const q = query(
   <td>${data.type || "-"}</td>
   <td>${data.method || "-"}</td>
   <td>${data.amount || 0}</td>
-  <td>${data.userName || "-"}</td>
+  <td>${data.userName || auth.currentUser?.displayName || "-"}</td>
   <td>${date || "-"}</td>
 `;
-
     tableBody.appendChild(tr);
   });
 }
