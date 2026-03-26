@@ -272,6 +272,9 @@ function showPage(page) {
     if (endTime && Date.now() < parseInt(endTime)) { accessBtn.style.display = "block"; } 
     else { payBtn.style.display = "block"; }
   }
+  else if (page === 'businessView') {
+  businessViewPage.style.display = "flex";
+}
   else if (page === 'business') {
   timerPage.style.display = "none";
   businessPage.style.display = "flex";
@@ -589,11 +592,9 @@ document.getElementById("okBtn").onclick = async () => {
 };
 const businessViewPage = document.getElementById("businessViewPage");
 const tableBody = document.getElementById("businessTableBody");
-// OPEN VIEW PAGE
 document.getElementById("viewBusinessBtn").onclick = async () => {
-  await loadBusinessData();
-  businessPage.style.display = "none";
-  businessViewPage.style.display = "flex";
+  await loadBusinessData();   // load data first
+  showPage('businessView');   // go to view page
 };
 const backViewBtn = document.getElementById("backViewBtn");
 if (backViewBtn) {
