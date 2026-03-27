@@ -1,8 +1,7 @@
 import { 
   getAuth, 
   GoogleAuthProvider, 
-  signInWithRedirect, 
-  getRedirectResult,
+  signInWithPopup,
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -12,53 +11,34 @@ export function setupLogin(app) {
   const provider = new GoogleAuthProvider();
 
   const loginBtn = document.getElementById("loginBtn");
-  const container = document.querySelector(".container");
+  const logoutBtn = document.getElementById("logoutBtn");
   const title = document.getElementById("title");
 
-  // create logout button
-  let logoutBtn = document.getElementById("logoutBtn");
-  if (!logoutBtn) {
-    logoutBtn = document.createElement("button");
-    logoutBtn.id = "logoutBtn";
-    logoutBtn.textContent = "Logout";
-    logoutBtn.style.display = "none";
-    container.appendChild(logoutBtn);
-  }
-
-  // 🔥 HANDLE REDIRECT RESULT (VERY IMPORTANT)
-  getRedirectResult(auth)
-    .then((result) => {
-      if (result?.user) {
-        console.log("✅ Redirect login success:", result.user.displayName);
-      }
-    })
-    .catch((error) => {
-      console.error("❌ Redirect error:", error);
-    });
-
-  // login
+  // 🔥 LOGIN (popup - no redirect errors)
   loginBtn.addEventListener("click", () => {
-    signInWithRedirect(auth, provider);
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        console.log("✅ Login:", result.user.displayName);
+      })
+      .catch((error) => {
+        console.error("❌ Error:", error);
+      });
   });
 
-  // logout
+  // 🔥 LOGOUT
   logoutBtn.addEventListener("click", () => {
     signOut(auth);
   });
 
-  // 🔥 MAIN AUTH STATE LISTENER (controls UI)
+  // 🔥 AUTH STATE (controls UI)
   onAuthStateChanged(auth, (user) => {
-    console.log("Auth state:", user);
-
     if (user) {
       loginBtn.style.display = "none";
       logoutBtn.style.display = "inline-block";
-
       title.textContent = "Welcome " + (user.displayName || "User");
     } else {
       loginBtn.style.display = "inline-block";
       logoutBtn.style.display = "none";
-
       title.textContent = "JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT";
     }
   });
