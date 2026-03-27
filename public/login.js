@@ -1,6 +1,7 @@
 // login.js
 import { auth, provider } from './firebase.js';
-import { signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { signInWithPopup, signOut, onAuthStateChanged } 
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // DOM elements
 const loginBtn = document.getElementById("loginBtn");
@@ -13,7 +14,7 @@ export async function login() {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
     if (user) {
-      userDisplay.textContent = `Hello, ${user.displayName}`;
+      userDisplay.textContent = user.displayName;
       userDisplay.style.display = "block";
       loginBtn.style.display = "none";
       logoutBtn.style.display = "block";
@@ -32,10 +33,10 @@ logoutBtn.onclick = async () => {
   logoutBtn.style.display = "none";
 };
 
-// Keep login/logout synced if page reloads
+// Keep login/logout synced
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    userDisplay.textContent = `Hello, ${user.displayName}`;
+    userDisplay.textContent = user.displayName;
     userDisplay.style.display = "block";
     loginBtn.style.display = "none";
     logoutBtn.style.display = "block";
