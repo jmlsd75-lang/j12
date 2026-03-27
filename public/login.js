@@ -1,12 +1,20 @@
 // login.js
-import { db } from './firebase.js'; // optional, if you need Firestore
+import { auth, provider } from './firebase.js';
 
 const loginBtn = document.getElementById('loginBtn');
 
 loginBtn.addEventListener('click', () => {
-  // Replace with real login logic later
-  alert("🔑 Login button clicked!");
-  
-  // Example: Redirect to main system page
-  // window.location.href = 'dashboard.html';
+  signInWithPopup(auth, provider)
+    .then((result) => {
+      // User signed in successfully
+      const user = result.user;
+      console.log("✅ User logged in:", user.displayName, user.email);
+      
+      // Redirect to your system page or Firestore dashboard
+      window.location.href = 'dashboard.html'; // create this page for your system
+    })
+    .catch((error) => {
+      console.error("❌ Login failed:", error);
+      alert("Login failed! Check console for details.");
+    });
 });
