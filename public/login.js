@@ -26,12 +26,12 @@ const logoutBtn = document.querySelector(".logout-btn");
 const freeBtn = document.querySelector(".free-btn");
 const userDisplay = document.getElementById("userDisplay");
 
-/* LOGIN (Redirect) */
+/* LOGIN using Redirect */
 loginBtn.addEventListener("click", () => {
   signInWithRedirect(auth, provider);
 });
 
-/* Check redirect result */
+/* Optional: Check redirect result */
 getRedirectResult(auth)
   .then((result) => {
     if (result.user) {
@@ -52,15 +52,16 @@ logoutBtn.addEventListener("click", async () => {
 
 /* AUTH STATE */
 onAuthStateChanged(auth, (user) => {
+  console.log("Auth state changed:", user); // debug for PC
   if (user) {
     userDisplay.textContent = user.displayName || user.email;
     loginBtn.style.display = "none";
     logoutBtn.style.display = "block";
-    freeBtn.style.display = "block"; // show Free button
+    freeBtn.style.display = "block"; // show Free button after login
   } else {
     userDisplay.textContent = "";
     loginBtn.style.display = "block";
     logoutBtn.style.display = "none";
-    freeBtn.style.display = "none"; // hide Free button
+    freeBtn.style.display = "none"; // hide Free button when logged out
   }
 });
