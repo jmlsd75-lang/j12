@@ -36,15 +36,28 @@
   button{
     padding:12px 25px;
     font-size:18px;
-    background:blue;
-    color:white;
     border:none;
     border-radius:5px;
     cursor:pointer;
+    color:white;
   }
 
-  button:hover{
+  /* Login button */
+  #loginBtn{
+    background:blue;
+  }
+
+  #loginBtn:hover{
     background:darkblue;
+  }
+
+  /* Logout button */
+  #logoutBtn{
+    background:red;
+  }
+
+  #logoutBtn:hover{
+    background:darkred;
   }
 </style>
 </head>
@@ -54,6 +67,7 @@
 <header>
   <h1 id="title">JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT</h1>
 </header>
+
 <div class="container">
   <button id="loginBtn">Login</button>
   <button id="logoutBtn" style="display:none;">Logout</button>
@@ -74,7 +88,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-// ✅ start AFTER page loads
 window.addEventListener("DOMContentLoaded", () => {
   setupLogin(app);
 });
