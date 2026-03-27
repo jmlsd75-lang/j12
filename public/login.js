@@ -14,23 +14,23 @@ export function setupLogin(app) {
   const logoutBtn = document.getElementById("logoutBtn");
   const title = document.getElementById("title");
 
-  // 🔥 LOGIN (popup - no redirect errors)
+  // Login (popup)
   loginBtn.addEventListener("click", () => {
     signInWithPopup(auth, provider)
       .then((result) => {
-        console.log("✅ Login:", result.user.displayName);
+        console.log("Login success:", result.user.displayName);
       })
       .catch((error) => {
-        console.error("❌ Error:", error);
+        console.error(error);
       });
   });
 
-  // 🔥 LOGOUT
+  // Logout
   logoutBtn.addEventListener("click", () => {
     signOut(auth);
   });
 
-  // 🔥 AUTH STATE (controls UI)
+  // Auth state (UI control)
   onAuthStateChanged(auth, (user) => {
     if (user) {
       loginBtn.style.display = "none";
