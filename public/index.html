@@ -39,5 +39,10 @@
     <button id="loginBtn" class="login-btn">LOGIN</button>
     <!-- Include login.js -->
     <script src="login.js"></script>
+     <!-- Add this at the very end of <body> -->
+  <script type="module">
+    import { login } from './login.js';
+    document.getElementById("loginBtn").onclick = login;
+  </script>
 </body>
 </html>
