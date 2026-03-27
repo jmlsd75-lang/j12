@@ -1,9 +1,6 @@
 // login.js
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } 
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-const auth = getAuth();
-const provider = new GoogleAuthProvider();
+import { auth, provider } from './firebase.js';
+import { signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // DOM elements
 const loginBtn = document.getElementById("loginBtn");
@@ -35,7 +32,7 @@ logoutBtn.onclick = async () => {
   logoutBtn.style.display = "none";
 };
 
-// Keep login/logout in sync on page reload
+// Keep login/logout synced if page reloads
 onAuthStateChanged(auth, (user) => {
   if (user) {
     userDisplay.textContent = `Hello, ${user.displayName}`;
