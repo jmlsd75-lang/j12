@@ -17,43 +17,30 @@ html, body {
 body {
   display:flex;
   flex-direction:column;
-  justify-content:space-between; /* top, middle, bottom */
+  justify-content:space-between;
   align-items:center;
   text-align:center;
   height:100vh;
   padding:20px 0;
 }
 
-/* Top section */
 .top {
   margin-top:10px;
 }
 
-h1 {
-  color:blue;
-  margin:0;
-}
-h2 {
-  color:red;
-  font-size:16px;
-  margin-top:5px;
-}
+h1 { color:blue; margin:0; }
+h2 { color:red; font-size:16px; margin-top:5px; }
 
-#userDisplay {
-  font-weight:bold;
-  font-size:16px;
-  color:#333;
-  margin-bottom:10px;
-}
+#userDisplay { font-weight:bold; font-size:16px; color:#333; margin-bottom:10px; }
 
-/* Middle section: Free button */
+/* FREE button */
 .free-btn {
   background:#28a745;
   color:white;
   padding:15px 40px;
   border:none;
   border-radius:6px;
-  display:none; /* hidden initially */
+  display:none;
   cursor:pointer;
   font-size:18px;
   max-width:90%;
@@ -61,7 +48,35 @@ h2 {
   box-sizing:border-box;
 }
 
-/* Bottom section: Login/Logout buttons */
+/* Single business button */
+#business-btn {
+  display:none;
+  position: fixed;
+  top:50%;
+  left:50%;
+  transform: translate(-50%, -50%);
+  padding:20px 40px;
+  font-size:20px;
+  background:#28a745;
+  color:white;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* WAIT countdown */
+#waitDiv {
+  display:none;
+  position: fixed;
+  top:50%;
+  left:50%;
+  transform: translate(-50%, -50%);
+  font-size:18px;
+  font-weight:bold;
+  text-align:center;
+}
+
+/* Login / Logout buttons */
 .login-btn,
 .logout-btn {
   padding:15px 40px;
@@ -72,29 +87,28 @@ h2 {
   cursor:pointer;
 }
 
-.login-btn {
-  background:#28a745;
-  display:block;
-}
-
-.logout-btn {
-  background:#dc3545;
-  display:none;
-}
+.login-btn { background:#28a745; display:block; }
+.logout-btn { background:#dc3545; display:none; }
 </style>
 </head>
 
 <body>
 
-<!-- Top section: user + system name -->
+<!-- Top section -->
 <div class="top">
   <div id="userDisplay"></div>
   <h1>JAMAL SAID KAZEMBE</h1>
   <h2>MULTISYSTEM MANAGEMENT</h2>
 </div>
 
-<!-- Middle section: Free button -->
+<!-- FREE button -->
 <button class="free-btn">FREE</button>
+
+<!-- Single business button -->
+<button id="business-btn">Business</button>
+
+<!-- WAIT countdown -->
+<div id="waitDiv"></div>
 
 <!-- Bottom section: Login / Logout -->
 <button class="login-btn">LOGIN</button>
