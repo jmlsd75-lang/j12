@@ -3,34 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jamal Said Kazembe</title>
+<title>JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT</title>
 
 <style>
-  body{
-    margin:0;
-    font-family:Arial, sans-serif;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-    background:#f4f4f4;
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center; /* horizontal center */
+    align-items: flex-start; /* vertical top */
+    height: 100vh;
+    background: #f4f4f4;
+    padding-top: 50px; /* distance from top */
   }
-  h1{
-    color:blue;
-    font-size:28px;
+
+  h1 {
+    font-size: 32px;
+    text-align: center;
+  }
+
+  .part1 {
+    color: blue; /* first two words */
+  }
+
+  .part2 {
+    color: green; /* next two words */
   }
 </style>
 </head>
 
 <body>
 
-<h1>JAMAL SAID KAZEMBE</h1>
+<h1>
+  <span class="part1">JAMAL SAID</span> 
+  <span class="part2">KAZEMBE MULTISYSTEM</span> 
+  MANAGEMENT
+</h1>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// 🔥 Your Firebase config (ONLINE SYSTEM)
+// 🔥 Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -40,7 +54,6 @@ const firebaseConfig = {
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
-// Initialize Firebase (ONLINE)
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
