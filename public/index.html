@@ -6,42 +6,59 @@
 <title>Jamal Said Kazembe Multisystem Management</title>
 
 <style>
-body {
+html, body {
   margin:0;
+  padding:0;
+  height:100%;
   font-family:Arial, sans-serif;
   background:#f4f4f4;
+}
+
+body {
   display:flex;
   flex-direction:column;
+  justify-content:space-between; /* top, middle, bottom */
   align-items:center;
-  justify-content:space-between;
-  height:100vh;
   text-align:center;
+  height:100vh;
   padding:20px 0;
 }
 
-h1 { color:blue; margin:0; }
-h2 { color:red; font-size:16px; margin-top:5px; }
+/* Top section */
+.top {
+  margin-top:10px;
+}
+
+h1 {
+  color:blue;
+  margin:0;
+}
+h2 {
+  color:red;
+  font-size:16px;
+  margin-top:5px;
+}
 
 #userDisplay {
   font-weight:bold;
   font-size:16px;
   color:#333;
-  margin-bottom:20px;
+  margin-bottom:10px;
 }
 
-/* FREE BUTTON */
+/* Middle section: Free button */
 .free-btn {
   background:#28a745;
   color:white;
   padding:15px 40px;
   border:none;
   border-radius:6px;
-  display:none; /* initially hidden */
+  display:none; /* hidden initially */
   cursor:pointer;
   font-size:18px;
 }
 
-/* LOGIN & LOGOUT BUTTONS (bottom center) */
+/* Bottom section: Login/Logout buttons */
 .login-btn,
 .logout-btn {
   padding:15px 40px;
@@ -66,14 +83,17 @@ h2 { color:red; font-size:16px; margin-top:5px; }
 
 <body>
 
-<div id="userDisplay"></div>
-
-<div>
+<!-- Top section: user + system name -->
+<div class="top">
+  <div id="userDisplay"></div>
   <h1>JAMAL SAID KAZEMBE</h1>
   <h2>MULTISYSTEM MANAGEMENT</h2>
 </div>
 
+<!-- Middle section: Free button -->
 <button class="free-btn">FREE</button>
+
+<!-- Bottom section: Login / Logout -->
 <button class="login-btn">LOGIN</button>
 <button class="logout-btn">LOGOUT</button>
 
