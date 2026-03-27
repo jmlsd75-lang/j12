@@ -12,15 +12,32 @@ body {
 .container {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* move content to top */
+    justify-content: flex-start;
     align-items: center;
     height: 100vh;
-    background-color: rgba(0,0,0,0.4); /* dark overlay for text visibility */
-    padding-top: 40px; /* distance from top */
+    background-color: rgba(0,0,0,0.4);
+    padding-top: 40px;
     text-align: center;
 }
 
 h1 {
     font-size: 40px;
     margin-bottom: 20px;
+    padding: 0 10px; /* small padding for small screens */
+}
+
+/* Responsive for tablets and phones */
+@media screen and (max-width: 768px) {
+    h1 {
+        font-size: 28px; /* smaller text for small screens */
+    }
+    .container {
+        padding-top: 20px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    h1 {
+        font-size: 22px; /* smaller for phones */
+    }
 }
