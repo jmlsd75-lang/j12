@@ -22,7 +22,10 @@
 
 <script type="module">
   import { login } from './login.js';
-  document.getElementById("loginBtn").onclick = login;
+  
+  // Attach the login function to the button
+  document.getElementById("loginBtn").addEventListener("click", login);
 </script>
+
 </body>
 </html>
