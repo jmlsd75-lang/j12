@@ -7,19 +7,19 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-/* FIREBASE CONFIG */
+/* Firebase Config */
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
   projectId: "my-project-66803-95cb3"
 };
 
-/* INIT */
+/* Initialize Firebase */
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-/* GET ELEMENTS */
+/* Get Elements */
 const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
 const freeBtn = document.querySelector(".free-btn");
@@ -45,20 +45,23 @@ logoutBtn.addEventListener("click", async () => {
   }
 });
 
-/* AUTH STATE */
+/* AUTH STATE CHANGE */
 onAuthStateChanged(auth, (user) => {
   if (user) {
+    // Show user name/email
     userDisplay.textContent = user.displayName || user.email;
 
+    // Show/Hide buttons
     loginBtn.style.display = "none";
     logoutBtn.style.display = "block";
-    freeBtn.style.display = "block";
-
+    freeBtn.style.display = "block"; // show Free button
   } else {
+    // Clear user info
     userDisplay.textContent = "";
 
+    // Show/Hide buttons
     loginBtn.style.display = "block";
     logoutBtn.style.display = "none";
-    freeBtn.style.display = "none";
+    freeBtn.style.display = "none"; // hide Free button
   }
 });
