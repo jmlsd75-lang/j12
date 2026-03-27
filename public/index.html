@@ -14,51 +14,56 @@ body{
   flex-direction:column;
   align-items:center;
   padding-top:50px;
+  text-align:center;
 }
 
 h1{color:blue;margin:0;}
 h2{color:red;font-size:16px;margin-top:5px;}
 
 #userDisplay{
-  position:fixed;
-  top:20px;
+  margin-top:10px;
   font-weight:bold;
+  font-size:16px;
+  color:#333;
 }
 
 /* FREE BUTTON */
 .free-btn{
   position:fixed;
-  top:80px;
+  top:120px; /* below title */
+  left:50%;
+  transform:translateX(-50%);
   background:#28a745;
   color:white;
   padding:12px 25px;
   border:none;
   border-radius:6px;
   display:none;
+  cursor:pointer;
 }
 
-/* LOGIN */
-.login-btn{
+/* LOGIN & LOGOUT BUTTON (bottom center) */
+.login-btn,
+.logout-btn {
   position:fixed;
   bottom:30px;
+  left:50%;
+  transform:translateX(-50%);
   padding:15px 40px;
   font-size:20px;
-  background:#28a745;
-  color:white;
   border:none;
   border-radius:6px;
+  color:white;
+  cursor:pointer;
 }
 
-/* LOGOUT */
-.logout-btn{
-  position:fixed;
-  bottom:30px;
-  right:20px;
+.login-btn {
+  background:#28a745;
+  display:block;
+}
+
+.logout-btn {
   background:#dc3545;
-  color:white;
-  padding:12px 25px;
-  border:none;
-  border-radius:6px;
   display:none;
 }
 </style>
@@ -75,7 +80,6 @@ h2{color:red;font-size:16px;margin-top:5px;}
 <button class="free-btn">FREE</button>
 <button class="logout-btn">LOGOUT</button>
 
-<!-- ONLY LINK JS -->
 <script type="module" src="./login.js"></script>
 
 </body>
