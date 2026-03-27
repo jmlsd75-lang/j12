@@ -19,14 +19,13 @@ body{
 h1{color:blue;margin:0;}
 h2{color:red;font-size:16px;margin-top:5px;}
 
-/* USER NAME */
 #userDisplay{
   position:fixed;
   top:20px;
   font-weight:bold;
 }
 
-/* FREE BUTTON (CENTER) */
+/* FREE BUTTON */
 .free-btn{
   position:fixed;
   top:80px;
@@ -76,70 +75,8 @@ h2{color:red;font-size:16px;margin-top:5px;}
 <button class="free-btn">FREE</button>
 <button class="logout-btn">LOGOUT</button>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-/* FIREBASE */
-const firebaseConfig = {
-  apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-  authDomain: "my-project-66803-95cb3.firebaseapp.com",
-  projectId: "my-project-66803-95cb3"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
-
-/* ELEMENTS */
-const loginBtn = document.querySelector(".login-btn");
-const logoutBtn = document.querySelector(".logout-btn");
-const freeBtn = document.querySelector(".free-btn");
-const userDisplay = document.getElementById("userDisplay");
-
-/* LOGIN */
-loginBtn.onclick = async () => {
-  try {
-    await signInWithPopup(auth, provider);
-  } catch {
-    alert("Login failed");
-  }
-};
-
-/* LOGOUT */
-logoutBtn.onclick = async () => {
-  await signOut(auth);
-};
-
-/* AUTH STATE */
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    userDisplay.textContent = user.displayName || user.email;
-
-    loginBtn.style.display = "none";
-    logoutBtn.style.display = "block";
-    freeBtn.style.display = "block";
-
-  } else {
-    userDisplay.textContent = "";
-
-    loginBtn.style.display = "block";
-    logoutBtn.style.display = "none";
-    freeBtn.style.display = "none";
-  }
-});
-
-/* FREE BUTTON */
-freeBtn.onclick = () => {
-  alert("Free access activated");
-};
-</script>
+<!-- JS FILE -->
+<script type="module" src="login.js"></script>
 
 </body>
 </html>
