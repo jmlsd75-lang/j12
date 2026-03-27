@@ -37,7 +37,12 @@ loginBtn.addEventListener("click", async () => {
 
 /* LOGOUT */
 logoutBtn.addEventListener("click", async () => {
-  await signOut(auth);
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.error(error);
+    alert("Logout failed");
+  }
 });
 
 /* AUTH STATE */
@@ -56,9 +61,4 @@ onAuthStateChanged(auth, (user) => {
     logoutBtn.style.display = "none";
     freeBtn.style.display = "none";
   }
-});
-
-/* FREE BUTTON */
-freeBtn.addEventListener("click", () => {
-  alert("Free access activated");
 });
