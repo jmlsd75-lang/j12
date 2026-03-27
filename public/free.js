@@ -1,94 +1,110 @@
-// free.js
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { app } from "./firebase-config.js";
+import { getAuth, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const auth = getAuth();
+const auth = getAuth(app);
 
 const freeBtn = document.querySelector(".free-btn");
 const businessBtn = document.getElementById("business-btn");
 const waitDiv = document.getElementById("waitDiv");
 
-// Countdown functions
-function start3MinCountdown(endTime) {
-  freeBtn.disabled = true;
-  businessBtn.style.display = "block";
+let t1, t2;
 
-  const timer = setInterval(() => {
-    let timeLeft = Math.floor((endTime - Date.now()) / 1000);
-    if(timeLeft <= 0) timeLeft = 0;
-
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-    freeBtn.textContent = `${minutes}:${seconds.toString().padStart(2,'0')}`;
-
-    if(timeLeft <= 0) {
-      clearInterval(timer);
-      freeBtn.style.display = "none";
-      businessBtn.style.display = "none";
-      waitDiv.style.display = "block";
-
-      const waitEndTime = Date.now() + 24*60*60*1000; // 24 hours
-      localStorage.setItem("waitEnd", waitEndTime);
-      start24HourCountdown(waitEndTime);
-    }
-  }, 1000);
+/* FORMAT TIME */
+function format(h,m,s){
+  return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
 }
 
-function start24HourCountdown(endTime) {
-  const timer = setInterval(() => {
-    let timeLeft = Math.floor((endTime - Date.now()) / 1000);
-    if(timeLeft <= 0) timeLeft = 0;
+/* 3 MIN */
+function start3min(end){
+  clearInterval(t1);
 
-    const hours = Math.floor(timeLeft / 3600);
-    const minutes = Math.floor((timeLeft % 3600)/60);
-    const seconds = timeLeft % 60;
+  freeBtn.style.display="none";
+  waitDiv.style.display="none";
+  businessBtn.style.display="block";
 
-    waitDiv.textContent = `WAIT: ${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
+  t1 = setInterval(()=>{
+    let s = Math.floor((end - Date.now())/1000);
+    if(s<0) s=0;
 
-    if(timeLeft <= 0) {
-      clearInterval(timer);
-      waitDiv.style.display = "none";
-      freeBtn.textContent = "FREE";
-      freeBtn.disabled = false;
-      freeBtn.style.display = "block";
-      localStorage.removeItem("waitEnd");
-      localStorage.removeItem("freeEnd");
+    let m = Math.floor(s/60);
+    let sec = s%60;
+
+    businessBtn.textContent = `BUSINESS ${m}:${sec.toString().padStart(2,'0')}`;
+
+    if(s===0){
+      clearInterval(t1);
+
+      businessBtn.style.display="none";
+      waitDiv.style.display="block";
+
+      let waitEnd = Date.now()+86400000;
+      localStorage.setItem("waitEnd",waitEnd);
+
+      start24h(waitEnd);
     }
-  }, 1000);
+  },1000);
 }
 
-// FREE button click
-freeBtn.addEventListener("click", () => {
-  const endTime = Date.now() + 3*60*1000; // 3 minutes
-  localStorage.setItem("freeEnd", endTime);
-  start3MinCountdown(endTime);
-});
+/* 24 H */
+function start24h(end){
+  clearInterval(t2);
 
-// Restore timers after login
-function restoreTimers() {
-  const freeEnd = localStorage.getItem("freeEnd");
-  const waitEnd = localStorage.getItem("waitEnd");
+  t2 = setInterval(()=>{
+    let s = Math.floor((end - Date.now())/1000);
+    if(s<0) s=0;
 
-  if(freeEnd && Date.now() < freeEnd) {
-    freeBtn.style.display = "block";
-    start3MinCountdown(Number(freeEnd));
-  } else if(waitEnd && Date.now() < waitEnd) {
-    freeBtn.style.display = "none";
-    waitDiv.style.display = "block";
-    start24HourCountdown(Number(waitEnd));
-  } else {
-    freeBtn.style.display = "block";
-    businessBtn.style.display = "none";
-    waitDiv.style.display = "none";
+    let h = Math.floor(s/3600);
+    let m = Math.floor((s%3600)/60);
+    let sec = s%60;
+
+    waitDiv.textContent = "WAIT "+format(h,m,sec);
+
+    if(s===0){
+      clearInterval(t2);
+
+      waitDiv.style.display="none";
+      freeBtn.style.display="block";
+
+      localStorage.clear();
+    }
+  },1000);
+}
+
+/* CLICK FREE */
+freeBtn.onclick = ()=>{
+  let end = Date.now()+180000;
+  localStorage.setItem("freeEnd",end);
+  start3min(end);
+};
+
+/* RESTORE */
+function restore(){
+  let freeEnd = localStorage.getItem("freeEnd");
+  let waitEnd = localStorage.getItem("waitEnd");
+
+  if(freeEnd && Date.now()<freeEnd){
+    start3min(Number(freeEnd));
+  }
+  else if(waitEnd && Date.now()<waitEnd){
+    freeBtn.style.display="none";
+    businessBtn.style.display="none";
+    waitDiv.style.display="block";
+    start24h(Number(waitEnd));
+  }
+  else{
+    freeBtn.style.display="block";
+    businessBtn.style.display="none";
+    waitDiv.style.display="none";
   }
 }
 
-// Only restore/start countdown after login
-onAuthStateChanged(auth, (user) => {
-  if(user) {
-    restoreTimers();
-  } else {
-    freeBtn.style.display = "none";
-    businessBtn.style.display = "none";
-    waitDiv.style.display = "none";
+/* AUTH */
+onAuthStateChanged(auth,(user)=>{
+  if(user) restore();
+  else{
+    freeBtn.style.display="none";
+    businessBtn.style.display="none";
+    waitDiv.style.display="none";
   }
 });
