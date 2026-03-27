@@ -9,7 +9,13 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 /* Firebase Config */
-const firebaseConfig = { /* your config */ };
+const firebaseConfig = {
+  apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+  authDomain: "my-project-66803-95cb3.firebaseapp.com",
+  projectId: "my-project-66803-95cb3"
+};
+
+/* Initialize Firebase */
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
@@ -20,25 +26,28 @@ const logoutBtn = document.querySelector(".logout-btn");
 const freeBtn = document.querySelector(".free-btn");
 const userDisplay = document.getElementById("userDisplay");
 
-/* LOGIN */
+/* LOGIN (Redirect) */
 loginBtn.addEventListener("click", () => {
   signInWithRedirect(auth, provider);
 });
 
-/* CHECK REDIRECT RESULT */
+/* Check redirect result */
 getRedirectResult(auth)
   .then((result) => {
     if (result.user) {
       console.log("Redirect login success:", result.user);
     }
   })
-  .catch((error) => {
-    console.error("Redirect login error:", error);
-  });
+  .catch((error) => console.error("Redirect login error:", error));
 
 /* LOGOUT */
 logoutBtn.addEventListener("click", async () => {
-  await signOut(auth);
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.error(error);
+    alert("Logout failed");
+  }
 });
 
 /* AUTH STATE */
@@ -52,6 +61,6 @@ onAuthStateChanged(auth, (user) => {
     userDisplay.textContent = "";
     loginBtn.style.display = "block";
     logoutBtn.style.display = "none";
-    freeBtn.style.display = "none";
+    freeBtn.style.display = "none"; // hide Free button
   }
 });
