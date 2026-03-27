@@ -31,7 +31,7 @@ const userDisplay = document.getElementById("userDisplay");
 loginBtn.onclick = async () => {
   try {
     await signInWithPopup(auth, provider);
-  } catch (e) {
+  } catch {
     alert("Login failed");
   }
 };
@@ -44,16 +44,13 @@ logoutBtn.onclick = async () => {
 /* AUTH STATE */
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    // USER INFO
     userDisplay.textContent = user.displayName;
 
-    // SHOW BUTTONS
     loginBtn.style.display = "none";
     logoutBtn.style.display = "block";
     payBtn.style.display = "block";
 
   } else {
-    // RESET
     userDisplay.textContent = "";
 
     loginBtn.style.display = "block";
@@ -62,7 +59,7 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-/* PAY ACTION */
+/* PAY BUTTON */
 payBtn.onclick = () => {
   alert("Go to payment page");
 };
