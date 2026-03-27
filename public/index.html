@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT</title>
     <style>
         body {
@@ -13,7 +14,6 @@
             font-weight: bold;
             line-height: 1.2;
         }
-        /* Green login button */
         .login-btn {
             background-color: #28a745; /* green */
             color: white;
@@ -24,9 +24,7 @@
             cursor: pointer;
             margin-top: 30px;
         }
-        .login-btn:hover {
-            background-color: #218838;
-        }
+        .login-btn:hover { background-color: #218838; }
         .logout-btn {
             background-color: #dc3545; /* red */
             color: white;
@@ -38,6 +36,7 @@
             display: none;
             margin-top: 20px;
         }
+        #userDisplay { margin-top: 20px; font-size: 18px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -46,13 +45,11 @@
         MULTISYSTEM MANAGEMENT
     </div>
 
-    <!-- Green login button -->
     <button id="loginBtn" class="login-btn">LOGIN</button>
-    <!-- Red logout button -->
     <button class="logout-btn">LOGOUT</button>
     <div id="userDisplay"></div>
 
-    <!-- Module script to connect button to login.js -->
+    <!-- Connect login.js -->
     <script type="module">
       import { login } from './login.js';
       document.getElementById("loginBtn").onclick = login;
