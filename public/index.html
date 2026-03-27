@@ -20,15 +20,12 @@
   h1 {
     font-size: 32px;
     text-align: center;
+    line-height: 1.5;
   }
 
-  .part1 {
-    color: blue; /* first two words */
-  }
-
-  .part2 {
-    color: green; /* next two words */
-  }
+  .part1 { color: blue; }       /* JAMAL SAID */
+  .part2 { color: green; }      /* KAZEMBE MULTISYSTEM */
+  .part3 { color: orange; }     /* MANAGEMENT */
 </style>
 </head>
 
@@ -37,27 +34,14 @@
 <h1>
   <span class="part1">JAMAL SAID</span> 
   <span class="part2">KAZEMBE MULTISYSTEM</span> 
-  MANAGEMENT
+  <span class="part3">MANAGEMENT</span>
 </h1>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { db } from './firebase.js';
 
-// 🔥 Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-  authDomain: "my-project-66803-95cb3.firebaseapp.com",
-  projectId: "my-project-66803-95cb3",
-  storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-  messagingSenderId: "167159607898",
-  appId: "1:167159607898:web:23ca11366b88868b085e63"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-console.log("✅ System is ONLINE");
+  console.log("✅ System is ONLINE");
+  console.log(db); // Firestore instance is ready to use
 </script>
 
 </body>
