@@ -74,10 +74,10 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-// start login system
-setupLogin(app);
-
-console.log("✅ System is ONLINE");
+// ✅ start AFTER page loads
+window.addEventListener("DOMContentLoaded", () => {
+  setupLogin(app);
+});
 </script>
 
 </body>
