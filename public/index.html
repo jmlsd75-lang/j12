@@ -27,6 +27,17 @@
         .login-btn:hover {
             background-color: #218838;
         }
+        .logout-btn {
+            background-color: #dc3545; /* red */
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -37,12 +48,14 @@
 
     <!-- Green login button -->
     <button id="loginBtn" class="login-btn">LOGIN</button>
-    <!-- Include login.js -->
-    <script src="login.js"></script>
-     <!-- Add this at the very end of <body> -->
-  <script type="module">
-    import { login } from './login.js';
-    document.getElementById("loginBtn").onclick = login;
-  </script>
+    <!-- Red logout button -->
+    <button class="logout-btn">LOGOUT</button>
+    <div id="userDisplay"></div>
+
+    <!-- Module script to connect button to login.js -->
+    <script type="module">
+      import { login } from './login.js';
+      document.getElementById("loginBtn").onclick = login;
+    </script>
 </body>
 </html>
