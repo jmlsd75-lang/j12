@@ -11,10 +11,7 @@ import {
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
-  projectId: "my-project-66803-95cb3",
-  storageBucket: "my-project-66803-95cb3.appspot.com",
-  messagingSenderId: "167159607898",
-  appId: "1:167159607898:web:23ca11366b88868b085e63"
+  projectId: "my-project-66803-95cb3"
 };
 
 /* INIT */
@@ -22,7 +19,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-/* ELEMENTS */
+/* GET ELEMENTS */
 const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
 const freeBtn = document.querySelector(".free-btn");
@@ -40,11 +37,7 @@ loginBtn.addEventListener("click", async () => {
 
 /* LOGOUT */
 logoutBtn.addEventListener("click", async () => {
-  try {
-    await signOut(auth);
-  } catch (error) {
-    console.error(error);
-  }
+  await signOut(auth);
 });
 
 /* AUTH STATE */
