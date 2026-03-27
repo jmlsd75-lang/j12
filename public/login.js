@@ -1,94 +1,41 @@
-// free.js
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { app } from "./firebase-config.js";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithRedirect,
+  getRedirectResult,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const auth = getAuth();
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
+const loginBtn = document.querySelector(".login-btn");
+const logoutBtn = document.querySelector(".logout-btn");
 const freeBtn = document.querySelector(".free-btn");
-const businessBtn = document.getElementById("business-btn");
-const waitDiv = document.getElementById("waitDiv");
+const userDisplay = document.getElementById("userDisplay");
 
-// Countdown functions
-function start3MinCountdown(endTime) {
-  freeBtn.disabled = true;
-  businessBtn.style.display = "block";
+/* LOGIN */
+loginBtn.onclick = () => signInWithRedirect(auth, provider);
 
-  const timer = setInterval(() => {
-    let timeLeft = Math.floor((endTime - Date.now()) / 1000);
-    if(timeLeft <= 0) timeLeft = 0;
+/* REDIRECT RESULT */
+getRedirectResult(auth).catch(console.error);
 
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
-    freeBtn.textContent = `${minutes}:${seconds.toString().padStart(2,'0')}`;
+/* LOGOUT */
+logoutBtn.onclick = () => signOut(auth);
 
-    if(timeLeft <= 0) {
-      clearInterval(timer);
-      freeBtn.style.display = "none";
-      businessBtn.style.display = "none";
-      waitDiv.style.display = "block";
-
-      const waitEndTime = Date.now() + 24*60*60*1000; // 24 hours
-      localStorage.setItem("waitEnd", waitEndTime);
-      start24HourCountdown(waitEndTime);
-    }
-  }, 1000);
-}
-
-function start24HourCountdown(endTime) {
-  const timer = setInterval(() => {
-    let timeLeft = Math.floor((endTime - Date.now()) / 1000);
-    if(timeLeft <= 0) timeLeft = 0;
-
-    const hours = Math.floor(timeLeft / 3600);
-    const minutes = Math.floor((timeLeft % 3600)/60);
-    const seconds = timeLeft % 60;
-
-    waitDiv.textContent = `WAIT: ${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
-
-    if(timeLeft <= 0) {
-      clearInterval(timer);
-      waitDiv.style.display = "none";
-      freeBtn.textContent = "FREE";
-      freeBtn.disabled = false;
-      freeBtn.style.display = "block";
-      localStorage.removeItem("waitEnd");
-      localStorage.removeItem("freeEnd");
-    }
-  }, 1000);
-}
-
-// FREE button click
-freeBtn.addEventListener("click", () => {
-  const endTime = Date.now() + 3*60*1000; // 3 minutes
-  localStorage.setItem("freeEnd", endTime);
-  start3MinCountdown(endTime);
-});
-
-// Restore timers after login
-function restoreTimers() {
-  const freeEnd = localStorage.getItem("freeEnd");
-  const waitEnd = localStorage.getItem("waitEnd");
-
-  if(freeEnd && Date.now() < freeEnd) {
-    freeBtn.style.display = "block";
-    start3MinCountdown(Number(freeEnd));
-  } else if(waitEnd && Date.now() < waitEnd) {
-    freeBtn.style.display = "none";
-    waitDiv.style.display = "block";
-    start24HourCountdown(Number(waitEnd));
-  } else {
-    freeBtn.style.display = "block";
-    businessBtn.style.display = "none";
-    waitDiv.style.display = "none";
-  }
-}
-
-// Only restore/start countdown after login
-onAuthStateChanged(auth, (user) => {
-  if(user) {
-    restoreTimers();
-  } else {
-    freeBtn.style.display = "none";
-    businessBtn.style.display = "none";
-    waitDiv.style.display = "none";
+/* STATE */
+onAuthStateChanged(auth, (user)=>{
+  if(user){
+    userDisplay.textContent = user.displayName || user.email;
+    loginBtn.style.display="none";
+    logoutBtn.style.display="block";
+    freeBtn.style.display="block";
+  }else{
+    userDisplay.textContent="";
+    loginBtn.style.display="block";
+    logoutBtn.style.display="none";
+    freeBtn.style.display="none";
   }
 });
