@@ -3,112 +3,70 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jamal Said Kazembe Multisystem Management</title>
+<title>Jamal Said Kazembe Multisystem</title>
 
 <style>
-html, body {
+body{
   margin:0;
-  padding:0;
-  height:100%;
-  font-family:Arial, sans-serif;
-  background:#f4f4f4;
-}
-
-body {
+  font-family:Arial;
   display:flex;
   flex-direction:column;
   justify-content:space-between;
   align-items:center;
-  text-align:center;
   height:100vh;
-  padding:20px 0;
 }
 
-.top { margin-top:10px; }
-h1 { color:blue; margin:0; }
-h2 { color:red; font-size:16px; margin-top:5px; }
-#userDisplay { font-weight:bold; font-size:16px; color:#333; margin-bottom:10px; }
+/* Top */
+.top{text-align:center;margin-top:10px;}
+h1{color:blue;margin:0;}
+h2{color:red;margin:5px 0;}
+#userDisplay{font-weight:bold;}
 
-/* FREE button */
-.free-btn {
-  background:#28a745;
-  color:white;
+/* Buttons */
+button{
   padding:15px 40px;
+  font-size:18px;
   border:none;
   border-radius:6px;
-  display:none;
   cursor:pointer;
-  font-size:18px;
-  max-width:90%;
-  word-wrap:break-word;
-  box-sizing:border-box;
+  color:white;
 }
 
-/* Business button centered */
-#business-btn {
+.login-btn{background:#28a745;}
+.logout-btn{background:#dc3545; display:none;}
+.free-btn{background:#28a745; display:none;}
+
+/* Center elements */
+#business-btn, #waitDiv{
   display:none;
-  position: fixed;
+  position:fixed;
   top:50%;
   left:50%;
-  transform: translate(-50%, -50%);
-  padding:20px 40px;
-  font-size:20px;
-  background:#28a745;
-  color:white;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
+  transform:translate(-50%,-50%);
 }
-
-/* WAIT countdown */
-#waitDiv {
-  display:none;
-  position: fixed;
-  top:50%;
-  left:50%;
-  transform: translate(-50%, -50%);
-  font-size:18px;
-  font-weight:bold;
-  text-align:center;
-}
-
-/* Login / Logout buttons */
-.login-btn,
-.logout-btn {
-  padding:15px 40px;
-  font-size:20px;
-  border:none;
-  border-radius:6px;
-  color:white;
-  cursor:pointer;
-}
-
-.login-btn { background:#28a745; display:block; }
-.logout-btn { background:#dc3545; display:none; }
+#business-btn{background:#007bff;}
+#waitDiv{font-weight:bold;}
 </style>
 </head>
 
 <body>
+
 <div class="top">
   <div id="userDisplay"></div>
   <h1>JAMAL SAID KAZEMBE</h1>
   <h2>MULTISYSTEM MANAGEMENT</h2>
 </div>
 
-<!-- FREE button -->
 <button class="free-btn">FREE</button>
 
-<!-- Business button -->
-<button id="business-btn">Business</button>
-
-<!-- WAIT countdown -->
+<button id="business-btn">BUSINESS</button>
 <div id="waitDiv"></div>
 
-<!-- Login / Logout -->
 <button class="login-btn">LOGIN</button>
 <button class="logout-btn">LOGOUT</button>
 
 <script type="module" src="./login.js"></script>
 <script type="module" src="./free.js"></script>
+
 </body>
 </html>
