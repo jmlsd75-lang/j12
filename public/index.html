@@ -10,18 +10,30 @@
     margin: 0;
     font-family: Arial, sans-serif;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
+    justify-content: flex-start; /* top */
+    align-items: center;         /* horizontal center */
     height: 100vh;
     background: #f4f4f4;
+    padding-top: 50px;
   }
+
+  h1 {
+    font-size: 32px;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .line1 { color: blue; }       /* JAMAL SAID */
+  .line2 { color: green; }      /* KAZEMBE MULTISYSTEM MANAGEMENT */
 
   .login-container {
     text-align: center;
+    margin-top: 40px; /* space below system name */
   }
 
   h2 {
-    font-size: 28px;
+    font-size: 24px;
     margin-bottom: 20px;
     color: #333;
   }
@@ -45,6 +57,13 @@
 
 <body>
 
+<!-- System Name -->
+<h1>
+  <span class="line1">JAMAL SAID</span><br>
+  <span class="line2">KAZEMBE MULTISYSTEM MANAGEMENT</span>
+</h1>
+
+<!-- Login Prompt -->
 <div class="login-container">
   <h2>Please login to the system</h2>
   <button id="loginBtn">Login</button>
