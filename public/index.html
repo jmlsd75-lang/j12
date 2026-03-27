@@ -13,6 +13,20 @@
             font-weight: bold;
             line-height: 1.2;
         }
+        /* Green login button */
+        .login-btn {
+            background-color: #28a745; /* green */
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 30px;
+        }
+        .login-btn:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
@@ -20,5 +34,11 @@
         JAMAL SAID KAZEMBE<br>
         MULTISYSTEM MANAGEMENT
     </div>
+
+    <!-- Green login button -->
+    <button class="login-btn" onclick="login()">Login</button>
+
+    <!-- Include login.js -->
+    <script src="login.js"></script>
 </body>
 </html>
