@@ -2,6 +2,7 @@ import {
   getAuth, 
   GoogleAuthProvider, 
   signInWithRedirect, 
+  getRedirectResult,
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -9,6 +10,7 @@ import {
 export function setupLogin(app) {
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
+
   const loginBtn = document.getElementById("loginBtn");
   const container = document.querySelector(".container");
   const title = document.getElementById("title");
@@ -23,26 +25,37 @@ export function setupLogin(app) {
     container.appendChild(logoutBtn);
   }
 
+  // 🔥 HANDLE REDIRECT RESULT (VERY IMPORTANT)
+  getRedirectResult(auth)
+    .then((result) => {
+      if (result?.user) {
+        console.log("✅ Redirect login success:", result.user.displayName);
+      }
+    })
+    .catch((error) => {
+      console.error("❌ Redirect error:", error);
+    });
+
   // login
-  loginBtn.onclick = () => {
+  loginBtn.addEventListener("click", () => {
     signInWithRedirect(auth, provider);
-  };
+  });
 
   // logout
-  logoutBtn.onclick = () => {
+  logoutBtn.addEventListener("click", () => {
     signOut(auth);
-  };
+  });
 
-  // 🔥 IMPORTANT: this controls UI correctly
+  // 🔥 MAIN AUTH STATE LISTENER (controls UI)
   onAuthStateChanged(auth, (user) => {
+    console.log("Auth state:", user);
+
     if (user) {
-      // user is logged in
       loginBtn.style.display = "none";
       logoutBtn.style.display = "inline-block";
 
       title.textContent = "Welcome " + (user.displayName || "User");
     } else {
-      // user is logged out
       loginBtn.style.display = "inline-block";
       logoutBtn.style.display = "none";
 
