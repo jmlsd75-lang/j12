@@ -35,7 +35,7 @@ logoutBtn.onclick = async () => {
   logoutBtn.style.display = "none";
 };
 
-// Keep login/logout in sync after page reload
+// Keep login/logout in sync on page reload
 onAuthStateChanged(auth, (user) => {
   if (user) {
     userDisplay.textContent = `Hello, ${user.displayName}`;
