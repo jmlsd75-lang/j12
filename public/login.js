@@ -1,8 +1,11 @@
-// login.js
+// Firebase Imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// --- Firebase config ---
+// Import the Free button function
+import { handleFree } from './free.js';
+
+// Your Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -12,40 +15,57 @@ const firebaseConfig = {
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
-// --- Initialize Firebase ---
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// --- DOM Elements ---
-const loginBtn = document.querySelector(".login-btn");
-const userDisplay = document.getElementById("userDisplay");
+// DOM Elements
+const loginBtn = document.getElementById('loginBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+const freeBtn = document.getElementById('freeBtn');
+const bottomControls = document.getElementById('bottomControls');
 
-// Optional: Add a callback to handle login state changes
+// 1. CHECK AUTH STATE ON LOAD
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    // User is logged in
-    userDisplay.textContent = user.displayName;
-    userDisplay.style.display = "block";
-
-    // Hide login button after login
-    loginBtn.style.display = "none";
-
-    console.log("✅ Logged in as:", user.email);
+    // User IS logged in
+    console.log("User logged in:", user.displayName);
+    
+    // Hide Login, Show Bottom Controls
+    loginBtn.classList.add('hidden');
+    bottomControls.classList.remove('hidden');
+    
   } else {
-    // User not logged in
-    userDisplay.style.display = "none";
-    loginBtn.style.display = "block";
+    // User IS NOT logged in
+    console.log("No user logged in");
+    
+    // Show Login, Hide Bottom Controls
+    loginBtn.classList.remove('hidden');
+    bottomControls.classList.add('hidden');
   }
 });
 
-// --- Login Button Logic ---
-loginBtn.onclick = async () => {
+// 2. LOGIN BUTTON LOGIC
+loginBtn.addEventListener('click', async () => {
   try {
     await signInWithPopup(auth, provider);
-    console.log("✅ Login successful");
+    // onAuthStateChanged will handle the UI update automatically
   } catch (error) {
-    console.error("❌ Login failed:", error);
-    alert("Login failed. Try again.");
+    console.error("Login Error:", error);
+    alert("Login failed. Please try again.");
   }
-};
+});
+
+// 3. LOGOUT BUTTON LOGIC
+logoutBtn.addEventListener('click', async () => {
+  try {
+    await signOut(auth);
+    // onAuthStateChanged will handle the UI update automatically
+  } catch (error) {
+    console.error("Logout Error:", error);
+  }
+});
+
+// 4. FREE BUTTON LOGIC
+freeBtn.addEventListener('click', handleFree);
