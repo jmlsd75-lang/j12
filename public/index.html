@@ -26,14 +26,8 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: center; /* vertically center buttons */
     align-items: center;
-  }
-
-  #loginMessage {
-    margin-bottom: 10px;
-    font-size: 16px;
-    color: #333;
   }
 
   .login-btn, .logout-btn {
@@ -47,11 +41,7 @@
   }
   .login-btn { background: #28a745; }
   .logout-btn { background: #dc3545; display: none; }
-
   #userDisplay { margin-bottom: 20px; font-weight: bold; display: none; }
-
-  /* FREE button placeholder style */
-  #freeContainer { margin-bottom: 15px; }
 </style>
 </head>
 <body>
@@ -63,11 +53,6 @@
 
 <main>
   <div id="userDisplay"></div>
-  <p id="loginMessage">Login to start using the system</p>
-
-  <!-- FREE button placeholder -->
-  <div id="freeContainer"></div>
-
   <button class="login-btn">LOGIN</button>
   <button class="logout-btn">LOGOUT</button>
 </main>
@@ -76,8 +61,6 @@
 // ------------------ Firebase Setup ------------------
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-import './free.js'; // import free.js, it handles the FREE button functionality
 
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
@@ -97,7 +80,6 @@ const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
 const userDisplay = document.getElementById("userDisplay");
 const headerH1 = document.querySelector("header h1");
-const loginMessage = document.getElementById("loginMessage");
 
 // ------------------ Auth State ------------------
 onAuthStateChanged(auth, (user) => {
@@ -106,14 +88,10 @@ onAuthStateChanged(auth, (user) => {
     userDisplay.style.display = "none";
     loginBtn.style.display = "none";
     logoutBtn.style.display = "block";
-    loginMessage.style.display = "none";
-    // FREE button controlled by free.js, you can optionally hide it here if needed
   } else {
     headerH1.textContent = "JAMAL SAID KAZEMBE";
     loginBtn.style.display = "block";
     logoutBtn.style.display = "none";
-    loginMessage.style.display = "block";
-    // FREE button controlled by free.js
   }
 });
 
@@ -128,6 +106,5 @@ logoutBtn.onclick = async () => {
   catch (error) { console.error(error); }
 };
 </script>
-
 </body>
-</html>
+</html>                                    
