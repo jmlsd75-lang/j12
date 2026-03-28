@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT</title>
 <style>
-  body { margin:0; font-family: Arial,sans-serif; background:#f4f4f4; display:flex; flex-direction:column; min-height:100vh; text-align:center; }
+  body { margin:0; font-family:Arial,sans-serif; background:#f4f4f4; display:flex; flex-direction:column; min-height:100vh; text-align:center; }
   header { padding:20px 0; }
   h1 { font-size:28px; color:blue; margin:0; }
   h2 { font-size:18px; color:red; margin:5px 0 0 0; }
@@ -32,76 +32,23 @@
 </header>
 
 <main>
-  <div id="loginMessage" style="margin-bottom:15px; font-weight:bold;">
-    Please login to start using the system
-  </div>
+  <div id="loginMessage" style="margin-bottom:15px; font-weight:bold;">Please login to start using the system</div>
   <div id="userDisplay"></div>
 
   <button class="login-btn">LOGIN</button>
   <button class="free-btn">FREE</button>
   <button class="logout-btn">LOGOUT</button>
 
-  <!-- Business button -->
   <button class="business-btn">BUSINESS</button>
-
-  <!-- Countdown display -->
   <div id="countdown"></div>
 
-  <!-- 24-hour countdown + Pay button -->
   <div id="afterFree">
     <button id="longCountdown">24:00:00</button>
     <button id="payBtn">PAY</button>
   </div>
 </main>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { initFree } from "./free.js";
-  import { initCountdown } from "./countdown.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-    authDomain: "my-project-66803-95cb3.firebaseapp.com",
-    projectId: "my-project-66803-95cb3",
-    storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-    messagingSenderId: "167159607898",
-    appId: "1:167159607898:web:23ca11366b88868b085e63"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const provider = new GoogleAuthProvider();
-
-  const freeBtn = document.querySelector(".free-btn");
-  const loginBtn = document.querySelector(".login-btn");
-  const logoutBtn = document.querySelector(".logout-btn");
-  const headerH1 = document.querySelector("header h1");
-  const loginMessage = document.getElementById("loginMessage");
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      headerH1.textContent = `Welcome, ${user.displayName}`;
-      loginMessage.style.display = "none";
-      loginBtn.style.display = "none";
-      freeBtn.style.display = "block";
-      logoutBtn.style.display = "block";
-
-      // Initialize FREE & countdown logic
-      initFree();
-      initCountdown();
-    } else {
-      headerH1.textContent = "JAMAL SAID KAZEMBE";
-      loginMessage.style.display = "block";
-      loginBtn.style.display = "block";
-      freeBtn.style.display = "none";
-      logoutBtn.style.display = "none";
-    }
-  });
-
-  loginBtn.onclick = async () => { try { await signInWithPopup(auth, provider); } catch(e){ alert("Login failed."); } };
-  logoutBtn.onclick = async () => { try { await signOut(auth); alert("Logged out successfully."); } catch(e){ console.error(e); } };
-</script>
-
+<script type="module" src="./login.js"></script>
+<script type="module" src="./free.js"></script>
 </body>
 </html>
