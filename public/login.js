@@ -26,52 +26,13 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// 5. DOM Elements (MATCH HTML IDs ✅)
+// 5. DOM Elements
 const loginBtn = document.getElementById('loginBtn');
 const logoutBtn = document.getElementById('logoutBtn');
 const freeBtn = document.getElementById('freeBtn');
 const bottomControls = document.getElementById('bottomControls');
 
 // 6. LOGIN
-loginBtn.addEventListener('click', async () => {
-    try {
-        await signInWithPopup(auth, provider);
-    } catch (error) {
-        console.error("Login Error:", error);
-        alert("Login failed");
-    }
-});
-
-// 7. LOGOUT
-logoutBtn.addEventListener('click', async () => {
-    try {
-        await signOut(auth);
-    } catch (error) {
-        console.error("Logout Error:", error);
-    }
-});
-
-// 8. FREE BUTTON
-freeBtn.addEventListener('click', handleFree);
-
-// 9. AUTH STATE
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        console.log("Logged in:", user.displayName);
-
-        // Hide login
-        loginBtn.classList.add("hidden");
-
-        // Show FREE + LOGOUT
-        bottomControls.classList.remove("hidden");
-
-    } else {
-        console.log("Logged out");
-
-        // Show login
-        loginBtn.classList.remove("hidden");
-
-        // Hide controls
-        bottomControls.classList.add("hidden");
-    }
-});
+if (loginBtn) {
+    loginBtn.addEventListener('click', async () => {
+        try {
