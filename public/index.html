@@ -1,72 +1,325 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT</title>
-<link rel="stylesheet" href="style.css"> <!-- optional if you want external CSS -->
-<style>
-  body {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
-    padding-top: 50px;
-    text-align: center;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0f1a;
+            --fg: #e8edf5;
+            --muted: #5a6b85;
+            --accent: #00d4aa;
+            --accent-glow: rgba(0, 212, 170, 0.4);
+            --card: rgba(15, 25, 40, 0.8);
+            --border: rgba(0, 212, 170, 0.2);
+        }
 
-  h1 {
-    line-height: 1.2;
-  }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  .line1 {
-    color: #2E86C1; /* blue shade */
-    display: block;
-    font-size: 2em;
-  }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            overflow: hidden;
+        }
 
-  .line2 {
-    color: #C0392B; /* red shade */
-    display: block;
-    font-size: 1.5em;
-  }
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
 
-  .login-text {
-    color: #007BFF; /* blue text */
-    font-size: 1.2em;
-    margin: 20px 0 10px 0;
-  }
+        /* Animated gradient mesh */
+        .gradient-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.6;
+            animation: float 20s ease-in-out infinite;
+        }
 
-  .login-btn {
-    background-color: #28a745; /* green button */
-    color: white;
-    font-size: 1.2em;
-    padding: 12px 30px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
+        .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 212, 170, 0.3) 0%, transparent 70%);
+            top: -200px;
+            right: -100px;
+            animation-delay: 0s;
+        }
 
-  .login-btn:hover {
-    background-color: #218838; /* darker green on hover */
-  }
-</style>
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(0, 150, 136, 0.25) 0%, transparent 70%);
+            bottom: -150px;
+            left: -100px;
+            animation-delay: -7s;
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 188, 212, 0.2) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -14s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(20px, 30px) scale(1.02); }
+        }
+
+        /* Grid pattern overlay */
+        .grid-overlay {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(0, 212, 170, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 170, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridPulse 8s ease-in-out infinite;
+        }
+
+        @keyframes gridPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Particle canvas */
+        #particles {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .system-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .title-line-1 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            letter-spacing: 0.15em;
+            color: var(--fg);
+            margin-bottom: 0.5rem;
+            animation: titleReveal 1s ease-out forwards;
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+
+        .title-line-2 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: clamp(1rem, 3vw, 1.8rem);
+            letter-spacing: 0.3em;
+            color: var(--accent);
+            text-transform: uppercase;
+            animation: titleReveal 1s ease-out 0.3s forwards;
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+
+        @keyframes titleReveal {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .divider {
+            width: 200px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            margin: 2rem auto;
+            animation: dividerExpand 1.5s ease-out 0.6s forwards;
+            transform: scaleX(0);
+        }
+
+        @keyframes dividerExpand {
+            to { transform: scaleX(1); }
+        }
+
+        .login-section {
+            animation: sectionFade 1s ease-out 0.9s forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes sectionFade {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-btn {
+            position: relative;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: 0.15em;
+            padding: 1.2rem 4rem;
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--accent);
+            transform: translateX(-101%);
+            transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            z-index: -1;
+        }
+
+        .login-btn:hover {
+            color: var(--bg);
+            box-shadow: 0 0 40px var(--accent-glow), 0 0 80px var(--accent-glow);
+        }
+
+        .login-btn:hover::before {
+            transform: translateX(0);
+        }
+
+        .login-btn:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 4px;
+        }
+
+        .login-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- Background Layer -->
+    <div class="bg-layer">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+        <div class="grid-overlay"></div>
+        <canvas id="particles"></canvas>
+    </div>
 
-<h1>
-  <span class="line1">JAMAL SAID KAZEMBE</span>
-  <span class="line2">MULTISYSTEM MANAGEMENT</span>
-</h1>
+    <!-- Main Content -->
+    <main class="main-container">
+        <header class="system-title">
+            <h1 class="title-line-1">JAMAL SAID KAZEMBE</h1>
+            <h2 class="title-line-2">Multisystem Management</h2>
+            <div class="divider"></div>
+        </header>
 
-<div class="login-text">Login to start using the system</div>
-<button class="login-btn" id="loginBtn">Login</button>
+        <section class="login-section">
+            <button class="login-btn" onclick="handleLogin()" aria-label="Login to the system">
+                LOGIN
+            </button>
+        </section>
+    </main>
 
-<script src="login.js"></script>
+    <!-- Particle Animation Script -->
+    <script>
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let animationId = null;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function createParticles() {
+            particles = [];
+            const particleCount = Math.floor((canvas.width * canvas.height) / 15000);
+            
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 2 + 0.5,
+                    speedX: (Math.random() - 0.5) * 0.5,
+                    speedY: (Math.random() - 0.5) * 0.5,
+                    opacity: Math.random() * 0.5 + 0.2
+                });
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(particle => {
+                particle.x += particle.speedX;
+                particle.y += particle.speedY;
+
+                if (particle.x < 0) particle.x = canvas.width;
+                if (particle.x > canvas.width) particle.x = 0;
+                if (particle.y < 0) particle.y = canvas.height;
+                if (particle.y > canvas.height) particle.y = 0;
+
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, Math.max(0.1, particle.radius), 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(0, 212, 170, ${particle.opacity})`;
+                ctx.fill();
+            });
+
+            animationId = requestAnimationFrame(animateParticles);
+        }
+
+        // Check for reduced motion preference
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (!prefersReducedMotion) {
+            resizeCanvas();
+            createParticles();
+            animateParticles();
+
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+                createParticles();
+            });
+        }
+    </script>
+
+    <!-- External Login Handler Reference -->
+    <script src="login.js"></script>
 </body>
 </html>
