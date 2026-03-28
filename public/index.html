@@ -99,11 +99,13 @@ const loginMessage = document.getElementById("loginMessage");
 // ------------------ Auth State ------------------
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    headerH1.textContent = `Welcome, ${user.displayName}`;
-    loginMessage.style.display = "none";
-    loginBtn.style.display = "none";
-    logoutBtn.style.display = "block";
-  } else {
+  headerH1.textContent = `Welcome, ${user.displayName}`;
+  loginMessage.style.display = "none";
+  loginBtn.style.display = "none";
+  freeBtn.style.display = "block";   // ✅ ADD THIS LINE
+  logoutBtn.style.display = "block";
+}
+  else {
     headerH1.textContent = "JAMAL SAID KAZEMBE";
     loginMessage.style.display = "block";
     loginBtn.style.display = "block";
