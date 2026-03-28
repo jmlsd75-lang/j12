@@ -6,25 +6,50 @@
 <title>JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT</title>
 <style>
   body {
-    margin:0; 
-    font-family: Arial, sans-serif; 
-    text-align:center; 
-    background:#f4f4f4;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    text-align: center;
   }
-  header { padding:20px 0; }
-  h1 { font-size:28px; color:blue; margin:0; }
-  h2 { font-size:18px; color:red; margin:5px 0 0 0; }
-  main { display:flex; flex-direction:column; align-items:center; margin-top:50px; }
-  button { padding:15px 40px; font-size:20px; border:none; border-radius:8px; cursor:pointer; color:white; margin-top:10px; }
-  .login-btn { background:#28a745; }
-  .logout-btn { background:#dc3545; display:none; }
-  #freeContainer { margin-top:20px; }
+  header {
+    padding: 20px 0;
+  }
+  h1 { font-size: 28px; color: blue; margin: 0; }
+  h2 { font-size: 18px; color: red; margin: 5px 0 30px 0; }
+
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center;
+  }
+
+  #userDisplay { margin-bottom: 20px; font-weight: bold; display: none; }
+
+  button {
+    padding: 15px 40px;
+    font-size: 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: white;
+    margin-top: 10px;
+  }
+
+  .login-btn { background: #28a745; }
+  .logout-btn { background: #dc3545; display: none; }
+  .free-btn { background: #007bff; display: block; }
+  .business-btn { background: #ff6600; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1 id="headerName">JAMAL SAID KAZEMBE</h1>
+  <h1>JAMAL SAID KAZEMBE</h1>
   <h2>MULTISYSTEM MANAGEMENT</h2>
 </header>
 
@@ -37,6 +62,5 @@
 
 <script type="module" src="login.js"></script>
 <script type="module" src="free.js"></script>
-
 </body>
 </html>
