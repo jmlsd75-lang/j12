@@ -16,33 +16,21 @@ const provider = new GoogleAuthProvider();
 
 const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
-const freeBtn = document.querySelector(".free-btn");
-const headerH1 = document.querySelector("header h1");
-const loginMessage = document.getElementById("loginMessage");
+const headerName = document.getElementById("headerName");
 
+// Auth state
 onAuthStateChanged(auth, (user) => {
-  if(user){
-    headerH1.textContent = `Welcome, ${user.displayName}`;
-    loginMessage.style.display = "none";
+  if (user) {
+    headerName.textContent = `Welcome, ${user.displayName}`;
     loginBtn.style.display = "none";
-    freeBtn.style.display = "block";
     logoutBtn.style.display = "block";
-    document.getElementById("userDisplay").style.display = "block";
   } else {
-    headerH1.textContent = "JAMAL SAID KAZEMBE";
-    loginMessage.style.display = "block";
+    headerName.textContent = "JAMAL SAID KAZEMBE";
     loginBtn.style.display = "block";
-    freeBtn.style.display = "none";
     logoutBtn.style.display = "none";
-    document.getElementById("userDisplay").style.display = "none";
   }
 });
 
-loginBtn.onclick = async () => { 
-  try { await signInWithPopup(auth, provider); } 
-  catch(e){ alert("Login failed."); } 
-};
-logoutBtn.onclick = async () => { 
-  try { await signOut(auth); alert("Logged out successfully."); } 
-  catch(e){ console.error(e); } 
-};
+// Login & Logout
+loginBtn.onclick = async () => { try { await signInWithPopup(auth, provider); } catch { alert("Login failed"); } };
+logoutBtn.onclick = async () => { try { await signOut(auth); location.reload(); } catch { console.error(); } };
