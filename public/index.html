@@ -5,50 +5,38 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT</title>
 <style>
-  body { margin:0; font-family:Arial,sans-serif; background:#f4f4f4; display:flex; flex-direction:column; min-height:100vh; text-align:center; }
+  body {
+    margin:0; 
+    font-family: Arial, sans-serif; 
+    text-align:center; 
+    background:#f4f4f4;
+  }
   header { padding:20px 0; }
   h1 { font-size:28px; color:blue; margin:0; }
   h2 { font-size:18px; color:red; margin:5px 0 0 0; }
-  main { flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; }
-
+  main { display:flex; flex-direction:column; align-items:center; margin-top:50px; }
   button { padding:15px 40px; font-size:20px; border:none; border-radius:8px; cursor:pointer; color:white; margin-top:10px; }
   .login-btn { background:#28a745; }
   .logout-btn { background:#dc3545; display:none; }
-  .free-btn { background:purple; display:none; }
-  .business-btn { background:#007bff; display:none; }
-  #longCountdown { background:purple; cursor:default; }
-  #payBtn { background:green; margin-left:10px; }
-
-  #userDisplay { margin-bottom:20px; font-weight:bold; display:none; }
-  #countdown { font-size:24px; font-weight:bold; margin-top:15px; display:none; }
-  #afterFree { display:none; margin-top:10px; }
+  #freeContainer { margin-top:20px; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>JAMAL SAID KAZEMBE</h1>
+  <h1 id="headerName">JAMAL SAID KAZEMBE</h1>
   <h2>MULTISYSTEM MANAGEMENT</h2>
 </header>
 
 <main>
-  <div id="loginMessage" style="margin-bottom:15px; font-weight:bold;">Please login to start using the system</div>
   <div id="userDisplay"></div>
-
   <button class="login-btn">LOGIN</button>
-  <button class="free-btn">FREE</button>
   <button class="logout-btn">LOGOUT</button>
-
-  <button class="business-btn">BUSINESS</button>
-  <div id="countdown"></div>
-
-  <div id="afterFree">
-    <button id="longCountdown">24:00:00</button>
-    <button id="payBtn">PAY</button>
-  </div>
+  <div id="freeContainer"></div>
 </main>
 
-<script type="module" src="./login.js"></script>
-<script type="module" src="./free.js"></script>
+<script type="module" src="login.js"></script>
+<script type="module" src="free.js"></script>
+
 </body>
 </html>
