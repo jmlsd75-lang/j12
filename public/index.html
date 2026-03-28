@@ -62,6 +62,23 @@
 </header>
 
 <main>
+  <!-- Business button (hidden by default) -->
+<button class="business-btn" style="display:none; background:#007bff; color:white; padding:15px 40px; font-size:20px; border:none; border-radius:8px; cursor:pointer; margin-top:10px;">
+  BUSINESS
+</button>
+
+<!-- Countdown display -->
+<div id="countdown" style="font-size:24px; font-weight:bold; margin-top:15px; display:none;"></div>
+
+<!-- 24-hour countdown + Pay button, hidden initially -->
+<div id="afterFree" style="display:none; margin-top:10px;">
+  <button id="longCountdown" style="padding:15px 40px; font-size:20px; border-radius:8px; background:purple; color:white; cursor:default;">
+    24:00:00
+  </button>
+  <button id="payBtn" style="padding:15px 40px; font-size:20px; border-radius:8px; background:green; color:white; cursor:pointer; margin-left:10px;">
+    PAY
+  </button>
+</div>
   <div id="loginMessage" style="margin-bottom:15px; font-weight:bold;">
   Please login to start using the system
 </div>
