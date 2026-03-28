@@ -12,11 +12,13 @@ const freeBtn = document.createElement("button");
 freeBtn.textContent = "FREE";
 freeBtn.className = "free-btn";
 
+// Append to container
 freeContainer.appendChild(freeMessage);
 freeContainer.appendChild(freeBtn);
 
 const COUNTDOWN_SECONDS = 10;
 
+// Show countdown + BUSINESS button
 function showCountdown(endTimestamp) {
   const logoutBtn = document.querySelector(".logout-btn");
   if (logoutBtn) logoutBtn.style.display = "none";
@@ -34,10 +36,17 @@ function showCountdown(endTimestamp) {
   freeContainer.appendChild(countdown);
 
   const businessBtn = document.createElement("button");
-  businessBtn.id = "business-btn";
   businessBtn.textContent = "BUSINESS";
+  businessBtn.style.padding = "15px 40px";
+  businessBtn.style.fontSize = "20px";
+  businessBtn.style.border = "none";
+  businessBtn.style.borderRadius = "8px";
+  businessBtn.style.cursor = "pointer";
+  businessBtn.style.color = "white";
+  businessBtn.style.background = "#ff6600";
   freeContainer.appendChild(businessBtn);
 
+  // Countdown logic
   function updateCountdown() {
     const now = Date.now();
     const remaining = Math.max(0, Math.ceil((endTimestamp - now)/1000));
@@ -52,6 +61,7 @@ function showCountdown(endTimestamp) {
   updateCountdown();
   const timer = setInterval(updateCountdown, 1000);
 
+  // Business button click
   businessBtn.onclick = () => alert("Business system activated!");
 }
 
@@ -59,7 +69,7 @@ function showCountdown(endTimestamp) {
 const savedEnd = localStorage.getItem("freeCountdownEnd");
 if (savedEnd && Number(savedEnd) > Date.now()) showCountdown(Number(savedEnd));
 
-// Click FREE
+// Click FREE button
 freeBtn.onclick = () => {
   const endTimestamp = Date.now() + COUNTDOWN_SECONDS * 1000;
   localStorage.setItem("freeCountdownEnd", endTimestamp);
