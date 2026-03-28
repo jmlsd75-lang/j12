@@ -29,17 +29,18 @@ freeContainer.appendChild(freeBtn);
 // Countdown duration in seconds
 const COUNTDOWN_SECONDS = 10;
 
-// ------------------ Helper: show countdown & business ------------------
+// ------------------ Show countdown & Business ------------------
 function showCountdown(endTimestamp) {
-  // Hide all other page elements except freeContainer
-  document.body.querySelectorAll("header, main > *").forEach(el => {
-    if(el !== freeContainer) el.style.display = "none";
-  });
+  // Hide FREE and LOGOUT buttons
+  const logoutBtn = document.querySelector(".logout-btn");
+  if (logoutBtn) logoutBtn.style.display = "none";
 
-  // Clear freeContainer
+  freeBtn.style.display = "none";
+  freeMessage.style.display = "none";
+
+  // Clear freeContainer and add countdown + Business button
   freeContainer.innerHTML = "";
 
-  // Create countdown element
   const countdown = document.createElement("p");
   countdown.id = "countdown";
   countdown.style.fontSize = "24px";
@@ -48,7 +49,6 @@ function showCountdown(endTimestamp) {
   countdown.style.fontWeight = "bold";
   freeContainer.appendChild(countdown);
 
-  // Create Business button
   const businessBtn = document.createElement("button");
   businessBtn.textContent = "BUSINESS";
   businessBtn.style.padding = "15px 40px";
@@ -66,7 +66,7 @@ function showCountdown(endTimestamp) {
     const remaining = Math.max(0, Math.ceil((endTimestamp - now)/1000));
     countdown.textContent = remaining > 0 ? `Time left: ${remaining}s` : "Time's up!";
 
-    if(remaining <= 0){
+    if (remaining <= 0) {
       businessBtn.disabled = true;
       businessBtn.style.opacity = "0.5";
       clearInterval(timer);
@@ -76,24 +76,20 @@ function showCountdown(endTimestamp) {
   updateCountdown();
   const timer = setInterval(updateCountdown, 1000);
 
-  // Business button click
   businessBtn.onclick = () => {
     alert("Business system activated!");
   };
 }
 
-// ------------------ Check if countdown is running in localStorage ------------------
+// ------------------ Persistent countdown ------------------
 const savedEnd = localStorage.getItem("freeCountdownEnd");
 if(savedEnd && Number(savedEnd) > Date.now()){
-  // Continue countdown if not expired
   showCountdown(Number(savedEnd));
 }
 
 // ------------------ Click FREE button ------------------
 freeBtn.onclick = () => {
-  // Set countdown end timestamp
   const endTimestamp = Date.now() + COUNTDOWN_SECONDS * 1000;
   localStorage.setItem("freeCountdownEnd", endTimestamp);
-
   showCountdown(endTimestamp);
 };
