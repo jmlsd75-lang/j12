@@ -1,5 +1,3 @@
-// login.js
-
 // 1. Firebase Imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { 
@@ -10,10 +8,10 @@ import {
     signOut 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// 2. Import Free Button Function
+// 2. Import Free Logic
 import { handleFree } from './free.js';
 
-// 3. Your Firebase Configuration
+// 3. Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -23,71 +21,57 @@ const firebaseConfig = {
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
-// 4. Initialize Firebase
+// 4. Init Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// 5. DOM Elements
-const loginBtn = document.querySelector('.login-btn');
-const logoutBtn = document.querySelector('.logout-btn');
+// 5. DOM Elements (MATCH HTML IDs ✅)
+const loginBtn = document.getElementById('loginBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+const freeBtn = document.getElementById('freeBtn');
+const bottomControls = document.getElementById('bottomControls');
 
-// Create "Free" button dynamically (since it wasn't in your original HTML)
-const freeBtn = document.createElement('button');
-freeBtn.textContent = 'FREE';
-freeBtn.className = 'free-btn'; 
-freeBtn.style.cssText = 'padding:15px 40px; font-size:20px; background:#ffc107; color:black; border:none; border-radius:6px; cursor:pointer; position:fixed; bottom:30px; left:50%; transform:translateX(-120%); display:none;'; // Position left of center
-document.body.appendChild(freeBtn);
-
-// Position Logout button to the right of center
-logoutBtn.style.transform = 'translateX(20%)'; 
-
-// 6. Authentication State Observer
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        // User is signed in
-        console.log("User logged in:", user.displayName);
-        
-        // Hide Login
-        loginBtn.style.display = 'none';
-        
-        // Show Logout and Free buttons
-        logoutBtn.style.display = 'block';
-        freeBtn.style.display = 'block';
-        
-    } else {
-        // User is signed out
-        console.log("User logged out");
-        
-        // Show Login
-        loginBtn.style.display = 'block';
-        
-        // Hide Logout and Free buttons
-        logoutBtn.style.display = 'none';
-        freeBtn.style.display = 'none';
-    }
-});
-
-// 7. Login Click Handler
+// 6. LOGIN
 loginBtn.addEventListener('click', async () => {
     try {
         await signInWithPopup(auth, provider);
-        // The page will automatically update via onAuthStateChanged above
     } catch (error) {
         console.error("Login Error:", error);
-        alert("Login failed. Please try again.");
+        alert("Login failed");
     }
 });
 
-// 8. Logout Click Handler
+// 7. LOGOUT
 logoutBtn.addEventListener('click', async () => {
     try {
         await signOut(auth);
-        // The page will automatically update via onAuthStateChanged above
     } catch (error) {
         console.error("Logout Error:", error);
     }
 });
 
-// 9. Free Button Click Handler
+// 8. FREE BUTTON
 freeBtn.addEventListener('click', handleFree);
+
+// 9. AUTH STATE
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        console.log("Logged in:", user.displayName);
+
+        // Hide login
+        loginBtn.classList.add("hidden");
+
+        // Show FREE + LOGOUT
+        bottomControls.classList.remove("hidden");
+
+    } else {
+        console.log("Logged out");
+
+        // Show login
+        loginBtn.classList.remove("hidden");
+
+        // Hide controls
+        bottomControls.classList.add("hidden");
+    }
+});
