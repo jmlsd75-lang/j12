@@ -1,55 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 20px;
-      background-color: #f4f4f4;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jamal Said Kazembe Multisystem Management</title>
 
-    header h1 {
-      font-size: 28px;
-      margin-bottom: 5px;
-    }
+<!-- OCR + QR Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 
-    header h2 {
-      font-size: 20px;
-      margin-top: 0;
-      color: #555;
-    }
-
-    .btn {
-      padding: 10px 20px;
-      margin: 10px;
-      font-size: 16px;
-      cursor: pointer;
-      border: none;
-      border-radius: 5px;
-      color: white;
-    }
-
-    .login-btn { background-color: #4285F4; } /* Google Blue */
-    .logout-btn { background-color: #DB4437; } /* Red */
-  </style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>JAMAL SAID KAZEMBE</h1>
-    <h2>MULTISYSTEM MANAGEMENT</h2>
-  </header>
 
-  <div id="userDisplay" style="display:none; margin-top:20px;"></div>
+<div id="userDisplay"></div>
+<h1>JAMAL SAID KAZEMBE</h1>
+<h2>MULTISYSTEM MANAGEMENT</h2>
 
-  <button class="login-btn">Login with Google</button>
-  <button class="logout-btn" style="display:none;">Logout</button>
+<!-- Buttons -->
+<button class="login-btn">LOGIN</button>
+<button class="pay-btn">PAY</button>
+<button class="access-btn">ACCESS</button>
+<button class="logout-btn">LOGOUT</button>
 
-  <!-- Firebase Auth JS -->
-  <script type="module" src="firebase.js"></script>
+<!-- File Inputs -->
+<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
+<input type="file" id="photosInput" accept="image/*" style="display:none;">
+
+<!-- Pages -->
+<div id="payPage"></div>
+<div id="cameraMenuPage"></div>
+<div id="previewPage"></div>
+<div id="timerPage"></div>
+<div id="businessPage"></div>
+<div id="viewPage"></div>
+<div id="transactionPage"></div>
+<div id="loadingOverlay"></div>
+
+<!-- Global Back Button -->
+<button id="globalBackBtn">BACK</button>
+
+<!-- JS Modules -->
+<script type="module" src="firebase.js"></script>
+<script type="module" src="login.js"></script>
+<script type="module" src="imageUpload.js"></script>
+<script type="module" src="payment.js"></script>
 </body>
 </html>
