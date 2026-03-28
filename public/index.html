@@ -4,11 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT</title>
+<link rel="stylesheet" href="style.css"> <!-- optional if you want external CSS -->
 <style>
   body {
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
     height: 100vh;
     margin: 0;
     font-family: Arial, sans-serif;
@@ -32,6 +34,27 @@
     display: block;
     font-size: 1.5em;
   }
+
+  .login-text {
+    color: #007BFF; /* blue text */
+    font-size: 1.2em;
+    margin: 20px 0 10px 0;
+  }
+
+  .login-btn {
+    background-color: #28a745; /* green button */
+    color: white;
+    font-size: 1.2em;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .login-btn:hover {
+    background-color: #218838; /* darker green on hover */
+  }
 </style>
 </head>
 <body>
@@ -41,5 +64,9 @@
   <span class="line2">MULTISYSTEM MANAGEMENT</span>
 </h1>
 
+<div class="login-text">Login to start using the system</div>
+<button class="login-btn" id="loginBtn">Login</button>
+
+<script src="login.js"></script>
 </body>
 </html>
