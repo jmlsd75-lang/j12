@@ -2,7 +2,7 @@ const freeContainer = document.getElementById("freeContainer");
 
 // FREE message
 const freeMessage = document.createElement("p");
-freeMessage.textContent = "Click 'Free' to start using the system";
+freeMessage.textContent = "Click Free to start using the system"; // no quotes
 freeMessage.style.marginBottom = "10px";
 freeMessage.style.fontSize = "16px";
 freeMessage.style.color = "#333";
@@ -11,12 +11,28 @@ freeMessage.style.color = "#333";
 const freeBtn = document.createElement("button");
 freeBtn.textContent = "FREE";
 freeBtn.className = "free-btn";
+freeBtn.style.padding = "15px 40px";
+freeBtn.style.fontSize = "20px";
+freeBtn.style.border = "none";
+freeBtn.style.borderRadius = "8px";
+freeBtn.style.cursor = "pointer";
+freeBtn.style.color = "white";
+freeBtn.style.background = "#007bff";
+freeBtn.style.marginTop = "10px";
 
 // Append to container
 freeContainer.appendChild(freeMessage);
 freeContainer.appendChild(freeBtn);
 
-const COUNTDOWN_SECONDS = 10;
+// Countdown: 180 seconds
+const COUNTDOWN_SECONDS = 180;
+
+// Function to format MM:SS
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+  const s = (seconds % 60).toString().padStart(2, "0");
+  return `${m}:${s}`;
+}
 
 // Show countdown + BUSINESS button
 function showCountdown(endTimestamp) {
@@ -27,6 +43,7 @@ function showCountdown(endTimestamp) {
 
   freeContainer.innerHTML = "";
 
+  // Countdown element
   const countdown = document.createElement("p");
   countdown.id = "countdown";
   countdown.style.fontSize = "24px";
@@ -35,6 +52,7 @@ function showCountdown(endTimestamp) {
   countdown.style.fontWeight = "bold";
   freeContainer.appendChild(countdown);
 
+  // Business button
   const businessBtn = document.createElement("button");
   businessBtn.textContent = "BUSINESS";
   businessBtn.style.padding = "15px 40px";
@@ -50,7 +68,7 @@ function showCountdown(endTimestamp) {
   function updateCountdown() {
     const now = Date.now();
     const remaining = Math.max(0, Math.ceil((endTimestamp - now)/1000));
-    countdown.textContent = remaining > 0 ? `Time left: ${remaining}s` : "Time's up!";
+    countdown.textContent = remaining > 0 ? `Time left: ${formatTime(remaining)}` : "Time's up!";
     if (remaining <= 0) {
       businessBtn.disabled = true;
       businessBtn.style.opacity = "0.5";
@@ -61,7 +79,6 @@ function showCountdown(endTimestamp) {
   updateCountdown();
   const timer = setInterval(updateCountdown, 1000);
 
-  // Business button click
   businessBtn.onclick = () => alert("Business system activated!");
 }
 
