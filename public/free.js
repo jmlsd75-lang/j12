@@ -22,22 +22,30 @@ freeBtn.style.color = "white";
 freeBtn.style.background = "#007bff";
 freeBtn.style.marginTop = "10px";
 
-// Append message and button to container
+// Append FREE message and button
 freeContainer.appendChild(freeMessage);
 freeContainer.appendChild(freeBtn);
 
-// ------------------ Click FREE button ------------------
-freeBtn.onclick = () => {
-  // Remove FREE button and message
-  freeBtn.remove();
-  freeMessage.remove();
+// Countdown duration in seconds
+const COUNTDOWN_SECONDS = 10;
+
+// ------------------ Helper: show countdown & business ------------------
+function showCountdown(endTimestamp) {
+  // Hide all other page elements except freeContainer
+  document.body.querySelectorAll("header, main > *").forEach(el => {
+    if(el !== freeContainer) el.style.display = "none";
+  });
+
+  // Clear freeContainer
+  freeContainer.innerHTML = "";
 
   // Create countdown element
   const countdown = document.createElement("p");
   countdown.id = "countdown";
-  countdown.style.fontSize = "18px";
+  countdown.style.fontSize = "24px";
   countdown.style.color = "green";
-  countdown.style.marginBottom = "15px";
+  countdown.style.marginBottom = "20px";
+  countdown.style.fontWeight = "bold";
   freeContainer.appendChild(countdown);
 
   // Create Business button
@@ -52,23 +60,40 @@ freeBtn.onclick = () => {
   businessBtn.style.background = "#ff6600";
   freeContainer.appendChild(businessBtn);
 
-  // Countdown logic: 10 seconds
-  let timeLeft = 10;
-  countdown.textContent = `Time left: ${timeLeft}s`;
+  // Countdown logic
+  function updateCountdown() {
+    const now = Date.now();
+    const remaining = Math.max(0, Math.ceil((endTimestamp - now)/1000));
+    countdown.textContent = remaining > 0 ? `Time left: ${remaining}s` : "Time's up!";
 
-  const timer = setInterval(() => {
-    timeLeft--;
-    countdown.textContent = `Time left: ${timeLeft}s`;
-    if(timeLeft <= 0){
-      clearInterval(timer);
-      countdown.textContent = "Time's up!";
-      businessBtn.disabled = true; // Disable business button when countdown ends
+    if(remaining <= 0){
+      businessBtn.disabled = true;
       businessBtn.style.opacity = "0.5";
+      clearInterval(timer);
     }
-  }, 1000);
+  }
 
-  // Optional: Business button click
+  updateCountdown();
+  const timer = setInterval(updateCountdown, 1000);
+
+  // Business button click
   businessBtn.onclick = () => {
     alert("Business system activated!");
   };
+}
+
+// ------------------ Check if countdown is running in localStorage ------------------
+const savedEnd = localStorage.getItem("freeCountdownEnd");
+if(savedEnd && Number(savedEnd) > Date.now()){
+  // Continue countdown if not expired
+  showCountdown(Number(savedEnd));
+}
+
+// ------------------ Click FREE button ------------------
+freeBtn.onclick = () => {
+  // Set countdown end timestamp
+  const endTimestamp = Date.now() + COUNTDOWN_SECONDS * 1000;
+  localStorage.setItem("freeCountdownEnd", endTimestamp);
+
+  showCountdown(endTimestamp);
 };
