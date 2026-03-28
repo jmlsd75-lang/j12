@@ -1,7 +1,7 @@
+// Firebase Setup
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -11,7 +11,6 @@ const firebaseConfig = {
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
@@ -19,29 +18,32 @@ const provider = new GoogleAuthProvider();
 // DOM Elements
 const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
-const headerName = document.getElementById("headerName");
+const userDisplay = document.getElementById("userDisplay");
+const headerH1 = document.querySelector("header h1");
 
-// Monitor auth state
+// Auth State
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    headerName.textContent = `Welcome, ${user.displayName}`;
+    headerH1.textContent = `Welcome, ${user.displayName}`;
+    userDisplay.style.display = "block";
+    userDisplay.textContent = `Logged in as: ${user.email}`;
     loginBtn.style.display = "none";
     logoutBtn.style.display = "block";
   } else {
-    headerName.textContent = "JAMAL SAID KAZEMBE";
+    headerH1.textContent = "JAMAL SAID KAZEMBE";
+    userDisplay.style.display = "none";
     loginBtn.style.display = "block";
     logoutBtn.style.display = "none";
   }
 });
 
-// Login
+// Login & Logout
 loginBtn.onclick = async () => {
   try { await signInWithPopup(auth, provider); } 
-  catch { alert("Login failed. Try again."); }
+  catch (error) { alert("Login failed. Please try again."); }
 };
 
-// Logout
 logoutBtn.onclick = async () => {
-  try { await signOut(auth); location.reload(); } 
-  catch { console.error("Logout failed"); }
+  try { await signOut(auth); alert("Logged out successfully."); } 
+  catch (error) { console.error(error); }
 };
