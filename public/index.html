@@ -29,7 +29,17 @@
     justify-content: center; /* vertically center buttons */
     align-items: center;
   }
-
+.free-btn {
+  padding: 15px 40px;
+  font-size: 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+  background: purple;
+  display: none; /* hidden by default */
+  margin-top: 10px;
+}
   .login-btn, .logout-btn {
     padding: 15px 40px;
     font-size: 20px;
@@ -57,6 +67,7 @@
 </div>
   <div id="userDisplay"></div>
   <button class="login-btn">LOGIN</button>
+  <button class="free-btn">FREE</button>
   <button class="logout-btn">LOGOUT</button>
 </main>
 
@@ -79,6 +90,7 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 // ------------------ DOM Elements ------------------
+const freeBtn = document.querySelector(".free-btn");
 const loginBtn = document.querySelector(".login-btn");
 const logoutBtn = document.querySelector(".logout-btn");
 const userDisplay = document.getElementById("userDisplay");
@@ -95,6 +107,7 @@ onAuthStateChanged(auth, (user) => {
     headerH1.textContent = "JAMAL SAID KAZEMBE";
     loginMessage.style.display = "block";
     loginBtn.style.display = "block";
+    freeBtn.style.display = "none";   // 👈 hide FREE
     logoutBtn.style.display = "none";
   }
 });
