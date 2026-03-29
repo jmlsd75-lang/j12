@@ -48,10 +48,10 @@ function showToast(message, type = "info", duration = 4000) {
     toastTimer = setTimeout(() => toastEl.classList.remove("show"), duration);
 }
 
-// Free system controls the FREE button
+// Free system takes full control of the FREE button
 initFreeMode(freeBtn, showToast);
 
-// Pay system watches for #payBtn to appear in DOM
+// Pay system starts watching for #payBtn to appear in DOM
 initPay(showToast);
 
 function updateUI(user) {
