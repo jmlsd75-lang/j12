@@ -102,7 +102,6 @@ export function initPay(showToastFn) {
             justify-content:center;gap:12px;padding:20px;overflow-y:auto;
         `;
 
-        // Title FIRST so it renders at the top
         const title = document.createElement('h2');
         title.textContent = 'PAYMENT INSTRUCTIONS';
         title.style.cssText = `color:#e8edf5;font-family:'Orbitron',sans-serif;margin-bottom:10px;`;
@@ -508,9 +507,6 @@ export function initPay(showToastFn) {
     }
 
     // ─── WATCH FOR PAY BUTTON ──────────────────────────────
-    // free.js creates #payBtn inside enterWaitMode().
-    // This observer detects it and attaches the click handler.
-    // Disconnects after first successful hook — no wasted cycles.
     const observer = new MutationObserver(() => {
         const payBtn = document.getElementById('payBtn');
         if (payBtn && !payBtn._payInit) {
