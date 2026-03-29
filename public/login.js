@@ -23,15 +23,10 @@ const postLogin = document.getElementById('postLogin');
 const loginBtn = document.getElementById('loginBtn');
 const logoutBtn = document.getElementById('logoutBtn');
 const freeBtn = document.getElementById('freeBtn');
-const userNameDisplay = document.getElementById('userNameDisplay');
-const ageBadge = document.getElementById('ageBadge');
-const ageInputSection = document.getElementById('ageInputSection');
-
-// Elements inside postLogin to hide (no IDs, select by class/tag)
 const postTitle = postLogin.querySelector('.system-title');
 const lionContainer = postLogin.querySelector('.lion-container');
 
-// ===== Login — actual Google popup =====
+// ===== Login =====
 loginBtn.addEventListener('click', async () => {
     try {
         await signInWithPopup(auth, provider);
@@ -65,7 +60,7 @@ logoutBtn.addEventListener('click', async () => {
     await signOut(auth);
 });
 
-// ===== Free button → delegates to free.js =====
+// ===== Free button =====
 freeBtn.addEventListener('click', () => {
     if (typeof window.handleFree === 'function') {
         window.handleFree();
@@ -77,21 +72,14 @@ freeBtn.addEventListener('click', () => {
 // ===== Auth State =====
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        // ✅ LOGGED IN — hide pre-login, show only FREE + LOGOUT
-
         preLogin.style.display = 'none';
         postLogin.style.display = 'flex';
         logoutBtn.style.display = 'block';
         freeBtn.style.display = 'flex';
 
-        // Hide everything except FREE button
         if (postTitle) postTitle.style.display = 'none';
-        if (userNameDisplay) userNameDisplay.style.display = 'none';
         if (lionContainer) lionContainer.style.display = 'none';
-        if (ageBadge) ageBadge.style.display = 'none';
-        if (ageInputSection) ageInputSection.classList.remove('active');
 
-        // Save login record
         try {
             await addDoc(collection(db, "users", user.uid, "logins"), {
                 name: user.displayName,
@@ -103,8 +91,6 @@ onAuthStateChanged(auth, async (user) => {
         }
 
     } else {
-        // ❌ NOT LOGGED IN — show login button only
-
         preLogin.style.display = 'flex';
         postLogin.style.display = 'none';
         logoutBtn.style.display = 'none';
