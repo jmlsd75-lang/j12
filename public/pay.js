@@ -1,15 +1,21 @@
 const STORAGE_KEY = 'paidSessionData';
 const RATE_PER_HOUR = 500;
 
+// Only these 3 names are registered across ALL accounts.
+// The system prints them exactly. No variations.
 const VALID_NAMES = [
     "JAMAL SAID KAZEMBE",
     "JAMAL SAID",
     "JAMAL KAZEMBE"
 ];
 
-const VALID_NUMBERS = [
+const MOBILE_NUMBERS = [
     "655510714",
     "780526437"
+];
+
+const BANK_ACCOUNTS = [
+    "0152001GN6K00"
 ];
 
 export function initPay(showToastFn) {
@@ -99,58 +105,68 @@ export function initPay(showToastFn) {
         page.style.cssText = `
             position:fixed;inset:0;z-index:100;background:#0a0f1a;
             display:flex;flex-direction:column;align-items:center;
-            justify-content:center;gap:12px;padding:20px;overflow-y:auto;
+            justify-content:center;gap:10px;padding:20px;overflow-y:auto;
         `;
 
         const title = document.createElement('h2');
         title.textContent = 'PAYMENT INSTRUCTIONS';
-        title.style.cssText = `color:#e8edf5;font-family:'Orbitron',sans-serif;margin-bottom:10px;`;
+        title.style.cssText = `color:#e8edf5;font-family:'Orbitron',sans-serif;margin-bottom:8px;`;
         page.appendChild(title);
 
         const instructions = [
-            'Use your mobile payment app only.',
+            'Use mobile money, bank app, or bank transfer.',
             'Do not use USSD codes (*...#).',
             'Upload the receipt after sending money.'
         ];
         instructions.forEach(t => {
             const p = document.createElement('p');
             p.textContent = t;
-            p.style.cssText = `color:#8a95a8;font-size:0.9rem;`;
+            p.style.cssText = `color:#8a95a8;font-size:0.85rem;`;
             page.appendChild(p);
         });
 
         const payLabel = document.createElement('p');
         payLabel.textContent = 'Pay through:';
-        payLabel.style.cssText = `color:#e8edf5;font-weight:bold;margin-top:15px;`;
+        payLabel.style.cssText = `color:#e8edf5;font-weight:bold;margin-top:12px;`;
         page.appendChild(payLabel);
 
         const mixLabel = document.createElement('p');
-        mixLabel.textContent = 'Mix by Yas:';
-        mixLabel.style.cssText = `color:#00d4aa;font-weight:bold;`;
+        mixLabel.textContent = 'Mix by Yas (Tigo):';
+        mixLabel.style.cssText = `color:#00d4aa;font-weight:bold;margin-top:8px;`;
         page.appendChild(mixLabel);
 
         const mixNumber = document.createElement('p');
         mixNumber.textContent = '+255 655 510 714';
-        mixNumber.style.cssText = `color:#00d4aa;font-size:1.2rem;`;
+        mixNumber.style.cssText = `color:#00d4aa;font-size:1.1rem;`;
         page.appendChild(mixNumber);
 
         const airtelLabel = document.createElement('p');
         airtelLabel.textContent = 'Airtel Money:';
-        airtelLabel.style.cssText = `color:#dc3545;font-weight:bold;margin-top:10px;`;
+        airtelLabel.style.cssText = `color:#dc3545;font-weight:bold;margin-top:8px;`;
         page.appendChild(airtelLabel);
 
         const airtelNumber = document.createElement('p');
         airtelNumber.textContent = '+255 780 526 437';
-        airtelNumber.style.cssText = `color:#dc3545;font-size:1.2rem;`;
+        airtelNumber.style.cssText = `color:#dc3545;font-size:1.1rem;`;
         page.appendChild(airtelNumber);
 
+        const crdbLabel = document.createElement('p');
+        crdbLabel.textContent = 'CRDB Bank:';
+        crdbLabel.style.cssText = `color:#007bff;font-weight:bold;margin-top:8px;`;
+        page.appendChild(crdbLabel);
+
+        const crdbNumber = document.createElement('p');
+        crdbNumber.textContent = '0152001GN6K00';
+        crdbNumber.style.cssText = `color:#007bff;font-size:1.1rem;letter-spacing:0.05em;`;
+        page.appendChild(crdbNumber);
+
         const nameLabel = document.createElement('p');
-        nameLabel.textContent = 'JAMALI SAIDI KAZEMBE';
-        nameLabel.style.cssText = `color:#e8edf5;font-weight:bold;margin-top:15px;font-size:1.1rem;`;
+        nameLabel.textContent = 'JAMAL SAID KAZEMBE';
+        nameLabel.style.cssText = `color:#e8edf5;font-weight:bold;margin-top:12px;font-size:1rem;`;
         page.appendChild(nameLabel);
 
         const btnContainer = document.createElement('div');
-        btnContainer.style.cssText = `display:flex;gap:20px;margin-top:25px;`;
+        btnContainer.style.cssText = `display:flex;gap:20px;margin-top:20px;`;
 
         const backBtn = document.createElement('button');
         backBtn.textContent = 'BACK';
@@ -311,47 +327,183 @@ export function initPay(showToastFn) {
         return canvas;
     }
 
+    // ═══════════════════════════════════════════════════════
+    //  STRICT VERIFICATION ENGINE
+    //  The system prints names exactly. The camera may misread.
+    //  We tolerate camera OCR errors only — not human typos.
+    // ═══════════════════════════════════════════════════════
+
+    // ─── NAME MATCHING (STRICT) ────────────────────────────
+    // The receipt has the name EXACTLY as registered.
+    // OCR can misread: I↔1, S↔5, B↔8, O↔0.
+    // We check the exact string first, then one OCR substitution.
+    // We do NOT break names into parts or allow arbitrary variations.
+    function isNameMatch(text, names) {
+        // Common OCR character confusions in names
+        const subs = { 'I': '1', '1': 'I', 'S': '5', '5': 'S', 'B': '8', '8': 'B', 'O': '0', '0': 'O' };
+
+        for (const name of names) {
+            // Step 1: Exact match — receipt read perfectly
+            if (text.includes(name)) return true;
+
+            // Step 2: One-character OCR substitution on the name
+            // This handles "SA1D" instead of "SAID", "5AID" instead of "SAID"
+            for (let i = 0; i < name.length; i++) {
+                const r = subs[name[i]];
+                if (r) {
+                    const variant = name.substring(0, i) + r + name.substring(i + 1);
+                    if (variant !== name && text.includes(variant)) return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // ─── BANK ACCOUNT MATCHING ─────────────────────────────
+    // Account numbers contain digits + letters. OCR can:
+    // - Insert spaces: "0152001 GN6K 00"
+    // - Swap chars: "O152001GN6KO0"
+    // - Truncate edges: "0152001GN6K"
+    function isBankAccountMatch(text, accounts) {
+        const noSpaces = text.replace(/\s+/g, '');
+        const subs = { '0': 'O', 'O': '0', '1': 'I', 'I': '1', '5': 'S', 'S': '5', '8': 'B', 'B': '8' };
+
+        for (const acc of accounts) {
+            if (noSpaces.includes(acc)) return true;
+
+            for (let i = 0; i < acc.length; i++) {
+                const r = subs[acc[i]];
+                if (r) {
+                    const variant = acc.substring(0, i) + r + acc.substring(i + 1);
+                    if (variant !== acc && noSpaces.includes(variant)) return true;
+                }
+            }
+
+            for (let len = acc.length - 1; len >= Math.max(8, acc.length - 2); len--) {
+                if (noSpaces.includes(acc.substring(0, len))) return true;
+            }
+        }
+        return false;
+    }
+
+    // ─── MOBILE NUMBER MATCHING ────────────────────────────
+    function isMobileNumberMatch(text, numbers) {
+        const digits = text.replace(/\D/g, '');
+        for (const num of numbers) {
+            if (digits.includes(num)) return true;
+            if (digits.includes('255' + num)) return true;
+            if (digits.includes('0' + num)) return true;
+        }
+        return false;
+    }
+
+    // ─── COMBINED ACCOUNT CHECK ────────────────────────────
+    function isNumberMatch(text) {
+        if (isBankAccountMatch(text, BANK_ACCOUNTS)) return true;
+        if (isMobileNumberMatch(text, MOBILE_NUMBERS)) return true;
+        return false;
+    }
+
     // ─── TIME VALIDATION ───────────────────────────────────
     function isTimeValidFromText(text) {
         const clean = text.toUpperCase().replace(/\s+/g, ' ');
-        const match = clean.match(/\b(\d{1,2})[:. ](\d{2})([:. ](\d{2}))?\s?(AM|PM)?\b/);
-        if (!match) return false;
+        const timeRegex = /\b(\d{1,2})[:\.](\d{2})(?:[:\.](\d{2}))?\s?(AM|PM)?\b/gi;
+        let match;
 
-        let hours = parseInt(match[1]);
-        const minutes = parseInt(match[2]);
-        const ampm = match[5];
+        while ((match = timeRegex.exec(clean)) !== null) {
+            const before = clean.substring(Math.max(0, match.index - 2), match.index);
+            const after = clean.substring(
+                match.index + match[0].length,
+                Math.min(clean.length, match.index + match[0].length + 4)
+            );
 
-        if (ampm) {
-            if (ampm === "PM" && hours < 12) hours += 12;
-            if (ampm === "AM" && hours === 12) hours = 0;
+            if (/[\/\-]/.test(before) || /[\/\-]/.test(after)) continue;
+            if (/\d{4}/.test(after.substring(0, 3))) continue;
+
+            let hours = parseInt(match[1]);
+            const minutes = parseInt(match[2]);
+            const ampm = match[4];
+
+            if (hours > 23 || minutes > 59) continue;
+
+            if (ampm) {
+                if (ampm === 'PM' && hours < 12) hours += 12;
+                if (ampm === 'AM' && hours === 12) hours = 0;
+            }
+
+            const now = new Date();
+            const receipt = new Date();
+            receipt.setHours(hours, minutes, 0, 0);
+            if (receipt > now) receipt.setDate(receipt.getDate() - 1);
+
+            if (Math.abs((now - receipt) / 60000) <= 10) return true;
         }
-
-        const now = new Date();
-        const receipt = new Date();
-        receipt.setHours(hours, minutes, 0);
-
-        if (receipt > now) receipt.setDate(receipt.getDate() - 1);
-        return Math.abs((now - receipt) / 60000) <= 10;
+        return false;
     }
 
-    // ─── CURRENCY DETECTION ────────────────────────────────
-    function detectCurrency(text) {
-        const match = text.match(/([A-Z]{3}|[$€£¥₦₵₱₴])\s?([\d,]+)/i);
-        if (match) return { currency: match[1].toUpperCase(), amount: parseInt(match[2].replace(/,/g, "")) };
-        const nums = text.match(/\d{3,7}/g);
-        return { currency: "TZS", amount: nums ? Math.max(...nums.map(n => parseInt(n))) : 0 };
-    }
+    // ─── AMOUNT DETECTION ──────────────────────────────────
+    function detectAmount(text) {
+        const clean = text.toUpperCase();
 
-    // ─── CURRENCY CONVERSION ───────────────────────────────
-    async function convertToTZS(amount, currency) {
-        if (currency === "TZS" || currency === "TSH") return amount;
-        try {
-            const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${currency}`);
-            const data = await res.json();
-            return data.rates["TZS"] ? amount * data.rates["TZS"] : 0;
-        } catch {
-            return 0;
+        const keywords = [
+            'TZS', 'TSH', 'AMOUNT', 'AMT', 'PAID', 'SENT',
+            'TRANSFER', 'TRANSFERT', 'DEBIT', 'CREDIT',
+            'MONTANT', 'MONTANTT', '/=', 'RECVD', 'RECEIVED',
+            'WITHDRAW', 'DEPOSIT'
+        ];
+
+        const kwPos = [];
+        for (const kw of keywords) {
+            let idx = clean.indexOf(kw);
+            while (idx !== -1) {
+                kwPos.push({ start: idx, end: idx + kw.length });
+                idx = clean.indexOf(kw, idx + 1);
+            }
         }
+
+        const numRegex = /(\d{1,3}(?:,\d{3})*(?:\.\d{1,2})?|\d+\.\d{1,2}|\d{3,})/g;
+        let numMatch;
+        const candidates = [];
+
+        while ((numMatch = numRegex.exec(clean)) !== null) {
+            const raw = numMatch[1].replace(/,/g, '');
+            const value = parseFloat(raw);
+
+            if (isNaN(value) || value < 100 || value > 999999999) continue;
+
+            const numStart = numMatch.index;
+            const numEnd = numMatch.index + numMatch[0].length;
+
+            let nearKw = false;
+            let minDist = Infinity;
+            for (const kp of kwPos) {
+                const dist = Math.min(Math.abs(numEnd - kp.start), Math.abs(numStart - kp.end));
+                if (dist < minDist) minDist = dist;
+                if (dist <= 25) { nearKw = true; break; }
+            }
+
+            candidates.push({ value: Math.floor(value), nearKw, dist: minDist });
+        }
+
+        const near = candidates.filter(c => c.nearKw);
+        if (near.length > 0) {
+            near.sort((a, b) => a.dist - b.dist);
+            return near[0].value;
+        }
+
+        const phoneStrs = MOBILE_NUMBERS.map(n => n.toString());
+        const notPhone = candidates.filter(c => {
+            const s = c.value.toString();
+            return !phoneStrs.some(pn =>
+                s.includes(pn) || s.includes('255' + pn) || ('0' + pn).includes(s)
+            );
+        });
+        if (notPhone.length > 0) return Math.max(...notPhone.map(c => c.value));
+
+        if (candidates.length > 0) return Math.max(...candidates.map(c => c.value));
+
+        return 0;
     }
 
     // ─── MAIN PAYMENT PROCESSING ───────────────────────────
@@ -394,12 +546,12 @@ export function initPay(showToastFn) {
             }
 
             const cleanSearchText = detectedText.toUpperCase().replace(/\s+/g, " ");
-            const nameFound = VALID_NAMES.some(name => cleanSearchText.includes(name));
-            const numberFound = nameFound && VALID_NUMBERS.some(num => cleanSearchText.includes(num));
+
+            const nameFound = isNameMatch(cleanSearchText, VALID_NAMES);
+            const numberFound = nameFound && isNumberMatch(cleanSearchText);
             const timeValid = isTimeValidFromText(cleanSearchText);
-            const { currency, amount } = detectCurrency(cleanSearchText);
-            const tzsAmount = await convertToTZS(amount, currency);
-            const seconds = Math.floor((tzsAmount / RATE_PER_HOUR) * 3600);
+            const amount = detectAmount(cleanSearchText);
+            const seconds = Math.floor((amount / RATE_PER_HOUR) * 3600);
 
             if (nameFound && numberFound && timeValid && seconds > 0) {
                 const startTime = Date.now();
@@ -407,12 +559,12 @@ export function initPay(showToastFn) {
                 enterPaidMode(startTime, seconds);
             } else {
                 hideLoading();
-                let err = "Invalid payment.";
-                if (!nameFound) err += " Name not found.";
-                else if (!numberFound) err += " Number not found.";
-                if (!timeValid) err += " Receipt too old.";
-                if (seconds <= 0) err += " Invalid amount.";
-                showToast(err, "error");
+                let err = "Invalid receipt. ";
+                if (!nameFound) err += "Name not matched. ";
+                else if (!numberFound) err += "Account/number not matched. ";
+                if (!timeValid) err += "Receipt older than 10min. ";
+                if (seconds <= 0) err += "Amount not found. ";
+                showToast(err, "error", 6000);
                 showPayInfoPage();
             }
         } catch (error) {
