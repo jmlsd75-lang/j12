@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- REQUIRED by pay.js -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -311,8 +314,9 @@
     </div>
 
     <script type="module">
-      // Import Free mode module
-import { initFreeMode } from './free.js';
+        // Import both modules
+        import { initFreeMode } from './free.js';
+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import {
             getAuth,
@@ -340,7 +344,6 @@ import { initFreeMode } from './free.js';
         let isAdmin = false;
         let currentUser = null;
 
-        /* DOM refs */
         const loginBtn       = document.getElementById("loginBtn");
         const bottomControls = document.getElementById("bottomControls");
         const freeBtn        = document.getElementById("freeBtn");
@@ -359,7 +362,6 @@ import { initFreeMode } from './free.js';
             }
         }
 
-        /* Toast */
         let toastTimer = null;
         function showToast(message, type = "info", duration = 4000) {
             if (!toastEl) return;
@@ -371,12 +373,9 @@ import { initFreeMode } from './free.js';
             toastTimer = setTimeout(() => toastEl.classList.remove("show"), duration);
         }
 
+        // Initialize FREE button (this internally handles PAY via free.js → pay.js)
+        initFreeMode(freeBtn, showToast);
 
-// ---------- Add this line here ----------
-initFreeMode(freeBtn, showToast);  // Initialize FREE button
-// ------------------------------------------------
-
-        /* UI state */
         function updateUI(user) {
             hideInitOverlay();
 
@@ -419,10 +418,8 @@ initFreeMode(freeBtn, showToast);  // Initialize FREE button
             }
         }
 
-        /* Auth listener */
         onAuthStateChanged(auth, updateUI);
 
-        /* Login */
         loginBtn.addEventListener("click", async () => {
             if (loginBtn.classList.contains("loading")) return;
             loginBtn.classList.add("loading");
@@ -445,7 +442,7 @@ initFreeMode(freeBtn, showToast);  // Initialize FREE button
                         showToast("Popup blocked. Allow popups for this site and retry.", "error", 6000);
                         break;
                     case "auth/unauthorized-domain":
-                        showToast("Domain not authorized. Add it in Firebase Console > Authentication > Settings > Authorized domains.", "error", 8000);
+                        showToast("Domain not authorized. Add it in Firebase Console.", "error", 8000);
                         break;
                     default:
                         console.error("[AUTH] Error:", error.code, error.message);
@@ -454,10 +451,10 @@ initFreeMode(freeBtn, showToast);  // Initialize FREE button
             }
         });
 
-        /* Logout */
         logoutBtn.addEventListener("click", async () => {
             try {
-                localStorage.removeItem("sessionEnd");
+                localStorage.removeItem("freeTrialStartTime");
+                localStorage.removeItem("paidSessionData");
                 await signOut(auth);
                 showToast("Logged out successfully", "info");
             } catch (error) {
