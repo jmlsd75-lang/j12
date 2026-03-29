@@ -133,26 +133,26 @@ export function initFreeMode(freeBtn, showToast) {
                 border: none; cursor: default; letter-spacing: 0.1em;
             `;
 
-            const menuBtn = document.createElement('button');
-            menuBtn.id = 'menuBtn';
-            menuBtn.textContent = 'menu';
-            menuBtn.style.cssText = `
+            const businessBtn = document.createElement('button');
+            businessBtn.id = 'businessBtn';
+            businessBtn.textContent = 'BUSINESS';
+            businessBtn.style.cssText = `
                 font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 600;
                 padding: 1rem 3rem; background: transparent; color: #e8edf5; 
                 border: 2px solid #e8edf5; cursor: pointer; letter-spacing: 0.1em;
                 transition: all 0.3s ease;
             `;
-            menuBtn.onmouseenter = () => { menuBtn.style.background = '#e8edf5'; menuBtn.style.color = '#0a0f1a'; };
-            menuBtn.onmouseleave = () => { menuBtn.style.background = 'transparent'; menuBtn.style.color = '#e8edf5'; };
+            businessBtn.onmouseenter = () => { businessBtn.style.background = '#e8edf5'; businessBtn.style.color = '#0a0f1a'; };
+            businessBtn.onmouseleave = () => { businessBtn.style.background = 'transparent'; businessBtn.style.color = '#e8edf5'; };
 
             /* ---------------------------------------------------------
-               HOOK FOR menu.JS: 
-               import { initmenu } from './menu.js';
-               initmenu(menuBtn, showToast);
+               HOOK FOR BUSINESS.JS: 
+               import { initBusiness } from './business.js';
+               initBusiness(businessBtn, showToast);
             --------------------------------------------------------- */
 
             countdownPage.appendChild(greenTimerBtn);
-            countdownPage.appendChild(menuBtn);
+            countdownPage.appendChild(businessBtn);
             document.body.appendChild(countdownPage);
         }
 
