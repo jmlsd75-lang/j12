@@ -4,8 +4,7 @@ const RATE_PER_HOUR = 300; // 300 TZS = 1 hour
 const VALID_NAMES = [
     "JAMAL SAID KAZEMBE",
     "JAMAL SAID",
-    "JAMAL KAZEMBE",
-    "JAMALI SAIDI KAZEMBE"
+    "JAMAL KAZEMBE"
 ];
 
 const VALID_NUMBERS = [
