@@ -32,10 +32,16 @@ function initFreePage() {
             window.location.href = 'index.html';
             return;
         }
-        // Hide await + pay, show only menu
-        document.querySelector('.elephant-section').style.display = 'none';
+        
+        // FIX: Hide ONLY the await button, so the Pay button remains visible
+        const awaitBtn = document.querySelector('.await-el');
+        if (awaitBtn) {
+            awaitBtn.style.display = 'none';
+        }
+
         startFreeCountdown(FREE_SECONDS);
         spawnFireflies();
+        initMenu(); // Initialize the menu panel logic
     });
 
     function startFreeCountdown(seconds) {
@@ -72,5 +78,36 @@ function initFreePage() {
             f.style.animationDuration = (Math.random() * 3 + 4) + 's';
             box.appendChild(f);
         }
+    }
+
+    // FIX: Added logic to make the menu actually open and close
+    function initMenu() {
+        const menuBtn = document.getElementById('menuBtn');
+        const menuPanel = document.getElementById('menuPanel');
+        const menuClose = document.getElementById('menuClose');
+
+        if (!menuBtn || !menuPanel || !menuClose) return;
+
+        // Open menu
+        menuBtn.addEventListener('click', () => {
+            menuPanel.classList.add('open');
+        });
+
+        // Close menu
+        menuClose.addEventListener('click', () => {
+            menuPanel.classList.remove('open');
+        });
+
+        // Handle item clicks
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const action = item.getAttribute('data-action');
+                console.log('Menu selected:', action);
+                menuPanel.classList.remove('open'); // Close after clicking
+                
+                // You can add routing here later, e.g.:
+                // if(action === 'health') window.location.href = 'health.html';
+            });
+        });
     }
 }
