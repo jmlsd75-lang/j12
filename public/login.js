@@ -22,7 +22,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-const ADMIN_EMAIL = "camelkazembe1@gmail.com";
+const ADMIN_EMAIL = "jmlsd75@gmail.com";
 
 let currentUser = null;
 let isAdmin = false;
