@@ -200,7 +200,6 @@
     </div>
 
     <script type="module">
-        // Import both modules
         import { initFreeMode } from './free.js';
         import { initPay } from './pay.js';
 
@@ -251,10 +250,10 @@
             toastTimer = setTimeout(() => toastEl.classList.remove("show"), duration);
         }
 
-        // Initialize FREE mode (creates waitBtn & payBtn dynamically)
+        // Initialize FREE mode — creates waitBtn & payBtn dynamically when needed
         initFreeMode(freeBtn, showToast);
-        
-        // Initialize PAY mode (watches for payBtn automatically)
+
+        // Initialize PAY mode — watches for payBtn via MutationObserver
         initPay(showToast);
 
         function updateUI(user) {
@@ -310,7 +309,6 @@
 
         logoutBtn.addEventListener("click", async () => {
             try {
-                // Clear all session states on logout
                 localStorage.removeItem("freeTrialStartTime");
                 localStorage.removeItem("paidSessionData");
                 await signOut(auth);
