@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0f1a;
+            --fg: #e8edf5;
+            --muted: #5a6b85;
+            --accent: #00d4aa;
+            --accent-glow: rgba(0, 212, 170, 0.4);
+            --danger: #dc3545;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .bg-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(0, 212, 170, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(0, 150, 136, 0.1) 0%, transparent 40%);
+        }
+
+        .grid-overlay {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(0, 212, 170, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 170, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .system-title { text-align: center; margin-bottom: 4rem; }
+
+        .title-line-1 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: clamp(1.5rem, 5vw, 3rem);
+            letter-spacing: 0.15em;
+            color: var(--fg);
+            animation: fadeDown 1s ease-out forwards;
+            opacity: 0;
+        }
+
+        .title-line-2 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: clamp(1rem, 3vw, 1.8rem);
+            letter-spacing: 0.3em;
+            color: var(--accent);
+            animation: fadeDown 1s ease-out 0.3s forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeDown {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.1em;
+            padding: 1rem 3rem;
+            border: 2px solid;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-login {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .btn-login:hover {
+            background: var(--accent);
+            color: var(--bg);
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+
+        .bottom-controls {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            z-index: 20;
+        }
+
+        .btn-logout {
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .btn-logout:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-free {
+            color: #ffc107;
+            border-color: #ffc107;
+        }
+
+        .btn-free:hover {
+            background: #ffc107;
+            color: black;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-layer">
+        <div class="grid-overlay"></div>
+    </div>
+
+    <main class="main-container">
+        <header class="system-title">
+            <h1 class="title-line-1" style="transform: translateY(-20px);">JAMAL SAID KAZEMBE</h1>
+            <h2 class="title-line-2" style="transform: translateY(-20px);">Multisystem Management</h2>
+        </header>
+
+        <button id="loginBtn" class="btn btn-login">LOGIN</button>
+    </main>
+
+    <div id="bottomControls" class="bottom-controls hidden">
+        <button id="freeBtn" class="btn btn-free">FREE</button>
+        <button id="logoutBtn" class="btn btn-logout">LOGOUT</button>
+    </div>
+
+    <script type="module" src="login.js"></script>
+
+</body>
+</html>
