@@ -99,6 +99,12 @@ export function initPay(showToastFn) {
         showCameraMenuPage();
         return;
     }
+        const userEmail = window.__AUTH_USER?.email;
+if (userEmail && ADMIN_EMAILS.includes(userEmail.toLowerCase())) {
+    showToast("Admin access: skipping payment.", "success");
+    showCameraMenuPage();
+    return;
+}
         hideMainPage();
         removePayOverlays();
 
