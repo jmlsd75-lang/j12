@@ -1,142 +1,126 @@
-// admin.js
+// ─── admin.js — Admin dashboard (standalone page) ─────────
+import { firebaseConfig, ADMIN_EMAILS } from "./config.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// Firebase config (use the same as in your main app)
-const firebaseConfig = {
-  apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-  authDomain: "my-project-66803-95cb3.firebaseapp.com",
-  projectId: "my-project-66803-95cb3",
-  storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-  messagingSenderId: "167159607898",
-  appId: "1:167159607898:web:23ca11366b88868b085e63"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// ─── Firebase init ────────────────────────────────────────
+const app  = initializeApp(firebaseConfig);
+const db   = getFirestore(app);
 const auth = getAuth(app);
 
-// Admin Email
-const ADMIN_EMAIL = "jmlsd75@gmail.com";
-
-// HTML container for table
+// ─── DOM refs ─────────────────────────────────────────────
 const adminContainer = document.getElementById("adminContainer");
+const logoutBtn      = document.getElementById("logoutBtn");
+const statCount      = document.getElementById("statCount");
+const statAmount     = document.getElementById("statAmount");
+const statUsers      = document.getElementById("statUsers");
 
-// Logout button
-const logoutBtn = document.getElementById("logoutBtn");
-
-// Check auth state
+// ─── Auth guard ───────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    alert("Please login to access admin dashboard.");
-    window.location.href = "index.html"; // redirect to main page
-    return;
-  }
-
-  if (user.email !== ADMIN_EMAIL) {
-    alert("Access denied: not admin.");
-    window.location.href = "index.html";
-    return;
-  }
-
-  // If admin, fetch and display payments
-  await loadPayments();
+    if (!user) {
+        window.location.href = "index.html";
+        return;
+    }
+    if (!ADMIN_EMAILS.includes(user.email)) {
+        alert("Access denied: not an admin.");
+        window.location.href = "index.html";
+        return;
+    }
+    await loadPayments();
 });
 
-// Logout function
-logoutBtn.onclick = async () => {
-  await signOut(auth);
-  window.location.href = "index.html";
-};
+// ─── Logout ───────────────────────────────────────────────
+logoutBtn.addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.href = "index.html";
+});
 
-// Function to load all payments
+// ─── Format number with commas ────────────────────────────
+function formatNumber(n) {
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// ─── Type tag helper ──────────────────────────────────────
+function typeTag(type) {
+    const t = (type || "Unknown").toLowerCase();
+    let cls = "type-unknown";
+    if (t.includes("tigo") || t.includes("mix")) cls = "type-tigo";
+    else if (t.includes("airtel")) cls = "type-airtel";
+    else if (t.includes("crdb") || t.includes("bank")) cls = "type-crdb";
+    return `<span class="type-tag ${cls}">${type || "Unknown"}</span>`;
+}
+
+// ─── Load all payments ────────────────────────────────────
 async function loadPayments() {
-  adminContainer.innerHTML = ""; // clear previous content
+    try {
+        const usersSnapshot = await getDocs(collection(db, "users"));
+        const allPayments = [];
+        const userSet = new Set();
+        let totalAmount = 0;
 
-  // Create table
-  const table = document.createElement("table");
-  table.style.width = "100%";
-  table.style.borderCollapse = "collapse";
-  table.style.marginTop = "20px";
+        for (const userDoc of usersSnapshot.docs) {
+            const paymentsSnapshot = await getDocs(collection(db, "users", userDoc.id, "payments"));
+            paymentsSnapshot.forEach(paymentDoc => {
+                const p = paymentDoc.data();
+                allPayments.push(p);
+                userSet.add(userDoc.id);
+                totalAmount += (p.amount || 0);
+            });
+        }
 
-  // Table header
-  const header = document.createElement("tr");
-  ["User Name", "Amount (TZS)", "Account Type"].forEach(text => {
-    const th = document.createElement("th");
-    th.textContent = text;
-    th.style.border = "1px solid #000";
-    th.style.padding = "8px";
-    th.style.backgroundColor = "#f0f0f0";
-    header.appendChild(th);
-  });
-  table.appendChild(header);
+        // Sort newest first
+        allPayments.sort((a, b) => {
+            const ta = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+            const tb = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+            return tb - ta;
+        });
 
-  // Fetch all users
-  const usersSnapshot = await getDocs(collection(db, "users"));
-  let totalAmount = 0;
-  let totalUsers = 0;
+        // Update stats
+        statCount.textContent  = allPayments.length;
+        statAmount.textContent = formatNumber(totalAmount);
+        statUsers.textContent  = userSet.size;
 
-  for (const userDoc of usersSnapshot.docs) {
-    const userId = userDoc.id;
-    const paymentsSnapshot = await getDocs(collection(db, "users", userId, "payments"));
+        // Build table
+        if (allPayments.length === 0) {
+            adminContainer.innerHTML = `<div class="empty-state">No payments recorded yet.</div>`;
+            return;
+        }
 
-    paymentsSnapshot.forEach(paymentDoc => {
-      const payment = paymentDoc.data();
-      const row = document.createElement("tr");
+        let html = `<table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>USER NAME</th>
+                    <th>AMOUNT (TZS)</th>
+                    <th>TYPE</th>
+                    <th>DATE</th>
+                </tr>
+            </thead>
+            <tbody>`;
 
-      // User Name
-      const tdName = document.createElement("td");
-      tdName.textContent = payment.userName || "-";
-      tdName.style.border = "1px solid #000";
-      tdName.style.padding = "8px";
-      row.appendChild(tdName);
+        allPayments.forEach((p, i) => {
+            const dateStr = p.timestamp
+                ? new Date(p.timestamp).toLocaleString("en-GB", {
+                    day: "2-digit", month: "short", year: "numeric",
+                    hour: "2-digit", minute: "2-digit"
+                })
+                : "—";
 
-      // Amount
-      const tdAmount = document.createElement("td");
-      tdAmount.textContent = payment.amount || 0;
-      tdAmount.style.border = "1px solid #000";
-      tdAmount.style.padding = "8px";
-      row.appendChild(tdAmount);
+            html += `<tr>
+                <td style="color:var(--muted)">${i + 1}</td>
+                <td>${p.userName || "—"}</td>
+                <td style="font-weight:700;color:var(--accent)">${formatNumber(p.amount || 0)}</td>
+                <td>${typeTag(p.type)}</td>
+                <td style="color:var(--muted);font-size:0.6rem">${dateStr}</td>
+            </tr>`;
+        });
 
-      // Account Type
-      const tdType = document.createElement("td");
-      tdType.textContent = payment.type || "-";
-      tdType.style.border = "1px solid #000";
-      tdType.style.padding = "8px";
-      row.appendChild(tdType);
+        html += `</tbody></table>`;
+        adminContainer.innerHTML = html;
 
-      table.appendChild(row);
-
-      totalAmount += payment.amount || 0;
-      totalUsers++;
-    });
-  }
-
-  // Totals row
-  const totalRow = document.createElement("tr");
-  totalRow.style.fontWeight = "bold";
-
-  const tdTotalUsers = document.createElement("td");
-  tdTotalUsers.textContent = `Total Users: ${totalUsers}`;
-  tdTotalUsers.style.border = "1px solid #000";
-  tdTotalUsers.style.padding = "8px";
-  totalRow.appendChild(tdTotalUsers);
-
-  const tdTotalAmount = document.createElement("td");
-  tdTotalAmount.textContent = `Total: ${totalAmount}`;
-  tdTotalAmount.style.border = "1px solid #000";
-  tdTotalAmount.style.padding = "8px";
-  totalRow.appendChild(tdTotalAmount);
-
-  const tdEmpty = document.createElement("td");
-  tdEmpty.textContent = "-";
-  tdEmpty.style.border = "1px solid #000";
-  tdEmpty.style.padding = "8px";
-  totalRow.appendChild(tdEmpty);
-
-  table.appendChild(totalRow);
-
-  adminContainer.appendChild(table);
+    } catch (error) {
+        console.error("Failed to load payments:", error);
+        adminContainer.innerHTML = `<div class="empty-state" style="color:var(--red)">Failed to load data. Check Firestore permissions.</div>`;
+    }
 }
