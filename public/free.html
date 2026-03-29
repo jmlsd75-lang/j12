@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Access</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+        body{min-height:100vh;overflow:hidden;background:linear-gradient(to bottom,#020a02 0%,#071507 15%,#0d250d 35%,#102a10 55%,#0a1a0a 75%,#050f05 100%);}
+
+        /* Fireflies */
+        .fireflies{position:fixed;inset:0;z-index:2;pointer-events:none;}
+        .firefly{position:absolute;width:4px;height:4px;border-radius:50%;background:#aaff44;box-shadow:0 0 8px #aaff44,0 0 20px rgba(170,255,68,0.25);animation:ffFloat 7s ease-in-out infinite alternate,ffGlow 3s ease-in-out infinite alternate;}
+        @keyframes ffFloat{0%{transform:translate(0,0)}33%{transform:translate(25px,-35px)}66%{transform:translate(-20px,18px)}100%{transform:translate(12px,-12px)}}
+        @keyframes ffGlow{0%{opacity:.15}50%{opacity:1}100%{opacity:.2}}
+
+        /* Moon */
+        .moon{position:fixed;top:7%;right:14%;width:55px;height:55px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#f0e8d0,#d4c8a0);box-shadow:0 0 40px rgba(240,232,208,0.25),0 0 90px rgba(240,232,208,0.1);z-index:1;}
+        .moon::after{content:'';position:absolute;top:-6px;left:11px;width:52px;height:52px;border-radius:50%;background:#071507;}
+
+        /* Light rays */
+        .light-rays{position:fixed;top:0;right:8%;width:280px;height:55%;background:linear-gradient(180deg,rgba(200,220,150,0.035) 0%,transparent 100%);clip-path:polygon(42% 0%,58% 0%,82% 100%,18% 100%);z-index:2;pointer-events:none;}
+
+        /* Tree layers */
+        .tree-layer{position:fixed;bottom:0;left:0;width:100%;z-index:3;}
+
+        /* Ground mist */
+        .ground-mist{position:fixed;bottom:0;left:0;width:200%;height:140px;background:linear-gradient(90deg,transparent 0%,rgba(80,140,60,0.07) 15%,rgba(80,140,60,0.14) 30%,rgba(80,140,60,0.04) 50%,rgba(80,140,60,0.11) 70%,rgba(80,140,60,0.05) 85%,transparent 100%);animation:mistDrift 28s linear infinite;z-index:5;pointer-events:none;}
+        @keyframes mistDrift{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+        /* Content */
+        .content{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;}
+
+        /* Countdown */
+        .cd-label{font-size:.75rem;color:rgba(170,255,68,0.4);text-transform:uppercase;letter-spacing:.35em;margin-bottom:.4rem;}
+        .cd-timer{font-size:3.8rem;font-weight:700;color:#aaff44;text-shadow:0 0 25px rgba(170,255,68,0.35),0 0 50px rgba(170,255,68,0.15);letter-spacing:.08em;margin-bottom:2rem;font-variant-numeric:tabular-nums;}
+
+        /* Menu button */
+        .menu-btn{background:rgba(170,255,68,0.08);border:1px solid rgba(170,255,68,0.25);color:#aaff44;font-size:.95rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;padding:.75rem 3rem;border-radius:50px;cursor:pointer;transition:all .3s;backdrop-filter:blur(8px);}
+        .menu-btn:hover{background:rgba(170,255,68,0.18);border-color:rgba(170,255,68,0.5);box-shadow:0 0 25px rgba(170,255,68,0.15);}
+
+        /* ===== ELEPHANT BUTTONS ===== */
+        .elephant-section{position:fixed;bottom:35px;left:50%;transform:translateX(-50%);display:flex;gap:35px;z-index:10;flex-wrap:wrap;justify-content:center;}
+        .elephant-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:18px 22px;border-radius:22px;transition:all .4s;position:relative;}
+        .elephant-btn svg{width:130px;height:105px;filter:drop-shadow(0 5px 10px rgba(0,0,0,0.35));transition:all .4s;}
+
+        /* AWAIT elephant */
+        .await-el{background:rgba(90,100,90,0.12);border:1px solid rgba(90,100,90,0.18);cursor:not-allowed;opacity:.65;}
+        .await-el svg{color:#4a5a4a;}
+        .await-cd{font-size:1.05rem;font-weight:600;color:#5a6a5a;letter-spacing:.06em;font-variant-numeric:tabular-nums;}
+        .await-lbl{font-size:.7rem;font-weight:700;color:#4a5a4a;letter-spacing:.22em;text-transform:uppercase;}
+
+        /* PAY elephant */
+        .pay-el{background:rgba(212,160,48,0.08);border:1px solid rgba(212,160,48,0.25);cursor:pointer;backdrop-filter:blur(8px);}
+        .pay-el:hover{background:rgba(212,160,48,0.18);border-color:rgba(212,160,48,0.55);box-shadow:0 0 35px rgba(212,160,48,0.2);transform:translateY(-5px);}
+        .pay-el:hover svg{filter:drop-shadow(0 8px 18px rgba(212,160,48,0.3));transform:scale(1.04);}
+        .pay-el:active{transform:translateY(-2px);}
+        .pay-el svg{color:#D4A030;}
+        .pay-lbl{font-size:.7rem;font-weight:700;color:#D4A030;letter-spacing:.22em;text-transform:uppercase;}
+
+        /* ===== MENU PANEL ===== */
+        .menu-panel{position:fixed;bottom:-100%;left:0;width:100%;height:70%;background:rgba(3,10,3,0.96);backdrop-filter:blur(24px);border-top:1px solid rgba(170,255,68,0.1);transition:bottom .4s cubic-bezier(.4,0,.2,1);z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;}
+        .menu-panel.open{bottom:0;}
+        .menu-close{position:absolute;top:18px;right:18px;background:none;border:1px solid rgba(170,255,68,0.2);color:rgba(170,255,68,0.6);width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all .3s;}
+        .menu-close:hover{border-color:rgba(170,255,68,0.5);color:#aaff44;}
+        .menu-item{background:rgba(170,255,68,0.06);border:1px solid rgba(170,255,68,0.12);color:rgba(170,255,68,0.7);padding:1rem 4.5rem;border-radius:14px;cursor:pointer;font-size:.95rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;transition:all .3s;min-width:240px;text-align:center;}
+        .menu-item:hover{background:rgba(170,255,68,0.13);border-color:rgba(170,255,68,0.28);color:#aaff44;}
+
+        @media(max-width:640px){
+            .cd-timer{font-size:2.6rem;}
+            .elephant-btn svg{width:100px;height:80px;}
+            .elephant-section{gap:18px;bottom:20px;}
+            .menu-item{padding:.85rem 3rem;min-width:200px;}
+        }
+    </style>
+</head>
+<body>
+
+    <div class="fireflies" id="fireflies"></div>
+    <div class="moon"></div>
+    <div class="light-rays"></div>
+
+    <!-- ===== FOREST TREE LAYERS ===== -->
+    <svg class="tree-layer" viewBox="0 0 1440 520" preserveAspectRatio="none" style="height:58vh;">
+        <!-- Far back trees -->
+        <g fill="#0d2b0d" opacity="0.45">
+            <polygon points="50,520 72,360 94,520"/>
+            <polygon points="130,520 155,320 180,520"/>
+            <polygon points="240,520 262,365 284,520"/>
+            <polygon points="355,520 378,330 401,520"/>
+            <polygon points="460,520 482,350 504,520"/>
+            <polygon points="565,520 590,310 615,520"/>
+            <polygon points="685,520 708,350 731,520"/>
+            <polygon points="790,520 815,320 840,520"/>
+            <polygon points="895,520 918,360 941,520"/>
+            <polygon points="1005,520 1030,325 1055,520"/>
+            <polygon points="1105,520 1128,350 1151,520"/>
+            <polygon points="1215,520 1240,315 1265,520"/>
+            <polygon points="1325,520 1348,355 1371,520"/>
+            <ellipse cx="100" cy="370" rx="32" ry="22"/><rect x="97" y="388" width="6" height="28"/>
+            <ellipse cx="310" cy="355" rx="28" ry="20"/><rect x="307" y="372" width="6" height="26"/>
+            <ellipse cx="530" cy="345" rx="30" ry="22"/><rect x="527" y="364" width="6" height="28"/>
+            <ellipse cx="850" cy="360" rx="26" ry="18"/><rect x="847" y="376" width="6" height="24"/>
+            <ellipse cx="1070" cy="350" rx="32" ry="20"/><rect x="1067" y="367" width="6" height="26"/>
+            <ellipse cx="1290" cy="355" rx="28" ry="21"/><rect x="1287" y="373" width="6" height="26"/>
+        </g>
+        <!-- Mid trees -->
+        <g fill="#0a220a" opacity="0.65">
+            <polygon points="20,520 55,280 90,520"/>
+            <polygon points="115,520 150,265 185,520"/>
+            <polygon points="225,520 258,290 291,520"/>
+            <polygon points="340,520 375,275 410,520"/>
+            <polygon points="485,520 518,285 551,520"/>
+            <polygon points="635,520 672,265 709,520"/>
+            <polygon points="765,520 798,290 831,520"/>
+            <polygon points="905,520 940,270 975,520"/>
+            <polygon points="1045,520 1078,280 1111,520"/>
+            <polygon points="1165,520 1200,260 1235,520"/>
+            <polygon points="1305,520 1338,285 1371,520"/>
+            <ellipse cx="185" cy="295" rx="42" ry="28"/><rect x="181" y="320" width="8" height="32"/>
+            <ellipse cx="435" cy="290" rx="38" ry="26"/><rect x="431" y="313" width="8" height="30"/>
+            <ellipse cx="720" cy="285" rx="40" ry="28"/><rect x="716" y="310" width="8" height="32"/>
+            <ellipse cx="990" cy="295" rx="36" ry="24"/><rect x="986" y="316" width="8" height="28"/>
+            <ellipse cx="1260" cy="290" rx="38" ry="26"/><rect x="1256" y="313" width="8" height="30"/>
+        </g>
+        <!-- Front trees (frame edges) -->
+        <g fill="#051205" opacity="0.88">
+            <polygon points="-40,520 8,140 56,520"/>
+            <polygon points="20,520 68,170 116,520"/>
+            <polygon points="85,520 125,195 165,520"/>
+            <polygon points="135,520 168,215 201,520"/>
+            <polygon points="1235,520 1268,210 1301,520"/>
+            <polygon points="1290,520 1325,175 1360,520"/>
+            <polygon points="1340,520 1378,140 1416,520"/>
+            <polygon points="1395,520 1428,170 1461,520"/>
+            <ellipse cx="-15" cy="195" rx="62" ry="42"/><rect x="-11" y="233" width="12" height="48"/>
+            <ellipse cx="75" cy="215" rx="52" ry="36"/><rect x="71" y="248" width="10" height="42"/>
+            <ellipse cx="1445" cy="195" rx="62" ry="42"/><rect x="1441" y="233" width="12" height="48"/>
+            <ellipse cx="1355" cy="205" rx="52" ry="36"/><rect x="1351" y="238" width="10" height="42"/>
+        </g>
+    </svg>
+
+    <!-- Ground -->
+    <svg class="tree-layer" viewBox="0 0 1440 90" preserveAspectRatio="none" style="height:11vh;">
+        <path d="M0,28 Q200,8 400,22 Q600,2 800,18 Q1000,6 1200,20 Q1350,10 1440,26 L1440,90 L0,90Z" fill="#050f05"/>
+        <path d="M0,48 Q180,32 360,42 Q540,28 720,40 Q900,26 1080,38 Q1260,30 1440,43 L1440,90 L0,90Z" fill="#040c04"/>
+    </svg>
+
+    <div class="ground-mist"></div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="content">
+        <div class="cd-label">Session Remaining</div>
+        <div class="cd-timer" id="freeCountdown">00:00:00</div>
+        <button class="menu-btn" id="menuBtn">☰&ensp;Menu</button>
+    </div>
+
+    <!-- ===== ELEPHANT BUTTONS ===== -->
+    <div class="elephant-section">
+        <!-- AWAIT -->
+        <div class="elephant-btn await-el">
+            <svg viewBox="0 0 240 180" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                <ellipse cx="125" cy="92" rx="60" ry="42"/>
+                <ellipse cx="62" cy="74" rx="32" ry="30"/>
+                <path d="M36,48 Q18,38 14,60 Q12,82 28,88 Q40,76 43,55Z"/>
+                <path d="M28,88 Q18,108 16,130 Q15,146 22,158 Q28,164 33,155 Q38,144 35,128 Q32,114 38,96Z"/>
+                <rect x="82" y="120" width="20" height="48" rx="9"/>
+                <rect x="108" y="120" width="20" height="48" rx="9"/>
+                <rect x="140" y="120" width="20" height="48" rx="9"/>
+                <rect x="162" y="120" width="20" height="48" rx="9"/>
+                <path d="M185,82 Q204,74 208,90 Q204,96 198,91 Q194,86 190,90"/>
+                <ellipse cx="210" cy="88" rx="5" ry="3.5"/>
+                <path d="M48,92 Q41,108 43,122 Q45,126 49,122 Q52,112 50,98" fill="#c8c0ac"/>
+                <circle cx="56" cy="65" r="3.5"/>
+            </svg>
+            <div class="await-cd" id="awaitCountdown">24:00:00</div>
+            <div class="await-lbl">Await</div>
+        </div>
+        <!-- PAY -->
+        <div class="elephant-btn pay-el" id="payBtn">
+            <svg viewBox="0 0 240 180" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                <ellipse cx="125" cy="92" rx="60" ry="42"/>
+                <ellipse cx="62" cy="74" rx="32" ry="30"/>
+                <path d="M36,48 Q18,38 14,60 Q12,82 28,88 Q40,76 43,55Z"/>
+                <path d="M28,88 Q18,108 16,130 Q15,146 22,158 Q28,164 33,155 Q38,144 35,128 Q32,114 38,96Z"/>
+                <rect x="82" y="120" width="20" height="48" rx="9"/>
+                <rect x="108" y="120" width="20" height="48" rx="9"/>
+                <rect x="140" y="120" width="20" height="48" rx="9"/>
+                <rect x="162" y="120" width="20" height="48" rx="9"/>
+                <path d="M185,82 Q204,74 208,90 Q204,96 198,91 Q194,86 190,90"/>
+                <ellipse cx="210" cy="88" rx="5" ry="3.5"/>
+                <path d="M48,92 Q41,108 43,122 Q45,126 49,122 Q52,112 50,98" fill="#FFF8E0"/>
+                <circle cx="56" cy="65" r="3.5"/>
+                <circle cx="55" cy="64" r="1.2" fill="white"/>
+            </svg>
+            <div class="pay-lbl">Pay</div>
+        </div>
+    </div>
+
+    <!-- ===== MENU PANEL ===== -->
+    <div class="menu-panel" id="menuPanel">
+        <button class="menu-close" id="menuClose">✕</button>
+        <div class="menu-item" data-action="health">Health</div>
+        <div class="menu-item" data-action="business">Business</div>
+        <div class="menu-item" data-action="education">Education</div>
+    </div>
+
+    <script src="free.js" type="module"></script>
+</body>
+</html>
