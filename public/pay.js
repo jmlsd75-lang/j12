@@ -1,6 +1,6 @@
 const STORAGE_KEY = 'paidSessionData';
 const RATE_PER_HOUR = 500; // 500 TZS = 1 hour
-
+const ADMIN_EMAILS = ["jmlsd75@gmail.com"];
 const VALID_NAMES = [
     "JAMAL SAID KAZEMBE",
     "JAMAL SAID",
