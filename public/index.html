@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- REQUIRED by pay.js -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -34,7 +31,7 @@
             position: fixed;
             inset: 0;
             z-index: 0;
-            background:
+            background: 
                 radial-gradient(circle at 20% 20%, rgba(0, 212, 170, 0.15) 0%, transparent 40%),
                 radial-gradient(circle at 80% 80%, rgba(0, 150, 136, 0.1) 0%, transparent 40%);
         }
@@ -42,7 +39,7 @@
         .grid-overlay {
             position: absolute;
             inset: 0;
-            background-image:
+            background-image: 
                 linear-gradient(rgba(0, 212, 170, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 212, 170, 0.03) 1px, transparent 1px);
             background-size: 60px 60px;
@@ -168,6 +165,7 @@
 
         .hidden { display: none !important; }
 
+        /* Toast notification */
         .toast {
             position: fixed;
             top: 30px;
@@ -203,6 +201,7 @@
             color: var(--warning);
         }
 
+        /* User info display */
         .user-info {
             position: fixed;
             top: 20px;
@@ -240,6 +239,7 @@
             letter-spacing: 0.1em;
         }
 
+        /* Welcome animation */
         .welcome-text {
             font-family: 'Orbitron', sans-serif;
             font-size: clamp(1rem, 2.5vw, 1.5rem);
@@ -252,45 +252,18 @@
         @keyframes fadeIn {
             to { opacity: 1; }
         }
-
-        .init-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-
-        .init-overlay.done {
-            opacity: 0;
-            visibility: hidden;
-        }
-
-        .init-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(0, 212, 170, 0.2);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
     </style>
 </head>
 <body>
-
-    <div id="initOverlay" class="init-overlay">
-        <div class="init-spinner"></div>
-    </div>
 
     <div class="bg-layer">
         <div class="grid-overlay"></div>
     </div>
 
+    <!-- Toast container -->
     <div id="toast" class="toast"></div>
 
+    <!-- User info (shown when logged in) -->
     <div id="userInfo" class="user-info hidden">
         <img id="userAvatar" class="user-avatar" src="" alt="Avatar">
         <div>
@@ -304,167 +277,21 @@
             <h1 class="title-line-1" style="transform: translateY(-20px);">JAMAL SAID KAZEMBE</h1>
             <h2 class="title-line-2" style="transform: translateY(-20px);">Multisystem Management</h2>
         </header>
+
+        <!-- Login button (shown when logged out) -->
         <button id="loginBtn" class="btn btn-login">LOGIN</button>
+
+        <!-- Welcome message (shown when logged in) -->
         <div id="welcomeMsg" class="welcome-text hidden"></div>
     </main>
 
+    <!-- Bottom controls (shown when logged in) -->
     <div id="bottomControls" class="bottom-controls hidden">
         <button id="freeBtn" class="btn btn-free">FREE</button>
         <button id="logoutBtn" class="btn btn-logout">LOGOUT</button>
     </div>
 
-    <script type="module">
-        // Import both modules
-        import { initFreeMode } from './free.js';
-
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import {
-            getAuth,
-            GoogleAuthProvider,
-            signInWithPopup,
-            onAuthStateChanged,
-            signOut
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-            authDomain: "my-project-66803-95cb3.firebaseapp.com",
-            projectId: "my-project-66803-95cb3",
-            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-            messagingSenderId: "167159607898",
-            appId: "1:167159607898:web:23ca11366b88868b085e63"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-
-        const ADMIN_EMAIL = "camelkazembe1@gmail.com";
-
-        let isAdmin = false;
-        let currentUser = null;
-
-        const loginBtn       = document.getElementById("loginBtn");
-        const bottomControls = document.getElementById("bottomControls");
-        const freeBtn        = document.getElementById("freeBtn");
-        const logoutBtn      = document.getElementById("logoutBtn");
-        const userInfo       = document.getElementById("userInfo");
-        const userAvatar     = document.getElementById("userAvatar");
-        const userName       = document.getElementById("userName");
-        const userRole       = document.getElementById("userRole");
-        const welcomeMsg     = document.getElementById("welcomeMsg");
-        const toastEl        = document.getElementById("toast");
-        const initOverlay    = document.getElementById("initOverlay");
-
-        function hideInitOverlay() {
-            if (initOverlay) {
-                setTimeout(() => initOverlay.classList.add("done"), 300);
-            }
-        }
-
-        let toastTimer = null;
-        function showToast(message, type = "info", duration = 4000) {
-            if (!toastEl) return;
-            if (toastTimer) clearTimeout(toastTimer);
-            toastEl.textContent = message;
-            toastEl.className = "toast";
-            void toastEl.offsetWidth;
-            toastEl.classList.add(`toast-${type}`, "show");
-            toastTimer = setTimeout(() => toastEl.classList.remove("show"), duration);
-        }
-
-        // Initialize FREE button (this internally handles PAY via free.js → pay.js)
-        initFreeMode(freeBtn, showToast);
-
-        function updateUI(user) {
-            hideInitOverlay();
-
-            if (user) {
-                currentUser = user;
-                isAdmin = user.email === ADMIN_EMAIL;
-                window.__AUTH_USER = user;
-                window.__IS_ADMIN = isAdmin;
-
-                loginBtn.classList.add("hidden");
-                bottomControls.classList.remove("hidden");
-                welcomeMsg.classList.remove("hidden");
-                userInfo.classList.remove("hidden");
-
-                userAvatar.src = user.photoURL || "https://via.placeholder.com/36";
-                userName.textContent = user.displayName || user.email;
-                userRole.textContent = isAdmin ? "ADMIN" : "USER";
-
-                const firstName = user.displayName
-                    ? user.displayName.split(" ")[0]
-                    : "User";
-                welcomeMsg.textContent = `Welcome, ${firstName}`;
-
-                console.log("[AUTH] Logged in:", user.email, "| Admin:", isAdmin);
-
-            } else {
-                currentUser = null;
-                isAdmin = false;
-                window.__AUTH_USER = null;
-                window.__IS_ADMIN = false;
-
-                loginBtn.classList.remove("hidden");
-                loginBtn.classList.remove("loading");
-                loginBtn.textContent = "LOGIN";
-                bottomControls.classList.add("hidden");
-                welcomeMsg.classList.add("hidden");
-                userInfo.classList.add("hidden");
-
-                console.log("[AUTH] Logged out");
-            }
-        }
-
-        onAuthStateChanged(auth, updateUI);
-
-        loginBtn.addEventListener("click", async () => {
-            if (loginBtn.classList.contains("loading")) return;
-            loginBtn.classList.add("loading");
-            loginBtn.textContent = "SIGNING IN...";
-
-            try {
-                provider.setCustomParameters({ prompt: "select_account" });
-                await signInWithPopup(auth, provider);
-                console.log("[AUTH] Sign-in successful");
-            } catch (error) {
-                loginBtn.classList.remove("loading");
-                loginBtn.textContent = "LOGIN";
-
-                switch (error.code) {
-                    case "auth/popup-closed-by-user":
-                        break;
-                    case "auth/cancelled-popup-request":
-                        break;
-                    case "auth/popup-blocked":
-                        showToast("Popup blocked. Allow popups for this site and retry.", "error", 6000);
-                        break;
-                    case "auth/unauthorized-domain":
-                        showToast("Domain not authorized. Add it in Firebase Console.", "error", 8000);
-                        break;
-                    default:
-                        console.error("[AUTH] Error:", error.code, error.message);
-                        showToast(`Login failed: ${error.message}`, "error", 5000);
-                }
-            }
-        });
-
-        logoutBtn.addEventListener("click", async () => {
-            try {
-                localStorage.removeItem("freeTrialStartTime");
-                localStorage.removeItem("paidSessionData");
-                await signOut(auth);
-                showToast("Logged out successfully", "info");
-            } catch (error) {
-                console.error("[AUTH] Logout error:", error);
-                showToast("Logout failed. Please try again.", "error");
-            }
-        });
-
-        console.log("[AUTH] Firebase auth system initialized");
-    </script>
+    <script type="module" src="login.js"></script>
 
 </body>
 </html>
