@@ -8,6 +8,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import { initFreeMode } from "./free.js";
+import { initPay } from "./pay.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
@@ -47,8 +48,11 @@ function showToast(message, type = "info", duration = 4000) {
     toastTimer = setTimeout(() => toastEl.classList.remove("show"), duration);
 }
 
-// Free system takes full control of the FREE button
+// Free system controls the FREE button
 initFreeMode(freeBtn, showToast);
+
+// Pay system watches for #payBtn to appear in DOM
+initPay(showToast);
 
 function updateUI(user) {
     if (user) {
