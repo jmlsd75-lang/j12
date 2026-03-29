@@ -1,3 +1,6 @@
+// free.js
+import { initPay } from './pay.js'; // <-- connect pay.js
+
 export function initFreeMode(freeBtn, showToast) {
     if (!freeBtn) return;
 
@@ -63,6 +66,11 @@ export function initFreeMode(freeBtn, showToast) {
             `;
             payBtn.onmouseenter = () => { payBtn.style.background = '#dc3545'; payBtn.style.color = 'white'; };
             payBtn.onmouseleave = () => { payBtn.style.background = 'transparent'; payBtn.style.color = '#dc3545'; };
+
+            // ─── LINK PAY BUTTON TO pay.js ───────────────────
+            payBtn.addEventListener('click', () => {
+                initPay(); // triggers pay.js logic
+            });
 
             bc.insertBefore(waitBtn, bc.firstChild);
             bc.insertBefore(payBtn, waitBtn.nextSibling);
