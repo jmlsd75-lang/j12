@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- REQUIRED by pay.js -->
+    <!-- REQUIRED for pay.js to process receipts -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -100,195 +100,81 @@
             overflow: hidden;
         }
 
-        .btn-login {
-            color: var(--accent);
-            border-color: var(--accent);
-        }
+        .btn-login { color: var(--accent); border-color: var(--accent); }
+        .btn-login:hover { background: var(--accent); color: var(--bg); box-shadow: 0 0 30px var(--accent-glow); }
 
-        .btn-login:hover {
-            background: var(--accent);
-            color: var(--bg);
-            box-shadow: 0 0 30px var(--accent-glow);
-        }
-
-        .btn-login.loading {
-            pointer-events: none;
-            opacity: 0.7;
-        }
-
+        .btn-login.loading { pointer-events: none; opacity: 0.7; }
         .btn-login.loading::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border: 2px solid transparent;
-            border-top-color: var(--bg);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            right: 1.5rem;
-            top: 50%;
-            transform: translateY(-50%);
+            content: ''; position: absolute; width: 20px; height: 20px;
+            border: 2px solid transparent; border-top-color: var(--bg);
+            border-radius: 50%; animation: spin 0.8s linear infinite;
+            right: 1.5rem; top: 50%; transform: translateY(-50%);
         }
 
-        @keyframes spin {
-            to { transform: translateY(-50%) rotate(360deg); }
-        }
+        @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
 
         .bottom-controls {
-            position: fixed;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-            z-index: 20;
+            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; z-index: 20;
         }
 
-        .btn-logout {
-            color: var(--danger);
-            border-color: var(--danger);
-        }
+        .btn-logout { color: var(--danger); border-color: var(--danger); }
+        .btn-logout:hover { background: var(--danger); color: white; }
 
-        .btn-logout:hover {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-free {
-            color: var(--warning);
-            border-color: var(--warning);
-        }
-
-        .btn-free:hover {
-            background: var(--warning);
-            color: black;
-        }
+        .btn-free { color: var(--warning); border-color: var(--warning); }
+        .btn-free:hover { background: var(--warning); color: black; }
 
         .hidden { display: none !important; }
 
         .toast {
-            position: fixed;
-            top: 30px;
-            right: 30px;
-            z-index: 1000;
-            padding: 16px 24px;
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 500;
+            position: fixed; top: 30px; right: 30px; z-index: 1000;
+            padding: 16px 24px; border-radius: 8px;
+            font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 500;
             transform: translateX(120%);
             transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             max-width: 400px;
         }
-
         .toast.show { transform: translateX(0); }
-
-        .toast-success {
-            background: rgba(0, 212, 170, 0.15);
-            border: 1px solid var(--accent);
-            color: var(--accent);
-        }
-
-        .toast-error {
-            background: rgba(220, 53, 69, 0.15);
-            border: 1px solid var(--danger);
-            color: var(--danger);
-        }
-
-        .toast-info {
-            background: rgba(255, 193, 7, 0.15);
-            border: 1px solid var(--warning);
-            color: var(--warning);
-        }
+        .toast-success { background: rgba(0, 212, 170, 0.15); border: 1px solid var(--accent); color: var(--accent); }
+        .toast-error { background: rgba(220, 53, 69, 0.15); border: 1px solid var(--danger); color: var(--danger); }
+        .toast-info { background: rgba(255, 193, 7, 0.15); border: 1px solid var(--warning); color: var(--warning); }
 
         .user-info {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 50;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            padding: 10px 16px;
-            border-radius: 50px;
+            position: fixed; top: 20px; right: 20px; z-index: 50;
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);
+            padding: 10px 16px; border-radius: 50px;
             border: 1px solid rgba(0, 212, 170, 0.2);
         }
-
-        .user-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--accent);
-        }
-
-        .user-name {
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--fg);
-        }
-
-        .user-role {
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
+        .user-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
+        .user-name { font-size: 0.85rem; font-weight: 500; color: var(--fg); }
+        .user-role { font-size: 0.7rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; }
 
         .welcome-text {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(1rem, 2.5vw, 1.5rem);
-            color: var(--accent);
-            margin-top: 2rem;
-            opacity: 0;
-            animation: fadeIn 0.8s ease-out 0.5s forwards;
+            font-family: 'Orbitron', sans-serif; font-size: clamp(1rem, 2.5vw, 1.5rem);
+            color: var(--accent); margin-top: 2rem;
+            opacity: 0; animation: fadeIn 0.8s ease-out 0.5s forwards;
         }
-
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
+        @keyframes fadeIn { to { opacity: 1; } }
 
         .init-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: var(--bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: fixed; inset: 0; z-index: 9999; background: var(--bg);
+            display: flex; align-items: center; justify-content: center;
             transition: opacity 0.5s ease, visibility 0.5s ease;
         }
-
-        .init-overlay.done {
-            opacity: 0;
-            visibility: hidden;
-        }
-
+        .init-overlay.done { opacity: 0; visibility: hidden; }
         .init-spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(0, 212, 170, 0.2);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            width: 40px; height: 40px;
+            border: 3px solid rgba(0, 212, 170, 0.2); border-top-color: var(--accent);
+            border-radius: 50%; animation: spin 0.8s linear infinite;
         }
     </style>
 </head>
 <body>
 
-    <div id="initOverlay" class="init-overlay">
-        <div class="init-spinner"></div>
-    </div>
+    <div id="initOverlay" class="init-overlay"><div class="init-spinner"></div></div>
 
-    <div class="bg-layer">
-        <div class="grid-overlay"></div>
-    </div>
-
+    <div class="bg-layer"><div class="grid-overlay"></div></div>
     <div id="toast" class="toast"></div>
 
     <div id="userInfo" class="user-info hidden">
@@ -316,15 +202,10 @@
     <script type="module">
         // Import both modules
         import { initFreeMode } from './free.js';
+        import { initPay } from './pay.js';
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import {
-            getAuth,
-            GoogleAuthProvider,
-            signInWithPopup,
-            onAuthStateChanged,
-            signOut
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
@@ -338,28 +219,25 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
-
         const ADMIN_EMAIL = "camelkazembe1@gmail.com";
 
         let isAdmin = false;
         let currentUser = null;
 
-        const loginBtn       = document.getElementById("loginBtn");
+        const loginBtn = document.getElementById("loginBtn");
         const bottomControls = document.getElementById("bottomControls");
-        const freeBtn        = document.getElementById("freeBtn");
-        const logoutBtn      = document.getElementById("logoutBtn");
-        const userInfo       = document.getElementById("userInfo");
-        const userAvatar     = document.getElementById("userAvatar");
-        const userName       = document.getElementById("userName");
-        const userRole       = document.getElementById("userRole");
-        const welcomeMsg     = document.getElementById("welcomeMsg");
-        const toastEl        = document.getElementById("toast");
-        const initOverlay    = document.getElementById("initOverlay");
+        const freeBtn = document.getElementById("freeBtn");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const userInfo = document.getElementById("userInfo");
+        const userAvatar = document.getElementById("userAvatar");
+        const userName = document.getElementById("userName");
+        const userRole = document.getElementById("userRole");
+        const welcomeMsg = document.getElementById("welcomeMsg");
+        const toastEl = document.getElementById("toast");
+        const initOverlay = document.getElementById("initOverlay");
 
         function hideInitOverlay() {
-            if (initOverlay) {
-                setTimeout(() => initOverlay.classList.add("done"), 300);
-            }
+            if (initOverlay) setTimeout(() => initOverlay.classList.add("done"), 300);
         }
 
         let toastTimer = null;
@@ -373,12 +251,14 @@
             toastTimer = setTimeout(() => toastEl.classList.remove("show"), duration);
         }
 
-        // Initialize FREE button (this internally handles PAY via free.js → pay.js)
+        // Initialize FREE mode (creates waitBtn & payBtn dynamically)
         initFreeMode(freeBtn, showToast);
+        
+        // Initialize PAY mode (watches for payBtn automatically)
+        initPay(showToast);
 
         function updateUI(user) {
             hideInitOverlay();
-
             if (user) {
                 currentUser = user;
                 isAdmin = user.email === ADMIN_EMAIL;
@@ -393,14 +273,8 @@
                 userAvatar.src = user.photoURL || "https://via.placeholder.com/36";
                 userName.textContent = user.displayName || user.email;
                 userRole.textContent = isAdmin ? "ADMIN" : "USER";
-
-                const firstName = user.displayName
-                    ? user.displayName.split(" ")[0]
-                    : "User";
+                const firstName = user.displayName ? user.displayName.split(" ")[0] : "User";
                 welcomeMsg.textContent = `Welcome, ${firstName}`;
-
-                console.log("[AUTH] Logged in:", user.email, "| Admin:", isAdmin);
-
             } else {
                 currentUser = null;
                 isAdmin = false;
@@ -413,8 +287,6 @@
                 bottomControls.classList.add("hidden");
                 welcomeMsg.classList.add("hidden");
                 userInfo.classList.add("hidden");
-
-                console.log("[AUTH] Logged out");
             }
         }
 
@@ -424,47 +296,29 @@
             if (loginBtn.classList.contains("loading")) return;
             loginBtn.classList.add("loading");
             loginBtn.textContent = "SIGNING IN...";
-
             try {
                 provider.setCustomParameters({ prompt: "select_account" });
                 await signInWithPopup(auth, provider);
-                console.log("[AUTH] Sign-in successful");
             } catch (error) {
                 loginBtn.classList.remove("loading");
                 loginBtn.textContent = "LOGIN";
-
-                switch (error.code) {
-                    case "auth/popup-closed-by-user":
-                        break;
-                    case "auth/cancelled-popup-request":
-                        break;
-                    case "auth/popup-blocked":
-                        showToast("Popup blocked. Allow popups for this site and retry.", "error", 6000);
-                        break;
-                    case "auth/unauthorized-domain":
-                        showToast("Domain not authorized. Add it in Firebase Console.", "error", 8000);
-                        break;
-                    default:
-                        console.error("[AUTH] Error:", error.code, error.message);
-                        showToast(`Login failed: ${error.message}`, "error", 5000);
+                if (error.code !== "auth/popup-closed-by-user" && error.code !== "auth/cancelled-popup-request") {
+                    showToast(`Login failed: ${error.message}`, "error", 5000);
                 }
             }
         });
 
         logoutBtn.addEventListener("click", async () => {
             try {
+                // Clear all session states on logout
                 localStorage.removeItem("freeTrialStartTime");
                 localStorage.removeItem("paidSessionData");
                 await signOut(auth);
                 showToast("Logged out successfully", "info");
             } catch (error) {
-                console.error("[AUTH] Logout error:", error);
-                showToast("Logout failed. Please try again.", "error");
+                showToast("Logout failed.", "error");
             }
         });
-
-        console.log("[AUTH] Firebase auth system initialized");
     </script>
-
 </body>
 </html>
