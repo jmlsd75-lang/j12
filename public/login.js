@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, deleteDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // ===== Firebase Config =====
 const firebaseConfig = {
@@ -26,10 +26,12 @@ const freeBtn = document.getElementById('freeBtn');
 const userNameDisplay = document.getElementById('userNameDisplay');
 const ageBadge = document.getElementById('ageBadge');
 const ageInputSection = document.getElementById('ageInputSection');
-const ageInput = document.getElementById('ageInput');
-const saveAgeBtn = document.getElementById('saveAgeBtn');
 
-// ===== Login =====
+// Elements inside postLogin to hide (no IDs, select by class/tag)
+const postTitle = postLogin.querySelector('.system-title');
+const lionContainer = postLogin.querySelector('.lion-container');
+
+// ===== Login — actual Google popup =====
 loginBtn.addEventListener('click', async () => {
     try {
         await signInWithPopup(auth, provider);
@@ -41,40 +43,11 @@ loginBtn.addEventListener('click', async () => {
     }
 });
 
-// ===== Save Age =====
-saveAgeBtn.addEventListener('click', async () => {
-    const user = auth.currentUser;
-    if (!user) return;
-    const ageVal = ageInput.value.trim();
-    if (!ageVal || isNaN(ageVal) || parseInt(ageVal) < 1) {
-        alert("Please enter a valid age");
-        return;
-    }
-    saveAgeBtn.textContent = "Saving...";
-    saveAgeBtn.disabled = true;
-    try {
-        await setDoc(doc(db, "users", user.uid, "profile", "info"), {
-            age: parseInt(ageVal),
-            updatedAt: serverTimestamp()
-        });
-        ageBadge.textContent = "Age: " + ageVal;
-        ageBadge.style.display = 'block';
-        ageInputSection.classList.remove('active');
-    } catch (e) {
-        console.error("Save age error:", e);
-        alert("Failed to save age");
-    } finally {
-        saveAgeBtn.textContent = "SAVE";
-        saveAgeBtn.disabled = false;
-    }
-});
-
-// ===== Logout + Delete User Registration =====
+// ===== Logout — delete all user data then sign out =====
 logoutBtn.addEventListener('click', async () => {
     const user = auth.currentUser;
     if (user) {
         try {
-            // Delete all subcollection documents
             const subcollections = ['logins', 'sessions', 'records', 'profile'];
             for (const sub of subcollections) {
                 const q = query(collection(db, 'users', user.uid, sub));
@@ -83,9 +56,8 @@ logoutBtn.addEventListener('click', async () => {
                     await deleteDoc(doc(db, 'users', user.uid, sub, d.id));
                 }
             }
-            // Delete user document
             await deleteDoc(doc(db, 'users', user.uid));
-            console.log("✅ User registration deleted from Firestore");
+            console.log("✅ User data deleted from Firestore");
         } catch (e) {
             console.error("Delete error:", e);
         }
@@ -93,25 +65,31 @@ logoutBtn.addEventListener('click', async () => {
     await signOut(auth);
 });
 
-// ===== Free button (delegated to free.js) =====
+// ===== Free button → delegates to free.js =====
 freeBtn.addEventListener('click', () => {
     if (typeof window.handleFree === 'function') {
         window.handleFree();
     } else {
-        alert("Free module not loaded yet. Please wait.");
+        alert("Free module not loaded yet.");
     }
 });
 
-// ===== Auth State Listener =====
+// ===== Auth State =====
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        // Show post-login UI
+        // ✅ LOGGED IN — hide pre-login, show only FREE + LOGOUT
+
         preLogin.style.display = 'none';
         postLogin.style.display = 'flex';
         logoutBtn.style.display = 'block';
         freeBtn.style.display = 'flex';
 
-        userNameDisplay.textContent = user.displayName;
+        // Hide everything except FREE button
+        if (postTitle) postTitle.style.display = 'none';
+        if (userNameDisplay) userNameDisplay.style.display = 'none';
+        if (lionContainer) lionContainer.style.display = 'none';
+        if (ageBadge) ageBadge.style.display = 'none';
+        if (ageInputSection) ageInputSection.classList.remove('active');
 
         // Save login record
         try {
@@ -124,57 +102,12 @@ onAuthStateChanged(auth, async (user) => {
             console.error("Save login error:", e);
         }
 
-        // Try to fetch age from profile
-        try {
-            const profileDoc = await getDoc(doc(db, "users", user.uid, "profile", "info"));
-            if (profileDoc.exists() && profileDoc.data().age) {
-                ageBadge.textContent = "Age: " + profileDoc.data().age;
-                ageBadge.style.display = 'block';
-                ageInputSection.classList.remove('active');
-            } else {
-                // Check health records as fallback
-                const q = query(collection(db, "users", user.uid, "records"), orderBy("createdAt", "desc"));
-                const snapshot = await getDocs(q);
-                let foundAge = null;
-                for (const d of snapshot.docs) {
-                    if (d.data().age) {
-                        foundAge = d.data().age;
-                        break;
-                    }
-                }
-                if (foundAge) {
-                    ageBadge.textContent = "Age: " + foundAge;
-                    ageBadge.style.display = 'block';
-                    ageInputSection.classList.remove('active');
-                    // Save to profile for next time
-                    await setDoc(doc(db, "users", user.uid, "profile", "info"), {
-                        age: foundAge,
-                        updatedAt: serverTimestamp()
-                    }).catch(() => {});
-                } else {
-                    // No age found — show input
-                    ageBadge.style.display = 'none';
-                    ageInputSection.classList.add('active');
-                }
-            }
-        } catch (e) {
-            console.error("Fetch age error:", e);
-            ageBadge.style.display = 'none';
-            ageInputSection.classList.add('active');
-        }
-
-        // Re-init lucide icons for new buttons
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-
     } else {
-        // Show pre-login UI
+        // ❌ NOT LOGGED IN — show login button only
+
         preLogin.style.display = 'flex';
         postLogin.style.display = 'none';
         logoutBtn.style.display = 'none';
         freeBtn.style.display = 'none';
-        ageBadge.style.display = 'none';
-        ageInputSection.classList.remove('active');
-        ageInput.value = '';
-        userNameDisplay.textContent = '';
     }
 });
