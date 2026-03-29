@@ -1,5 +1,5 @@
 const STORAGE_KEY = 'paidSessionData';
-const RATE_PER_HOUR = 300; // 300 TZS = 1 hour
+const RATE_PER_HOUR = 500; // 500 TZS = 1 hour
 
 const VALID_NAMES = [
     "JAMAL SAID KAZEMBE",
