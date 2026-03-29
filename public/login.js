@@ -1,17 +1,15 @@
-// 1. Firebase Imports
+// login.js — Google Authentication only
+// On successful login: hides LOGIN, shows FREE button
+// FREE button logic lives in free.js
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { 
-    getAuth, 
-    GoogleAuthProvider, 
-    signInWithPopup, 
-    onAuthStateChanged, 
-    signOut 
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// 2. Import Free Logic
-import { handleFree } from './free.js';
-
-// 3. Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -21,18 +19,31 @@ const firebaseConfig = {
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
-// 4. Init Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// 5. DOM Elements
-const loginBtn = document.getElementById('loginBtn');
-const logoutBtn = document.getElementById('logoutBtn');
-const freeBtn = document.getElementById('freeBtn');
-const bottomControls = document.getElementById('bottomControls');
+const loginBtn = document.getElementById("loginBtn");
+const freeBtn = document.getElementById("freeBtn");
 
-// 6. LOGIN
-if (loginBtn) {
-    loginBtn.addEventListener('click', async () => {
-        try {
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    window.__AUTH_USER = user;
+    loginBtn.classList.add("hidden");
+    freeBtn.classList.remove("hidden");
+  } else {
+    window.__AUTH_USER = null;
+    loginBtn.classList.remove("hidden");
+    freeBtn.classList.add("hidden");
+  }
+});
+
+loginBtn.addEventListener("click", async () => {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (error) {
+    if (error.code !== "auth/popup-closed-by-user") {
+      console.error("Login failed:", error);
+    }
+  }
+});
