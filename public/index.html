@@ -311,6 +311,8 @@
     </div>
 
     <script type="module">
+      // Import Free mode module
+import { initFreeMode } from './free.js';
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import {
             getAuth,
@@ -368,6 +370,11 @@
             toastEl.classList.add(`toast-${type}`, "show");
             toastTimer = setTimeout(() => toastEl.classList.remove("show"), duration);
         }
+
+
+// ---------- Add this line here ----------
+initFreeMode(freeBtn, showToast);  // Initialize FREE button
+// ------------------------------------------------
 
         /* UI state */
         function updateUI(user) {
@@ -457,11 +464,6 @@
                 console.error("[AUTH] Logout error:", error);
                 showToast("Logout failed. Please try again.", "error");
             }
-        });
-
-        /* Free mode */
-        freeBtn.addEventListener("click", () => {
-            showToast("FREE mode activated", "success");
         });
 
         console.log("[AUTH] Firebase auth system initialized");
