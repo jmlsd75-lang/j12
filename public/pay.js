@@ -393,15 +393,15 @@ export function initPay(showToastFn) {
         timerBtn.id = 'paidTimerBtn';
         timerBtn.style.cssText = `font-family: 'Orbitron', sans-serif; font-size: 2rem; font-weight: 700; padding: 1.5rem 3rem; background: #00d4aa; color: #0a0f1a; border: none; cursor: default; letter-spacing: 0.1em;`;
 
-        const businessBtn = document.createElement('button');
-        businessBtn.id = 'paidBusinessBtn';
-        businessBtn.textContent = 'BUSINESS';
-        businessBtn.style.cssText = `font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 600; padding: 1rem 3rem; background: transparent; color: #e8edf5; border: 2px solid #e8edf5; cursor: pointer; letter-spacing: 0.1em; transition: all 0.3s ease;`;
-        businessBtn.onmouseenter = () => { businessBtn.style.background = '#e8edf5'; businessBtn.style.color = '#0a0f1a'; };
-        businessBtn.onmouseleave = () => { businessBtn.style.background = 'transparent'; businessBtn.style.color = '#e8edf5'; };
+        const menuBtn = document.createElement('button');
+        menuBtn.id = 'paidmenuBtn';
+        menuBtn.textContent = 'menu';
+        menuBtn.style.cssText = `font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 600; padding: 1rem 3rem; background: transparent; color: #e8edf5; border: 2px solid #e8edf5; cursor: pointer; letter-spacing: 0.1em; transition: all 0.3s ease;`;
+        menuBtn.onmouseenter = () => { menuBtn.style.background = '#e8edf5'; menuBtn.style.color = '#0a0f1a'; };
+        menuBtn.onmouseleave = () => { menuBtn.style.background = 'transparent'; menuBtn.style.color = '#e8edf5'; };
 
         page.appendChild(timerBtn);
-        page.appendChild(businessBtn);
+        page.appendChild(menuBtn);
         document.body.appendChild(page);
 
         clearInterval(timerInterval);
