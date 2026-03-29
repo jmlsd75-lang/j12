@@ -1,4 +1,5 @@
 // login.js
+import { initAdminMode, ADMIN_EMAILS } from "./admin.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
     getAuth,
@@ -10,7 +11,6 @@ import {
 
 import { initFreeMode } from "./free.js";
 import { initPay } from "./pay.js";
-import { initAdmin, ADMIN_EMAILS } from "./admin.js"; // Admin module
 
 // --- Firebase config ---
 const firebaseConfig = {
@@ -64,6 +64,12 @@ function updateUI(user) {
         window.__AUTH_USER = user;
         window.__IS_ADMIN = isAdmin;
 
+        // --- Admin bypass ---
+        if (isAdmin) {
+            initAdminMode(showToast);
+        }
+
+        // --- Update UI ---
         loginBtn.classList.add("hidden");
         bottomControls.classList.remove("hidden");
         welcomeMsg.classList.remove("hidden");
@@ -76,9 +82,6 @@ function updateUI(user) {
         welcomeMsg.textContent = `Welcome, ${firstName}`;
 
         showToast(`Logged in as ${user.email}`, "success");
-
-        // --- Initialize admin mode if applicable ---
-        if (isAdmin) initAdmin(user, showToast);
 
     } else {
         currentUser = null;
@@ -111,11 +114,7 @@ loginBtn.addEventListener("click", async () => {
     } catch (error) {
         loginBtn.classList.remove("loading");
         loginBtn.textContent = "LOGIN";
-        if (error.code === "auth/popup-blocked") {
-            showToast("Allow popups for login", "error");
-        } else {
-            showToast("Login failed", "error");
-        }
+        showToast(error.code === "auth/popup-blocked" ? "Allow popups for login" : "Login failed", "error");
     }
 });
 
