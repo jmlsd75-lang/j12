@@ -7,8 +7,8 @@ import {
     signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// ✅ IMPORT FREE SYSTEM
-import { initFree } from "./free.js";
+// ✅ CORRECT EXPORT NAME — matches free.js
+import { initFreeMode } from "./free.js";
 
 // Firebase config
 const firebaseConfig = {
@@ -45,14 +45,19 @@ const welcomeMsg = document.getElementById("welcomeMsg");
 const toastEl = document.getElementById("toast");
 
 // Toast
+let toastTimer = null;
 function showToast(message, type = "info", duration = 4000) {
+    if (toastTimer) clearTimeout(toastTimer);
     toastEl.textContent = message;
+    toastEl.className = "toast";
+    void toastEl.offsetWidth;
     toastEl.className = `toast toast-${type} show`;
-    setTimeout(() => toastEl.classList.remove("show"), duration);
+    toastTimer = setTimeout(() => toastEl.classList.remove("show"), duration);
 }
 
-// ✅ INIT FREE SYSTEM
-initFree(showToast);
+// ✅ INIT FREE SYSTEM — passes freeBtn + showToast
+// free.js handles its own click listener internally
+initFreeMode(freeBtn, showToast);
 
 // UI update
 function updateUI(user) {
@@ -120,28 +125,15 @@ loginBtn.addEventListener("click", async () => {
     }
 });
 
-// LOGOUT
+// LOGOUT — clears the correct localStorage key used by free.js
 logoutBtn.addEventListener("click", async () => {
     try {
-        localStorage.removeItem("sessionEnd");
+        localStorage.removeItem("freeTrialStartTime");
+        localStorage.removeItem("paidSessionData");
         await signOut(auth);
         showToast("Logged out", "info");
     } catch {
         showToast("Logout failed", "error");
-    }
-});
-
-// ✅ FREE BUTTON (CONNECTED)
-freeBtn.addEventListener("click", () => {
-    if (!currentUser) {
-        showToast("Login first", "error");
-        return;
-    }
-
-    if (window.startFreeMode) {
-        window.startFreeMode();
-    } else {
-        showToast("Free system not ready", "error");
     }
 });
 
