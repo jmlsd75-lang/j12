@@ -1,4 +1,4 @@
-// free.js
+j// free.js
 
 export function initFreeMode(freeBtn, showToast) {
     if (!freeBtn) return;
@@ -202,4 +202,4 @@ export function initFreeMode(freeBtn, showToast) {
         localStorage.setItem(STORAGE_KEY, now.toString()); // Save strict start time
         enterFreeMode(now);
     }, { once: true }); // 'once' prevents double-clicking from messing up the timer
-}
+}   
