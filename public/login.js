@@ -7,10 +7,8 @@ import {
     signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// ✅ CORRECT EXPORT NAME — matches free.js
 import { initFreeMode } from "./free.js";
 
-// Firebase config
 const firebaseConfig = {
     apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
     authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -20,19 +18,14 @@ const firebaseConfig = {
     appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
-// Init Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-
-// Admin
 const ADMIN_EMAIL = "camelkazembe1@gmail.com";
 
-// State
 let currentUser = null;
 let isAdmin = false;
 
-// DOM
 const loginBtn = document.getElementById("loginBtn");
 const bottomControls = document.getElementById("bottomControls");
 const freeBtn = document.getElementById("freeBtn");
@@ -44,7 +37,6 @@ const userRole = document.getElementById("userRole");
 const welcomeMsg = document.getElementById("welcomeMsg");
 const toastEl = document.getElementById("toast");
 
-// Toast
 let toastTimer = null;
 function showToast(message, type = "info", duration = 4000) {
     if (toastTimer) clearTimeout(toastTimer);
@@ -55,16 +47,13 @@ function showToast(message, type = "info", duration = 4000) {
     toastTimer = setTimeout(() => toastEl.classList.remove("show"), duration);
 }
 
-// ✅ INIT FREE SYSTEM — passes freeBtn + showToast
-// free.js handles its own click listener internally
+// Free system takes full control of the FREE button
 initFreeMode(freeBtn, showToast);
 
-// UI update
 function updateUI(user) {
     if (user) {
         currentUser = user;
         isAdmin = user.email === ADMIN_EMAIL;
-
         window.__AUTH_USER = user;
         window.__IS_ADMIN = isAdmin;
 
@@ -76,16 +65,12 @@ function updateUI(user) {
         userAvatar.src = user.photoURL || "https://via.placeholder.com/36";
         userName.textContent = user.displayName || user.email;
         userRole.textContent = isAdmin ? "ADMIN" : "USER";
-
         const firstName = user.displayName?.split(" ")[0] || "User";
         welcomeMsg.textContent = `Welcome, ${firstName}`;
-
         showToast(`Logged in as ${user.email}`, "success");
-
     } else {
         currentUser = null;
         isAdmin = false;
-
         window.__AUTH_USER = null;
         window.__IS_ADMIN = false;
 
@@ -93,30 +78,23 @@ function updateUI(user) {
         bottomControls.classList.add("hidden");
         welcomeMsg.classList.add("hidden");
         userInfo.classList.add("hidden");
-
         loginBtn.classList.remove("loading");
         loginBtn.textContent = "LOGIN";
     }
 }
 
-// Auth state listener
 onAuthStateChanged(auth, updateUI);
 
-// LOGIN
 loginBtn.addEventListener("click", async () => {
     if (loginBtn.classList.contains("loading")) return;
-
     loginBtn.classList.add("loading");
     loginBtn.textContent = "SIGNING IN...";
-
     try {
         provider.setCustomParameters({ prompt: "select_account" });
-        const result = await signInWithPopup(auth, provider);
-        console.log("Login:", result.user.email);
+        await signInWithPopup(auth, provider);
     } catch (error) {
         loginBtn.classList.remove("loading");
         loginBtn.textContent = "LOGIN";
-
         if (error.code === "auth/popup-blocked") {
             showToast("Allow popups for login", "error");
         } else {
@@ -125,7 +103,6 @@ loginBtn.addEventListener("click", async () => {
     }
 });
 
-// LOGOUT — clears the correct localStorage key used by free.js
 logoutBtn.addEventListener("click", async () => {
     try {
         localStorage.removeItem("freeTrialStartTime");
@@ -136,5 +113,3 @@ logoutBtn.addEventListener("click", async () => {
         showToast("Logout failed", "error");
     }
 });
-
-console.log("Auth + Free system ready");
