@@ -30,4 +30,37 @@ const logoutBtn = document.getElementById("logoutBtn");
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    isAdmin = user.email === ADMIN
+    isAdmin = user.email === ADMIN_EMAIL;
+    window.__AUTH_USER = user;
+    window.__IS_ADMIN = isAdmin;
+
+    loginBtn.classList.add("hidden");
+    bottomControls.classList.remove("hidden");
+  } else {
+    isAdmin = false;
+    window.__AUTH_USER = null;
+    window.__IS_ADMIN = false;
+
+    loginBtn.classList.remove("hidden");
+    bottomControls.classList.add("hidden");
+  }
+});
+
+loginBtn.addEventListener("click", async () => {
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (error) {
+    if (error.code !== "auth/popup-closed-by-user") {
+      console.error("Login failed:", error);
+    }
+  }
+});
+
+logoutBtn.addEventListener("click", async () => {
+  try {
+    localStorage.removeItem("sessionEnd");
+    await signOut(auth);
+  } catch (error) {
+    console.error("Logout failed:", error);
+  }
+});
