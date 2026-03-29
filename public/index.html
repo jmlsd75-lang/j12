@@ -2,169 +2,343 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- REQUIRED by pay.js for receipt processing -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JAMAL SAID KAZEMBE MULTISYSTEM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg: #0a0f1a;
-            --fg: #e8edf5;
-            --muted: #5a6b85;
-            --accent: #00d4aa;
-            --accent-glow: rgba(0, 212, 170, 0.4);
-            --danger: #dc3545;
-            --warning: #ffc107;
-        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #0a0f1a;
+            --bg-card: #111827;
+            --bg-card-hover: #1a2236;
+            --text-primary: #e8edf5;
+            --text-secondary: #8a95a8;
+            --text-muted: #5a6b85;
+            --accent: #00d4aa;
+            --accent-glow: rgba(0, 212, 170, 0.15);
+            --danger: #dc3545;
+            --info: #007bff;
+            --warning: #f0ad4e;
+            --border: rgba(255, 255, 255, 0.06);
+            --font-display: 'Orbitron', monospace;
+            --font-body: 'Inter', sans-serif;
+        }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--fg);
+            font-family: var(--font-body);
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
-        .bg-layer {
-            position: fixed; inset: 0; z-index: 0;
-            background:
-                radial-gradient(circle at 20% 20%, rgba(0, 212, 170, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 80% 80%, rgba(0, 150, 136, 0.1) 0%, transparent 40%);
-        }
-
-        .grid-overlay {
-            position: absolute; inset: 0;
-            background-image:
-                linear-gradient(rgba(0, 212, 170, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 212, 170, 0.03) 1px, transparent 1px);
-            background-size: 60px 60px;
-        }
-
-        .main-container {
-            position: relative; z-index: 10;
-            min-height: 100vh; display: flex;
-            flex-direction: column; align-items: center;
-            justify-content: center; padding: 2rem;
-        }
-
-        .system-title { text-align: center; margin-bottom: 4rem; }
-
-        .title-line-1 {
-            font-family: 'Orbitron', sans-serif; font-weight: 900;
-            font-size: clamp(1.5rem, 5vw, 3rem); letter-spacing: 0.15em;
-            color: var(--fg); animation: fadeDown 1s ease-out forwards; opacity: 0;
-        }
-
-        .title-line-2 {
-            font-family: 'Orbitron', sans-serif; font-weight: 700;
-            font-size: clamp(1rem, 3vw, 1.8rem); letter-spacing: 0.3em;
-            color: var(--accent); animation: fadeDown 1s ease-out 0.3s forwards; opacity: 0;
-        }
-
-        @keyframes fadeDown { to { opacity: 1; transform: translateY(0); } }
-
-        .btn {
-            font-family: 'Orbitron', sans-serif; font-weight: 600;
-            font-size: 1rem; letter-spacing: 0.1em;
-            padding: 1rem 3rem; border: 2px solid;
-            background: transparent; cursor: pointer;
-            transition: all 0.3s ease; text-transform: uppercase;
-            position: relative; overflow: hidden;
-        }
-
-        .btn-login { color: var(--accent); border-color: var(--accent); }
-        .btn-login:hover { background: var(--accent); color: var(--bg); box-shadow: 0 0 30px var(--accent-glow); }
-
-        .btn-login.loading { pointer-events: none; opacity: 0.7; }
-        .btn-login.loading::after {
-            content: ''; position: absolute; width: 20px; height: 20px;
-            border: 2px solid transparent; border-top-color: var(--bg);
-            border-radius: 50%; animation: spin 0.8s linear infinite;
-            right: 1.5rem; top: 50%; transform: translateY(-50%);
-        }
-
-        @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
-
-        .bottom-controls {
-            position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; z-index: 20;
-        }
-
-        .btn-logout { color: var(--danger); border-color: var(--danger); }
-        .btn-logout:hover { background: var(--danger); color: white; }
-
-        .btn-free { color: var(--warning); border-color: var(--warning); }
-        .btn-free:hover { background: var(--warning); color: black; }
-
-        .hidden { display: none !important; }
-
+        /* ── TOAST ── */
         .toast {
-            position: fixed; top: 30px; right: 30px; z-index: 1000;
-            padding: 16px 24px; border-radius: 8px;
-            font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 500;
-            transform: translateX(120%);
-            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-120px);
+            z-index: 9999;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            max-width: 90vw;
+            text-align: center;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+            word-break: break-word;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast-error { background: #dc3545; color: #fff; }
+        .toast-success { background: #00d4aa; color: #0a0f1a; }
+        .toast-info { background: #007bff; color: #fff; }
+
+        /* ── LOGIN SCREEN ── */
+        #loginScreen {
+            position: fixed; inset: 0; z-index: 50;
+            background: var(--bg-primary);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 30px;
+        }
+        #loginScreen.hidden { display: none; }
+
+        .login-logo {
+            font-family: var(--font-display);
+            font-size: clamp(0.8rem, 2.5vw, 1.1rem);
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-align: center;
+            letter-spacing: 0.15em;
+            line-height: 1.8;
+        }
+        .login-logo span { color: var(--accent); }
+
+        #loginBtn {
+            font-family: var(--font-display);
+            font-size: 1rem; font-weight: 700;
+            padding: 1rem 3rem;
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none; cursor: pointer;
+            letter-spacing: 0.15em;
+            transition: all 0.3s ease;
+            min-width: 220px;
+        }
+        #loginBtn:hover { transform: scale(1.04); box-shadow: 0 0 30px var(--accent-glow); }
+        #loginBtn.loading {
+            opacity: 0.6; cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* ── HEADER ── */
+        #appHeader {
+            display: none;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(12px);
+            position: sticky; top: 0; z-index: 40;
+        }
+
+        #welcomeMsg {
+            font-family: var(--font-display);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            margin-bottom: 10px;
+        }
+        #welcomeMsg.hidden { display: none; }
+
+        #userInfo {
+            display: none;
+            align-items: center; gap: 12px;
+        }
+        #userInfo.hidden { display: none; }
+        #userAvatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            object-fit: cover;
+        }
+        #userName {
+            font-weight: 600; font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+        #userRole {
+            font-family: var(--font-display);
+            font-size: 0.6rem;
+            padding: 3px 10px;
+            border-radius: 4px;
+            letter-spacing: 0.1em;
+        }
+        .role-admin { background: var(--accent); color: var(--bg-primary); }
+        .role-user { background: rgba(255,255,255,0.08); color: var(--text-secondary); }
+
+        /* ── MAIN CONTENT ── */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 140px);
+            padding: 30px 20px;
+            gap: 24px;
+        }
+        .main-container.hidden { display: none; }
+
+        .main-title {
+            font-family: var(--font-display);
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            font-weight: 800;
+            color: var(--text-primary);
+            text-align: center;
+            letter-spacing: 0.08em;
+        }
+        .main-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-align: center;
             max-width: 400px;
+            line-height: 1.6;
         }
-        .toast.show { transform: translateX(0); }
-        .toast-success { background: rgba(0, 212, 170, 0.15); border: 1px solid var(--accent); color: var(--accent); }
-        .toast-error { background: rgba(220, 53, 69, 0.15); border: 1px solid var(--danger); color: var(--danger); }
-        .toast-info { background: rgba(255, 193, 7, 0.15); border: 1px solid var(--warning); color: var(--warning); }
 
-        .user-info {
-            position: fixed; top: 20px; right: 20px; z-index: 50;
-            display: flex; align-items: center; gap: 12px;
-            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);
-            padding: 10px 16px; border-radius: 50px;
-            border: 1px solid rgba(0, 212, 170, 0.2);
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            max-width: 500px;
+            width: 100%;
+            margin-top: 10px;
         }
-        .user-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); }
-        .user-name { font-size: 0.85rem; font-weight: 500; color: var(--fg); }
-        .user-role { font-size: 0.7rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; }
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px 14px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(0, 212, 170, 0.2);
+            transform: translateY(-2px);
+        }
+        .feature-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+        .feature-label {
+            font-family: var(--font-display);
+            font-size: 0.55rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.08em;
+        }
 
-        .welcome-text {
-            font-family: 'Orbitron', sans-serif; font-size: clamp(1rem, 2.5vw, 1.5rem);
-            color: var(--accent); margin-top: 2rem;
-            opacity: 0; animation: fadeIn 0.8s ease-out 0.5s forwards;
+        /* ── BOTTOM CONTROLS ── */
+        #bottomControls {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            padding: 20px;
+            border-top: 1px solid var(--border);
+            background: rgba(17, 24, 39, 0.6);
+            backdrop-filter: blur(8px);
         }
-        @keyframes fadeIn { to { opacity: 1; } }
+        #bottomControls.hidden { display: none; }
+
+        .ctrl-btn {
+            font-family: var(--font-display);
+            font-size: 0.85rem; font-weight: 700;
+            padding: 0.9rem 2.5rem;
+            border: 2px solid;
+            cursor: pointer;
+            letter-spacing: 0.12em;
+            transition: all 0.3s ease;
+            width: 100%; max-width: 320px;
+            text-align: center;
+        }
+        #freeBtn {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-color: var(--accent);
+        }
+        #freeBtn:hover { transform: scale(1.03); box-shadow: 0 0 25px var(--accent-glow); }
+        #freeBtn.hidden { display: none; }
+
+        #adminLinkBtn {
+            background: transparent;
+            color: var(--warning);
+            border-color: var(--warning);
+            font-size: 0.7rem;
+            padding: 0.7rem 2rem;
+        }
+        #adminLinkBtn:hover { background: var(--warning); color: var(--bg-primary); }
+        #adminLinkBtn.hidden { display: none; }
+
+        #logoutBtn {
+            background: transparent;
+            color: var(--text-muted);
+            border-color: var(--text-muted);
+            font-size: 0.65rem;
+            padding: 0.6rem 1.5rem;
+        }
+        #logoutBtn:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+
+        /* ── PAY & WAIT BUTTONS (injected by JS) ── */
+        #payBtn {
+            font-family: var(--font-display);
+            font-size: 1rem; font-weight: 700;
+            padding: 1rem 3rem;
+            background: transparent;
+            color: var(--danger);
+            border: 2px solid var(--danger);
+            cursor: pointer;
+            letter-spacing: 0.12em;
+            transition: all 0.3s ease;
+            width: 100%; max-width: 320px;
+            text-align: center;
+        }
+        #payBtn:hover { background: var(--danger); color: #fff; }
+
+        #waitBtn {
+            font-family: var(--font-display);
+            font-size: 0.65rem; font-weight: 600;
+            padding: 0.9rem 1.5rem;
+            background: rgba(255,255,255,0.03);
+            color: var(--text-muted);
+            border: 2px solid var(--text-muted);
+            cursor: not-allowed;
+            letter-spacing: 0.05em;
+            width: 100%; max-width: 320px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
-    <div class="bg-layer"><div class="grid-overlay"></div></div>
-    <div id="toast" class="toast"></div>
+    <!-- ═══ LOGIN SCREEN ═══ -->
+    <div id="loginScreen">
+        <div class="login-logo">
+            JAMAL SAID KAZEMBE<br>
+            <span>MULTISYSTEM MANAGEMENT</span>
+        </div>
+        <button id="loginBtn">LOGIN</button>
+    </div>
 
-    <div id="userInfo" class="user-info hidden">
-        <img id="userAvatar" class="user-avatar" src="" alt="Avatar">
-        <div>
-            <div id="userName" class="user-name"></div>
-            <div id="userRole" class="user-role"></div>
+    <!-- ═══ APP HEADER ═══ -->
+    <header id="appHeader">
+        <p id="welcomeMsg" class="hidden"></p>
+        <div id="userInfo" class="hidden">
+            <img id="userAvatar" src="" alt="">
+            <div>
+                <div id="userName"></div>
+                <span id="userRole"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <div class="main-container">
+        <h1 class="main-title">MULTISYSTEM</h1>
+        <p class="main-subtitle">Business management tools available after activation. Choose a mode below to begin.</p>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <div class="feature-label">ANALYTICS</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📁</div>
+                <div class="feature-label">RECORDS</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">👥</div>
+                <div class="feature-label">CLIENTS</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <div class="feature-label">FINANCE</div>
+            </div>
         </div>
     </div>
 
-    <main class="main-container">
-        <header class="system-title">
-            <h1 class="title-line-1" style="transform: translateY(-20px);">JAMAL SAID KAZEMBE</h1>
-            <h2 class="title-line-2" style="transform: translateY(-20px);">Multisystem Management</h2>
-        </header>
-        <button id="loginBtn" class="btn btn-login">LOGIN</button>
-        <div id="welcomeMsg" class="welcome-text hidden"></div>
-    </main>
-
-    <div id="bottomControls" class="bottom-controls hidden">
-        <button id="freeBtn" class="btn btn-free">FREE</button>
-        <button id="logoutBtn" class="btn btn-logout">LOGOUT</button>
+    <!-- ═══ BOTTOM CONTROLS ═══ -->
+    <div id="bottomControls" class="hidden">
+        <button id="freeBtn" class="ctrl-btn">FREE</button>
+        <button id="adminLinkBtn" class="ctrl-btn hidden">ADMIN PANEL</button>
+        <button id="logoutBtn" class="ctrl-btn">LOGOUT</button>
     </div>
 
-    <!-- login.js is a module — it imports free.js and pay.js internally -->
-<script type="module" src="./login.js"></script>
-    
+    <!-- ═══ TOAST ═══ -->
+    <div id="toast" class="toast"></div>
 
+    <!-- ═══ EXTERNAL LIBRARIES ═══ -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+    <!-- ═══ APP MODULE ═══ -->
+    <script type="module" src="./login.js"></script>
 </body>
 </html>
