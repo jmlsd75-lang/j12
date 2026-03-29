@@ -26,7 +26,6 @@
             overflow: hidden;
         }
 
-        /* Background Effects */
         .bg-layer {
             position: fixed;
             inset: 0;
@@ -45,7 +44,6 @@
             background-size: 60px 60px;
         }
 
-        /* Main Layout */
         .main-container {
             position: relative;
             z-index: 10;
@@ -57,7 +55,6 @@
             padding: 2rem;
         }
 
-        /* Title */
         .system-title { text-align: center; margin-bottom: 4rem; }
 
         .title-line-1 {
@@ -84,7 +81,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Buttons */
         .btn {
             font-family: 'Orbitron', sans-serif;
             font-weight: 600;
@@ -109,7 +105,6 @@
             box-shadow: 0 0 30px var(--accent-glow);
         }
 
-        /* Bottom Container for Logout & Free */
         .bottom-controls {
             position: fixed;
             bottom: 40px;
@@ -142,7 +137,6 @@
             color: black;
         }
 
-        /* Utility */
         .hidden { display: none !important; }
     </style>
 </head>
@@ -158,18 +152,15 @@
             <h2 class="title-line-2" style="transform: translateY(-20px);">Multisystem Management</h2>
         </header>
 
-        <!-- LOGIN BUTTON -->
         <button id="loginBtn" class="btn btn-login">LOGIN</button>
     </main>
 
-    <!-- BOTTOM CONTROLS (Initially Hidden) -->
     <div id="bottomControls" class="bottom-controls hidden">
         <button id="freeBtn" class="btn btn-free">FREE</button>
         <button id="logoutBtn" class="btn btn-logout">LOGOUT</button>
     </div>
 
-    <!-- Scripts (Must be type="module" for Firebase) -->
     <script type="module" src="login.js"></script>
-    
+
 </body>
 </html>
