@@ -1,13 +1,10 @@
-// login.js — Google Authentication only
-// On successful login: hides LOGIN, shows FREE button
-// FREE button logic lives in free.js
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
-  onAuthStateChanged
+  onAuthStateChanged,
+  signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
@@ -23,27 +20,14 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
+const ADMIN_EMAIL = "camelkazembe1@gmail.com";
+let isAdmin = false;
+
 const loginBtn = document.getElementById("loginBtn");
+const bottomControls = document.getElementById("bottomControls");
 const freeBtn = document.getElementById("freeBtn");
+const logoutBtn = document.getElementById("logoutBtn");
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    window.__AUTH_USER = user;
-    loginBtn.classList.add("hidden");
-    freeBtn.classList.remove("hidden");
-  } else {
-    window.__AUTH_USER = null;
-    loginBtn.classList.remove("hidden");
-    freeBtn.classList.add("hidden");
-  }
-});
-
-loginBtn.addEventListener("click", async () => {
-  try {
-    await signInWithPopup(auth, provider);
-  } catch (error) {
-    if (error.code !== "auth/popup-closed-by-user") {
-      console.error("Login failed:", error);
-    }
-  }
-});
+    isAdmin = user.email === ADMIN
