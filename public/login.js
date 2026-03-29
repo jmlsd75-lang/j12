@@ -1,3 +1,4 @@
+// login.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
     getAuth,
@@ -9,7 +10,9 @@ import {
 
 import { initFreeMode } from "./free.js";
 import { initPay } from "./pay.js";
+import { initAdmin, ADMIN_EMAILS } from "./admin.js"; // Admin module
 
+// --- Firebase config ---
 const firebaseConfig = {
     apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
     authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -22,11 +25,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-const ADMIN_EMAIL = "jmlsd75@gmail.com";
 
-let currentUser = null;
-let isAdmin = false;
-
+// --- UI Elements ---
 const loginBtn = document.getElementById("loginBtn");
 const bottomControls = document.getElementById("bottomControls");
 const freeBtn = document.getElementById("freeBtn");
@@ -38,26 +38,29 @@ const userRole = document.getElementById("userRole");
 const welcomeMsg = document.getElementById("welcomeMsg");
 const toastEl = document.getElementById("toast");
 
+let currentUser = null;
+let isAdmin = false;
 let toastTimer = null;
+
+// --- Toast helper ---
 function showToast(message, type = "info", duration = 4000) {
     if (toastTimer) clearTimeout(toastTimer);
     toastEl.textContent = message;
-    toastEl.className = "toast";
-    void toastEl.offsetWidth;
+    toastEl.className = "toast"; 
+    void toastEl.offsetWidth; // trigger reflow
     toastEl.className = `toast toast-${type} show`;
     toastTimer = setTimeout(() => toastEl.classList.remove("show"), duration);
 }
 
-// Free system takes full control of the FREE button
+// --- Initialize FREE & PAY modes ---
 initFreeMode(freeBtn, showToast);
-
-// Pay system starts watching for #payBtn to appear in DOM
 initPay(showToast);
 
+// --- Update UI on login state change ---
 function updateUI(user) {
     if (user) {
         currentUser = user;
-        isAdmin = user.email === ADMIN_EMAIL;
+        isAdmin = ADMIN_EMAILS.includes(user.email);
         window.__AUTH_USER = user;
         window.__IS_ADMIN = isAdmin;
 
@@ -71,7 +74,12 @@ function updateUI(user) {
         userRole.textContent = isAdmin ? "ADMIN" : "USER";
         const firstName = user.displayName?.split(" ")[0] || "User";
         welcomeMsg.textContent = `Welcome, ${firstName}`;
+
         showToast(`Logged in as ${user.email}`, "success");
+
+        // --- Initialize admin mode if applicable ---
+        if (isAdmin) initAdmin(user, showToast);
+
     } else {
         currentUser = null;
         isAdmin = false;
@@ -87,12 +95,16 @@ function updateUI(user) {
     }
 }
 
+// --- Firebase auth listener ---
 onAuthStateChanged(auth, updateUI);
 
+// --- Login button ---
 loginBtn.addEventListener("click", async () => {
     if (loginBtn.classList.contains("loading")) return;
+
     loginBtn.classList.add("loading");
     loginBtn.textContent = "SIGNING IN...";
+
     try {
         provider.setCustomParameters({ prompt: "select_account" });
         await signInWithPopup(auth, provider);
@@ -107,6 +119,7 @@ loginBtn.addEventListener("click", async () => {
     }
 });
 
+// --- Logout button ---
 logoutBtn.addEventListener("click", async () => {
     try {
         localStorage.removeItem("freeTrialStartTime");
