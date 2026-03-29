@@ -1,5 +1,5 @@
 const STORAGE_KEY = 'paidSessionData';
-const RATE_PER_HOUR = 500; // 500 TZS = 1 hour
+const RATE_PER_HOUR = 500;
 
 const VALID_NAMES = [
     "JAMAL SAID KAZEMBE",
@@ -16,7 +16,6 @@ export function initPay(showToastFn) {
     let selectedFile = null;
     let timerInterval = null;
 
-    // Local toast wrapper
     function showToast(msg, type) {
         if (showToastFn) showToastFn(msg, type);
     }
@@ -29,21 +28,21 @@ export function initPay(showToastFn) {
     }
 
     function showMainPage() {
-        const mainContainer = document.querySelector('.main-container');
-        const bottomControls = document.getElementById('bottomControls');
-        const userInfo = document.getElementById('userInfo');
-        if (mainContainer) mainContainer.style.display = 'flex';
-        if (bottomControls) bottomControls.style.display = 'flex';
-        if (userInfo) userInfo.style.display = 'flex';
+        const mc = document.querySelector('.main-container');
+        const bc = document.getElementById('bottomControls');
+        const ui = document.getElementById('userInfo');
+        if (mc) mc.style.display = 'flex';
+        if (bc) bc.style.display = 'flex';
+        if (ui) ui.style.display = 'flex';
     }
 
     function hideMainPage() {
-        const mainContainer = document.querySelector('.main-container');
-        const bottomControls = document.getElementById('bottomControls');
-        const userInfo = document.getElementById('userInfo');
-        if (mainContainer) mainContainer.style.display = 'none';
-        if (bottomControls) bottomControls.style.display = 'none';
-        if (userInfo) userInfo.style.display = 'none';
+        const mc = document.querySelector('.main-container');
+        const bc = document.getElementById('bottomControls');
+        const ui = document.getElementById('userInfo');
+        if (mc) mc.style.display = 'none';
+        if (bc) bc.style.display = 'none';
+        if (ui) ui.style.display = 'none';
     }
 
     function removePayOverlays() {
@@ -54,28 +53,27 @@ export function initPay(showToastFn) {
         document.getElementById('payLoadingOverlay')?.remove();
     }
 
-    // ─── LOADING OVERLAY ───────────────────────────────────────
+    // ─── LOADING OVERLAY ───────────────────────────────────
     function showLoading(message) {
         removePayOverlays();
         const overlay = document.createElement('div');
         overlay.id = 'payLoadingOverlay';
         overlay.style.cssText = `
-            position: fixed; inset: 0; z-index: 200; background: rgba(10, 15, 26, 0.95);
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: center; gap: 20px;
+            position:fixed;inset:0;z-index:200;background:rgba(10,15,26,0.95);
+            display:flex;flex-direction:column;align-items:center;
+            justify-content:center;gap:20px;
         `;
         const style = document.createElement('style');
-        style.textContent = `@keyframes payspin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`;
+        style.textContent = `@keyframes payspin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}`;
         const loader = document.createElement('div');
         loader.style.cssText = `
-            border: 6px solid rgba(255,255,255,0.1); border-top: 6px solid #00d4aa;
-            border-radius: 50%; width: 50px; height: 50px;
-            animation: payspin 1s linear infinite;
+            border:6px solid rgba(255,255,255,0.1);border-top:6px solid #00d4aa;
+            border-radius:50%;width:50px;height:50px;animation:payspin 1s linear infinite;
         `;
         const text = document.createElement('p');
         text.id = 'payLoadingText';
         text.textContent = message;
-        text.style.cssText = `color: #e8edf5; font-size: 1rem;`;
+        text.style.cssText = `color:#e8edf5;font-size:1rem;`;
         overlay.appendChild(style);
         overlay.appendChild(loader);
         overlay.appendChild(text);
@@ -83,15 +81,15 @@ export function initPay(showToastFn) {
     }
 
     function updateLoadingText(message) {
-        const text = document.getElementById('payLoadingText');
-        if (text) text.textContent = message;
+        const el = document.getElementById('payLoadingText');
+        if (el) el.textContent = message;
     }
 
     function hideLoading() {
         document.getElementById('payLoadingOverlay')?.remove();
     }
 
-    // ─── PAYMENT INFO PAGE ─────────────────────────────────────
+    // ─── PAYMENT INFO PAGE ─────────────────────────────────
     function showPayInfoPage() {
         hideMainPage();
         removePayOverlays();
@@ -99,92 +97,129 @@ export function initPay(showToastFn) {
         const page = document.createElement('div');
         page.id = 'payInfoPage';
         page.style.cssText = `
-            position: fixed; inset: 0; z-index: 100; background: #0a0f1a;
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: center; gap: 12px; padding: 20px; overflow-y: auto;
+            position:fixed;inset:0;z-index:100;background:#0a0f1a;
+            display:flex;flex-direction:column;align-items:center;
+            justify-content:center;gap:12px;padding:20px;overflow-y:auto;
         `;
 
+        // Title FIRST so it renders at the top
         const title = document.createElement('h2');
         title.textContent = 'PAYMENT INSTRUCTIONS';
-        title.style.cssText = `color: #e8edf5; font-family: 'Orbitron', sans-serif; margin-bottom: 10px;`;
+        title.style.cssText = `color:#e8edf5;font-family:'Orbitron',sans-serif;margin-bottom:10px;`;
+        page.appendChild(title);
 
-        ['Use your mobile payment app only.', 'Do not use USSD codes (*...#).', 'Upload the receipt after sending money.'].forEach(t => {
+        const instructions = [
+            'Use your mobile payment app only.',
+            'Do not use USSD codes (*...#).',
+            'Upload the receipt after sending money.'
+        ];
+        instructions.forEach(t => {
             const p = document.createElement('p');
             p.textContent = t;
-            p.style.cssText = `color: #8a95a8; font-size: 0.9rem;`;
+            p.style.cssText = `color:#8a95a8;font-size:0.9rem;`;
             page.appendChild(p);
         });
 
         const payLabel = document.createElement('p');
         payLabel.textContent = 'Pay through:';
-        payLabel.style.cssText = `color: #e8edf5; font-weight: bold; margin-top: 15px;`;
+        payLabel.style.cssText = `color:#e8edf5;font-weight:bold;margin-top:15px;`;
         page.appendChild(payLabel);
 
         const mixLabel = document.createElement('p');
-        mixLabel.textContent = 'Mix by Yas:'; mixLabel.style.cssText = `color: #00d4aa; font-weight: bold;`;
+        mixLabel.textContent = 'Mix by Yas:';
+        mixLabel.style.cssText = `color:#00d4aa;font-weight:bold;`;
         page.appendChild(mixLabel);
 
         const mixNumber = document.createElement('p');
-        mixNumber.textContent = '+255 655 510 714'; mixNumber.style.cssText = `color: #00d4aa; font-size: 1.2rem;`;
+        mixNumber.textContent = '+255 655 510 714';
+        mixNumber.style.cssText = `color:#00d4aa;font-size:1.2rem;`;
         page.appendChild(mixNumber);
 
         const airtelLabel = document.createElement('p');
-        airtelLabel.textContent = 'Airtel Money:'; airtelLabel.style.cssText = `color: #dc3545; font-weight: bold; margin-top: 10px;`;
+        airtelLabel.textContent = 'Airtel Money:';
+        airtelLabel.style.cssText = `color:#dc3545;font-weight:bold;margin-top:10px;`;
         page.appendChild(airtelLabel);
 
         const airtelNumber = document.createElement('p');
-        airtelNumber.textContent = '+255 780 526 437'; airtelNumber.style.cssText = `color: #dc3545; font-size: 1.2rem;`;
+        airtelNumber.textContent = '+255 780 526 437';
+        airtelNumber.style.cssText = `color:#dc3545;font-size:1.2rem;`;
         page.appendChild(airtelNumber);
 
         const nameLabel = document.createElement('p');
-        nameLabel.textContent = 'JAMALI SAIDI KAZEMBE'; nameLabel.style.cssText = `color: #e8edf5; font-weight: bold; margin-top: 15px; font-size: 1.1rem;`;
+        nameLabel.textContent = 'JAMALI SAIDI KAZEMBE';
+        nameLabel.style.cssText = `color:#e8edf5;font-weight:bold;margin-top:15px;font-size:1.1rem;`;
         page.appendChild(nameLabel);
 
         const btnContainer = document.createElement('div');
-        btnContainer.style.cssText = `display: flex; gap: 20px; margin-top: 25px;`;
+        btnContainer.style.cssText = `display:flex;gap:20px;margin-top:25px;`;
 
         const backBtn = document.createElement('button');
         backBtn.textContent = 'BACK';
-        backBtn.style.cssText = `font-family: 'Orbitron', sans-serif; font-size: 0.9rem; font-weight: 600; padding: 1rem 2rem; background: transparent; color: #8a95a8; border: 2px solid #8a95a8; cursor: pointer;`;
+        backBtn.style.cssText = `
+            font-family:'Orbitron',sans-serif;font-size:0.9rem;font-weight:600;
+            padding:1rem 2rem;background:transparent;color:#8a95a8;
+            border:2px solid #8a95a8;cursor:pointer;
+        `;
         backBtn.onclick = () => { removePayOverlays(); showMainPage(); };
 
         const nextBtn = document.createElement('button');
         nextBtn.textContent = 'NEXT';
-        nextBtn.style.cssText = `font-family: 'Orbitron', sans-serif; font-size: 0.9rem; font-weight: 600; padding: 1rem 2rem; background: #00d4aa; color: #0a0f1a; border: none; cursor: pointer;`;
+        nextBtn.style.cssText = `
+            font-family:'Orbitron',sans-serif;font-size:0.9rem;font-weight:600;
+            padding:1rem 2rem;background:#00d4aa;color:#0a0f1a;border:none;cursor:pointer;
+        `;
         nextBtn.onclick = showCameraMenuPage;
 
         btnContainer.appendChild(backBtn);
         btnContainer.appendChild(nextBtn);
-        page.appendChild(title);
         page.appendChild(btnContainer);
         document.body.appendChild(page);
     }
 
-    // ─── CAMERA MENU PAGE ──────────────────────────────────────
+    // ─── CAMERA MENU PAGE ──────────────────────────────────
     function showCameraMenuPage() {
         removePayOverlays();
         const page = document.createElement('div');
         page.id = 'cameraMenuPage';
-        page.style.cssText = `position: fixed; inset: 0; z-index: 100; background: #0a0f1a; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;`;
+        page.style.cssText = `
+            position:fixed;inset:0;z-index:100;background:#0a0f1a;
+            display:flex;flex-direction:column;align-items:center;
+            justify-content:center;gap:20px;
+        `;
 
         const cameraBtn = document.createElement('button');
         cameraBtn.textContent = 'CAMERA';
-        cameraBtn.style.cssText = `font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 600; padding: 1rem 3rem; background: #007bff; color: white; border: none; cursor: pointer;`;
+        cameraBtn.style.cssText = `
+            font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:600;
+            padding:1rem 3rem;background:#007bff;color:white;border:none;cursor:pointer;
+        `;
 
         const photosBtn = document.createElement('button');
         photosBtn.textContent = 'PHOTOS';
-        photosBtn.style.cssText = `font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 600; padding: 1rem 3rem; background: #17a2b8; color: white; border: none; cursor: pointer;`;
+        photosBtn.style.cssText = `
+            font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:600;
+            padding:1rem 3rem;background:#17a2b8;color:white;border:none;cursor:pointer;
+        `;
 
         const backBtn = document.createElement('button');
         backBtn.textContent = 'BACK';
-        backBtn.style.cssText = `font-family: 'Orbitron', sans-serif; font-size: 0.9rem; font-weight: 600; padding: 1rem 2rem; background: transparent; color: #dc3545; border: 2px solid #dc3545; cursor: pointer;`;
+        backBtn.style.cssText = `
+            font-family:'Orbitron',sans-serif;font-size:0.9rem;font-weight:600;
+            padding:1rem 2rem;background:transparent;color:#dc3545;
+            border:2px solid #dc3545;cursor:pointer;
+        `;
         backBtn.onclick = showPayInfoPage;
 
         const cameraInput = document.createElement('input');
-        cameraInput.type = 'file'; cameraInput.accept = 'image/*'; cameraInput.capture = 'environment'; cameraInput.style.display = 'none';
+        cameraInput.type = 'file';
+        cameraInput.accept = 'image/*';
+        cameraInput.capture = 'environment';
+        cameraInput.style.display = 'none';
 
         const photosInput = document.createElement('input');
-        photosInput.type = 'file'; photosInput.accept = 'image/*'; photosInput.style.display = 'none';
+        photosInput.type = 'file';
+        photosInput.accept = 'image/*';
+        photosInput.style.display = 'none';
 
         cameraBtn.onclick = () => cameraInput.click();
         photosBtn.onclick = () => photosInput.click();
@@ -199,7 +234,7 @@ export function initPay(showToastFn) {
         document.body.appendChild(page);
     }
 
-    // ─── HANDLE FILE ───────────────────────────────────────────
+    // ─── HANDLE FILE ───────────────────────────────────────
     function handleFile(file) {
         if (!file) { showCameraMenuPage(); return; }
         selectedFile = file;
@@ -208,28 +243,38 @@ export function initPay(showToastFn) {
         reader.readAsDataURL(file);
     }
 
-    // ─── PREVIEW PAGE ──────────────────────────────────────────
+    // ─── PREVIEW PAGE ──────────────────────────────────────
     function showPreviewPage(imageSrc) {
         removePayOverlays();
         const page = document.createElement('div');
         page.id = 'previewPage';
-        page.style.cssText = `position: fixed; inset: 0; z-index: 100; background: #0a0f1a; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 20px;`;
+        page.style.cssText = `
+            position:fixed;inset:0;z-index:100;background:#0a0f1a;
+            display:flex;flex-direction:column;align-items:center;
+            justify-content:center;gap:20px;padding:20px;
+        `;
 
         const img = document.createElement('img');
         img.src = imageSrc;
-        img.style.cssText = `max-width: 90%; max-height: 60%; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);`;
+        img.style.cssText = `max-width:90%;max-height:60%;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,0.3);`;
 
         const btnContainer = document.createElement('div');
-        btnContainer.style.cssText = `display: flex; gap: 20px;`;
+        btnContainer.style.cssText = `display:flex;gap:20px;`;
 
         const submitBtn = document.createElement('button');
         submitBtn.textContent = 'SUBMIT';
-        submitBtn.style.cssText = `font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 600; padding: 1rem 2.5rem; background: #28a745; color: white; border: none; cursor: pointer;`;
+        submitBtn.style.cssText = `
+            font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:600;
+            padding:1rem 2.5rem;background:#28a745;color:white;border:none;cursor:pointer;
+        `;
         submitBtn.onclick = processPayment;
 
         const cancelBtn = document.createElement('button');
         cancelBtn.textContent = 'CANCEL';
-        cancelBtn.style.cssText = `font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 600; padding: 1rem 2.5rem; background: #dc3545; color: white; border: none; cursor: pointer;`;
+        cancelBtn.style.cssText = `
+            font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:600;
+            padding:1rem 2.5rem;background:#dc3545;color:white;border:none;cursor:pointer;
+        `;
         cancelBtn.onclick = () => { selectedFile = null; showCameraMenuPage(); };
 
         btnContainer.appendChild(submitBtn);
@@ -239,7 +284,7 @@ export function initPay(showToastFn) {
         document.body.appendChild(page);
     }
 
-    // ─── IMAGE PREPROCESSING ───────────────────────────────────
+    // ─── IMAGE PREPROCESSING ───────────────────────────────
     function preprocessImage(canvas) {
         const ctx = canvas.getContext('2d');
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -248,7 +293,9 @@ export function initPay(showToastFn) {
 
         for (let i = 0; i < data.length; i += 4) {
             const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-            data[i] = avg; data[i + 1] = avg; data[i + 2] = avg;
+            data[i] = avg;
+            data[i + 1] = avg;
+            data[i + 2] = avg;
             totalBrightness += avg;
         }
 
@@ -257,13 +304,15 @@ export function initPay(showToastFn) {
             let val = data[i];
             if (avgBrightness < 128) val = 255 - val;
             if (val > 140) val = 255; else if (val < 120) val = 0;
-            data[i] = val; data[i + 1] = val; data[i + 2] = val;
+            data[i] = val;
+            data[i + 1] = val;
+            data[i + 2] = val;
         }
         ctx.putImageData(imageData, 0, 0);
         return canvas;
     }
 
-    // ─── TIME VALIDATION ───────────────────────────────────────
+    // ─── TIME VALIDATION ───────────────────────────────────
     function isTimeValidFromText(text) {
         const clean = text.toUpperCase().replace(/\s+/g, ' ');
         const match = clean.match(/\b(\d{1,2})[:. ](\d{2})([:. ](\d{2}))?\s?(AM|PM)?\b/);
@@ -286,7 +335,7 @@ export function initPay(showToastFn) {
         return Math.abs((now - receipt) / 60000) <= 10;
     }
 
-    // ─── CURRENCY DETECTION ────────────────────────────────────
+    // ─── CURRENCY DETECTION ────────────────────────────────
     function detectCurrency(text) {
         const match = text.match(/([A-Z]{3}|[$€£¥₦₵₱₴])\s?([\d,]+)/i);
         if (match) return { currency: match[1].toUpperCase(), amount: parseInt(match[2].replace(/,/g, "")) };
@@ -294,17 +343,19 @@ export function initPay(showToastFn) {
         return { currency: "TZS", amount: nums ? Math.max(...nums.map(n => parseInt(n))) : 0 };
     }
 
-    // ─── CURRENCY CONVERSION ───────────────────────────────────
+    // ─── CURRENCY CONVERSION ───────────────────────────────
     async function convertToTZS(amount, currency) {
         if (currency === "TZS" || currency === "TSH") return amount;
         try {
             const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${currency}`);
             const data = await res.json();
             return data.rates["TZS"] ? amount * data.rates["TZS"] : 0;
-        } catch { return 0; }
+        } catch {
+            return 0;
+        }
     }
 
-    // ─── MAIN PAYMENT PROCESSING ───────────────────────────────
+    // ─── MAIN PAYMENT PROCESSING ───────────────────────────
     async function processPayment() {
         if (!selectedFile) { showToast("No file selected.", "error"); return; }
 
@@ -344,8 +395,8 @@ export function initPay(showToastFn) {
             }
 
             const cleanSearchText = detectedText.toUpperCase().replace(/\s+/g, " ");
-            let nameFound = VALID_NAMES.some(name => cleanSearchText.includes(name));
-            let numberFound = nameFound && VALID_NUMBERS.some(num => cleanSearchText.includes(num));
+            const nameFound = VALID_NAMES.some(name => cleanSearchText.includes(name));
+            const numberFound = nameFound && VALID_NUMBERS.some(num => cleanSearchText.includes(num));
             const timeValid = isTimeValidFromText(cleanSearchText);
             const { currency, amount } = detectCurrency(cleanSearchText);
             const tzsAmount = await convertToTZS(amount, currency);
@@ -376,27 +427,39 @@ export function initPay(showToastFn) {
         }
     }
 
-    // ─── PAID COUNTDOWN MODE ───────────────────────────────────
+    // ─── PAID COUNTDOWN MODE ───────────────────────────────
     function enterPaidMode(startTime, totalSeconds) {
         hideLoading();
         removePayOverlays();
-        
-        // Force hide free mode UI if it happens to be active
+
         document.getElementById('countdownPage')?.remove();
         hideMainPage();
 
         const page = document.createElement('div');
         page.id = 'paidCountdownPage';
-        page.style.cssText = `position: fixed; inset: 0; z-index: 100; background: #0a0f1a; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px;`;
+        page.style.cssText = `
+            position:fixed;inset:0;z-index:100;background:#0a0f1a;
+            display:flex;flex-direction:column;align-items:center;
+            justify-content:center;gap:30px;
+        `;
 
         const timerBtn = document.createElement('button');
         timerBtn.id = 'paidTimerBtn';
-        timerBtn.style.cssText = `font-family: 'Orbitron', sans-serif; font-size: 2rem; font-weight: 700; padding: 1.5rem 3rem; background: #00d4aa; color: #0a0f1a; border: none; cursor: default; letter-spacing: 0.1em;`;
+        timerBtn.style.cssText = `
+            font-family:'Orbitron',sans-serif;font-size:2rem;font-weight:700;
+            padding:1.5rem 3rem;background:#00d4aa;color:#0a0f1a;
+            border:none;cursor:default;letter-spacing:0.1em;
+        `;
 
         const businessBtn = document.createElement('button');
         businessBtn.id = 'paidBusinessBtn';
         businessBtn.textContent = 'BUSINESS';
-        businessBtn.style.cssText = `font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 600; padding: 1rem 3rem; background: transparent; color: #e8edf5; border: 2px solid #e8edf5; cursor: pointer; letter-spacing: 0.1em; transition: all 0.3s ease;`;
+        businessBtn.style.cssText = `
+            font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:600;
+            padding:1rem 3rem;background:transparent;color:#e8edf5;
+            border:2px solid #e8edf5;cursor:pointer;letter-spacing:0.1em;
+            transition:all 0.3s ease;
+        `;
         businessBtn.onmouseenter = () => { businessBtn.style.background = '#e8edf5'; businessBtn.style.color = '#0a0f1a'; };
         businessBtn.onmouseleave = () => { businessBtn.style.background = 'transparent'; businessBtn.style.color = '#e8edf5'; };
 
@@ -415,8 +478,7 @@ export function initPay(showToastFn) {
                 document.getElementById('paidCountdownPage')?.remove();
                 showMainPage();
                 showToast("Session expired. Pay again to continue.", "error");
-                
-                // Re-hook pay button in case it was unhooked or missed by observer
+
                 const payBtn = document.getElementById('payBtn');
                 if (payBtn && !payBtn._payInit) {
                     payBtn._payInit = true;
@@ -428,7 +490,7 @@ export function initPay(showToastFn) {
         }, 1000);
     }
 
-    // ─── RESTORE SESSION ON PAGE LOAD ──────────────────────────
+    // ─── RESTORE SESSION ON PAGE LOAD ──────────────────────
     const savedData = localStorage.getItem(STORAGE_KEY);
     if (savedData) {
         try {
@@ -436,22 +498,27 @@ export function initPay(showToastFn) {
             const elapsed = Math.floor((Date.now() - startTime) / 1000);
             if (totalSeconds - elapsed > 0) {
                 enterPaidMode(startTime, totalSeconds);
-                return; // Don't set up observer if currently in paid mode
+                return;
             } else {
                 localStorage.removeItem(STORAGE_KEY);
             }
-        } catch { localStorage.removeItem(STORAGE_KEY); }
+        } catch {
+            localStorage.removeItem(STORAGE_KEY);
+        }
     }
 
-    // ─── WATCH FOR PAY BUTTON (MutationObserver) ───────────────
+    // ─── WATCH FOR PAY BUTTON ──────────────────────────────
+    // free.js creates #payBtn inside enterWaitMode().
+    // This observer detects it and attaches the click handler.
+    // Disconnects after first successful hook — no wasted cycles.
     const observer = new MutationObserver(() => {
         const payBtn = document.getElementById('payBtn');
         if (payBtn && !payBtn._payInit) {
             payBtn._payInit = true;
             payBtn.onclick = showPayInfoPage;
-            observer.disconnect(); // Stop watching once hooked
+            observer.disconnect();
         }
     });
-    
+
     observer.observe(document.body, { childList: true, subtree: true });
 }
