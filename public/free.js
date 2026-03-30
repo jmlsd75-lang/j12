@@ -38,36 +38,28 @@ function formatTime(totalSeconds) {
 // PHASE 1: KILIMANJARO FREE COUNTDOWN
 // ========================================
 function startFreeCountdown() {
-  // Calculate end time — use stored value or set new one
   let endTime = parseInt(localStorage.getItem(FREE_KEY));
   if (!endTime || endTime <= Date.now()) {
     endTime = Date.now() + FREE_SECONDS * 1000;
     localStorage.setItem(FREE_KEY, String(endTime));
   }
 
-  // Show Kilimanjaro phase
   kiliPhase.style.display = "flex";
   giraffePhase.style.display = "none";
 
-  // Clear any existing interval
   clearInterval(kiliInterval);
 
-  // Update every second
   kiliInterval = setInterval(() => {
     const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
     kiliTimerEl.textContent = formatTime(remaining);
 
     if (remaining <= 0) {
-      // FREE COUNTDOWN FINISHED
       clearInterval(kiliInterval);
       localStorage.removeItem(FREE_KEY);
-
-      // Transition to Phase 2: Giraffe Await
       switchToAwait();
     }
   }, 1000);
 
-  // Show current value immediately
   const initialRemaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
   kiliTimerEl.textContent = formatTime(initialRemaining);
 }
@@ -76,11 +68,9 @@ function startFreeCountdown() {
 // PHASE 2: GIRAFFE AWAIT (24 HOURS)
 // ========================================
 function switchToAwait() {
-  // Set await end time
   const awaitEnd = Date.now() + AWAIT_SECONDS * 1000;
   localStorage.setItem(AWAIT_KEY, String(awaitEnd));
 
-  // Animate transition
   kiliPhase.classList.add("phase-out");
 
   setTimeout(() => {
@@ -92,7 +82,6 @@ function switchToAwait() {
 
     setTimeout(() => giraffePhase.classList.remove("phase-in"), 600);
 
-    // Start await countdown
     startAwaitCountdown(awaitEnd);
   }, 500);
 }
@@ -105,23 +94,18 @@ function startAwaitCountdown(endTime) {
     awaitTimerEl.textContent = formatTime(remaining);
 
     if (remaining <= 0) {
-      // 24 HOURS FINISHED — free is available again
       clearInterval(awaitInterval);
       localStorage.removeItem(AWAIT_KEY);
-
-      // Go back to index.html — PAY will show again as normal
       window.location.href = "index.html";
     }
   }, 1000);
 
-  // Show immediately
   const initialRemaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
   awaitTimerEl.textContent = formatTime(initialRemaining);
 }
 
 // ========================================
 // MENU BUTTON — GO BACK TO INDEX
-// (Cancels free session)
 // ========================================
 menuBtnKili.addEventListener("click", () => {
   clearInterval(kiliInterval);
@@ -130,7 +114,7 @@ menuBtnKili.addEventListener("click", () => {
 });
 
 // ========================================
-// ON PAGE LOAD — DECIDE WHICH PHASE TO SHOW
+// ON PAGE LOAD — DECIDE WHICH PHASE
 // ========================================
 function init() {
   const freeEnd = parseInt(localStorage.getItem(FREE_KEY));
@@ -138,15 +122,12 @@ function init() {
   const now = Date.now();
 
   if (freeEnd && freeEnd > now) {
-    // Free countdown still running — show Kilimanjaro
     startFreeCountdown();
   } else if (awaitEnd && awaitEnd > now) {
-    // Await period still running — show Giraffe directly
     kiliPhase.style.display = "none";
     giraffePhase.style.display = "flex";
     startAwaitCountdown(awaitEnd);
   } else {
-    // Nothing active — start fresh free countdown
     localStorage.removeItem(FREE_KEY);
     localStorage.removeItem(AWAIT_KEY);
     startFreeCountdown();
