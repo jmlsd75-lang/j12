@@ -3,177 +3,54 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jamal Said Kazembe Multisystem Management</title>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<title>Jamal Said Kazembe System</title>
 <style>
-  body{ margin:0; font-family:Arial, sans-serif; background:#f4f4f4; display:flex; flex-direction:column; justify-content:flex-start; align-items:center; min-height:100vh; text-align:center; padding-top:50px; }
-  h1{ font-size:28px; color:blue; margin:0; }
-  h2{ color:red; margin-top:5px; font-size:16px; }
-  .login-btn, .logout-btn, .pay-btn, .access-btn {
-    position: fixed; left: 50%; transform: translateX(-50%); border:none; cursor:pointer; display: none; 
-  }
-  .big-btn {
-    width: 80%;
-    max-width: 400px;
-    padding: 4vh 0;
-    font-size: 2.5vh;
-    border: none;
-    border-radius: 12px;
-    color: white;
-    cursor: pointer;
-  }
-  .login-btn{ bottom: 30px; padding:15px 40px; font-size:20px; background:#28a745; color:white; border-radius:6px; }
-  .pay-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #28a745; color:white; border-radius:8px; }
-  .access-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #007bff; color:white; border-radius:8px; }
-  .logout-btn{
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background:#dc3545;
-    color:white;
-    padding:10px 25px;
-    border-radius:6px;
-    font-size:16px;
-  }
-  #userDisplay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); font-size: 18px; font-weight: bold; color: #333; display: none; }
-  #payPage{ position: fixed; top:0; left:0; width:100%; height:100%; background:#ffffff; display:none; flex-direction:column; justify-content:center; align-items:center; text-align:center; z-index: 10; }
-  .pay-info p{ margin:10px; font-size:18px; }
-  .mix{ color:green; } .airtel{ color:red; } .crdb{ color:blue; } .name{ color:black; font-weight:bold; }
-  .pay-actions{ position: fixed; bottom: 30px; display:flex; gap:20px; }
-  .back-btn{ padding:12px 25px; background:gray; color:white; border:none; border-radius:6px; cursor: pointer; }
-  .next-btn{ padding:12px 25px; background:green; color:white; border:none; border-radius:6px; cursor: pointer; }
-  #cameraMenuPage { position: fixed; top:0; left:0; width:100%; height:100%; background: #ffffff; display:none; flex-direction: column; justify-content: center; align-items: center; gap: 20px; z-index: 20; }
-  #openCameraBtn { padding: 15px 40px; font-size: 20px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; }
-  #openPhotosBtn { padding: 15px 40px; font-size: 20px; background: #17a2b8; color: white; border: none; border-radius: 6px; cursor: pointer; }
-  #backFromCameraBtn { padding: 15px 40px; font-size: 20px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; }
-  #previewPage { position: fixed; top:0; left:0; width:100%; height:100%; background: white; display:none; flex-direction: column; justify-content: center; align-items: center; z-index: 30; }
-  #previewImage { max-width: 90%; max-height: 60%; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-  .preview-actions { display: flex; gap: 20px; }
-  #submitBtn { padding: 12px 25px; background: green; color: white; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; }
-  #cancelBtn { padding: 12px 25px; background: red; color: white; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; }
-  #timerPage { position: fixed; top:0; left:0; width:100%; height:100%; background: #f4f4f4; display:none; flex-direction: column; justify-content: center; align-items: center; z-index: 40; }
-  #timerDisplay { font-size: 60px; font-weight: bold; color: #333; }
-  #timerStatus { margin-top: 20px; font-size: 20px; color: #666; }
-  #timerButtons { margin-top: 30px; display: none; gap: 20px; }
-  .timer-action-btn { padding: 15px 30px; font-size: 18px; color: white; border: none; border-radius: 6px; cursor: pointer; }
-  #exitBtn { background: #dc3545; }
-  #loadingOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); display:none; justify-content: center; align-items: center; flex-direction: column; z-index: 100; }
-  .loader { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
-  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0d4a0d;
+  color: #90EE90;
+  font-family: 'Poppins', sans-serif;
+}
 </style>
 </head>
 <body>
-<div id="userDisplay"></div>
-<h1>JAMAL SAID KAZEMBE</h1>
-<h2>MULTISYSTEM MANAGEMENT</h2>
-<button class="login-btn">LOGIN</button>
-<button class="pay-btn">PAY</button>
-<button class="access-btn">ACCESS</button>
-<button class="logout-btn">LOGOUT</button>
-<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
-<input type="file" id="photosInput" accept="image/*" style="display:none;">
-<div id="payPage">
-  <div class="pay-info">
-    <p>Pay through:</p>
-    <p class="mix">Mix by Yas:</p>
-    <p class="mix">+255 655 510 714</p>
-    <p class="airtel">Airtel Money:</p>
-    <p class="airtel">+255 780 526 437</p>
-    <p class="name">JAMALI SAIDI KAZEMBE</p>
-  </div>
-  <div class="pay-actions">
-    <button class="back-btn">BACK</button>
-    <button class="next-btn">NEXT</button>
-  </div>
-</div>
-<div id="cameraMenuPage">
-  <button id="openCameraBtn">CAMERA</button>
-  <button id="openPhotosBtn">PHOTOS</button>
-  <button id="backFromCameraBtn">BACK</button>
-</div>
-<div id="previewPage">
-  <img id="previewImage" src="" alt="Payment Preview">
-  <div class="preview-actions">
-    <button id="submitBtn">SUBMIT</button>
-    <button id="cancelBtn">CANCEL</button>
-  </div>
-</div>
-<div id="timerPage">
-  <div id="userDisplayTimer" style="margin-bottom:20px; font-size:24px; font-weight:bold;"></div>
-  <div id="timerDisplay">00:00:00</div>
-  <div id="timerStatus">Session Active</div>
-  <div id="timerButtons">
-    <button id="healthBtn" class="timer-action-btn" style="background: green;">HEALTH</button>
-    <button id="businessBtn" class="timer-action-btn" style="background: orange;">BUSINESS</button>
-    <button id="educationBtn" class="timer-action-btn" style="background: blue;">EDUCATION</button>
-    <button id="exitBtn" class="timer-action-btn">EXIT</button>
-  </div>
-</div>
-<div id="healthPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:50;">
-  <button id="registerNewBtn" class="big-btn" style="background:green;">REGISTER NEW</button>  
-  <button id="searchBtn" class="big-btn" style="background:orange;">SEARCH</button>
-  <button id="editBtn" class="big-btn" style="background:purple;">EDIT</button>  
-  <button id="backHealthBtn" class="big-btn" style="background:red;">BACK</button>
-</div>
-<div id="healthRegisterPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; align-items:center; gap:15px; z-index:55; padding-top:40px;">
-  <div id="topDisplay" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
-  <input id="firstNameInput" placeholder="Enter First Name" class="big-btn" style="color:black; background:#eee;">
-  <input id="secondNameInput" placeholder="Enter Second Name" class="big-btn" style="color:black; background:#eee; display:none;">
-  <input id="thirdNameInput" placeholder="Enter Third Name" class="big-btn" style="color:black; background:#eee; display:none;">
-  <input id="ageInput" type="number" placeholder="Enter Age" class="big-btn" style="color:black; background:#eee; display:none;">
-  <input id="tribeInput" placeholder="Enter Tribe" class="big-btn" style="color:black; background:#eee; display:none;">
-  <div id="genderBox" style="display:none;">
-    <button id="maleBtn" class="big-btn" style="background:blue;">MALE</button>
-    <button id="femaleBtn" class="big-btn" style="background:pink;">FEMALE</button>
-  </div>
-  <div>
-    <button id="okHealthBtn" class="big-btn" style="background:green; display:none;">OK</button>
-    <button id="cancelHealthBtn" class="big-btn" style="background:red;">CANCEL</button>
-  </div>
-</div>
-<div id="educationPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:50;">
-  <button id="registerEduBtn" class="big-btn" style="background:green;">REGISTER NEW</button>
-  <button id="searchEduBtn" class="big-btn" style="background:orange;">SEARCH</button>
-  <button id="editEduBtn" class="big-btn" style="background:purple;">EDIT</button>
-  <button id="backEduBtn" class="big-btn" style="background:red;">BACK</button>
-</div>
-<div id="businessPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:50;">
-  <button id="addBusinessBtn" class="big-btn" style="background:green;">ADD NEW TRANSACTION</button>  
-  <button id="viewBusinessBtn" class="big-btn" style="background:orange;">VIEW</button>
-  <div id="viewOptions" style="display:none; flex-direction:column; gap:15px;">
-    <button id="listBtn" class="big-btn" style="background:blue;">LIST</button>
-    <button id="backViewBtn" class="big-btn" style="background:red;">BACK</button>
-  </div>
-  <button id="backBusinessBtn" class="big-btn" style="background:red;">BACK</button>
-</div>
-<div id="businessRegisterPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; align-items:center; gap:15px; z-index:55; padding-top:40px;">
-  <div id="businessTopDisplay" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
-  <input id="businessNameInput" placeholder="Enter Name" class="big-btn" style="color:black; background:#eee;">
-  <input id="businessAmountInput" type="number" placeholder="Enter Amount" class="big-btn" style="color:black; background:#eee; display:none;">
-  <div id="inOutBox" style="display:none;">
-    <button id="inBtn" class="big-btn" style="background:green;">IN</button>
-    <button id="outBtn" class="big-btn" style="background:red;">OUT</button>
-  </div>
-  <div id="methodBox" style="display:none;">
-    <button id="cashBtn" class="big-btn" style="background:blue;">CASH</button>
-    <button id="creditBtn" class="big-btn" style="background:orange;">CREDIT</button>
-    <button id="bankBtn" class="big-btn" style="background:purple;">BANK</button>
-  </div>
-  <input id="creditNameInput" placeholder="Credit Person Name" class="big-btn" style="color:black; background:#eee; display:none;">
-  <div>
-    <button id="okBusinessBtn" class="big-btn" style="background:green; display:none;">OK</button>
-    <button id="cancelBusinessBtn" class="big-btn" style="background:red;">CANCEL</button>
-  </div>
-</div>
-<div id="loadingOverlay">
-  <div class="loader"></div>
-  <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
-</div>
 
-<!-- ✅ LINK TO EXTERNAL JS FILES -->
-<script src="login.js"></script>
-<script src="app.js"></script>
+<h1>Jamal Said Kazembe System</h1>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+  } else {
+    const snap = await getDoc(doc(db, "users", user.uid));
+
+    if (!snap.exists() || !snap.data().paid) {
+      window.location.href = "pay.html";
+    } else {
+      window.location.href = "menu.html"; // later
+    }
+  }
+});
+</script>
+
 </body>
 </html>
