@@ -6,8 +6,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import {
   getAuth,
   GoogleAuthProvider,
-  signInWithRedirect,   // FULL PAGE REDIRECT — user goes to Google
-  getRedirectResult,     // CATCHES USER WHEN GOOGLE SENDS THEM BACK
+  signInWithRedirect,
+  getRedirectResult,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
@@ -45,7 +45,6 @@ const provider = new GoogleAuthProvider();
 // ========================================
 // DOM
 // ========================================
-const googleBtn = document.getElementById("googleLoginBtn");
 const errorMsg = document.getElementById("errorMsg");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
@@ -70,9 +69,6 @@ function hideLoading() {
 
 // ========================================
 // SAVE LOGIN TO FIRESTORE
-// Same path as your index.html:
-//   users/{uid}/logins/{docId}
-// With same fields: name, email, userId, createdAt
 // ========================================
 async function saveLogin(user) {
   if (!user) return;
@@ -90,50 +86,27 @@ async function saveLogin(user) {
 }
 
 // ========================================
-// PREVENT DOUBLE REDIRECT
-// ========================================
-let redirectHandled = false;
-
-// ========================================
-// STEP 1: CATCH USER RETURNING FROM GOOGLE
+// MAIN FLOW — sequential, no race condition
 //
-// When user clicks login → browser goes to Google
-// After Google auth → Google redirects back HERE
-// This function catches that return
+// THE BUG WAS HERE:
+//   getRedirectResult().then(...)      ← async, takes time
+//   onAuthStateChanged(auth, cb)       ← fires immediately
+//   → cb sees user exists but redirectHandled is still false
+//   → cb redirects to index.html BEFORE .then() ever runs
+//   → .then() never executes → no sessionStorage flag → stuck
 //
-// If user just opened the page normally,
-// result is null — nothing happens, button stays
+// THE FIX:
+//   await getRedirectResult() FIRST
+//   THEN register onAuthStateChanged
+//   → guaranteed order, no race possible
 // ========================================
-getRedirectResult(auth)
-  .then(async (result) => {
-    if (result && result.user) {
-      // USER JUST CAME BACK FROM GOOGLE
-      redirectHandled = true;
-      showLoading("Verifying login...");
+(async () => {
 
-      const user = result.user;
-      console.log("Returned from Google:", user.email);
-
-      // Check admin
-      const isAdmin = user.email === ADMIN_EMAIL;
-      console.log("Is admin:", isAdmin);
-
-      // Save to Firestore — same as your index.html saveUserData
-      await saveLogin(user);
-
-      // Small delay so user sees verification
-      setTimeout(() => {
-        // GO BACK TO YOUR MAIN SYSTEM
-        // index.html onAuthStateChanged will fire
-        // → LOGIN button disappears
-        // → LOGOUT appears at bottom center
-        // → FREE button appears between name and logout
-        window.location.href = "index.html";
-      }, 800);
-    }
-    // result is null = normal page open, show login button
-  })
-  .catch((error) => {
+  // ── STEP 1: Wait for redirect result COMPLETELY ──
+  let redirectResult = null;
+  try {
+    redirectResult = await getRedirectResult(auth);
+  } catch (error) {
     hideLoading();
     console.error("Redirect result error:", error.code, error.message);
 
@@ -153,39 +126,62 @@ getRedirectResult(auth)
       default:
         showError("Login failed. Please try again.");
     }
+    return; // Stop — don't proceed to step 2
+  }
+
+  // ── STEP 2: User just came back from Google ──
+  if (redirectResult && redirectResult.user) {
+    showLoading("Verifying login...");
+
+    const user = redirectResult.user;
+    console.log("Returned from Google:", user.email);
+    console.log("Is admin:", user.email === ADMIN_EMAIL);
+
+    // Save to Firestore
+    await saveLogin(user);
+
+    // ★ Flag so index.html knows this is a FRESH login ★
+    // index.html reads this to show "Successful login" for 3s
+    // then swap to persistent username
+    sessionStorage.setItem("justLoggedIn", "1");
+
+    // Brief pause so user sees "Verifying login..."
+    await new Promise(r => setTimeout(r, 800));
+
+    // Redirect to the main system page
+    window.location.href = "index.html";
+    return; // Done — don't go to step 3
+  }
+
+  // ── STEP 3: No redirect result — check if already logged in ──
+  // Covers: user opens login.html manually while authenticated
+  // We listen ONCE and unsubscribe immediately
+  await new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe(); // Stop listening immediately
+
+      if (user) {
+        // Already logged in — send to index.html
+        // NO "justLoggedIn" flag — index.html shows username directly,
+        // no "Successful login" message (not a fresh login)
+        console.log("Already authenticated:", user.email);
+        setTimeout(() => {
+          window.location.href = "index.html";
+        }, 1200);
+      }
+
+      resolve();
+    });
   });
 
-// ========================================
-// STEP 2: IF ALREADY LOGGED IN, SKIP THIS PAGE
-// Covers edge case: user navigates here while authenticated
-// ========================================
-onAuthStateChanged(auth, (user) => {
-  if (user && !redirectHandled) {
-    // Already logged in, send straight to index.html
-    // where LOGIN is hidden, LOGOUT + FREE are shown
-    setTimeout(() => {
-      window.location.href = "index.html";
-    }, 1200);
-  }
-});
+})();
 
 // ========================================
-// STEP 3: BUTTON CLICK → SEND TO GOOGLE
-//
-// signInWithRedirect = FULL PAGE NAVIGATION
-// Browser URL bar changes to accounts.google.com
-// User sees Google's real login page
-// Not a popup, not an iframe — actual navigation
-//
-// After login Google redirects back to login.html
-// Then Step 1 (getRedirectResult) catches it
-// ========================================
-// STEP 3: BUTTON CLICK → SEND TO GOOGLE
+// BUTTON CLICK → SEND TO GOOGLE
 // ========================================
 window.addEventListener("DOMContentLoaded", () => {
   const googleBtn = document.getElementById("googleLoginBtn");
 
-  // Safety check
   if (!googleBtn) {
     console.error("googleLoginBtn not found in HTML");
     return;
@@ -200,7 +196,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
     showLoading("Redirecting to Google...");
 
-    // Redirect to Google login
     signInWithRedirect(auth, provider);
   });
 });
