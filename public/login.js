@@ -1,6 +1,5 @@
 // ========================================
 // FIREBASE — ALL FROM CLOUD CDN
-// Using YOUR exact project config
 // ========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -18,7 +17,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // ========================================
-// YOUR EXACT FIREBASE CONFIG
+// FIREBASE CONFIG
 // ========================================
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
@@ -29,9 +28,6 @@ const firebaseConfig = {
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
-// ========================================
-// YOUR EXACT ADMIN EMAIL
-// ========================================
 const ADMIN_EMAIL = "camelkazembe1@gmail.com";
 
 // ========================================
@@ -88,17 +84,14 @@ async function saveLogin(user) {
 // ========================================
 // MAIN FLOW — sequential, no race condition
 //
-// THE BUG WAS HERE:
-//   getRedirectResult().then(...)      ← async, takes time
-//   onAuthStateChanged(auth, cb)       ← fires immediately
-//   → cb sees user exists but redirectHandled is still false
-//   → cb redirects to index.html BEFORE .then() ever runs
-//   → .then() never executes → no sessionStorage flag → stuck
+// Old code had a race:
+//   getRedirectResult().then(...)    ← async, resolves later
+//   onAuthStateChanged(auth, cb)     ← fires immediately
+//   → cb redirected to index.html BEFORE .then() ran
+//   → no sessionStorage flag set → broken
 //
-// THE FIX:
-//   await getRedirectResult() FIRST
-//   THEN register onAuthStateChanged
-//   → guaranteed order, no race possible
+// Fix: await getRedirectResult() FIRST,
+// THEN check onAuthStateChanged.
 // ========================================
 (async () => {
 
@@ -126,7 +119,7 @@ async function saveLogin(user) {
       default:
         showError("Login failed. Please try again.");
     }
-    return; // Stop — don't proceed to step 2
+    return; // Stop — don't proceed
   }
 
   // ── STEP 2: User just came back from Google ──
@@ -140,30 +133,27 @@ async function saveLogin(user) {
     // Save to Firestore
     await saveLogin(user);
 
-    // ★ Flag so index.html knows this is a FRESH login ★
-    // index.html reads this to show "Successful login" for 3s
-    // then swap to persistent username
+    // Flag so index.html knows this is a FRESH login
+    // index.html reads this → shows "Successful login" 3s → then username
     sessionStorage.setItem("justLoggedIn", "1");
 
     // Brief pause so user sees "Verifying login..."
     await new Promise(r => setTimeout(r, 800));
 
-    // Redirect to the main system page
+    // Redirect to main system page
     window.location.href = "index.html";
-    return; // Done — don't go to step 3
+    return; // Done
   }
 
   // ── STEP 3: No redirect result — check if already logged in ──
-  // Covers: user opens login.html manually while authenticated
-  // We listen ONCE and unsubscribe immediately
+  // Covers: user opens login.html manually while already authenticated
   await new Promise((resolve) => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       unsubscribe(); // Stop listening immediately
 
       if (user) {
-        // Already logged in — send to index.html
-        // NO "justLoggedIn" flag — index.html shows username directly,
-        // no "Successful login" message (not a fresh login)
+        // Already logged in — redirect to index.html
+        // NO "justLoggedIn" flag — index.html shows username directly
         console.log("Already authenticated:", user.email);
         setTimeout(() => {
           window.location.href = "index.html";
