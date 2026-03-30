@@ -1,202 +1,966 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(180deg, #0b1a0b 0%, #1a3a1a 40%, #2d5a27 70%, #1a3a1a 100%);
-            font-family: Georgia, 'Times New Roman', serif;
-        }
-
-        .title {
-            position: fixed;
-            top: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            text-align: center;
-            color: #c8e6c0;
-            text-shadow: 0 0 20px rgba(76, 175, 80, 0.4);
-            z-index: 10;
-        }
-
-        .title .line1 {
-            font-size: 28px;
-            font-weight: 700;
-            letter-spacing: 4px;
-            color: #e8f5e0;
-        }
-
-        .title .line2 {
-            font-size: 22px;
-            font-weight: 400;
-            letter-spacing: 6px;
-            margin-top: 4px;
-            color: #a5d69a;
-        }
-
-        #authContainer {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 24px;
-        }
-
-        .login-btn {
-            padding: 16px 60px;
-            font-size: 20px;
-            font-family: Georgia, serif;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: #e8f5e0;
-            background: linear-gradient(135deg, #2e7d32, #1b5e20);
-            border: 2px solid #4caf50;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(76, 175, 80, 0.3);
-        }
-
-        .login-btn:hover {
-            background: linear-gradient(135deg, #388e3c, #2e7d32);
-            box-shadow: 0 6px 30px rgba(76, 175, 80, 0.5);
-            transform: translateY(-2px);
-        }
-
-        .login-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 10px rgba(76, 175, 80, 0.3);
-        }
-
-        .welcome-card {
-            background: rgba(11, 26, 11, 0.85);
-            border: 1px solid rgba(76, 175, 80, 0.35);
-            border-radius: 10px;
-            padding: 36px 48px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 60px rgba(76, 175, 80, 0.08);
-            position: relative;
-        }
-
-        .welcome-card::before {
-            content: '';
-            position: absolute;
-            top: -1px;
-            left: 20%;
-            right: 20%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #4caf50, transparent);
-        }
-
-        .avatar {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #2e7d32, #1b5e20);
-            border: 2px solid #4caf50;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #e8f5e0;
-            font-size: 24px;
-            font-weight: 700;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .welcome-text {
-            text-align: left;
-        }
-
-        .welcome-label {
-            color: #7cb872;
-            font-size: 11px;
-            letter-spacing: 2px;
-            margin-bottom: 4px;
-        }
-
-        .welcome-name {
-            color: #e8f5e0;
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        .logout-btn {
-            padding: 10px 24px;
-            font-size: 14px;
-            font-family: Georgia, serif;
-            letter-spacing: 2px;
-            color: #e8f5e0;
-            background: transparent;
-            border: 1px solid rgba(76, 175, 80, 0.4);
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .logout-btn:hover {
-            border-color: #e57373;
-            color: #e57373;
-            background: rgba(229, 115, 115, 0.1);
-        }
-
-        .system-status {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #7cb872;
-            font-size: 13px;
-            letter-spacing: 2px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #4caf50;
-            box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jamal Said Kazembe Multisystem Management</title>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<style>
+  body{ margin:0; font-family:Arial, sans-serif; background:#f4f4f4; display:flex; flex-direction:column; justify-content:flex-start; align-items:center; min-height:100vh; text-align:center; padding-top:50px; }
+  h1{ font-size:28px; color:blue; margin:0; }
+  h2{ color:red; margin-top:5px; font-size:16px; }
+  .login-btn, .logout-btn, .pay-btn, .access-btn {
+    position: fixed; left: 50%; transform: translateX(-50%); border:none; cursor:pointer; display: none; 
+  }
+  .big-btn {
+  width: 80%;                 /* responsive width */
+  max-width: 400px;          /* don’t get too big on desktop */
+  padding: 4vh 0;            /* responsive height */
+  font-size: 2.5vh;          /* text scales with screen */
+  border: none;
+  border-radius: 12px;
+  color: white;
+  cursor: pointer;
+}
+  .login-btn{ bottom: 30px; padding:15px 40px; font-size:20px; background:#28a745; color:white; border-radius:6px; }
+  .pay-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #28a745; color:white; border-radius:8px; }
+  .access-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #007bff; color:white; border-radius:8px; }
+  .logout-btn{
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background:#dc3545;
+  color:white;
+  padding:10px 25px;
+  border-radius:6px;
+  font-size:16px;
+}
+  #userDisplay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); font-size: 18px; font-weight: bold; color: #333; display: none; }
+  #payPage{ position: fixed; top:0; left:0; width:100%; height:100%; background:#ffffff; display:none; flex-direction:column; justify-content:center; align-items:center; text-align:center; z-index: 10; }
+  .pay-info p{ margin:10px; font-size:18px; }
+  .mix{ color:green; } .airtel{ color:red; } .crdb{ color:blue; } .name{ color:black; font-weight:bold; }
+  .pay-actions{ position: fixed; bottom: 30px; display:flex; gap:20px; }
+  .back-btn{ padding:12px 25px; background:gray; color:white; border:none; border-radius:6px; cursor: pointer; }
+  .next-btn{ padding:12px 25px; background:green; color:white; border:none; border-radius:6px; cursor: pointer; }
+  #cameraMenuPage { position: fixed; top:0; left:0; width:100%; height:100%; background: #ffffff; display:none; flex-direction: column; justify-content: center; align-items: center; gap: 20px; z-index: 20; }
+  #openCameraBtn { padding: 15px 40px; font-size: 20px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; }
+  #openPhotosBtn { padding: 15px 40px; font-size: 20px; background: #17a2b8; color: white; border: none; border-radius: 6px; cursor: pointer; }
+  #backFromCameraBtn { padding: 15px 40px; font-size: 20px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; }
+  #previewPage { position: fixed; top:0; left:0; width:100%; height:100%; background: white; display:none; flex-direction: column; justify-content: center; align-items: center; z-index: 30; }
+  #previewImage { max-width: 90%; max-height: 60%; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+  .preview-actions { display: flex; gap: 20px; }
+  #submitBtn { padding: 12px 25px; background: green; color: white; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; }
+  #cancelBtn { padding: 12px 25px; background: red; color: white; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; }
+  #timerPage { position: fixed; top:0; left:0; width:100%; height:100%; background: #f4f4f4; display:none; flex-direction: column; justify-content: center; align-items: center; z-index: 40; }
+  #timerDisplay { font-size: 60px; font-weight: bold; color: #333; }
+  #timerStatus { margin-top: 20px; font-size: 20px; color: #666; }
+  #timerButtons { margin-top: 30px; display: none; gap: 20px; }
+  .timer-action-btn { padding: 15px 30px; font-size: 18px; color: white; border: none; border-radius: 6px; cursor: pointer; }
+  #exitBtn { background: #dc3545; }
+  #loadingOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); display:none; justify-content: center; align-items: center; flex-direction: column; z-index: 100; }
+  .loader { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+</style>
 </head>
 <body>
+<div id="userDisplay"></div>
+<h1>JAMAL SAID KAZEMBE</h1>
+<h2>MULTISYSTEM MANAGEMENT</h2>
+<button class="login-btn">LOGIN</button>
+<button class="pay-btn">PAY</button>
+<button class="access-btn">ACCESS</button>
+<button class="logout-btn">LOGOUT</button>
+<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
+<input type="file" id="photosInput" accept="image/*" style="display:none;">
+<div id="payPage">
+  <div class="pay-info">
+    <p>Pay through:</p>
+    <p class="mix">Mix by Yas:</p>
+    <p class="mix">+255 655 510 714</p>
+    <p class="airtel">Airtel Money:</p>
+    <p class="airtel">+255 780 526 437</p>
+    <p class="name">JAMALI SAIDI KAZEMBE</p>
+  </div>
+  <div class="pay-actions">
+    <button class="back-btn">BACK</button>
+    <button class="next-btn">NEXT</button>
+  </div>
+</div>
+<div id="cameraMenuPage">
+  <button id="openCameraBtn">CAMERA</button>
+  <button id="openPhotosBtn">PHOTOS</button>
+  <button id="backFromCameraBtn">BACK</button>
+</div>
+<div id="previewPage">
+  <img id="previewImage" src="" alt="Payment Preview">
+  <div class="preview-actions">
+    <button id="submitBtn">SUBMIT</button>
+    <button id="cancelBtn">CANCEL</button>
+  </div>
+</div>
+<div id="timerPage">
+  <div id="userDisplayTimer" style="margin-bottom:20px; font-size:24px; font-weight:bold;"></div>
+  <div id="timerDisplay">00:00:00</div>
+  <div id="timerStatus">Session Active</div>
+  <div id="timerButtons">
+  <button id="healthBtn" class="timer-action-btn" style="background: green;">HEALTH</button>
 
-    <div class="title">
-        <div class="line1">JAMAL SAID KAZEMBE</div>
-        <div class="line2">MULTISYSTEM MANAGEMENT</div>
-    </div>
+  <!-- ✅ NEW BUTTON -->
+  <button id="businessBtn" class="timer-action-btn" style="background: orange;">BUSINESS</button>
 
-    <div id="authContainer">
-        <button class="login-btn" onclick="window.location.href='login.html'">Login</button>
-    </div>
+  <button id="educationBtn" class="timer-action-btn" style="background: blue;">EDUCATION</button>
+  <button id="exitBtn" class="timer-action-btn">EXIT</button>
+</div>
+</div>
+<div id="healthPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:50;">
+  <button id="registerNewBtn" class="big-btn" style="background:green;">REGISTER NEW</button>  
+  <button id="searchBtn" class="big-btn" style="background:orange;">SEARCH</button>
+  <button id="editBtn" class="big-btn" style="background:purple;">EDIT</button>  
+  <button id="backHealthBtn" class="big-btn" style="background:red;">BACK</button>
+</div>
+<div id="healthRegisterPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; align-items:center; gap:15px; z-index:55; padding-top:40px;">
 
-    <script src="login.js" type="module"></script>
+  <!-- TOP BUTTONS -->
+  <div id="topDisplay" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
+
+  <!-- INPUTS -->
+  <input id="firstNameInput" placeholder="Enter First Name" class="big-btn" style="color:black; background:#eee;">
+  <input id="secondNameInput" placeholder="Enter Second Name" class="big-btn" style="color:black; background:#eee; display:none;">
+  <input id="thirdNameInput" placeholder="Enter Third Name" class="big-btn" style="color:black; background:#eee; display:none;">
+  <input id="ageInput" type="number" placeholder="Enter Age" class="big-btn" style="color:black; background:#eee; display:none;">
+  <input id="tribeInput" placeholder="Enter Tribe" class="big-btn" style="color:black; background:#eee; display:none;">
+  <!-- GENDER -->
+  <div id="genderBox" style="display:none;">
+    <button id="maleBtn" class="big-btn" style="background:blue;">MALE</button>
+    <button id="femaleBtn" class="big-btn" style="background:pink;">FEMALE</button>
+  </div>
+  <!-- ACTIONS -->
+  <div>
+    <button id="okHealthBtn" class="big-btn" style="background:green; display:none;">OK</button>
+    <button id="cancelHealthBtn" class="big-btn" style="background:red;">CANCEL</button>
+  </div>
+</div>
+<div id="educationPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:50;">
+  <button id="registerEduBtn" class="big-btn" style="background:green;">REGISTER NEW</button>
+  <button id="searchEduBtn" class="big-btn" style="background:orange;">SEARCH</button>
+  <button id="editEduBtn" class="big-btn" style="background:purple;">EDIT</button>
+  <button id="backEduBtn" class="big-btn" style="background:red;">BACK</button>
+</div>
+<div id="businessPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; justify-content:center; align-items:center; gap:20px; z-index:50;">
+  <button id="addBusinessBtn" class="big-btn" style="background:green;">ADD NEW TRANSACTION</button>  
+  <button id="viewBusinessBtn" class="big-btn" style="background:orange;">VIEW</button>
+
+<!-- NEW (hidden initially) -->
+<div id="viewOptions" style="display:none; flex-direction:column; gap:15px;">
+  <button id="listBtn" class="big-btn" style="background:blue;">LIST</button>
+  <button id="backViewBtn" class="big-btn" style="background:red;">BACK</button>
+</div>
+  <button id="backBusinessBtn" class="big-btn" style="background:red;">BACK</button>
+</div>
+<div id="businessRegisterPage" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#fff; display:none; flex-direction:column; align-items:center; gap:15px; z-index:55; padding-top:40px;">
+
+  <!-- TOP DISPLAY -->
+  <div id="businessTopDisplay" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
+
+  <!-- INPUTS -->
+  <input id="businessNameInput" placeholder="Enter Name" class="big-btn" style="color:black; background:#eee;">
+  <input id="businessAmountInput" type="number" placeholder="Enter Amount" class="big-btn" style="color:black; background:#eee; display:none;">
+
+  <!-- IN / OUT -->
+  <div id="inOutBox" style="display:none;">
+    <button id="inBtn" class="big-btn" style="background:green;">IN</button>
+    <button id="outBtn" class="big-btn" style="background:red;">OUT</button>
+  </div>
+
+  <!-- METHOD -->
+  <div id="methodBox" style="display:none;">
+    <button id="cashBtn" class="big-btn" style="background:blue;">CASH</button>
+    <button id="creditBtn" class="big-btn" style="background:orange;">CREDIT</button>
+    <button id="bankBtn" class="big-btn" style="background:purple;">BANK</button>
+  </div>
+
+  <!-- CREDIT NAME -->
+  <input id="creditNameInput" placeholder="Credit Person Name" class="big-btn" style="color:black; background:#eee; display:none;">
+
+  <!-- ACTIONS -->
+  <div>
+    <button id="okBusinessBtn" class="big-btn" style="background:green; display:none;">OK</button>
+    <button id="cancelBusinessBtn" class="big-btn" style="background:red;">CANCEL</button>
+  </div>
+
+</div>
+
+<div id="loadingOverlay">
+  <div class="loader"></div>
+  <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
+</div>
+<script type="module">
+  import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  getDocs, 
+  query, 
+  orderBy,
+  serverTimestamp   
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+  authDomain: "my-project-66803-95cb3.firebaseapp.com",
+  projectId: "my-project-66803-95cb3",
+  storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+  messagingSenderId: "167159607898",
+  appId: "1:167159607898:web:23ca11366b88868b085e63"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+async function saveUserData(collectionName, data) {
+  const user = auth.currentUser;
+
+if (!user) {
+  console.log("❌ No user logged in");
+  return;
+}
+
+console.log("✅ USER ID:", user.uid);
+  try {
+    await addDoc(collection(db, "users", user.uid, collectionName), {
+      ...data,
+      userId: user.uid,
+      createdAt: serverTimestamp()
+    });
+  } catch (e) {
+    console.error("Save error:", e);
+  }
+}
+const ADMIN_EMAIL = "camelkazembe1@gmail.com";
+let isAdmin = false;
+let timerInterval = null;
+const educationPage = document.getElementById("educationPage");
+const healthPage = document.getElementById("healthPage");
+const businessPage = document.getElementById("businessPage");
+const loginBtn = document.querySelector(".login-btn");
+const logoutBtn = document.querySelector(".logout-btn");
+const payBtn = document.querySelector(".pay-btn");
+const accessBtn = document.querySelector(".access-btn");
+const userDisplay = document.getElementById("userDisplay");
+const payPage = document.getElementById("payPage");
+const backBtn = document.querySelector(".back-btn");
+const nextBtn = document.querySelector(".next-btn");
+const cameraMenuPage = document.getElementById("cameraMenuPage");
+const openCameraBtn = document.getElementById("openCameraBtn");
+const openPhotosBtn = document.getElementById("openPhotosBtn");
+const backFromCameraBtn = document.getElementById("backFromCameraBtn");
+const cameraInput = document.getElementById("cameraInput");
+const photosInput = document.getElementById("photosInput");
+const previewPage = document.getElementById("previewPage");
+const previewImage = document.getElementById("previewImage");
+const submitBtn = document.getElementById("submitBtn");
+const cancelBtn = document.getElementById("cancelBtn");
+const timerPage = document.getElementById("timerPage");
+const timerDisplay = document.getElementById("timerDisplay");
+const userDisplayTimer = document.getElementById("userDisplayTimer");
+const timerStatus = document.getElementById("timerStatus");
+const timerButtons = document.getElementById("timerButtons");
+const exitBtn = document.getElementById("exitBtn");
+const loadingOverlay = document.getElementById("loadingOverlay");
+const loadingText = document.getElementById("loadingText");
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+  loginBtn.style.display = "none";   // ✅ hide LOGIN
+  logoutBtn.style.display = "block"; // ✅ show LOGOUT
+    saveUserData("logins", {
+  name: user.displayName,
+  email: user.email
+});
+    isAdmin = user.email === ADMIN_EMAIL;
+
+    userDisplay.textContent = user.displayName;
+    if (isAdmin) {
+  userDisplay.style.display = "block";
+
+  showPage('timer');
+  timerDisplay.textContent = "UNLIMITED";
+  timerStatus.textContent = "Admin Access";
+  timerButtons.style.display = "flex";
+}
+    else {
+      showPage('main');
+    }
+  } else {
+    isAdmin = false;
+    userDisplay.style.display = "none";
+    loginBtn.style.display = "block";
+    payBtn.style.display = "none";
+    accessBtn.style.display = "none";
+    logoutBtn.style.display = "none";
+  }
+});
+loginBtn.onclick = async () => { try { await signInWithPopup(auth, provider); } catch (e) { alert("Login failed"); } };
+logoutBtn.onclick = async () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); await signOut(auth); showPage('main'); };
+accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
+function showPage(page) {
+  logoutBtn.style.display = "none"; // hide by default
+  businessPage.style.display = "none";
+  payPage.style.display = "none"; 
+  healthPage.style.display = "none";
+  educationPage.style.display = "none";
+  cameraMenuPage.style.display = "none"; 
+  previewPage.style.display = "none"; 
+  timerPage.style.display = "none";
+  if(page === 'main' && auth.currentUser) {
+    userDisplay.style.display = "block"; logoutBtn.style.display = "block";
+    const endTime = localStorage.getItem("sessionEnd");
+    if (endTime && Date.now() < parseInt(endTime)) { accessBtn.style.display = "block"; } 
+    else { payBtn.style.display = "block"; }
+  }
+  else if (page === 'business') {
+  timerPage.style.display = "none";
+  businessPage.style.display = "flex";
+  logoutBtn.style.display = isAdmin ? "block" : "none"; // ✅ FIX
+}
+  else if (page === 'health') {
+  timerPage.style.display = "none";
+  healthPage.style.display = "flex";
+  logoutBtn.style.display = isAdmin ? "block" : "none";
+}
+else if (page === 'education') {
+  timerPage.style.display = "none";
+  educationPage.style.display = "flex";
+}
+  else if (page === 'pay') { payPage.style.display = "flex"; } 
+  else if (page === 'camera') { cameraMenuPage.style.display = "flex"; } 
+  else if (page === 'preview') { previewPage.style.display = "flex"; }
+
+  else if (page === 'timer') { 
+  loginBtn.style.display = "none";
+  payBtn.style.display = "none";
+  accessBtn.style.display = "none";
+if (!isAdmin) {
+  logoutBtn.style.display = "none";
+  exitBtn.style.display = "inline-block";
+} else {
+  logoutBtn.style.display = "block";
+  logoutBtn.style.position = "fixed";   // ✅ force bottom
+  logoutBtn.style.bottom = "30px";      // ✅ ensure bottom
+  logoutBtn.style.left = "50%";
+  logoutBtn.style.transform = "translateX(-50%)";
+  exitBtn.style.display = "none";
+}
+
+  userDisplay.style.display = "none";
+  timerPage.style.display = "flex"; 
+  timerButtons.style.display = "flex";
+  userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; 
+}
+}
+payBtn.onclick = () => showPage('pay');
+backBtn.onclick = () => showPage('main');
+nextBtn.onclick = () => showPage('camera');
+backFromCameraBtn.onclick = () => showPage('main');
+openCameraBtn.onclick = () => cameraInput.click();
+openPhotosBtn.onclick = () => photosInput.click();
+function handleFile(file) {
+  if (!file) { showPage('main'); return; }
+  selectedFile = file;
+  const reader = new FileReader();
+  reader.onload = (e) => { previewImage.src = e.target.result; showPage('preview'); };
+  reader.readAsDataURL(file);
+  cameraInput.value = ""; photosInput.value = "";
+}
+cameraInput.onchange = (e) => handleFile(e.target.files[0]);
+photosInput.onchange = (e) => handleFile(e.target.files[0]);
+cancelBtn.onclick = () => { selectedFile = null; previewImage.src = ""; showPage('camera'); };
+function startTimer(seconds) {
+  if (isAdmin) return;
+  clearInterval(timerInterval);
+  const endTime = Date.now() + seconds * 1000;
+  localStorage.setItem("sessionEnd", String(endTime));
+  saveUserData("sessions", {
+  seconds: seconds,
+  startTime: new Date(),
+  endTime: new Date(endTime)
+});
+  timerInterval = setInterval(() => {
+    const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+    if (remaining <= 0) {
+      clearInterval(timerInterval); timerDisplay.textContent = "00:00:00"; timerStatus.textContent = "Session Expired";
+      localStorage.removeItem("sessionEnd"); setTimeout(() => { showPage('main'); timerButtons.style.display = "none"; }, 2000);
+      return;
+    }
+    const hrs = Math.floor(remaining / 3600);
+const mins = Math.floor((remaining % 3600) / 60);
+const secs = remaining % 60;
+timerDisplay.textContent =
+  String(hrs).padStart(2, '0') + ":" +
+  String(mins).padStart(2, '0') + ":" +
+  String(secs).padStart(2, '0');
+  }, 1000);
+}
+function startTimerFromStorage() {
+  if (isAdmin) return;
+  const endTime = parseInt(localStorage.getItem("sessionEnd")); if(!endTime) return;
+  timerButtons.style.display = "flex"; clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    const rem = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+    if(rem <= 0){ clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); showPage('main'); return; }
+const hrs = Math.floor(rem / 3600);
+const mins = Math.floor((rem % 3600) / 60);
+const secs = rem % 60;
+timerDisplay.textContent =
+  String(hrs).padStart(2, '0') + ":" +
+  String(mins).padStart(2, '0') + ":" +
+  String(secs).padStart(2, '0');
+  }, 1000);
+}
+exitBtn.onclick = () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); timerButtons.style.display = "none"; showPage('main'); };
+document.getElementById("educationBtn").onclick = () => {
+  showPage('education');
+};
+// OPEN BUSINESS PAGE
+document.getElementById("businessBtn").onclick = () => {
+  showPage('business');
+};
+
+// BACK TO TIMER
+document.getElementById("backBusinessBtn").onclick = () => {
+  showPage('timer');
+};
+function resetBusinessForm() {
+  businessNameInput.value = "";
+  businessAmountInput.value = "";
+  creditNameInput.value = "";
+
+  businessTopDisplay.innerHTML = "";
+
+  businessNameInput.style.display = "block";
+  businessAmountInput.style.display = "none";
+  inOutBox.style.display = "none";
+  methodBox.style.display = "none";
+  creditNameInput.style.display = "none";
+
+  okBusinessBtn.style.display = "none";
+
+  businessData = {
+    name: "",
+    amount: "",
+    type: "",
+    method: "",
+    creditName: ""
+  };
+}
+document.getElementById("addBusinessBtn").onclick = () => {
+  resetBusinessForm();
+  businessPage.style.display = "none";
+  businessRegisterPage.style.display = "flex";
+};
+
+function preprocessImage(canvas) {
+  const ctx = canvas.getContext('2d');
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imageData.data;
+  let totalBrightness = 0;
+  for (let i = 0; i < data.length; i += 4) {
+    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+    data[i] = avg; data[i + 1] = avg; data[i + 2] = avg;
+    totalBrightness += avg;
+  }
+  const avgBrightness = totalBrightness / (data.length / 4);
+  for (let i = 0; i < data.length; i += 4) {
+    let val = data[i];
+    if (avgBrightness < 128) val = 255 - val;
+    if (val > 140) val = 255; else if (val < 120) val = 0;
+    data[i] = val; data[i+1] = val; data[i+2] = val;
+  }
+  ctx.putImageData(imageData, 0, 0);
+  return canvas;
+}
+const VALID_NAMES = [
+  "JAMAL SAID KAZEMBE",
+  "JAMAL SAID",
+  "JAMAL KAZEMBE"
+];
+const VALID_NUMBERS = [
+  "655510714",
+  "780526437"
+];
+submitBtn.onclick = async () => {
+  if (!selectedFile) { alert("No file selected."); return; }
+  loadingOverlay.style.display = "flex";
+  loadingText.textContent = "Verifying Account...";
+  let objectUrl = null;
+  try {
+    const img = new Image();
+    objectUrl = URL.createObjectURL(selectedFile);
+    img.src = objectUrl;
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error("Timeout")), 5000);
+      img.onload = () => { clearTimeout(timer); resolve(); };
+      img.onerror = () => reject(new Error("Invalid image"));
+    });
+    const MAX_W = 1500;
+    const scale = Math.min(1, MAX_W / img.width);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = Math.floor(img.width * scale);
+    canvas.height = Math.floor(img.height * scale);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    let detectedText = "";
+    let isQR = false;
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const qr = jsQR(imageData.data, canvas.width, canvas.height);
+    if (qr && qr.data) {
+      detectedText = qr.data;
+      isQR = true;
+      console.log("✅ QR Found:", detectedText);
+    } else {
+      loadingText.textContent = "Reading text...";
+      preprocessImage(canvas);
+      const { data } = await Tesseract.recognize(canvas, "eng", {
+        tessedit_pageseg_mode: 6
+      });
+      detectedText = (data.text || "").replace(/\s+/g, " ").trim();
+      console.log("✅ OCR Found:", detectedText);
+    }
+    const upperText = detectedText.toUpperCase();
+    // Remove extra spaces to handle "Jamal  Said" -> "JAMAL SAID"
+    const cleanSearchText = upperText.replace(/\s+/g, " ");
+    let timeValid = isTimeValidFromText(cleanSearchText);
+    let nameFound = false;
+    for (const name of VALID_NAMES) {
+      if (cleanSearchText.includes(name)) {
+        nameFound = true;
+        console.log("✅ Name Matched:", name);
+        break; 
+      }
+    }
+let numberFound = false;
+if (nameFound) {
+  for (const num of VALID_NUMBERS) {
+    if (cleanSearchText.includes(num)) {
+      numberFound = true;
+      console.log("✅ Number Matched:", num);
+      break;
+    }
+  }
+}
+const { currency, amount } = detectCurrency(cleanSearchText);
+const tzsAmount = await convertToTZS(amount, currency);
+const seconds = Math.floor((tzsAmount / 300) * 3600);
+if (nameFound && numberFound && timeValid && seconds > 0) {
+  startTimer(seconds);
+  timerButtons.style.display = "flex";
+  showPage("timer");
+} else {
+  alert("Invalid payment");
+  showPage("pay");
+}
+ } catch (error) {
+    console.error(error);
+    alert("Error processing image. Please try again.");
+    showPage("pay");
+  } finally {
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    loadingOverlay.style.display = "none";
+  }
+};
+function isTimeValidFromText(text) {
+  const clean = text.toUpperCase().replace(/\s+/g, " ");
+  const match = clean.match(/\b(\d{1,2})[:. ](\d{2})([:. ](\d{2}))?\s?(AM|PM)?\b/);
+  if (!match) {
+    console.log("❌ No time found");
+    return false;
+  }
+  let hours = parseInt(match[1]);
+  const minutes = parseInt(match[2]);
+  const ampm = match[5];
+  if (ampm) {
+    if (ampm === "PM" && hours < 12) hours += 12;
+    if (ampm === "AM" && hours === 12) hours = 0;
+  }
+  const now = new Date();
+  const receipt = new Date();
+  receipt.setHours(hours);
+  receipt.setMinutes(minutes);
+  receipt.setSeconds(0);
+  if (receipt > now) {
+    receipt.setDate(receipt.getDate() - 1)
+  }
+  const diff = Math.abs((now - receipt) / 60000);
+  console.log("⏱ Now:", now);
+  console.log("⏱ Receipt:", receipt);
+  console.log("⏱ Diff (mins):", diff);
+  return diff <= 10;
+}
+function detectCurrency(text) {
+  const match = text.match(/([A-Z]{3}|[$€£¥₦₵₱₴])\s?([\d,]+)/i);
+  if (match) {
+    return {
+      currency: match[1].toUpperCase(),
+      amount: parseInt(match[2].replace(/,/g, ""))
+    };
+  }
+  const nums = text.match(/\d{3,7}/g);
+  return {
+    currency: "TZS",
+    amount: nums ? Math.max(...nums.map(n => parseInt(n))) : 0
+  };
+}
+async function convertToTZS(amount, currency) {
+  if (currency === "TZS" || currency === "TSH") return amount;
+  try {
+    const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${currency}`);
+    const data = await res.json();
+    const rate = data.rates["TZS"];
+    return rate ? amount * rate : 0;
+  } catch {
+    return 0;
+  }
+}
+document.getElementById("healthBtn").onclick = () => {
+  showPage('health');
+};
+document.getElementById("backHealthBtn").onclick = () => {
+  showPage('timer');
+};
+document.getElementById("backEduBtn").onclick = () => {
+  showPage('timer');
+};
+// ===== HEALTH FLOW =====
+const healthRegisterPage = document.getElementById("healthRegisterPage");
+const topDisplay = document.getElementById("topDisplay");
+
+const firstInput = document.getElementById("firstNameInput");
+const secondInput = document.getElementById("secondNameInput");
+const thirdInput = document.getElementById("thirdNameInput");
+const ageInput = document.getElementById("ageInput");
+const tribeInput = document.getElementById("tribeInput");
+
+const genderBox = document.getElementById("genderBox");
+const maleBtn = document.getElementById("maleBtn");
+const femaleBtn = document.getElementById("femaleBtn");
+
+const okBtn = document.getElementById("okHealthBtn");
+const cancelBtnH = document.getElementById("cancelHealthBtn");
+const businessRegisterPage = document.getElementById("businessRegisterPage");
+const businessTopDisplay = document.getElementById("businessTopDisplay");
+
+const businessNameInput = document.getElementById("businessNameInput");
+const businessAmountInput = document.getElementById("businessAmountInput");
+
+const inOutBox = document.getElementById("inOutBox");
+const inBtn = document.getElementById("inBtn");
+const outBtn = document.getElementById("outBtn");
+
+const methodBox = document.getElementById("methodBox");
+const cashBtn = document.getElementById("cashBtn");
+const creditBtn = document.getElementById("creditBtn");
+const bankBtn = document.getElementById("bankBtn");
+
+const creditNameInput = document.getElementById("creditNameInput");
+
+const okBusinessBtn = document.getElementById("okBusinessBtn");
+const cancelBusinessBtn = document.getElementById("cancelBusinessBtn");
+
+let businessData = {
+  name: "",
+  amount: "",
+  type: "",
+  method: "",
+  creditName: ""
+};
+let data = {
+  first: "", second: "", third: "",
+  age: "", gender: "", tribe: ""
+};
+function resetHealthForm() {
+  firstInput.value = "";
+  secondInput.value = "";
+  thirdInput.value = "";
+  ageInput.value = "";
+  tribeInput.value = "";
+
+  data = {
+    first: "",
+    second: "",
+    third: "",
+    age: "",
+    gender: "",
+    tribe: ""
+  };
+
+  topDisplay.innerHTML = "";
+
+  firstInput.style.display = "block";
+  secondInput.style.display = "none";
+  thirdInput.style.display = "none";
+  ageInput.style.display = "none";
+  tribeInput.style.display = "none";
+  genderBox.style.display = "none";
+
+  okBtn.style.display = "none";
+}
+document.getElementById("registerNewBtn").onclick = () => {
+  resetHealthForm(); // ✅ added
+  healthPage.style.display = "none";
+  healthRegisterPage.style.display = "flex";
+};
+cancelBtnH.onclick = () => {
+  resetHealthForm();
+  healthRegisterPage.style.display = "none";
+  healthPage.style.display = "flex";
+};
+// STEP 1 → typing first name
+firstInput.oninput = () => {
+  if (firstInput.value.length === 1) {
+    secondInput.style.display = "block";
+  }
+};
+
+// STEP 2 → typing second name
+secondInput.oninput = () => {
+  if (secondInput.value.length === 1) {
+    data.first = firstInput.value;
+
+    addButton(data.first);
+
+    firstInput.style.display = "none";
+    thirdInput.style.display = "block";
+  }
+};
+
+// STEP 3 → typing third name
+thirdInput.oninput = () => {
+  if (thirdInput.value.length === 1) {
+    data.second = secondInput.value;
+
+    updateNameButton();
+
+    secondInput.style.display = "none";
+    ageInput.style.display = "block";
+  }
+};
+
+// STEP 4 → typing age
+ageInput.oninput = () => {
+  if (ageInput.value.length === 1) {
+    data.third = thirdInput.value;
+
+    updateNameButton();
+
+    thirdInput.style.display = "none";
+    genderBox.style.display = "block";
+  }
+};
+maleBtn.onclick = () => setGender("MALE");
+femaleBtn.onclick = () => setGender("FEMALE");
+function setGender(g) {
+  data.age = ageInput.value;
+  data.gender = g;
+  addButton(data.age);
+  addButton(g);
+  ageInput.style.display = "none";
+  genderBox.style.display = "none";
+
+  tribeInput.style.display = "block";
+  okBtn.style.display = "inline-block";
+}
+// FINAL STEP
+tribeInput.oninput = () => {
+  data.tribe = tribeInput.value;
+};
+okBtn.onclick = async () => {
+  // 🔒 lock button
+  okBtn.disabled = true;
+  okBtn.textContent = "Saving...";
+
+  try {
+    // ✅ VALIDATION
+    if (!data.first || !data.age || !data.gender) {
+      alert("Please complete all required fields");
+      return; // finally will still run → safe
+    }
+    // 🚀 SAVE IN BACKGROUND (no wait)
+saveUserData("records", {
+  category: "health",
+  firstName: data.first,
+  secondName: data.second,
+  thirdName: data.third,
+  age: data.age,
+  gender: data.gender,
+  tribe: data.tribe,
+  userName: auth.currentUser?.displayName || "User"
+}).catch(err => console.error(err));
+
+// 🚀 GO BACK IMMEDIATELY
+resetHealthForm();
+healthRegisterPage.style.display = "none";
+healthPage.style.display = "flex";
+resetHealthForm();
+
+    // ✅ KEEP BUTTON READY FOR NEXT OPEN
+    okBtn.style.display = "inline-block";
+
+    // ✅ NAVIGATION
+    healthRegisterPage.style.display = "none";
+    healthPage.style.display = "flex";
+
+  } catch (error) {
+    console.error(error);
+    alert("Error saving patient!");
+  } finally {
+    // 🔓 ALWAYS UNLOCK BUTTON (covers ALL cases)
+    okBtn.disabled = false;
+    okBtn.textContent = "OK";
+  }
+};/*  */
+// HELPERS
+function addButton(text) {
+  const btn = document.createElement("button");
+  btn.className = "big-btn";
+  btn.style.background = "#007bff";
+  btn.textContent = text;
+  topDisplay.appendChild(btn);
+}
+function updateNameButton() {
+  topDisplay.innerHTML = "";
+  const full = firstInput.value + " " + secondInput.value + " " + thirdInput.value;
+  addButton(full.trim());
+}
+// STEP 1 → NAME
+businessNameInput.oninput = () => {
+  if (businessNameInput.value.length === 1) {
+    businessAmountInput.style.display = "block";
+  }
+};
+
+// STEP 2 → AMOUNT
+businessAmountInput.oninput = () => {
+  if (businessAmountInput.value.length === 1) {
+    businessData.name = businessNameInput.value;
+
+    addBusinessButton(businessData.name);
+
+    businessNameInput.style.display = "none";
+    inOutBox.style.display = "block";
+  }
+};
+
+// STEP 3 → IN / OUT
+inBtn.onclick = () => setType("IN");
+outBtn.onclick = () => setType("OUT");
+
+function setType(type) {
+  businessData.amount = businessAmountInput.value;
+  businessData.type = type;
+
+  addBusinessButton(type);
+
+  businessAmountInput.style.display = "none";
+  inOutBox.style.display = "none";
+  methodBox.style.display = "block";
+}
+
+// STEP 4 → METHOD
+cashBtn.onclick = () => setMethod("CASH");
+bankBtn.onclick = () => setMethod("BANK");
+creditBtn.onclick = () => {
+  businessData.method = "CREDIT";
+  addBusinessButton("CREDIT");
+
+  methodBox.style.display = "none";
+  creditNameInput.style.display = "block";
+  okBusinessBtn.style.display = "inline-block";
+};
+
+function setMethod(method) {
+  businessData.method = method;
+
+  addBusinessButton(method);
+
+  methodBox.style.display = "none";
+  okBusinessBtn.style.display = "inline-block";
+}
+
+// CREDIT NAME
+creditNameInput.oninput = () => {
+  businessData.creditName = creditNameInput.value;
+};
+okBusinessBtn.onclick = async () => {
+  okBusinessBtn.disabled = true;
+  okBusinessBtn.textContent = "Saving...";
+
+  try {
+    if (!businessData.name || !businessData.amount) {
+      alert("Fill required fields");
+      return;
+    }
+    // 🚀 SAVE IN BACKGROUND
+saveUserData("records", {
+  category: "business",
+  name: businessData.name,
+  amount: Number(businessData.amount),
+  type: businessData.type,
+  method: businessData.method,
+  creditName: businessData.creditName || "",
+  userName: auth.currentUser?.displayName || "User"
+}).catch(err => console.error(err));
+
+// 🚀 GO BACK FAST
+resetBusinessForm();
+businessRegisterPage.style.display = "none";
+businessPage.style.display = "flex";
+
+    resetBusinessForm();
+
+    businessRegisterPage.style.display = "none";
+    businessPage.style.display = "flex";
+
+  } catch (e) {
+    console.error(e);
+    alert("Error saving transaction");
+  } finally {
+    okBusinessBtn.disabled = false;
+    okBusinessBtn.textContent = "OK";
+  }
+};
+cancelBusinessBtn.onclick = () => {
+  resetBusinessForm();
+  businessRegisterPage.style.display = "none";
+  businessPage.style.display = "flex";
+};
+function addBusinessButton(text) {
+  const btn = document.createElement("button");
+  btn.className = "big-btn";
+  btn.style.background = "#007bff";
+  btn.textContent = text;
+  businessTopDisplay.appendChild(btn);
+}
+const viewBusinessBtn = document.getElementById("viewBusinessBtn");
+const viewOptions = document.getElementById("viewOptions");
+const backViewBtn = document.getElementById("backViewBtn");
+
+// Show LIST + BACK
+viewBusinessBtn.onclick = () => {
+  viewBusinessBtn.style.display = "none";
+  document.getElementById("addBusinessBtn").style.display = "none";
+
+  viewOptions.style.display = "flex";
+};
+
+// Back to business menu
+backViewBtn.onclick = () => {
+  viewOptions.style.display = "none";
+
+  viewBusinessBtn.style.display = "block";
+  document.getElementById("addBusinessBtn").style.display = "block";
+};
+</script>
 </body>
 </html>
