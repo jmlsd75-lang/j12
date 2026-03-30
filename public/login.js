@@ -180,11 +180,19 @@ onAuthStateChanged(auth, (user) => {
 // After login Google redirects back to login.html
 // Then Step 1 (getRedirectResult) catches it
 // ========================================
+// STEP 3: BUTTON CLICK → SEND TO GOOGLE
+// ========================================
 window.addEventListener("DOMContentLoaded", () => {
   const googleBtn = document.getElementById("googleLoginBtn");
 
+  // Safety check
+  if (!googleBtn) {
+    console.error("googleLoginBtn not found in HTML");
+    return;
+  }
+
   googleBtn.addEventListener("click", () => {
-    console.log("CLICK WORKING"); // test
+    console.log("CLICK WORKING");
 
     googleBtn.disabled = true;
     googleBtn.style.opacity = "0.5";
@@ -192,32 +200,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     showLoading("Redirecting to Google...");
 
-    // IMPORTANT: NO await
+    // Redirect to Google login
     signInWithRedirect(auth, provider);
   });
-});
-  // Lock button immediately
-  googleBtn.disabled = true;
-  googleBtn.style.opacity = "0.5";
-  googleBtn.style.pointerEvents = "none";
-
-  showLoading("Redirecting to Google...");
-
-  try {
-    // THIS MAKES THE BROWSER GO TO GOOGLE
-    await signInWithRedirect(auth, provider);
-    // Code after this line DOES NOT RUN
-    // because the browser has already navigated away
-  } catch (error) {
-    hideLoading();
-    googleBtn.disabled = false;
-    googleBtn.style.opacity = "1";
-    googleBtn.style.pointerEvents = "auto";
-
-    // Only show error if not user cancellation
-    if (error.code !== "auth/redirect-cancelled-by-user") {
-      showError("Could not start login. Please try again.");
-      console.error("Redirect error:", error);
-    }
-  }
 });
