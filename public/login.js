@@ -1,4 +1,4 @@
-// ===== FIREBASE CLOUD CDN IMPORTS =====
+// ===== FIREBASE — CLOUD CDN =====
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth,
@@ -14,7 +14,7 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// ===== FIREBASE CONFIG =====
+// ===== YOUR FIRESTORE CONFIG =====
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -24,13 +24,16 @@ const firebaseConfig = {
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
-// ===== INITIALIZE =====
+// ===== INIT =====
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// ===== DOM ELEMENTS =====
+// ===== ADMIN CHECK — same as your index.html =====
+const ADMIN_EMAIL = "camelkazembe1@gmail.com";
+
+// ===== DOM =====
 const googleBtn = document.getElementById("googleLoginBtn");
 const errorMsg = document.getElementById("errorMsg");
 const loadingOverlay = document.getElementById("loadingOverlay");
@@ -46,16 +49,15 @@ function showError(msg) {
 function showLoading(text) {
   loadingText.textContent = text;
   loadingOverlay.style.display = "flex";
-  loadingOverlay.classList.remove("hidden");
 }
 
 function hideLoading() {
   loadingOverlay.style.display = "none";
-  loadingOverlay.classList.add("hidden");
 }
 
-// ===== SAVE LOGIN TO FIRESTORE =====
+// ===== SAVE LOGIN — same pattern as your saveUserData =====
 async function saveLogin(user) {
+  if (!user) return;
   try {
     await addDoc(collection(db, "users", user.uid, "logins"), {
       name: user.displayName,
@@ -63,52 +65,55 @@ async function saveLogin(user) {
       userId: user.uid,
       createdAt: serverTimestamp()
     });
+    console.log("Login saved to Firestore");
   } catch (e) {
     console.error("Save login error:", e);
   }
 }
 
-// ===== HANDLE REDIRECT RESULT WHEN GOOGLE SENDS USER BACK =====
-// This runs every time login.html loads — if user just came back from Google,
-// getRedirectResult will have the credential. Otherwise it returns null.
+// ===== FLAG — prevents double redirect =====
+let redirectHandled = false;
+
+// ===== STEP 1: CHECK IF USER JUST CAME BACK FROM GOOGLE =====
+// When Google redirects back to this page after login,
+// getRedirectResult() returns the credential.
+// If user opened the page normally, it returns null.
 getRedirectResult(auth)
   .then(async (result) => {
-    if (result) {
-      // User just returned from Google login successfully
-      showLoading("Welcome back, verifying...");
+    if (result && result.user) {
+      // User just returned from Google — this is the login result
+      redirectHandled = true;
+      showLoading("Verifying login...");
 
       const user = result.user;
+      console.log("User returned from Google:", user.email);
 
-      // Save login record to Firestore
+      // Save to Firestore — same path as your index.html: users/{uid}/logins
       await saveLogin(user);
 
-      // Short pause so user sees the loading message
+      // Small delay so user sees "verifying" before jump
       setTimeout(() => {
         window.location.href = "index.html";
       }, 800);
     }
-    // If result is null, user either just opened the page fresh
-    // or hasn't logged in yet — do nothing, show the login button
+    // result is null = user just opened the page, not a redirect return
+    // The login button stays visible, waiting for click
   })
   .catch((error) => {
     hideLoading();
 
     switch (error.code) {
-      case "auth/popup-closed-by-user":
-        // Not applicable for redirect, but handle just in case
-        showError("Login was cancelled. Please try again.");
-        break;
-      case "auth/credential-already-in-use":
-        showError("This account is already linked. Please try again.");
-        break;
-      case "auth/network-request-failed":
-        showError("Network error. Check your connection and try again.");
-        break;
       case "auth/redirect-cancelled-by-user":
         showError("You cancelled the login. Please try again.");
         break;
+      case "auth/credential-already-in-use":
+        showError("This account is already linked. Try again.");
+        break;
+      case "auth/network-request-failed":
+        showError("Network error. Check your connection.");
+        break;
       case "auth/too-many-requests":
-        showError("Too many attempts. Please wait a moment and try again.");
+        showError("Too many attempts. Wait and try again.");
         break;
       default:
         showError("Login failed. Please try again.");
@@ -116,27 +121,20 @@ getRedirectResult(auth)
     }
   });
 
-// ===== ALSO CHECK IF USER IS ALREADY LOGGED IN =====
-// This covers the case where user is already authenticated
-// and somehow lands on login.html — just send them back
+// ===== STEP 2: CHECK IF ALREADY LOGGED IN =====
+// Covers case where user is authenticated but didn't just come from redirect
 onAuthStateChanged(auth, (user) => {
-  if (user) {
-    // User is already signed in, skip login page entirely
-    // But wait — if getRedirectResult is still processing above,
-    // don't redirect twice. Use a small delay to let redirect result handle it.
+  if (user && !redirectHandled) {
+    // Already logged in, skip login page
     setTimeout(() => {
-      // Only redirect if we're still on login.html
-      // (getRedirectResult would have already redirected if it fired)
-      if (!window.location.href.includes("index.html")) {
-        window.location.href = "index.html";
-      }
+      window.location.href = "index.html";
     }, 1500);
   }
 });
 
-// ===== GOOGLE LOGIN BUTTON — REDIRECTS TO GOOGLE =====
+// ===== STEP 3: BUTTON CLICK — SEND USER TO GOOGLE =====
 googleBtn.addEventListener("click", async () => {
-  // Disable button immediately to prevent double-clicks
+  // Lock button to prevent double click
   googleBtn.disabled = true;
   googleBtn.style.opacity = "0.6";
   googleBtn.style.pointerEvents = "none";
@@ -144,9 +142,12 @@ googleBtn.addEventListener("click", async () => {
   showLoading("Redirecting to Google...");
 
   try {
-    // This ACTUALLY navigates the browser to Google's sign-in page
-    // The browser URL bar changes to accounts.google.com
-    // After user logs in, Google redirects back to this login.html
+    // THIS IS THE KEY DIFFERENCE FROM POPUP:
+    // signInWithRedirect makes the BROWSER itself navigate to Google.
+    // The URL bar changes to accounts.google.com.
+    // The user sees Google's real login page — email, password, 2FA.
+    // After login, Google redirects back to THIS page (login.html).
+    // Then getRedirectResult() at the top catches it.
     await signInWithRedirect(auth, provider);
   } catch (error) {
     hideLoading();
