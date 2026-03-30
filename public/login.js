@@ -180,7 +180,22 @@ onAuthStateChanged(auth, (user) => {
 // After login Google redirects back to login.html
 // Then Step 1 (getRedirectResult) catches it
 // ========================================
-googleBtn.addEventListener("click", async () => {
+window.addEventListener("DOMContentLoaded", () => {
+  const googleBtn = document.getElementById("googleLoginBtn");
+
+  googleBtn.addEventListener("click", () => {
+    console.log("CLICK WORKING"); // test
+
+    googleBtn.disabled = true;
+    googleBtn.style.opacity = "0.5";
+    googleBtn.style.pointerEvents = "none";
+
+    showLoading("Redirecting to Google...");
+
+    // IMPORTANT: NO await
+    signInWithRedirect(auth, provider);
+  });
+});
   // Lock button immediately
   googleBtn.disabled = true;
   googleBtn.style.opacity = "0.5";
