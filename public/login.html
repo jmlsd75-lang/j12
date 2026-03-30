@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login — Jamali Said Kazembe Multisystem Management</title>
+  <title>Login — JAMALI SAID KAZEMBE MULTISYSTEM MANAGEMENT</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200;400;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -12,7 +12,7 @@
       theme: {
         extend: {
           colors: {
-            forest: { 900:'#060f08', 800:'#0a1a0f', 700:'#0f2616', 600:'#14331e', 500:'#1a4028', 400:'#256b3a', 300:'#2d8a48', 200:'#4ade80', 100:'#bbf7d0' },
+            forest: { 900:'#040d06', 800:'#091a0e', 700:'#0e2515', 600:'#14331e', 500:'#1a4028', 400:'#256b3a', 300:'#2d8a48', 200:'#4ade80', 100:'#bbf7d0' },
             bark: { 700:'#3d2b1f', 600:'#5c3d2e', 500:'#7a5240', 400:'#9a7260', 300:'#c4a882' },
             moss:'#8fbc6a', leaf:'#6abf4b', cream:'#f5f0e8', fog:'#a3b899',
           },
@@ -23,13 +23,14 @@
   </script>
   <style>
     @keyframes float{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-18px) rotate(3deg)}}
-    @keyframes floatAlt{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-12px) rotate(-2deg)}}
+    @keyframes floatAlt{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px) rotate(-2deg)}}
     @keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
-    @keyframes breathe{0%{opacity:.6;transform:translateX(-50%) scale(1)}100%{opacity:1;transform:translateX(-50%) scale(1.1)}}
-    @keyframes fogDrift{0%{transform:translateX(-100%);opacity:0}30%{opacity:.4}70%{opacity:.3}100%{transform:translateX(100%);opacity:0}}
-    @keyframes revealUp{from{opacity:0;transform:translateY(25px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes pulseGlow{0%,100%{box-shadow:0 0 20px rgba(74,222,128,.15)}50%{box-shadow:0 0 40px rgba(74,222,128,.35),0 0 80px rgba(74,222,128,.1)}}
+    @keyframes breathe{0%{opacity:.5;transform:translateX(-50%) scale(1)}100%{opacity:1;transform:translateX(-50%) scale(1.12)}}
+    @keyframes fogDrift{0%{transform:translateX(-100%);opacity:0}30%{opacity:.35}70%{opacity:.25}100%{transform:translateX(100%);opacity:0}}
+    @keyframes revealUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes pulseGlow{0%,100%{box-shadow:0 0 20px rgba(74,222,128,.12),inset 0 0 20px rgba(74,222,128,.03)}50%{box-shadow:0 0 45px rgba(74,222,128,.3),0 0 90px rgba(74,222,128,.08),inset 0 0 30px rgba(74,222,128,.05)}}
     @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+    @keyframes vineGrow{from{stroke-dashoffset:200}to{stroke-dashoffset:0}}
     .leaf{animation:float 6s ease-in-out infinite}
     .leaf-alt{animation:floatAlt 7s ease-in-out infinite}
     .leaf-sway{animation:sway 4s ease-in-out infinite}
@@ -37,66 +38,134 @@
     .d1{animation-delay:.2s}.d2{animation-delay:.5s}.d3{animation-delay:.8s}.d4{animation-delay:1.1s}
     .pulse-glow{animation:pulseGlow 3s ease-in-out infinite}
     .fog-layer{animation:fogDrift 18s linear infinite}
-    .glow-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.15) 50%,transparent 70%);transform:translateX(-100%);transition:transform .5s ease}
+    .glow-btn{position:relative;overflow:hidden}
+    .glow-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.18) 50%,transparent 70%);transform:translateX(-100%);transition:transform .5s ease}
     .glow-btn:hover::before{transform:translateX(100%)}
-    .back-link::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.1) 50%,transparent 70%);transform:translateX(-100%);transition:transform .5s ease}
+    .back-link{position:relative;overflow:hidden}
+    .back-link::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.08) 50%,transparent 70%);transform:translateX(-100%);transition:transform .5s ease}
     .back-link:hover::before{transform:translateX(100%)}
     .svg-leaf{filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}
+    .vine-path{stroke-dasharray:200;animation:vineGrow 2s ease-out forwards}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
   </style>
 </head>
 <body class="bg-forest-900 text-cream font-body h-screen overflow-hidden">
 
-  <!-- Forest glow -->
+  <!-- Deep forest radial glow -->
   <div class="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
-    <div class="absolute top-[20%] left-1/2 w-[800px] h-[800px] rounded-full" style="background:radial-gradient(circle,rgba(42,100,50,.35) 0%,rgba(15,38,22,.2) 40%,transparent 70%);animation:breathe 8s ease-in-out infinite alternate;transform:translateX(-50%)"></div>
+    <div class="absolute top-[18%] left-1/2 w-[900px] h-[900px] rounded-full" style="background:radial-gradient(circle,rgba(42,100,50,.3) 0%,rgba(15,38,22,.15) 40%,transparent 70%);animation:breathe 8s ease-in-out infinite alternate;transform:translateX(-50%)"></div>
+    <div class="absolute bottom-[10%] left-[30%] w-[400px] h-[400px] rounded-full" style="background:radial-gradient(circle,rgba(61,43,31,.15) 0%,transparent 70%);animation:breathe 10s ease-in-out infinite alternate;transform:translateX(-50%);animation-delay:-4s"></div>
   </div>
 
-  <!-- Fog -->
-  <div class="fixed bottom-0 left-0 w-full h-[40%] z-[1] pointer-events-none overflow-hidden" aria-hidden="true">
-    <div class="fog-layer absolute bottom-[10%] w-[200%] h-[80px] rounded-full" style="background:linear-gradient(90deg,transparent,rgba(163,184,153,.12),transparent)"></div>
-    <div class="fog-layer absolute bottom-[30%] w-[250%] h-[60px] rounded-full" style="background:linear-gradient(90deg,transparent,rgba(163,184,153,.08),transparent);animation-delay:-8s;animation-duration:22s"></div>
+  <!-- Fog layers -->
+  <div class="fixed bottom-0 left-0 w-full h-[45%] z-[1] pointer-events-none overflow-hidden" aria-hidden="true">
+    <div class="fog-layer absolute bottom-[8%] w-[200%] h-[90px] rounded-full" style="background:linear-gradient(90deg,transparent,rgba(163,184,153,.1),transparent)"></div>
+    <div class="fog-layer absolute bottom-[25%] w-[260%] h-[60px] rounded-full" style="background:linear-gradient(90deg,transparent,rgba(163,184,153,.07),transparent);animation-delay:-7s;animation-duration:24s"></div>
+    <div class="fog-layer absolute bottom-[42%] w-[180%] h-[50px] rounded-full" style="background:linear-gradient(90deg,transparent,rgba(143,188,106,.05),transparent);animation-delay:-14s;animation-duration:20s"></div>
   </div>
 
-  <!-- Fireflies -->
+  <!-- Firefly canvas -->
   <canvas id="fireflies" class="fixed inset-0 z-[2] pointer-events-none" aria-hidden="true"></canvas>
 
   <!-- Floating leaves -->
   <div class="fixed inset-0 z-[3] pointer-events-none overflow-hidden" aria-hidden="true">
-    <svg class="svg-leaf leaf absolute -top-10 -left-10 w-32 h-32 opacity-20" viewBox="0 0 100 100" fill="none"><path d="M50 5C20 20,5 50,50 95C95 50,80 20,50 5Z" fill="#2d8a48"/><line x1="50" y1="10" x2="50" y2="90" stroke="#14331e" stroke-width="1.5"/></svg>
-    <svg class="svg-leaf leaf-alt absolute top-20 right-8 w-24 h-24 opacity-15" style="animation-delay:-2s" viewBox="0 0 100 100" fill="none"><path d="M50 5C20 20,5 50,50 95C95 50,80 20,50 5Z" fill="#4ade80"/><line x1="50" y1="10" x2="50" y2="90" stroke="#14331e" stroke-width="1.5"/></svg>
-    <svg class="svg-leaf leaf-sway absolute bottom-32 right-16 w-28 h-28 opacity-10" viewBox="0 0 100 100" fill="none"><path d="M50 5C20 20,5 50,50 95C95 50,80 20,50 5Z" fill="#6abf4b"/><line x1="50" y1="10" x2="50" y2="90" stroke="#14331e" stroke-width="1.5"/></svg>
-    <svg class="svg-leaf leaf-alt absolute bottom-48 left-12 w-16 h-16 opacity-12" style="animation-delay:-4s" viewBox="0 0 100 100" fill="none"><path d="M50 5C20 20,5 50,50 95C95 50,80 20,50 5Z" fill="#8fbc6a"/><line x1="50" y1="10" x2="50" y2="90" stroke="#14331e" stroke-width="1.5"/></svg>
+    <svg class="svg-leaf leaf absolute -top-10 -left-10 w-36 h-36 opacity-[0.18]" viewBox="0 0 100 100" fill="none">
+      <path d="M50 5C20 20,5 50,50 95C95 50,80 20,50 5Z" fill="#2d8a48"/>
+      <line x1="50" y1="10" x2="50" y2="90" stroke="#14331e" stroke-width="1.5"/>
+      <line x1="50" y1="30" x2="30" y2="50" stroke="#14331e" stroke-width="0.8" opacity="0.5"/>
+      <line x1="50" y1="45" x2="72" y2="65" stroke="#14331e" stroke-width="0.8" opacity="0.5"/>
+    </svg>
+    <svg class="svg-leaf leaf-alt absolute top-16 right-6 w-28 h-28 opacity-[0.14]" style="animation-delay:-2s" viewBox="0 0 100 100" fill="none">
+      <path d="M50 5C20 20,5 50,50 95C95 50,80 20,50 5Z" fill="#4ade80"/>
+      <line x1="50" y1="10" x2="50" y2="90" stroke="#14331e" stroke-width="1.5"/>
+    </svg>
+    <svg class="svg-leaf leaf-sway absolute bottom-28 right-14 w-24 h-24 opacity-[0.09]" viewBox="0 0 100 100" fill="none">
+      <path d="M50 5C20 20,5 50,50 95C95 50,80 20,50 5Z" fill="#6abf4b"/>
+      <line x1="50" y1="10" x2="50" y2="90" stroke="#14331e" stroke-width="1.5"/>
+    </svg>
+    <svg class="svg-leaf leaf-alt absolute bottom-44 left-10 w-14 h-14 opacity-[0.1]" style="animation-delay:-4s" viewBox="0 0 100 100" fill="none">
+      <path d="M50 5C20 20,5 50,50 95C95 50,80 20,50 5Z" fill="#8fbc6a"/>
+      <line x1="50" y1="10" x2="50" y2="90" stroke="#14331e" stroke-width="1.5"/>
+    </svg>
+    <svg class="svg-leaf leaf absolute top-[45%] -right-4 w-20 h-20 opacity-[0.07]" style="animation-delay:-3s" viewBox="0 0 100 100" fill="none">
+      <path d="M50 5C20 20,5 50,50 95C95 50,80 20,50 5Z" fill="#256b3a"/>
+      <line x1="50" y1="10" x2="50" y2="90" stroke="#14331e" stroke-width="1.5"/>
+    </svg>
   </div>
 
   <!-- Corner vines -->
-  <div class="fixed top-0 left-0 w-20 h-32 z-[3] pointer-events-none opacity-20" aria-hidden="true">
-    <svg viewBox="0 0 80 130" fill="none" class="w-full h-full"><path d="M10 0Q5 40,20 65Q35 90,15 130" stroke="#2d8a48" stroke-width="2.5" fill="none"/><path d="M20 25Q35 20,40 30Q45 40,30 42" fill="#256b3a" opacity=".7"/><path d="M18 55Q5 50,2 60Q-1 70,14 68" fill="#2d8a48" opacity=".6"/></svg>
+  <div class="fixed top-0 left-0 w-24 h-40 z-[3] pointer-events-none opacity-[0.18]" aria-hidden="true">
+    <svg viewBox="0 0 96 160" fill="none" class="w-full h-full">
+      <path class="vine-path" d="M12 0Q6 45,24 75Q42 105,18 160" stroke="#2d8a48" stroke-width="2.5" fill="none"/>
+      <path d="M24 28Q42 22,48 34Q54 46,36 48" fill="#256b3a" opacity=".7"/>
+      <path d="M22 62Q6 56,2 68Q-2 80,18 78" fill="#2d8a48" opacity=".6"/>
+      <path d="M20 95Q32 90,36 100Q40 110,28 108" fill="#1a4028" opacity=".5"/>
+    </svg>
   </div>
-  <div class="fixed top-0 right-0 w-20 h-32 z-[3] pointer-events-none opacity-20" aria-hidden="true" style="transform:scaleX(-1)">
-    <svg viewBox="0 0 80 130" fill="none" class="w-full h-full"><path d="M10 0Q5 40,20 65Q35 90,15 130" stroke="#2d8a48" stroke-width="2.5" fill="none"/><path d="M20 25Q35 20,40 30Q45 40,30 42" fill="#256b3a" opacity=".7"/><path d="M18 55Q5 50,2 60Q-1 70,14 68" fill="#2d8a48" opacity=".6"/></svg>
+  <div class="fixed top-0 right-0 w-24 h-40 z-[3] pointer-events-none opacity-[0.18]" aria-hidden="true" style="transform:scaleX(-1)">
+    <svg viewBox="0 0 96 160" fill="none" class="w-full h-full">
+      <path class="vine-path" d="M12 0Q6 45,24 75Q42 105,18 160" stroke="#2d8a48" stroke-width="2.5" fill="none"/>
+      <path d="M24 28Q42 22,48 34Q54 46,36 48" fill="#256b3a" opacity=".7"/>
+      <path d="M22 62Q6 56,2 68Q-2 80,18 78" fill="#2d8a48" opacity=".6"/>
+    </svg>
+  </div>
+  <div class="fixed bottom-0 left-0 w-20 h-28 z-[3] pointer-events-none opacity-[0.12]" aria-hidden="true" style="transform:scaleY(-1)">
+    <svg viewBox="0 0 80 112" fill="none" class="w-full h-full">
+      <path d="M10 0Q5 35,20 56Q35 77,15 112" stroke="#2d8a48" stroke-width="2" fill="none"/>
+      <path d="M18 22Q30 18,34 28Q38 38,26 36" fill="#256b3a" opacity=".6"/>
+    </svg>
+  </div>
+  <div class="fixed bottom-0 right-0 w-20 h-28 z-[3] pointer-events-none opacity-[0.12]" aria-hidden="true" style="transform:scale(-1,1)">
+    <svg viewBox="0 0 80 112" fill="none" class="w-full h-full">
+      <path d="M10 0Q5 35,20 56Q35 77,15 112" stroke="#2d8a48" stroke-width="2" fill="none"/>
+      <path d="M18 22Q30 18,34 28Q38 38,26 36" fill="#256b3a" opacity=".6"/>
+    </svg>
   </div>
 
-  <!-- MAIN -->
+  <!-- ===== MAIN CONTENT ===== -->
   <main class="relative z-[10] flex flex-col items-center justify-center h-screen px-6">
-    <div class="text-center mb-10">
-      <p class="font-display font-bold text-forest-200 uppercase tracking-[0.15em] text-[clamp(1.6rem,4.5vw,3rem)] reveal" style="text-shadow:0 0 30px rgba(74,222,128,.25)">JAMALI</p>
-      <p class="font-display font-normal text-cream uppercase tracking-[0.22em] text-[clamp(1.2rem,3.5vw,2.2rem)] reveal d1">SAID KAZEMBE</p>
-      <p class="font-display font-extralight text-fog uppercase tracking-[0.3em] text-[clamp(0.65rem,1.6vw,0.95rem)] mt-2 reveal d2">MULTISYSTEM MANAGEMENT</p>
-    </div>
-    <div class="w-28 h-[2px] bg-gradient-to-r from-transparent via-forest-300 to-transparent mb-10 reveal d2" aria-hidden="true"></div>
 
+    <!-- System name — 3 lines as specified -->
+    <div class="text-center mb-10 select-none">
+      <p class="font-display font-bold text-forest-200 uppercase tracking-[0.15em] text-[clamp(1.7rem,5vw,3.2rem)] reveal" style="text-shadow:0 0 35px rgba(74,222,128,.22)">
+        JAMALI
+      </p>
+      <p class="font-display font-normal text-cream uppercase tracking-[0.22em] text-[clamp(1.2rem,3.5vw,2.3rem)] reveal d1">
+        SAID KAZEMBE
+      </p>
+      <p class="font-display font-extralight text-fog uppercase tracking-[0.32em] text-[clamp(0.6rem,1.5vw,0.9rem)] mt-2 reveal d2">
+        MULTISYSTEM MANAGEMENT
+      </p>
+    </div>
+
+    <!-- Vine divider -->
+    <div class="flex items-center gap-3 mb-10 reveal d2" aria-hidden="true">
+      <div class="w-12 h-[1px] bg-gradient-to-r from-transparent to-forest-400 opacity-40"></div>
+      <div class="w-2 h-2 rounded-full bg-forest-400 opacity-50"></div>
+      <div class="w-16 h-[1px] bg-forest-300 opacity-40"></div>
+      <div class="w-2 h-2 rounded-full bg-forest-400 opacity-50"></div>
+      <div class="w-12 h-[1px] bg-gradient-to-l from-transparent to-forest-400 opacity-40"></div>
+    </div>
+
+    <!-- Login card -->
     <div class="w-full max-w-sm reveal d3">
-      <div class="rounded-2xl p-8 pulse-glow" style="background:linear-gradient(145deg,rgba(15,38,22,.85),rgba(10,26,15,.95));border:1px solid rgba(45,138,72,.2);backdrop-filter:blur(12px)">
-        <div class="flex justify-center mb-6">
-          <div class="w-16 h-16 rounded-full flex items-center justify-center" style="background:linear-gradient(135deg,rgba(45,138,72,.2),rgba(20,51,30,.4));border:1px solid rgba(74,222,128,.15)">
+      <div class="rounded-2xl p-8 pulse-glow" style="background:linear-gradient(150deg,rgba(14,37,21,.88),rgba(9,26,14,.96));border:1px solid rgba(45,138,72,.18);backdrop-filter:blur(14px)">
+
+        <!-- Shield icon -->
+        <div class="flex justify-center mb-5">
+          <div class="w-16 h-16 rounded-full flex items-center justify-center" style="background:linear-gradient(140deg,rgba(45,138,72,.18),rgba(20,51,30,.35));border:1px solid rgba(74,222,128,.12)">
             <i class="fa-solid fa-shield-halved text-2xl text-forest-200"></i>
           </div>
         </div>
-        <p class="text-center text-fog text-sm tracking-widest uppercase mb-2">Sign in to continue</p>
-        <p class="text-center text-forest-400 text-xs tracking-wide mb-8 opacity-70">You will be redirected to Google to sign in securely</p>
 
-        <button id="googleLoginBtn" class="glow-btn relative w-full py-4 px-6 rounded-xl flex items-center justify-center gap-3 cursor-pointer overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-forest-200 focus-visible:outline-offset-4" style="background:linear-gradient(135deg,#1a4028,#256b3a);border:1px solid rgba(74,222,128,.25)" aria-label="Sign in with Google">
+        <p class="text-center text-fog text-sm tracking-[0.2em] uppercase mb-1">Sign in to continue</p>
+        <p class="text-center text-forest-400 text-xs tracking-wide mb-7 opacity-60">You will be redirected to Google to sign in</p>
+
+        <!-- Google redirect button -->
+        <button id="googleLoginBtn"
+                class="glow-btn w-full py-4 px-6 rounded-xl flex items-center justify-center gap-3 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-forest-200 focus-visible:outline-offset-4"
+                style="background:linear-gradient(140deg,#1a4028,#256b3a);border:1px solid rgba(74,222,128,.22)"
+                aria-label="Sign in with Google">
           <svg width="20" height="20" viewBox="0 0 48 48" class="flex-shrink-0">
             <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
             <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
@@ -106,45 +175,85 @@
           <span class="font-display text-base tracking-[0.15em] uppercase text-cream">Continue with Google</span>
         </button>
 
-        <p id="errorMsg" class="text-center text-red-400 text-sm mt-4 hidden"></p>
+        <!-- Error -->
+        <p id="errorMsg" class="text-center text-red-400 text-sm mt-4 hidden leading-relaxed"></p>
       </div>
     </div>
 
-    <a href="index.html" class="back-link relative mt-8 inline-flex items-center gap-2 px-6 py-3 rounded-lg font-display text-sm tracking-[0.15em] uppercase text-fog no-underline overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:text-cream focus-visible:outline-2 focus-visible:outline-forest-200 focus-visible:outline-offset-4 reveal d4" style="background:rgba(61,43,31,.4);border:1px solid rgba(154,114,96,.2)" aria-label="Go back">
-      <i class="fa-solid fa-arrow-left text-xs"></i><span>Back</span>
+    <!-- Back to index -->
+    <a href="index.html"
+       class="back-link mt-8 inline-flex items-center gap-2 px-6 py-3 rounded-lg font-display text-sm tracking-[0.15em] uppercase text-fog no-underline transition-all duration-300 hover:-translate-y-0.5 hover:text-cream focus-visible:outline-2 focus-visible:outline-forest-200 focus-visible:outline-offset-4 reveal d4"
+       style="background:rgba(61,43,31,.35);border:1px solid rgba(154,114,96,.18)"
+       aria-label="Go back to home">
+      <i class="fa-solid fa-arrow-left text-xs"></i>
+      <span>Back</span>
     </a>
   </main>
 
-  <div class="fixed bottom-0 left-0 w-full h-[3px] z-[10]" style="background:linear-gradient(90deg,transparent,rgba(45,138,72,.3),rgba(154,114,96,.2),rgba(45,138,72,.3),transparent)" aria-hidden="true"></div>
+  <!-- Forest floor line -->
+  <div class="fixed bottom-0 left-0 w-full h-[2px] z-[10]" style="background:linear-gradient(90deg,transparent 5%,rgba(45,138,72,.25) 30%,rgba(154,114,96,.15) 50%,rgba(45,138,72,.25) 70%,transparent 95%)" aria-hidden="true"></div>
 
-  <!-- Loading -->
-  <div id="loadingOverlay" class="fixed inset-0 z-[100] items-center justify-center flex-col" style="background:rgba(6,15,8,.92);display:none">
+  <!-- Loading overlay -->
+  <div id="loadingOverlay" class="fixed inset-0 z-[100] flex-col items-center justify-center" style="background:rgba(4,13,6,.94);display:none">
     <div class="w-14 h-14 rounded-full border-[3px] border-forest-700 border-t-forest-200" style="animation:spin 1s linear infinite"></div>
-    <p id="loadingText" class="mt-5 text-fog text-sm tracking-widest uppercase">Redirecting to Google...</p>
+    <p id="loadingText" class="mt-5 text-fog text-sm tracking-[0.2em] uppercase">Redirecting to Google...</p>
   </div>
 
+  <!-- Fireflies -->
   <script>
     (() => {
-      const c = document.getElementById('fireflies').getContext('2d');
-      let w, h; const dots = [];
-      function resize(){ w = c.canvas.width = innerWidth; h = c.canvas.height = innerHeight; }
+      const cv = document.getElementById('fireflies');
+      const cx = cv.getContext('2d');
+      let w, h;
+      const dots = [];
+      function resize() { w = cv.width = innerWidth; h = cv.height = innerHeight; }
       addEventListener('resize', resize); resize();
-      class D{ constructor(){ this.reset(); }
-        reset(){ this.x=Math.random()*w; this.y=Math.random()*h; this.r=Math.max(.8,Math.random()*2.2); this.vx=(Math.random()-.5)*.2; this.vy=(Math.random()-.5)*.15-.05; this.p=Math.random()*Math.PI*2; this.s=Math.random()*.015+.008; this.m=Math.random()*.6+.2; }
-        update(){ this.x+=this.vx; this.y+=this.vy; this.p+=this.s; if(this.x<-20||this.x>w+20||this.y<-20||this.y>h+20) this.reset(); }
-        draw(){ const a=this.m*Math.max(0,Math.sin(this.p)); if(a<.02)return;
-          const g=c.createRadialGradient(this.x,this.y,0,this.x,this.y,this.r*6);
-          g.addColorStop(0,`rgba(180,230,120,${(a*.6).toFixed(3)})`);
-          g.addColorStop(0.4,`rgba(140,210,90,${(a*.2).toFixed(3)})`);
-          g.addColorStop(1,'rgba(100,180,70,0)');
-          c.beginPath(); c.arc(this.x,this.y,Math.max(.1,this.r*6),0,Math.PI*2); c.fillStyle=g; c.fill();
-          c.beginPath(); c.arc(this.x,this.y,Math.max(.1,this.r),0,Math.PI*2); c.fillStyle=`rgba(220,255,180,${a.toFixed(3)})`; c.fill();
+
+      class F {
+        constructor() { this.reset(); }
+        reset() {
+          this.x = Math.random() * w;
+          this.y = Math.random() * h;
+          this.r = Math.max(0.6, Math.random() * 2.4);
+          this.vx = (Math.random() - 0.5) * 0.18;
+          this.vy = (Math.random() - 0.5) * 0.12 - 0.04;
+          this.p = Math.random() * Math.PI * 2;
+          this.s = Math.random() * 0.014 + 0.006;
+          this.m = Math.random() * 0.55 + 0.15;
+        }
+        update() {
+          this.x += this.vx;
+          this.y += this.vy;
+          this.p += this.s;
+          if (this.x < -20 || this.x > w + 20 || this.y < -20 || this.y > h + 20) this.reset();
+        }
+        draw() {
+          const a = this.m * Math.max(0, Math.sin(this.p));
+          if (a < 0.015) return;
+          const g = cx.createRadialGradient(this.x, this.y, 0, this.x, this.y, Math.max(0.1, this.r * 7));
+          g.addColorStop(0, `rgba(180,230,120,${(a * 0.5).toFixed(3)})`);
+          g.addColorStop(0.35, `rgba(140,210,90,${(a * 0.15).toFixed(3)})`);
+          g.addColorStop(1, 'rgba(100,180,70,0)');
+          cx.beginPath();
+          cx.arc(this.x, this.y, Math.max(0.1, this.r * 7), 0, Math.PI * 2);
+          cx.fillStyle = g;
+          cx.fill();
+          cx.beginPath();
+          cx.arc(this.x, this.y, Math.max(0.1, this.r), 0, Math.PI * 2);
+          cx.fillStyle = `rgba(220,255,180,${a.toFixed(3)})`;
+          cx.fill();
         }
       }
-      for(let i=0;i<35;i++) dots.push(new D());
-      (function loop(){ c.clearRect(0,0,w,h); dots.forEach(d=>{d.update();d.draw();}); requestAnimationFrame(loop); })();
+      for (let i = 0; i < 40; i++) dots.push(new F());
+      (function loop() {
+        cx.clearRect(0, 0, w, h);
+        dots.forEach(d => { d.update(); d.draw(); });
+        requestAnimationFrame(loop);
+      })();
     })();
   </script>
+
+  <!-- Login logic -->
   <script type="module" src="login.js"></script>
 </body>
 </html>
