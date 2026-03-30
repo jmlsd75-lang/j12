@@ -16,10 +16,10 @@ const provider = new GoogleAuthProvider();
 const msg = document.getElementById("loginMsg");
 const btn = document.getElementById("googleLoginBtn");
 
-// Already logged in? Go straight to fre.html
+// Already logged in — go straight to system page
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        window.location.href = "fre.html";
+        window.location.replace("index.html");
     }
 });
 
@@ -27,9 +27,10 @@ btn.addEventListener("click", async () => {
     btn.disabled = true;
     msg.className = "msg info";
     msg.textContent = "Connecting to Google...";
+
     try {
         await signInWithPopup(auth, provider);
-        // onAuthStateChanged will redirect to fre.html
+        // onAuthStateChanged fires and redirects to index.html
     } catch (e) {
         btn.disabled = false;
         msg.className = "msg error";
