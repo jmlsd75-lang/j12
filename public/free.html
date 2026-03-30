@@ -29,24 +29,15 @@
       position:fixed; inset:0; z-index:10;
       background: linear-gradient(
         to bottom,
-        #080c18 0%,
-        #0e1230 15%,
-        #1a1040 28%,
-        #2a1648 38%,
-        #5c2840 48%,
-        #c04828 56%,
-        #d95530 62%,
-        #e89830 70%,
-        #f0b848 78%,
-        #e89830 100%
+        #080c18 0%, #0e1230 15%, #1a1040 28%, #2a1648 38%,
+        #5c2840 48%, #c04828 56%, #d95530 62%, #e89830 70%,
+        #f0b848 78%, #e89830 100%
       );
       display:flex; flex-direction:column; align-items:center; justify-content:center;
     }
 
-    /* Stars */
     #kiliStars { position:absolute; inset:0; z-index:0; pointer-events:none; }
 
-    /* Mountain */
     .mountain-wrap {
       position:absolute; bottom:0; left:0; width:100%; height:65%; z-index:1; pointer-events:none;
     }
@@ -71,7 +62,6 @@
       background: linear-gradient(to top, rgba(232,152,48,0.3), transparent);
     }
 
-    /* Clouds */
     .cloud {
       position:absolute; border-radius:50%; opacity:0.08;
       background: radial-gradient(ellipse, rgba(240,238,245,0.4), transparent 70%);
@@ -82,7 +72,6 @@
       to { transform: translateX(120vw); }
     }
 
-    /* Kili countdown */
     .kili-timer {
       position:relative; z-index:5;
       font-family:'Oswald',sans-serif; font-weight:700;
@@ -108,19 +97,12 @@
       position:fixed; inset:0; z-index:10; display:none;
       background: linear-gradient(
         to bottom,
-        #0b1a0e 0%,
-        #102814 20%,
-        #142e18 35%,
-        #1f4a24 50%,
-        #3a6a28 65%,
-        #7a6230 80%,
-        #c4a050 92%,
-        #d4b060 100%
+        #0b1a0e 0%, #102814 20%, #142e18 35%, #1f4a24 50%,
+        #3a6a28 65%, #7a6230 80%, #c4a050 92%, #d4b060 100%
       );
       flex-direction:column; align-items:center; justify-content:center;
     }
 
-    /* Giraffe silhouette */
     .giraffe-container {
       position:absolute; bottom:18%; right:8%; z-index:1; pointer-events:none;
       width: clamp(80px, 18vw, 160px);
@@ -140,7 +122,6 @@
     .g-tail { width:3%; height:14%; background:#1a0e08; border-radius:2px; position:absolute; top:46%; left:74%; transform:rotate(25deg); transform-origin:top center; }
     .g-tail-tuft { width:5%; height:4%; background:#1a0e08; border-radius:50%; position:absolute; top:58%; left:76%; }
 
-    /* Acacia tree */
     .acacia-container {
       position:absolute; bottom:20%; left:5%; z-index:1; pointer-events:none;
       width: clamp(60px, 14vw, 130px);
@@ -150,7 +131,6 @@
     .acacia-canopy { width:100%; height:40%; position:absolute; top:0; left:0; }
     .acacia-pad { position:absolute; background:#0e0a06; border-radius:50%; }
 
-    /* Savanna grass */
     .grass-blade {
       position:absolute; bottom:0; width:3px; border-radius:2px 2px 0 0;
       background: linear-gradient(to top, #3a6a28, #5a9038);
@@ -162,7 +142,6 @@
       100% { transform: rotate(5deg); }
     }
 
-    /* Giraffe phase content */
     .giraffe-content { position:relative; z-index:5; text-align:center; }
     .await-timer {
       font-family:'Oswald',sans-serif; font-weight:700;
@@ -180,7 +159,6 @@
       margin-bottom: 0.5rem;
     }
 
-    /* Buttons */
     .glow-btn {
       position:relative; overflow:hidden; cursor:pointer;
       border:none; outline:none;
@@ -260,7 +238,6 @@
       background: rgba(240,238,245,0.08);
     }
 
-    /* Animations */
     @keyframes revealUp {
       from { opacity:0; transform:translateY(24px); }
       to { opacity:1; transform:translateY(0); }
@@ -275,16 +252,11 @@
     .fade-d3 { animation-delay: 0.5s; }
     .fade-d4 { animation-delay: 0.7s; }
 
-    /* Phase transition */
-    .phase-out {
-      animation: phaseOut 0.5s ease-in forwards;
-    }
+    .phase-out { animation: phaseOut 0.5s ease-in forwards; }
     @keyframes phaseOut {
       to { opacity:0; transform:scale(1.05); }
     }
-    .phase-in {
-      animation: phaseIn 0.6s ease-out forwards;
-    }
+    .phase-in { animation: phaseIn 0.6s ease-out forwards; }
     @keyframes phaseIn {
       from { opacity:0; transform:scale(0.95); }
       to { opacity:1; transform:scale(1); }
@@ -301,19 +273,14 @@
 </head>
 <body>
 
-  <!-- ============================================ -->
   <!-- PHASE 1: KILIMANJARO COUNTDOWN (180 seconds) -->
-  <!-- ============================================ -->
   <div id="kilimanjaroPhase">
-    <!-- Stars -->
     <canvas id="kiliStars" aria-hidden="true"></canvas>
 
-    <!-- Clouds -->
     <div class="cloud" style="width:300px;height:60px;top:12%;left:-300px;animation-duration:35s;" aria-hidden="true"></div>
     <div class="cloud" style="width:200px;height:40px;top:22%;left:-200px;animation-duration:45s;animation-delay:-15s;" aria-hidden="true"></div>
     <div class="cloud" style="width:250px;height:50px;top:8%;left:-250px;animation-duration:40s;animation-delay:-25s;" aria-hidden="true"></div>
 
-    <!-- Mountain -->
     <div class="mountain-wrap" aria-hidden="true">
       <div class="mountain-far"></div>
       <div class="mountain-main"></div>
@@ -321,7 +288,6 @@
       <div class="ground-glow"></div>
     </div>
 
-    <!-- Content -->
     <p class="kili-label">Free Session</p>
     <div class="kili-timer" id="kiliTimer">00:03:00</div>
     <p class="kili-label" style="margin-top:2rem; margin-bottom:1.5rem; animation-delay:0.4s; font-size:clamp(0.6rem,1.5vw,0.75rem); opacity:0.35;">Kilimanjaro Free Access</p>
@@ -330,11 +296,8 @@
     </button>
   </div>
 
-  <!-- ============================================ -->
-  <!-- PHASE 2: GIRAFFE AWAIT (24 hours)            -->
-  <!-- ============================================ -->
+  <!-- PHASE 2: GIRAFFE AWAIT (24 hours) -->
   <div id="giraffePhase">
-    <!-- Giraffe silhouette -->
     <div class="giraffe-container" aria-hidden="true">
       <div class="g-head"></div>
       <div class="g-ossicone-l"></div>
@@ -351,7 +314,6 @@
       <div class="g-tail-tuft"></div>
     </div>
 
-    <!-- Acacia tree -->
     <div class="acacia-container" aria-hidden="true">
       <div class="acacia-trunk"></div>
       <div class="acacia-canopy">
@@ -362,21 +324,17 @@
       </div>
     </div>
 
-    <!-- Grass blades container -->
     <div id="grassContainer" style="position:absolute;bottom:0;left:0;width:100%;height:12%;z-index:2;pointer-events:none;overflow:hidden;" aria-hidden="true"></div>
 
-    <!-- Content -->
     <div class="giraffe-content">
       <p class="await-label fade-in">Next free session in</p>
       <div class="await-timer fade-in fade-d1" id="awaitTimer">24:00:00</div>
 
       <div class="flex items-center justify-center gap-4 mt-10 fade-in fade-d2">
-        <!-- AWAIT — unclickable -->
         <div class="await-disabled" id="awaitBtn" aria-disabled="true" tabindex="-1">
           <i class="fa-solid fa-hourglass-half" style="margin-right:6px; font-size:0.85em;"></i>
           AWAIT
         </div>
-        <!-- PAY — clickable, goes to pay.html -->
         <a href="pay.html" class="pay-btn-giraffe" role="button" aria-label="Proceed to payment">
           <i class="fa-solid fa-coins" style="font-size:0.85em;"></i>
           PAY
@@ -428,7 +386,7 @@
       draw();
     })();
 
-    // Generate grass blades for giraffe phase
+    // Generate grass blades
     (() => {
       const gc = document.getElementById('grassContainer');
       for (let i = 0; i < 60; i++) {
