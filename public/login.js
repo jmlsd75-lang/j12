@@ -1,10 +1,13 @@
-// ===== FIREBASE — CLOUD CDN =====
+// ========================================
+// FIREBASE — ALL FROM CLOUD CDN
+// Using YOUR exact project config
+// ========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth,
   GoogleAuthProvider,
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithRedirect,   // FULL PAGE REDIRECT — user goes to Google
+  getRedirectResult,     // CATCHES USER WHEN GOOGLE SENDS THEM BACK
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
@@ -14,7 +17,9 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// ===== YOUR FIRESTORE CONFIG =====
+// ========================================
+// YOUR EXACT FIREBASE CONFIG
+// ========================================
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -24,22 +29,30 @@ const firebaseConfig = {
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
-// ===== INIT =====
+// ========================================
+// YOUR EXACT ADMIN EMAIL
+// ========================================
+const ADMIN_EMAIL = "camelkazembe1@gmail.com";
+
+// ========================================
+// INITIALIZE
+// ========================================
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// ===== ADMIN CHECK — same as your index.html =====
-const ADMIN_EMAIL = "camelkazembe1@gmail.com";
-
-// ===== DOM =====
+// ========================================
+// DOM
+// ========================================
 const googleBtn = document.getElementById("googleLoginBtn");
 const errorMsg = document.getElementById("errorMsg");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
 
-// ===== HELPERS =====
+// ========================================
+// HELPERS
+// ========================================
 function showError(msg) {
   errorMsg.textContent = msg;
   errorMsg.classList.remove("hidden");
@@ -55,7 +68,12 @@ function hideLoading() {
   loadingOverlay.style.display = "none";
 }
 
-// ===== SAVE LOGIN — same pattern as your saveUserData =====
+// ========================================
+// SAVE LOGIN TO FIRESTORE
+// Same path as your index.html:
+//   users/{uid}/logins/{docId}
+// With same fields: name, email, userId, createdAt
+// ========================================
 async function saveLogin(user) {
   if (!user) return;
   try {
@@ -65,42 +83,59 @@ async function saveLogin(user) {
       userId: user.uid,
       createdAt: serverTimestamp()
     });
-    console.log("Login saved to Firestore");
+    console.log("Login saved:", user.email);
   } catch (e) {
     console.error("Save login error:", e);
   }
 }
 
-// ===== FLAG — prevents double redirect =====
+// ========================================
+// PREVENT DOUBLE REDIRECT
+// ========================================
 let redirectHandled = false;
 
-// ===== STEP 1: CHECK IF USER JUST CAME BACK FROM GOOGLE =====
-// When Google redirects back to this page after login,
-// getRedirectResult() returns the credential.
-// If user opened the page normally, it returns null.
+// ========================================
+// STEP 1: CATCH USER RETURNING FROM GOOGLE
+//
+// When user clicks login → browser goes to Google
+// After Google auth → Google redirects back HERE
+// This function catches that return
+//
+// If user just opened the page normally,
+// result is null — nothing happens, button stays
+// ========================================
 getRedirectResult(auth)
   .then(async (result) => {
     if (result && result.user) {
-      // User just returned from Google — this is the login result
+      // USER JUST CAME BACK FROM GOOGLE
       redirectHandled = true;
       showLoading("Verifying login...");
 
       const user = result.user;
-      console.log("User returned from Google:", user.email);
+      console.log("Returned from Google:", user.email);
 
-      // Save to Firestore — same path as your index.html: users/{uid}/logins
+      // Check admin
+      const isAdmin = user.email === ADMIN_EMAIL;
+      console.log("Is admin:", isAdmin);
+
+      // Save to Firestore — same as your index.html saveUserData
       await saveLogin(user);
 
-      // Small delay so user sees "verifying" before jump
+      // Small delay so user sees verification
       setTimeout(() => {
+        // GO BACK TO YOUR MAIN SYSTEM
+        // index.html onAuthStateChanged will fire
+        // → LOGIN button disappears
+        // → LOGOUT appears at bottom center
+        // → FREE button appears between name and logout
         window.location.href = "index.html";
       }, 800);
     }
-    // result is null = user just opened the page, not a redirect return
-    // The login button stays visible, waiting for click
+    // result is null = normal page open, show login button
   })
   .catch((error) => {
     hideLoading();
+    console.error("Redirect result error:", error.code, error.message);
 
     switch (error.code) {
       case "auth/redirect-cancelled-by-user":
@@ -113,48 +148,58 @@ getRedirectResult(auth)
         showError("Network error. Check your connection.");
         break;
       case "auth/too-many-requests":
-        showError("Too many attempts. Wait and try again.");
+        showError("Too many attempts. Wait a moment.");
         break;
       default:
         showError("Login failed. Please try again.");
-        console.error("Redirect result error:", error);
     }
   });
 
-// ===== STEP 2: CHECK IF ALREADY LOGGED IN =====
-// Covers case where user is authenticated but didn't just come from redirect
+// ========================================
+// STEP 2: IF ALREADY LOGGED IN, SKIP THIS PAGE
+// Covers edge case: user navigates here while authenticated
+// ========================================
 onAuthStateChanged(auth, (user) => {
   if (user && !redirectHandled) {
-    // Already logged in, skip login page
+    // Already logged in, send straight to index.html
+    // where LOGIN is hidden, LOGOUT + FREE are shown
     setTimeout(() => {
       window.location.href = "index.html";
-    }, 1500);
+    }, 1200);
   }
 });
 
-// ===== STEP 3: BUTTON CLICK — SEND USER TO GOOGLE =====
+// ========================================
+// STEP 3: BUTTON CLICK → SEND TO GOOGLE
+//
+// signInWithRedirect = FULL PAGE NAVIGATION
+// Browser URL bar changes to accounts.google.com
+// User sees Google's real login page
+// Not a popup, not an iframe — actual navigation
+//
+// After login Google redirects back to login.html
+// Then Step 1 (getRedirectResult) catches it
+// ========================================
 googleBtn.addEventListener("click", async () => {
-  // Lock button to prevent double click
+  // Lock button immediately
   googleBtn.disabled = true;
-  googleBtn.style.opacity = "0.6";
+  googleBtn.style.opacity = "0.5";
   googleBtn.style.pointerEvents = "none";
 
   showLoading("Redirecting to Google...");
 
   try {
-    // THIS IS THE KEY DIFFERENCE FROM POPUP:
-    // signInWithRedirect makes the BROWSER itself navigate to Google.
-    // The URL bar changes to accounts.google.com.
-    // The user sees Google's real login page — email, password, 2FA.
-    // After login, Google redirects back to THIS page (login.html).
-    // Then getRedirectResult() at the top catches it.
+    // THIS MAKES THE BROWSER GO TO GOOGLE
     await signInWithRedirect(auth, provider);
+    // Code after this line DOES NOT RUN
+    // because the browser has already navigated away
   } catch (error) {
     hideLoading();
     googleBtn.disabled = false;
     googleBtn.style.opacity = "1";
     googleBtn.style.pointerEvents = "auto";
 
+    // Only show error if not user cancellation
     if (error.code !== "auth/redirect-cancelled-by-user") {
       showError("Could not start login. Please try again.");
       console.error("Redirect error:", error);
