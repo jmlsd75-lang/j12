@@ -122,10 +122,9 @@
     </svg>
   </div>
 
-  <!-- ===== MAIN CONTENT ===== -->
+  <!-- MAIN CONTENT -->
   <main class="relative z-[10] flex flex-col items-center justify-center h-screen px-6">
 
-    <!-- System name — 3 lines as specified -->
     <div class="text-center mb-10 select-none">
       <p class="font-display font-bold text-forest-200 uppercase tracking-[0.15em] text-[clamp(1.7rem,5vw,3.2rem)] reveal" style="text-shadow:0 0 35px rgba(74,222,128,.22)">
         JAMALI
@@ -138,7 +137,6 @@
       </p>
     </div>
 
-    <!-- Vine divider -->
     <div class="flex items-center gap-3 mb-10 reveal d2" aria-hidden="true">
       <div class="w-12 h-[1px] bg-gradient-to-r from-transparent to-forest-400 opacity-40"></div>
       <div class="w-2 h-2 rounded-full bg-forest-400 opacity-50"></div>
@@ -147,21 +145,16 @@
       <div class="w-12 h-[1px] bg-gradient-to-l from-transparent to-forest-400 opacity-40"></div>
     </div>
 
-    <!-- Login card -->
     <div class="w-full max-w-sm reveal d3">
       <div class="rounded-2xl p-8 pulse-glow" style="background:linear-gradient(150deg,rgba(14,37,21,.88),rgba(9,26,14,.96));border:1px solid rgba(45,138,72,.18);backdrop-filter:blur(14px)">
-
-        <!-- Shield icon -->
         <div class="flex justify-center mb-5">
           <div class="w-16 h-16 rounded-full flex items-center justify-center" style="background:linear-gradient(140deg,rgba(45,138,72,.18),rgba(20,51,30,.35));border:1px solid rgba(74,222,128,.12)">
             <i class="fa-solid fa-shield-halved text-2xl text-forest-200"></i>
           </div>
         </div>
-
         <p class="text-center text-fog text-sm tracking-[0.2em] uppercase mb-1">Sign in to continue</p>
         <p class="text-center text-forest-400 text-xs tracking-wide mb-7 opacity-60">You will be redirected to Google to sign in</p>
 
-        <!-- Google redirect button -->
         <button id="googleLoginBtn"
                 class="glow-btn w-full py-4 px-6 rounded-xl flex items-center justify-center gap-3 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-forest-200 focus-visible:outline-offset-4"
                 style="background:linear-gradient(140deg,#1a4028,#256b3a);border:1px solid rgba(74,222,128,.22)"
@@ -175,12 +168,10 @@
           <span class="font-display text-base tracking-[0.15em] uppercase text-cream">Continue with Google</span>
         </button>
 
-        <!-- Error -->
         <p id="errorMsg" class="text-center text-red-400 text-sm mt-4 hidden leading-relaxed"></p>
       </div>
     </div>
 
-    <!-- Back to index -->
     <a href="index.html"
        class="back-link mt-8 inline-flex items-center gap-2 px-6 py-3 rounded-lg font-display text-sm tracking-[0.15em] uppercase text-fog no-underline transition-all duration-300 hover:-translate-y-0.5 hover:text-cream focus-visible:outline-2 focus-visible:outline-forest-200 focus-visible:outline-offset-4 reveal d4"
        style="background:rgba(61,43,31,.35);border:1px solid rgba(154,114,96,.18)"
@@ -190,7 +181,6 @@
     </a>
   </main>
 
-  <!-- Forest floor line -->
   <div class="fixed bottom-0 left-0 w-full h-[2px] z-[10]" style="background:linear-gradient(90deg,transparent 5%,rgba(45,138,72,.25) 30%,rgba(154,114,96,.15) 50%,rgba(45,138,72,.25) 70%,transparent 95%)" aria-hidden="true"></div>
 
   <!-- Loading overlay -->
