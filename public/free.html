@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FREE — JAMALI SAID KAZEMBE MULTISYSTEM MANAGEMENT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200;400;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            kili: { night:'#080c18', deep:'#12102e', purple:'#2a1648', coral:'#d95530', gold:'#e89830', snow:'#f0eef5' },
+            saf: { dark:'#0b1a0e', forest:'#142e18', mid:'#1f4a24', grass:'#3a7a30', earth:'#7a6230', sand:'#c4a050', giraffe:'#d4a040' },
+          },
+          fontFamily: { display:['Oswald','sans-serif'], body:['Source Sans 3','sans-serif'] },
+        },
+      },
+    };
+  </script>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Source Sans 3',sans-serif; overflow:hidden; }
+
+    /* ===== KILIMANJARO PHASE ===== */
+    #kilimanjaroPhase {
+      position:fixed; inset:0; z-index:10;
+      background: linear-gradient(
+        to bottom,
+        #080c18 0%,
+        #0e1230 15%,
+        #1a1040 28%,
+        #2a1648 38%,
+        #5c2840 48%,
+        #c04828 56%,
+        #d95530 62%,
+        #e89830 70%,
+        #f0b848 78%,
+        #e89830 100%
+      );
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+    }
+
+    /* Stars */
+    #kiliStars { position:absolute; inset:0; z-index:0; pointer-events:none; }
+
+    /* Mountain */
+    .mountain-wrap {
+      position:absolute; bottom:0; left:0; width:100%; height:65%; z-index:1; pointer-events:none;
+    }
+    .mountain-far {
+      position:absolute; bottom:0; left:5%; width:35%; height:100%;
+      background: linear-gradient(to top, #0e0c1a 0%, #1a1832 100%);
+      clip-path: polygon(0% 100%, 15% 65%, 30% 55%, 50% 20%, 60% 35%, 80% 55%, 100% 100%);
+      opacity: 0.5;
+    }
+    .mountain-main {
+      position:absolute; bottom:0; left:20%; width:60%; height:100%;
+      background: linear-gradient(to top, #10101e 0%, #181830 60%, #201e3a 100%);
+      clip-path: polygon(0% 100%, 5% 70%, 15% 55%, 25% 42%, 35% 28%, 42% 15%, 47% 8%, 50% 5%, 53% 8%, 58% 15%, 65% 28%, 75% 42%, 85% 55%, 95% 70%, 100% 100%);
+    }
+    .snow-cap {
+      position:absolute; bottom:0; left:20%; width:60%; height:100%;
+      clip-path: polygon(35% 28%, 38% 22%, 42% 15%, 47% 8%, 50% 5%, 53% 8%, 58% 15%, 62% 22%, 65% 28%, 60% 30%, 55% 32%, 45% 32%, 40% 30%);
+      background: linear-gradient(to bottom, rgba(240,238,245,0.9) 0%, rgba(220,215,230,0.6) 60%, transparent 100%);
+    }
+    .ground-glow {
+      position:absolute; bottom:0; left:0; width:100%; height:15%;
+      background: linear-gradient(to top, rgba(232,152,48,0.3), transparent);
+    }
+
+    /* Clouds */
+    .cloud {
+      position:absolute; border-radius:50%; opacity:0.08;
+      background: radial-gradient(ellipse, rgba(240,238,245,0.4), transparent 70%);
+      animation: cloudDrift linear infinite;
+    }
+    @keyframes cloudDrift {
+      from { transform: translateX(-120%); }
+      to { transform: translateX(120vw); }
+    }
+
+    /* Kili countdown */
+    .kili-timer {
+      position:relative; z-index:5;
+      font-family:'Oswald',sans-serif; font-weight:700;
+      font-size: clamp(3rem, 10vw, 6rem);
+      color: #f0eef5;
+      text-shadow: 0 0 40px rgba(240,238,245,0.3), 0 0 80px rgba(217,85,48,0.15);
+      letter-spacing: 0.08em;
+      animation: revealUp 0.8s ease-out both;
+    }
+    .kili-label {
+      position:relative; z-index:5;
+      font-family:'Oswald',sans-serif; font-weight:200;
+      font-size: clamp(0.7rem, 2vw, 1rem);
+      color: rgba(240,238,245,0.5);
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      animation: revealUp 0.8s 0.2s ease-out both;
+    }
+
+    /* ===== GIRAFFE PHASE ===== */
+    #giraffePhase {
+      position:fixed; inset:0; z-index:10; display:none;
+      background: linear-gradient(
+        to bottom,
+        #0b1a0e 0%,
+        #102814 20%,
+        #142e18 35%,
+        #1f4a24 50%,
+        #3a6a28 65%,
+        #7a6230 80%,
+        #c4a050 92%,
+        #d4b060 100%
+      );
+      flex-direction:column; align-items:center; justify-content:center;
+    }
+
+    /* Giraffe silhouette */
+    .giraffe-container {
+      position:absolute; bottom:18%; right:8%; z-index:1; pointer-events:none;
+      width: clamp(80px, 18vw, 160px);
+      opacity: 0.25;
+    }
+    .g-head { width:28%; height:10%; background:#1a0e08; border-radius:50%; position:absolute; top:0; left:36%; }
+    .g-ossicone-l { width:3%; height:8%; background:#1a0e08; border-radius:2px; position:absolute; top:-6%; left:42%; transform:rotate(-12deg); }
+    .g-ossicone-r { width:3%; height:8%; background:#1a0e08; border-radius:2px; position:absolute; top:-6%; left:56%; transform:rotate(12deg); }
+    .g-ossicone-tip-l { width:5%; height:3%; background:#1a0e08; border-radius:50%; position:absolute; top:-8%; left:40%; }
+    .g-ossicone-tip-r { width:5%; height:3%; background:#1a0e08; border-radius:50%; position:absolute; top:-8%; left:56%; }
+    .g-neck { width:16%; height:42%; background:#1a0e08; border-radius:8px; position:absolute; top:8%; left:42%; }
+    .g-body { width:55%; height:16%; background:#1a0e08; border-radius:40%; position:absolute; top:48%; left:20%; transform:rotate(-3deg); }
+    .g-leg-fl { width:6%; height:32%; background:#1a0e08; border-radius:3px; position:absolute; top:62%; left:30%; }
+    .g-leg-fr { width:6%; height:32%; background:#1a0e08; border-radius:3px; position:absolute; top:62%; left:42%; }
+    .g-leg-bl { width:6%; height:34%; background:#1a0e08; border-radius:3px; position:absolute; top:62%; left:58%; }
+    .g-leg-br { width:6%; height:34%; background:#1a0e08; border-radius:3px; position:absolute; top:62%; left:68%; }
+    .g-tail { width:3%; height:14%; background:#1a0e08; border-radius:2px; position:absolute; top:46%; left:74%; transform:rotate(25deg); transform-origin:top center; }
+    .g-tail-tuft { width:5%; height:4%; background:#1a0e08; border-radius:50%; position:absolute; top:58%; left:76%; }
+
+    /* Acacia tree */
+    .acacia-container {
+      position:absolute; bottom:20%; left:5%; z-index:1; pointer-events:none;
+      width: clamp(60px, 14vw, 130px);
+      opacity: 0.2;
+    }
+    .acacia-trunk { width:6%; height:60%; background:#0e0a06; border-radius:2px; position:absolute; bottom:0; left:47%; }
+    .acacia-canopy { width:100%; height:40%; position:absolute; top:0; left:0; }
+    .acacia-pad { position:absolute; background:#0e0a06; border-radius:50%; }
+
+    /* Savanna grass */
+    .grass-blade {
+      position:absolute; bottom:0; width:3px; border-radius:2px 2px 0 0;
+      background: linear-gradient(to top, #3a6a28, #5a9038);
+      transform-origin: bottom center;
+      animation: grassSway ease-in-out infinite alternate;
+    }
+    @keyframes grassSway {
+      0% { transform: rotate(-5deg); }
+      100% { transform: rotate(5deg); }
+    }
+
+    /* Giraffe phase content */
+    .giraffe-content { position:relative; z-index:5; text-align:center; }
+    .await-timer {
+      font-family:'Oswald',sans-serif; font-weight:700;
+      font-size: clamp(2rem, 7vw, 3.5rem);
+      color: #c4a050;
+      text-shadow: 0 0 30px rgba(196,160,80,0.25);
+      letter-spacing: 0.08em;
+    }
+    .await-label {
+      font-family:'Oswald',sans-serif; font-weight:200;
+      font-size: clamp(0.65rem, 1.8vw, 0.9rem);
+      color: rgba(196,160,80,0.5);
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Buttons */
+    .glow-btn {
+      position:relative; overflow:hidden; cursor:pointer;
+      border:none; outline:none;
+      transition: all 0.3s ease;
+    }
+    .glow-btn::before {
+      content:''; position:absolute; inset:0;
+      background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%);
+      transform: translateX(-100%);
+      transition: transform 0.5s ease;
+    }
+    .glow-btn:hover::before { transform: translateX(100%); }
+    .glow-btn:active { transform: scale(0.97); }
+
+    .menu-btn {
+      position:relative; z-index:5;
+      font-family:'Oswald',sans-serif; font-weight:400;
+      font-size: clamp(0.75rem, 2vw, 0.95rem);
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: rgba(240,238,245,0.6);
+      background: rgba(240,238,245,0.06);
+      border: 1px solid rgba(240,238,245,0.1);
+      padding: 12px 32px; border-radius: 8px;
+      cursor:pointer; transition: all 0.3s ease;
+      animation: revealUp 0.8s 0.5s ease-out both;
+    }
+    .menu-btn:hover {
+      color: rgba(240,238,245,0.9);
+      background: rgba(240,238,245,0.1);
+      border-color: rgba(240,238,245,0.2);
+      transform: translateY(-2px);
+    }
+
+    .await-disabled {
+      font-family:'Oswald',sans-serif; font-weight:400;
+      font-size: clamp(0.85rem, 2.2vw, 1.1rem);
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(196,160,80,0.4);
+      background: rgba(196,160,80,0.06);
+      border: 1px solid rgba(196,160,80,0.1);
+      padding: 14px 28px; border-radius: 8px;
+      cursor: not-allowed;
+    }
+
+    .pay-btn-giraffe {
+      font-family:'Oswald',sans-serif; font-weight:400;
+      font-size: clamp(0.85rem, 2.2vw, 1.1rem);
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: #f0eef5;
+      background: linear-gradient(135deg, #1a5020, #2d8a3a);
+      border: 1px solid rgba(74,222,128,0.2);
+      padding: 14px 32px; border-radius: 8px;
+      cursor:pointer; text-decoration:none;
+      display:inline-flex; align-items:center; gap:8px;
+      transition: all 0.3s ease;
+    }
+    .pay-btn-giraffe:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 30px rgba(74,222,128,0.2);
+    }
+    .pay-btn-giraffe:active { transform: translateY(0) scale(0.98); }
+
+    .back-btn-saf {
+      font-family:'Oswald',sans-serif; font-weight:400;
+      font-size: clamp(0.7rem, 1.8vw, 0.85rem);
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(240,238,245,0.5);
+      background: rgba(240,238,245,0.05);
+      border: 1px solid rgba(240,238,245,0.08);
+      padding: 10px 24px; border-radius: 8px;
+      cursor:pointer; transition: all 0.3s ease;
+      text-decoration:none;
+      display:inline-flex; align-items:center; gap:6px;
+    }
+    .back-btn-saf:hover {
+      color: rgba(240,238,245,0.8);
+      background: rgba(240,238,245,0.08);
+    }
+
+    /* Animations */
+    @keyframes revealUp {
+      from { opacity:0; transform:translateY(24px); }
+      to { opacity:1; transform:translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity:0; }
+      to { opacity:1; }
+    }
+    .fade-in { animation: fadeIn 0.6s ease-out both; }
+    .fade-d1 { animation-delay: 0.15s; }
+    .fade-d2 { animation-delay: 0.3s; }
+    .fade-d3 { animation-delay: 0.5s; }
+    .fade-d4 { animation-delay: 0.7s; }
+
+    /* Phase transition */
+    .phase-out {
+      animation: phaseOut 0.5s ease-in forwards;
+    }
+    @keyframes phaseOut {
+      to { opacity:0; transform:scale(1.05); }
+    }
+    .phase-in {
+      animation: phaseIn 0.6s ease-out forwards;
+    }
+    @keyframes phaseIn {
+      from { opacity:0; transform:scale(0.95); }
+      to { opacity:1; transform:scale(1); }
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+      *,*::before,*::after {
+        animation-duration:0.01ms!important;
+        animation-iteration-count:1!important;
+        transition-duration:0.01ms!important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================ -->
+  <!-- PHASE 1: KILIMANJARO COUNTDOWN (180 seconds) -->
+  <!-- ============================================ -->
+  <div id="kilimanjaroPhase">
+    <!-- Stars -->
+    <canvas id="kiliStars" aria-hidden="true"></canvas>
+
+    <!-- Clouds -->
+    <div class="cloud" style="width:300px;height:60px;top:12%;left:-300px;animation-duration:35s;" aria-hidden="true"></div>
+    <div class="cloud" style="width:200px;height:40px;top:22%;left:-200px;animation-duration:45s;animation-delay:-15s;" aria-hidden="true"></div>
+    <div class="cloud" style="width:250px;height:50px;top:8%;left:-250px;animation-duration:40s;animation-delay:-25s;" aria-hidden="true"></div>
+
+    <!-- Mountain -->
+    <div class="mountain-wrap" aria-hidden="true">
+      <div class="mountain-far"></div>
+      <div class="mountain-main"></div>
+      <div class="snow-cap"></div>
+      <div class="ground-glow"></div>
+    </div>
+
+    <!-- Content -->
+    <p class="kili-label">Free Session</p>
+    <div class="kili-timer" id="kiliTimer">00:03:00</div>
+    <p class="kili-label" style="margin-top:2rem; margin-bottom:1.5rem; animation-delay:0.4s; font-size:clamp(0.6rem,1.5vw,0.75rem); opacity:0.35;">Kilimanjaro Free Access</p>
+    <button class="menu-btn" id="menuBtnKili" aria-label="Go back to menu">
+      <i class="fa-solid fa-bars" style="margin-right:6px; font-size:0.8em;"></i> Menu
+    </button>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- PHASE 2: GIRAFFE AWAIT (24 hours)            -->
+  <!-- ============================================ -->
+  <div id="giraffePhase">
+    <!-- Giraffe silhouette -->
+    <div class="giraffe-container" aria-hidden="true">
+      <div class="g-head"></div>
+      <div class="g-ossicone-l"></div>
+      <div class="g-ossicone-r"></div>
+      <div class="g-ossicone-tip-l"></div>
+      <div class="g-ossicone-tip-r"></div>
+      <div class="g-neck"></div>
+      <div class="g-body"></div>
+      <div class="g-leg-fl"></div>
+      <div class="g-leg-fr"></div>
+      <div class="g-leg-bl"></div>
+      <div class="g-leg-br"></div>
+      <div class="g-tail"></div>
+      <div class="g-tail-tuft"></div>
+    </div>
+
+    <!-- Acacia tree -->
+    <div class="acacia-container" aria-hidden="true">
+      <div class="acacia-trunk"></div>
+      <div class="acacia-canopy">
+        <div class="acacia-pad" style="width:70%;height:50%;top:10%;left:5%;border-radius:50%;"></div>
+        <div class="acacia-pad" style="width:60%;height:45%;top:0%;left:30%;border-radius:50%;"></div>
+        <div class="acacia-pad" style="width:50%;height:40%;top:15%;left:55%;border-radius:50%;"></div>
+        <div class="acacia-pad" style="width:40%;height:35%;top:5%;left:15%;border-radius:50%;"></div>
+      </div>
+    </div>
+
+    <!-- Grass blades container -->
+    <div id="grassContainer" style="position:absolute;bottom:0;left:0;width:100%;height:12%;z-index:2;pointer-events:none;overflow:hidden;" aria-hidden="true"></div>
+
+    <!-- Content -->
+    <div class="giraffe-content">
+      <p class="await-label fade-in">Next free session in</p>
+      <div class="await-timer fade-in fade-d1" id="awaitTimer">24:00:00</div>
+
+      <div class="flex items-center justify-center gap-4 mt-10 fade-in fade-d2">
+        <!-- AWAIT — unclickable -->
+        <div class="await-disabled" id="awaitBtn" aria-disabled="true" tabindex="-1">
+          <i class="fa-solid fa-hourglass-half" style="margin-right:6px; font-size:0.85em;"></i>
+          AWAIT
+        </div>
+        <!-- PAY — clickable, goes to pay.html -->
+        <a href="pay.html" class="pay-btn-giraffe" role="button" aria-label="Proceed to payment">
+          <i class="fa-solid fa-coins" style="font-size:0.85em;"></i>
+          PAY
+        </a>
+      </div>
+
+      <div class="mt-8 fade-in fade-d3">
+        <a href="index.html" class="back-btn-saf" aria-label="Go back to menu">
+          <i class="fa-solid fa-arrow-left" style="font-size:0.75em;"></i>
+          Menu
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stars script -->
+  <script>
+    (() => {
+      const cv = document.getElementById('kiliStars');
+      const cx = cv.getContext('2d');
+      let w, h;
+      const stars = [];
+      function resize() { w = cv.width = innerWidth; h = cv.height = innerHeight; }
+      addEventListener('resize', resize); resize();
+
+      for (let i = 0; i < 80; i++) {
+        stars.push({
+          x: Math.random() * w,
+          y: Math.random() * h * 0.5,
+          r: Math.max(0.3, Math.random() * 1.5),
+          p: Math.random() * Math.PI * 2,
+          s: Math.random() * 0.02 + 0.005,
+          m: Math.random() * 0.6 + 0.2
+        });
+      }
+
+      function draw() {
+        cx.clearRect(0, 0, w, h);
+        stars.forEach(st => {
+          st.p += st.s;
+          const a = st.m * (0.4 + 0.6 * Math.abs(Math.sin(st.p)));
+          cx.beginPath();
+          cx.arc(st.x, st.y, Math.max(0.1, st.r), 0, Math.PI * 2);
+          cx.fillStyle = `rgba(240,238,245,${a.toFixed(3)})`;
+          cx.fill();
+        });
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // Generate grass blades for giraffe phase
+    (() => {
+      const gc = document.getElementById('grassContainer');
+      for (let i = 0; i < 60; i++) {
+        const blade = document.createElement('div');
+        blade.className = 'grass-blade';
+        blade.style.left = (Math.random() * 100) + '%';
+        blade.style.height = (Math.random() * 30 + 15) + 'px';
+        blade.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        blade.style.animationDelay = (Math.random() * 2) + 's';
+        blade.style.opacity = (Math.random() * 0.4 + 0.1).toFixed(2);
+        gc.appendChild(blade);
+      }
+    })();
+  </script>
+
+  <!-- Free logic -->
+  <script type="module" src="free.js"></script>
+</body>
+</html>
