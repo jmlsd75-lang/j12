@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login — Jamali Said Kazembe Multisystem Management</title>
-  <!-- Cloud CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200;400;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -47,8 +46,6 @@
   </script>
 
   <style>
-    /* Things Tailwind can't do */
-
     @keyframes float {
       0%, 100% { transform: translateY(0) rotate(0deg); }
       50% { transform: translateY(-18px) rotate(3deg); }
@@ -60,12 +57,6 @@
     @keyframes sway {
       0%, 100% { transform: rotate(-3deg); }
       50% { transform: rotate(3deg); }
-    }
-    @keyframes firefly {
-      0%, 100% { opacity: 0; transform: translate(0, 0); }
-      25% { opacity: 1; }
-      50% { opacity: 0.6; transform: translate(15px, -20px); }
-      75% { opacity: 0.3; }
     }
     @keyframes revealUp {
       from { opacity: 0; transform: translateY(25px); }
@@ -81,6 +72,10 @@
       70% { opacity: 0.3; }
       100% { transform: translateX(100%); opacity: 0; }
     }
+    @keyframes breathe {
+      0% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+      100% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+    }
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
@@ -89,7 +84,6 @@
     .leaf { animation: float 6s ease-in-out infinite; }
     .leaf-alt { animation: floatAlt 7s ease-in-out infinite; }
     .leaf-sway { animation: sway 4s ease-in-out infinite; }
-    .firefly-dot { animation: firefly 4s ease-in-out infinite; }
     .reveal { animation: revealUp 0.7s ease-out both; }
     .reveal-d1 { animation-delay: 0.2s; }
     .reveal-d2 { animation-delay: 0.5s; }
@@ -108,7 +102,7 @@
     }
     .google-btn:hover::before { transform: translateX(100%); }
 
-    .back-btn::before {
+    .back-link::before {
       content: '';
       position: absolute;
       inset: 0;
@@ -116,12 +110,9 @@
       transform: translateX(-100%);
       transition: transform 0.5s ease;
     }
-    .back-btn:hover::before { transform: translateX(100%); }
+    .back-link:hover::before { transform: translateX(100%); }
 
-    /* SVG leaf shape */
-    .svg-leaf {
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
-    }
+    .svg-leaf { filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3)); }
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -134,22 +125,14 @@
 </head>
 <body class="bg-forest-900 text-cream font-body h-screen overflow-hidden">
 
-  <!-- ===== BACKGROUND LAYERS ===== -->
-
-  <!-- Deep radial forest glow -->
+  <!-- Forest radial glow -->
   <div class="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
-    <div class="absolute top-[20%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full"
-         style="background: radial-gradient(circle, rgba(42,100,50,0.35) 0%, rgba(15,38,22,0.2) 40%, transparent 70%); animation: breathe 8s ease-in-out infinite alternate;">
+    <div class="absolute top-[20%] left-1/2 w-[800px] h-[800px] rounded-full"
+         style="background: radial-gradient(circle, rgba(42,100,50,0.35) 0%, rgba(15,38,22,0.2) 40%, transparent 70%); animation: breathe 8s ease-in-out infinite alternate; transform: translateX(-50%);">
     </div>
-    <style>
-      @keyframes breathe {
-        0% { opacity: 0.6; transform: translateX(-50%) scale(1); }
-        100% { opacity: 1; transform: translateX(-50%) scale(1.1); }
-      }
-    </style>
   </div>
 
-  <!-- Fog layers -->
+  <!-- Fog -->
   <div class="fixed bottom-0 left-0 w-full h-[40%] z-[1] pointer-events-none overflow-hidden" aria-hidden="true">
     <div class="fog-layer absolute bottom-[10%] w-[200%] h-[80px] rounded-full"
          style="background: linear-gradient(90deg, transparent, rgba(163,184,153,0.12), transparent);"></div>
@@ -157,27 +140,23 @@
          style="background: linear-gradient(90deg, transparent, rgba(163,184,153,0.08), transparent); animation-delay: -8s; animation-duration: 22s;"></div>
   </div>
 
-  <!-- Particle canvas (fireflies) -->
+  <!-- Firefly canvas -->
   <canvas id="fireflies" class="fixed inset-0 z-[2] pointer-events-none" aria-hidden="true"></canvas>
 
-  <!-- Decorative floating leaves -->
+  <!-- Floating leaves -->
   <div class="fixed inset-0 z-[3] pointer-events-none overflow-hidden" aria-hidden="true">
-    <!-- Top-left leaf cluster -->
     <svg class="svg-leaf leaf absolute -top-10 -left-10 w-32 h-32 opacity-20" viewBox="0 0 100 100" fill="none">
       <path d="M50 5 C20 20, 5 50, 50 95 C95 50, 80 20, 50 5Z" fill="#2d8a48"/>
       <line x1="50" y1="10" x2="50" y2="90" stroke="#14331e" stroke-width="1.5"/>
     </svg>
-    <!-- Top-right leaf -->
     <svg class="svg-leaf leaf-alt absolute top-20 right-8 w-24 h-24 opacity-15" style="animation-delay:-2s;" viewBox="0 0 100 100" fill="none">
       <path d="M50 5 C20 20, 5 50, 50 95 C95 50, 80 20, 50 5Z" fill="#4ade80"/>
       <line x1="50" y1="10" x2="50" y2="90" stroke="#14331e" stroke-width="1.5"/>
     </svg>
-    <!-- Bottom-right leaf -->
     <svg class="svg-leaf leaf-sway absolute bottom-32 right-16 w-28 h-28 opacity-10" viewBox="0 0 100 100" fill="none">
       <path d="M50 5 C20 20, 5 50, 50 95 C95 50, 80 20, 50 5Z" fill="#6abf4b"/>
       <line x1="50" y1="10" x2="50" y2="90" stroke="#14331e" stroke-width="1.5"/>
     </svg>
-    <!-- Bottom-left small leaf -->
     <svg class="svg-leaf leaf-alt absolute bottom-48 left-12 w-16 h-16 opacity-12" style="animation-delay:-4s;" viewBox="0 0 100 100" fill="none">
       <path d="M50 5 C20 20, 5 50, 50 95 C95 50, 80 20, 50 5Z" fill="#8fbc6a"/>
       <line x1="50" y1="10" x2="50" y2="90" stroke="#14331e" stroke-width="1.5"/>
@@ -217,7 +196,7 @@
       </p>
     </div>
 
-    <!-- Divider — vine style -->
+    <!-- Divider -->
     <div class="w-28 h-[2px] bg-gradient-to-r from-transparent via-forest-300 to-transparent mb-10 reveal reveal-d2" aria-hidden="true"></div>
 
     <!-- Login card -->
@@ -225,7 +204,7 @@
       <div class="rounded-2xl p-8 pulse-glow"
            style="background: linear-gradient(145deg, rgba(15,38,22,0.85), rgba(10,26,15,0.95)); border: 1px solid rgba(45,138,72,0.2); backdrop-filter: blur(12px);">
 
-        <!-- Lock icon -->
+        <!-- Shield icon -->
         <div class="flex justify-center mb-6">
           <div class="w-16 h-16 rounded-full flex items-center justify-center"
                style="background: linear-gradient(135deg, rgba(45,138,72,0.2), rgba(20,51,30,0.4)); border: 1px solid rgba(74,222,128,0.15);">
@@ -233,34 +212,36 @@
           </div>
         </div>
 
-        <!-- Prompt text -->
-        <p class="text-center text-fog text-sm tracking-widest uppercase mb-8">
+        <!-- Text telling user they'll go to Google -->
+        <p class="text-center text-fog text-sm tracking-widest uppercase mb-2">
           Sign in to continue
         </p>
+        <p class="text-center text-forest-400 text-xs tracking-wide mb-8 opacity-70">
+          You will be redirected to Google to sign in
+        </p>
 
-        <!-- Google login button -->
+        <!-- Google redirect button -->
         <button id="googleLoginBtn"
                 class="google-btn relative w-full py-4 px-6 rounded-xl flex items-center justify-center gap-3 cursor-pointer overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-forest-200 focus-visible:outline-offset-4"
                 style="background: linear-gradient(135deg, #1a4028, #256b3a); border: 1px solid rgba(74,222,128,0.25);"
                 aria-label="Sign in with Google">
-          <!-- Google "G" icon -->
           <svg width="20" height="20" viewBox="0 0 48 48" class="flex-shrink-0">
             <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
             <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
             <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
             <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
           </svg>
-          <span class="font-display text-base tracking-[0.15em] uppercase text-cream">Login with Google</span>
+          <span class="font-display text-base tracking-[0.15em] uppercase text-cream">Continue with Google</span>
         </button>
 
-        <!-- Error message area -->
+        <!-- Error message -->
         <p id="errorMsg" class="text-center text-red-400 text-sm mt-4 hidden"></p>
       </div>
     </div>
 
     <!-- Back button -->
     <a href="index.html"
-       class="back-btn relative mt-8 inline-flex items-center gap-2 px-6 py-3 rounded-lg font-display text-sm tracking-[0.15em] uppercase text-fog no-underline overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:text-cream focus-visible:outline-2 focus-visible:outline-forest-200 focus-visible:outline-offset-4 reveal reveal-d4"
+       class="back-link relative mt-8 inline-flex items-center gap-2 px-6 py-3 rounded-lg font-display text-sm tracking-[0.15em] uppercase text-fog no-underline overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:text-cream focus-visible:outline-2 focus-visible:outline-forest-200 focus-visible:outline-offset-4 reveal reveal-d4"
        style="background: rgba(61,43,31,0.4); border: 1px solid rgba(154,114,96,0.2);"
        aria-label="Go back to home">
       <i class="fa-solid fa-arrow-left text-xs"></i>
@@ -274,12 +255,12 @@
        aria-hidden="true"></div>
 
   <!-- Loading overlay -->
-  <div id="loadingOverlay" class="fixed inset-0 z-[100] flex-col items-center justify-center hidden" style="background: rgba(6,15,8,0.92);">
+  <div id="loadingOverlay" class="fixed inset-0 z-[100] items-center justify-center flex-col hidden" style="background: rgba(6,15,8,0.92); display: none;">
     <div class="w-14 h-14 rounded-full border-[3px] border-forest-700 border-t-forest-200" style="animation: spin 1s linear infinite;"></div>
-    <p id="loadingText" class="mt-5 text-fog text-sm tracking-widest uppercase">Authenticating...</p>
+    <p id="loadingText" class="mt-5 text-fog text-sm tracking-widest uppercase">Redirecting to Google...</p>
   </div>
 
-  <!-- Firefly particles -->
+  <!-- Fireflies -->
   <script>
     (() => {
       const canvas = document.getElementById('fireflies');
@@ -316,7 +297,6 @@
         draw() {
           const a = this.maxAlpha * Math.max(0, Math.sin(this.phase));
           if (a < 0.02) return;
-          // Glow
           const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.r * 6);
           grad.addColorStop(0, `rgba(180,230,120,${(a * 0.6).toFixed(3)})`);
           grad.addColorStop(0.4, `rgba(140,210,90,${(a * 0.2).toFixed(3)})`);
@@ -325,7 +305,6 @@
           ctx.arc(this.x, this.y, Math.max(0.1, this.r * 6), 0, Math.PI * 2);
           ctx.fillStyle = grad;
           ctx.fill();
-          // Core
           ctx.beginPath();
           ctx.arc(this.x, this.y, Math.max(0.1, this.r), 0, Math.PI * 2);
           ctx.fillStyle = `rgba(220,255,180,${a.toFixed(3)})`;
