@@ -1,9 +1,20 @@
-// ===== FIREBASE IMPORTS (Cloud CDN) =====
+// ===== FIREBASE CLOUD CDN IMPORTS =====
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithRedirect,
+  getRedirectResult,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// ===== FIREBASE CONFIG (from your existing code) =====
+// ===== FIREBASE CONFIG =====
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -13,17 +24,35 @@ const firebaseConfig = {
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
-// ===== INIT =====
+// ===== INITIALIZE =====
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// ===== DOM REFS =====
+// ===== DOM ELEMENTS =====
 const googleBtn = document.getElementById("googleLoginBtn");
 const errorMsg = document.getElementById("errorMsg");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
+
+// ===== HELPERS =====
+function showError(msg) {
+  errorMsg.textContent = msg;
+  errorMsg.classList.remove("hidden");
+  setTimeout(() => errorMsg.classList.add("hidden"), 5000);
+}
+
+function showLoading(text) {
+  loadingText.textContent = text;
+  loadingOverlay.style.display = "flex";
+  loadingOverlay.classList.remove("hidden");
+}
+
+function hideLoading() {
+  loadingOverlay.style.display = "none";
+  loadingOverlay.classList.add("hidden");
+}
 
 // ===== SAVE LOGIN TO FIRESTORE =====
 async function saveLogin(user) {
@@ -34,75 +63,100 @@ async function saveLogin(user) {
       userId: user.uid,
       createdAt: serverTimestamp()
     });
-    console.log("Login saved to Firestore");
   } catch (e) {
     console.error("Save login error:", e);
   }
 }
 
-// ===== SHOW / HIDE HELPERS =====
-function showError(msg) {
-  errorMsg.textContent = msg;
-  errorMsg.classList.remove("hidden");
-  setTimeout(() => errorMsg.classList.add("hidden"), 4000);
-}
+// ===== HANDLE REDIRECT RESULT WHEN GOOGLE SENDS USER BACK =====
+// This runs every time login.html loads — if user just came back from Google,
+// getRedirectResult will have the credential. Otherwise it returns null.
+getRedirectResult(auth)
+  .then(async (result) => {
+    if (result) {
+      // User just returned from Google login successfully
+      showLoading("Welcome back, verifying...");
 
-function showLoading(text) {
-  loadingText.textContent = text || "Authenticating...";
-  loadingOverlay.classList.remove("hidden");
-  loadingOverlay.style.display = "flex";
-}
+      const user = result.user;
 
-function hideLoading() {
-  loadingOverlay.classList.add("hidden");
-  loadingOverlay.style.display = "none";
-}
-
-// ===== CHECK IF ALREADY LOGGED IN =====
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    // Already signed in — redirect immediately to main system
-    window.location.href = "index.html";
-  }
-});
-
-// ===== GOOGLE LOGIN BUTTON CLICK =====
-googleBtn.addEventListener("click", async () => {
-  showLoading("Connecting to Google...");
-
-  try {
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
-
-    if (user) {
-      showLoading("Saving session...");
+      // Save login record to Firestore
       await saveLogin(user);
 
-      // Short delay so user sees "success" feel
+      // Short pause so user sees the loading message
       setTimeout(() => {
         window.location.href = "index.html";
-      }, 600);
+      }, 800);
     }
-  } catch (error) {
+    // If result is null, user either just opened the page fresh
+    // or hasn't logged in yet — do nothing, show the login button
+  })
+  .catch((error) => {
     hideLoading();
 
-    // Handle specific errors
     switch (error.code) {
       case "auth/popup-closed-by-user":
-        showError("Login popup was closed. Please try again.");
+        // Not applicable for redirect, but handle just in case
+        showError("Login was cancelled. Please try again.");
         break;
-      case "auth/cancelled-popup-request":
-        showError("Too many popups opened. Please try again.");
+      case "auth/credential-already-in-use":
+        showError("This account is already linked. Please try again.");
         break;
       case "auth/network-request-failed":
-        showError("Network error. Check your connection.");
+        showError("Network error. Check your connection and try again.");
         break;
-      case "auth/invalid-email":
-        showError("Invalid email address.");
+      case "auth/redirect-cancelled-by-user":
+        showError("You cancelled the login. Please try again.");
+        break;
+      case "auth/too-many-requests":
+        showError("Too many attempts. Please wait a moment and try again.");
         break;
       default:
         showError("Login failed. Please try again.");
-        console.error("Login error:", error);
+        console.error("Redirect result error:", error);
+    }
+  });
+
+// ===== ALSO CHECK IF USER IS ALREADY LOGGED IN =====
+// This covers the case where user is already authenticated
+// and somehow lands on login.html — just send them back
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // User is already signed in, skip login page entirely
+    // But wait — if getRedirectResult is still processing above,
+    // don't redirect twice. Use a small delay to let redirect result handle it.
+    setTimeout(() => {
+      // Only redirect if we're still on login.html
+      // (getRedirectResult would have already redirected if it fired)
+      if (!window.location.href.includes("index.html")) {
+        window.location.href = "index.html";
+      }
+    }, 1500);
+  }
+});
+
+// ===== GOOGLE LOGIN BUTTON — REDIRECTS TO GOOGLE =====
+googleBtn.addEventListener("click", async () => {
+  // Disable button immediately to prevent double-clicks
+  googleBtn.disabled = true;
+  googleBtn.style.opacity = "0.6";
+  googleBtn.style.pointerEvents = "none";
+
+  showLoading("Redirecting to Google...");
+
+  try {
+    // This ACTUALLY navigates the browser to Google's sign-in page
+    // The browser URL bar changes to accounts.google.com
+    // After user logs in, Google redirects back to this login.html
+    await signInWithRedirect(auth, provider);
+  } catch (error) {
+    hideLoading();
+    googleBtn.disabled = false;
+    googleBtn.style.opacity = "1";
+    googleBtn.style.pointerEvents = "auto";
+
+    if (error.code !== "auth/redirect-cancelled-by-user") {
+      showError("Could not start login. Please try again.");
+      console.error("Redirect error:", error);
     }
   }
 });
