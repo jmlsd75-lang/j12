@@ -6,7 +6,6 @@
     <title>Login — Jamal Said Kazembe</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
             min-height: 100vh;
             display: flex;
@@ -16,96 +15,41 @@
             background: linear-gradient(180deg, #0b1a0b 0%, #1a3a1a 40%, #2d5a27 70%, #1a3a1a 100%);
             font-family: Georgia, 'Times New Roman', serif;
         }
-
         .back-btn {
-            position: fixed;
-            top: 24px;
-            left: 28px;
-            background: none;
-            border: 1px solid rgba(76,175,80,0.4);
-            color: #a5d69a;
-            font-family: Georgia, serif;
-            font-size: 15px;
-            letter-spacing: 1px;
-            padding: 8px 18px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            position: fixed; top: 24px; left: 28px;
+            background: none; border: 1px solid rgba(76,175,80,0.4);
+            color: #a5d69a; font-family: Georgia, serif; font-size: 15px;
+            letter-spacing: 1px; padding: 8px 18px; border-radius: 4px;
+            cursor: pointer; transition: all 0.3s ease;
         }
-        .back-btn:hover {
-            border-color: #4caf50;
-            color: #e8f5e0;
-            background: rgba(76,175,80,0.1);
-        }
-
+        .back-btn:hover { border-color: #4caf50; color: #e8f5e0; background: rgba(76,175,80,0.1); }
         .login-card {
             background: rgba(11,26,11,0.85);
             border: 1px solid rgba(76,175,80,0.35);
-            border-radius: 10px;
-            padding: 48px 42px 40px;
-            width: 400px;
-            max-width: 92vw;
+            border-radius: 10px; padding: 48px 42px 40px;
+            width: 400px; max-width: 92vw;
             box-shadow: 0 8px 40px rgba(0,0,0,0.5), 0 0 60px rgba(76,175,80,0.08);
-            text-align: center;
-            position: relative;
+            text-align: center; position: relative;
         }
         .login-card::before {
-            content: '';
-            position: absolute;
-            top: -1px; left: 30%; right: 30%;
-            height: 2px;
+            content: ''; position: absolute;
+            top: -1px; left: 30%; right: 30%; height: 2px;
             background: linear-gradient(90deg, transparent, #4caf50, transparent);
         }
-
-        .card-title {
-            color: #e8f5e0;
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: 3px;
-            margin-bottom: 6px;
-        }
-        .card-subtitle {
-            color: #7cb872;
-            font-size: 13px;
-            letter-spacing: 2px;
-            margin-bottom: 36px;
-        }
-
+        .card-title { color: #e8f5e0; font-size: 22px; font-weight: 700; letter-spacing: 3px; margin-bottom: 6px; }
+        .card-subtitle { color: #7cb872; font-size: 13px; letter-spacing: 2px; margin-bottom: 36px; }
         .google-btn {
-            width: 100%;
-            padding: 14px;
-            font-size: 17px;
-            font-family: Georgia, serif;
-            letter-spacing: 2px;
-            color: #e8f5e0;
+            width: 100%; padding: 14px; font-size: 17px; font-family: Georgia, serif;
+            letter-spacing: 2px; color: #e8f5e0;
             background: linear-gradient(135deg, #2e7d32, #1b5e20);
-            border: 2px solid #4caf50;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(76,175,80,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
+            border: 2px solid #4caf50; border-radius: 6px; cursor: pointer;
+            transition: all 0.3s ease; box-shadow: 0 4px 20px rgba(76,175,80,0.3);
+            display: flex; align-items: center; justify-content: center; gap: 12px;
         }
-        .google-btn:hover {
-            background: linear-gradient(135deg, #388e3c, #2e7d32);
-            box-shadow: 0 6px 30px rgba(76,175,80,0.5);
-            transform: translateY(-2px);
-        }
-        .google-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
+        .google-btn:hover { background: linear-gradient(135deg, #388e3c, #2e7d32); box-shadow: 0 6px 30px rgba(76,175,80,0.5); transform: translateY(-2px); }
+        .google-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         .google-btn svg { width: 22px; height: 22px; }
-
-        .msg {
-            margin-top: 20px;
-            font-size: 14px;
-            min-height: 22px;
-        }
+        .msg { margin-top: 20px; font-size: 14px; min-height: 22px; }
         .msg.error { color: #e57373; }
         .msg.info { color: #a5d69a; }
     </style>
