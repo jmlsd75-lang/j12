@@ -2,7 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Firebase Configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -12,71 +11,55 @@ const firebaseConfig = {
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 const auth = getAuth(app);
+const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-// DOM Elements
 const googleLoginBtn = document.getElementById("googleLoginBtn");
 const errorMsg = document.getElementById("errorMsg");
-const loadingText = document.getElementById("loadingText");
+const statusMsg = document.getElementById("statusMsg");
 
-const ADMIN_EMAIL = "camelkazembe1@gmail.com";
-
-// Check if user is already logged in
+// Check if already logged in
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    // User is already logged in, redirect to main system
-    redirectToSystem();
+    showStatus("Already logged in. Redirecting...");
+    setTimeout(() => {
+      window.location.href = "index.html";
+    }, 1000);
   }
 });
 
-// Google Login Button Click
-googleLoginBtn.onclick = async () => {
-  // Reset states
+// Login button click
+googleLoginBtn.addEventListener("click", async function() {
+  
   errorMsg.classList.remove("show");
-  loadingText.classList.add("show");
+  statusMsg.style.display = "block";
+  statusMsg.textContent = "Opening Google login...";
   googleLoginBtn.disabled = true;
-  googleLoginBtn.innerHTML = `
-    <svg viewBox="0 0 24 24" style="animation: spin 1s linear infinite;">
-      <circle cx="12" cy="12" r="10" fill="none" stroke="#333" stroke-width="2" stroke-dasharray="30 70"/>
-    </svg>
-    Signing in...
-  `;
-
+  googleLoginBtn.textContent = "Please wait...";
+  
   try {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
-
-    // Save login data to Firestore
+    
+    showStatus("Login successful! Saving...");
+    
+    // Save to database
     await addDoc(collection(db, "users", user.uid, "logins"), {
       name: user.displayName,
       email: user.email,
       createdAt: serverTimestamp()
     });
-
-    // Redirect to main system
-    redirectToSystem();
-
+    
+    showStatus("Done! Redirecting...");
+    
+    setTimeout(() => {
+      window.location.href = "index.html";
+    }, 1000);
+    
   } catch (error) {
-    console.error("Login error:", error);
-    loadingText.classList.remove("show");
-    
-    let errorMessage = "Login failed. Please try again.";
-    
-    if (error.code === 'auth/popup-closed-by-user') {
-      errorMessage = "Login cancelled. Please try again.";
-    } else if (error.code === 'auth/cancelled-popup-request') {
-      errorMessage = "Too many requests. Please wait and try again.";
-    } else if (error.code === 'auth/network-request-failed') {
-      errorMessage = "Network error. Please check your connection.";
-    }
-    
-    showError(errorMessage);
-    
-    // Reset button
+    statusMsg.style.display = "none";
     googleLoginBtn.disabled = false;
     googleLoginBtn.innerHTML = `
       <svg viewBox="0 0 24 24">
@@ -87,25 +70,20 @@ googleLoginBtn.onclick = async () => {
       </svg>
       Sign in with Google
     `;
+    
+    let msg = "Login failed.";
+    if (error.code === "auth/popup-closed-by-user") {
+      msg = "You cancelled the login.";
+    } else if (error.code === "auth/network-request-failed") {
+      msg = "No internet connection.";
+    }
+    
+    errorMsg.textContent = msg;
+    errorMsg.classList.add("show");
   }
-};
+});
 
-// Show Error Message
-function showError(message) {
-  errorMsg.textContent = message;
-  errorMsg.classList.add("show");
-  
-  setTimeout(() => {
-    errorMsg.classList.remove("show");
-  }, 5000);
-}
-
-// Redirect to Main System
-function redirectToSystem() {
-  // Store login status
-  localStorage.setItem("isLoggedIn", "true");
-  
-  // Redirect to your main system page
-  // Change 'system.html' to your actual main page filename
-  window.location.href = "system.html";
+function showStatus(text) {
+  statusMsg.style.display = "block";
+  statusMsg.textContent = text;
 }
