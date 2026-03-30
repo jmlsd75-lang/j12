@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard - Jamal Said Kazembe</title>
+<title>Login - Jamal Said Kazembe</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
 * {
@@ -17,6 +17,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #0d4a0d 0%, #1a6b1a 25%, #0f5f0f 50%, #145214 75%, #0a3d0a 100%);
   overflow: hidden;
@@ -68,164 +69,215 @@ body::before {
   100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
 }
 
-.top-bar {
+.back-btn {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 30px;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.user-avatar {
-  width: 42px;
-  height: 42px;
+  top: 25px;
+  left: 25px;
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(144, 238, 144, 0.3);
   border-radius: 50%;
-  border: 2px solid rgba(144, 238, 144, 0.4);
-  object-fit: cover;
-  background: rgba(144, 238, 144, 0.1);
-}
-
-.user-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: #90EE90;
-}
-
-.logout-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 24px;
-  font-family: 'Poppins', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  color: #ff6b6b;
-  background: rgba(255, 107, 107, 0.1);
-  border: 1px solid rgba(255, 107, 107, 0.3);
-  border-radius: 50px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.3s ease;
+  z-index: 100;
 }
 
-.logout-btn:hover {
-  background: rgba(255, 107, 107, 0.2);
-  border-color: rgba(255, 107, 107, 0.5);
-  transform: translateY(-1px);
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(144, 238, 144, 0.6);
+  transform: scale(1.1);
 }
 
-.logout-btn svg {
-  width: 18px;
-  height: 18px;
-  fill: #ff6b6b;
+.back-btn svg {
+  width: 24px;
+  height: 24px;
+  fill: #90EE90;
 }
 
-.center-content {
+.login-card {
   position: relative;
   z-index: 10;
-  flex: 1;
+  background: rgba(13, 74, 13, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(144, 238, 144, 0.2);
+  border-radius: 30px;
+  padding: 50px 40px;
+  width: 90%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.05);
+}
+
+.login-card::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #7CFC7C, transparent);
+}
+
+.avatar {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 30px;
+  background: linear-gradient(145deg, #2d8a2d, #1a6b1a);
+  border-radius: 50%;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  animation: fadeUp 0.8s ease-out;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border: 3px solid rgba(144, 238, 144, 0.3);
 }
 
-@keyframes fadeUp {
-  0% { opacity: 0; transform: translateY(30px); }
-  100% { opacity: 1; transform: translateY(0); }
+.avatar svg {
+  width: 50px;
+  height: 50px;
+  fill: #90EE90;
 }
 
-.welcome-text {
-  font-size: clamp(24px, 5vw, 38px);
+.login-card h2 {
+  font-size: 26px;
   font-weight: 600;
   color: #90EE90;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.welcome-sub {
-  font-size: 15px;
-  color: rgba(144, 238, 144, 0.6);
-  margin-bottom: 40px;
+.login-card p {
+  font-size: 14px;
+  color: rgba(144, 238, 144, 0.7);
+  margin-bottom: 35px;
 }
 
-.free-btn {
+.google-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 18px 60px;
+  gap: 15px;
+  width: 100%;
+  padding: 16px 30px;
   font-family: 'Poppins', sans-serif;
-  font-size: 18px;
-  font-weight: 600;
-  color: #0d4a0d;
-  background: linear-gradient(145deg, #7CFC7C, #5cdb5c);
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  background: #fff;
   border: none;
   border-radius: 50px;
   cursor: pointer;
-  text-decoration: none;
   transition: all 0.3s ease;
-  box-shadow:
-    0 8px 30px rgba(124, 252, 124, 0.3),
-    0 2px 8px rgba(0, 0, 0, 0.2);
-  letter-spacing: 1px;
-  position: relative;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
-.free-btn:hover {
-  transform: translateY(-3px);
-  box-shadow:
-    0 14px 40px rgba(124, 252, 124, 0.4),
-    0 4px 12px rgba(0, 0, 0, 0.25);
-  background: linear-gradient(145deg, #8aff8a, #6de66d);
+.google-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+  background: #f8f8f8;
 }
 
-.free-btn:active {
-  transform: translateY(-1px);
+.google-btn:active {
+  transform: translateY(0);
 }
 
-.free-btn svg {
-  width: 22px;
-  height: 22px;
-  fill: #0d4a0d;
+.google-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
 }
 
-.free-btn::after {
+.google-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 30px 0;
+  gap: 15px;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(144, 238, 144, 0.2);
+}
+
+.divider span {
+  font-size: 12px;
+  color: rgba(144, 238, 144, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.info-text {
+  font-size: 13px;
+  color: rgba(144, 238, 144, 0.6);
+  line-height: 1.6;
+}
+
+.error-msg {
+  display: none;
+  margin-top: 20px;
+  padding: 12px 20px;
+  background: rgba(220, 53, 69, 0.2);
+  border: 1px solid rgba(220, 53, 69, 0.4);
+  border-radius: 10px;
+  color: #ff6b6b;
+  font-size: 14px;
+}
+
+.error-msg.show {
+  display: block;
+  animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+.loading-text {
+  display: none;
+  margin-top: 15px;
+  font-size: 14px;
+  color: rgba(144, 238, 144, 0.8);
+}
+
+.loading-text.show {
+  display: block;
+}
+
+.loading-text::after {
   content: '';
-  position: absolute;
-  inset: -4px;
-  border-radius: 54px;
-  border: 2px solid rgba(124, 252, 124, 0.3);
-  animation: pulse 2.5s ease-in-out infinite;
+  animation: dots 1.5s infinite;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 0; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.04); }
+@keyframes dots {
+  0% { content: ''; }
+  25% { content: '.'; }
+  50% { content: '..'; }
+  75% { content: '...'; }
 }
 
 @media (max-width: 480px) {
-  .top-bar {
-    padding: 15px 20px;
+  .login-card {
+    padding: 40px 25px;
+    border-radius: 25px;
   }
-  .user-name {
-    display: none;
-  }
-  .free-btn {
-    padding: 16px 45px;
-    font-size: 16px;
-  }
+  .login-card h2 { font-size: 22px; }
+  .avatar { width: 80px; height: 80px; }
+  .avatar svg { width: 40px; height: 40px; }
 }
 </style>
 </head>
@@ -238,70 +290,44 @@ body::before {
 <div class="leaf"></div>
 <div class="leaf"></div>
 
-<div class="top-bar">
-  <div class="user-info">
-    <img class="user-avatar" id="userAvatar" src="" alt="User">
-    <span class="user-name" id="userName">Loading...</span>
+<button class="back-btn" onclick="window.location.href='index.html'">
+  <svg viewBox="0 0 24 24">
+    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+  </svg>
+</button>
+
+<div class="login-card">
+  <div class="avatar">
+    <svg viewBox="0 0 24 24">
+      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+    </svg>
   </div>
-  <button class="logout-btn" id="logoutBtn">
+  
+  <h2>Welcome Back</h2>
+  <p>Sign in to continue to the system</p>
+  
+  <button class="google-btn" id="googleLoginBtn">
     <svg viewBox="0 0 24 24">
-      <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
     </svg>
-    Logout
+    Sign in with Google
   </button>
+  
+  <div class="divider">
+    <div class="divider-line"></div>
+    <span>Secure Login</span>
+    <div class="divider-line"></div>
+  </div>
+  
+  <p class="info-text">Your account is protected with Google's secure authentication system.</p>
+  
+  <div class="error-msg" id="errorMsg"></div>
+  <div class="loading-text" id="loadingText">Signing you in</div>
 </div>
 
-<div class="center-content">
-  <div class="welcome-text" id="welcomeText">Welcome</div>
-  <p class="welcome-sub">What would you like to do?</p>
-  <a href="free.html" class="free-btn">
-    <svg viewBox="0 0 24 24">
-      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-    </svg>
-    Free
-  </a>
-</div>
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
-
-  // ⚠️ PASTE YOUR REAL FIREBASE CONFIG HERE (same as login.js)
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-
-  const userAvatar = document.getElementById("userAvatar");
-  const userName = document.getElementById("userName");
-  const welcomeText = document.getElementById("welcomeText");
-  const logoutBtn = document.getElementById("logoutBtn");
-
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      userAvatar.src = user.photoURL || "";
-      userName.textContent = user.displayName || "User";
-      welcomeText.textContent = "Welcome, " + (user.displayName ? user.displayName.split(" ")[0] : "User");
-    } else {
-      window.location.href = "login.html";
-    }
-  });
-
-  logoutBtn.addEventListener("click", async () => {
-    try {
-      await signOut(auth);
-      window.location.href = "index.html";
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
-  });
-</script>
+<script type="module" src="login.js"></script>
 </body>
 </html>
