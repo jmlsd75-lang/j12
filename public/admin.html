@@ -649,9 +649,10 @@
 
             if (urlEmail && urlAdmin === "true") {
                 isAdmin = true;
-                name = urlName || "Admin";
-                email = urlEmail;
-                photo = urlPhoto || "";
+                // Decode to fix spaces (e.g. "John%20Doe" becomes "John Doe")
+                name = decodeURIComponent(urlName || "Admin");
+                email = decodeURIComponent(urlEmail);
+                photo = decodeURIComponent(urlPhoto || "");
                 uid = urlUid || "";
 
                 // Save to sessionStorage for page refreshes
