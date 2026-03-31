@@ -1,170 +1,51 @@
-=<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Jamal Said Kazembe</title>
+  <title>Jamal Said Kazembe Multisystem Management</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
       font-family: Arial, sans-serif;
       background: #f4f4f4;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
+      justify-content: center;
       align-items: center;
       height: 100vh;
       text-align: center;
-      padding-top: 20px;
     }
-
     h1 {
-      font-size: 40px;
+      font-size: 38px;
       color: blue;
-      margin: 0;
+      margin-bottom: 5px;
+      letter-spacing: 1px;
     }
-
     h2 {
       color: red;
-      margin-top: 5px;
+      font-size: 22px;
+      margin-bottom: 60px;
+      font-weight: normal;
     }
-
-    /* ─── Pages ─── */
-    #cameraPage, #txForm, #businessPage, #viewButtonsPage {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-    }
-
-    #countdownPage {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: white;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      font-size: 30px;
-      z-index: 999;
-    }
-
-    /* ─── Buttons ─── */
-    .logout-btn {
-      background: red;
-      color: white;
-      border: none;
-      padding: 10px 25px;
-      border-radius: 6px;
-      cursor: pointer;
-      position: absolute;
-      bottom: 20px;
-    }
-
-    .free-btn, .pay-btn {
-      width: 140px;
-      padding: 12px 0;
-      font-size: 18px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .free-btn {
-      margin-top: 120px;
+    #loginBtn {
+      padding: 14px 50px;
+      font-size: 20px;
+      font-weight: bold;
       background: green;
       color: white;
-    }
-
-    .free-btn:disabled {
-      background: gray;
-      cursor: not-allowed;
-    }
-
-    .pay-btn {
-      background: blue;
-      color: white;
-    }
-
-    .action-buttons {
-      margin-top: 120px;
-      display: none;
-      gap: 20px;
-    }
-
-    /* ─── Business ─── */
-    #businessPage button, #viewButtonsPage button {
-      font-size: 22px;
-      padding: 15px 40px;
-      margin: 5px;
       border: none;
       border-radius: 8px;
       cursor: pointer;
+      letter-spacing: 1px;
     }
-
-    #addTx { background: green; color: white; }
-    #viewTx { background: blue; color: white; }
-    #businessExit { background: red; color: white; }
-
-    #cashBookBtn { background: lightgreen; color: black; }
-    #ledgersBtn { background: lightblue; color: black; }
-    #trialBalanceBtn { background: lightcoral; color: black; }
-    #incomeStatementBtn { background: lightyellow; color: black; }
-    #balanceSheetBtn { background: lightpink; color: black; }
-    #backFromViewBtn { background: red; color: white; margin-top: 20px; }
-
-    /* ─── Camera & Payment ─── */
-    #cameraPage button, #previewPage button, #submitPage button {
-      font-size: 22px;
-      padding: 15px 40px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    #openCamera { background: green; color: white; }
-    #openPhotos { background: blue; color: white; }
-    #cameraBack { background: red; color: white; }
-    #photoOk, #sendPhoto { background: purple; color: white; }
-    #photoCancel, #submitBack { background: red; color: white; }
-
-    #paymentPage {
-      display: none;
-      margin-top: 100px;
-      text-align: center;
-    }
-
-    #backBtn, #nextBtn {
-      padding: 20px 60px;
-      font-size: 28px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      margin: 15px;
-    }
-
-    #backBtn { background: red; color: white; }
-    #nextBtn { background: purple; color: white; }
-
-    /* ─── Transaction Form ─── */
-    #txDesc, #txAmount {
-      font-size: 22px;
-      padding: 10px;
-      text-align: center;
-    }
-
-    #inBtn { background: green; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; }
-    #outBtn { background: red; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; }
-    .method { margin: 5px; padding: 10px; cursor:pointer; }
-
-    /* ─── Preview / Submit pages ─── */
-    #previewPage, #submitPage {
-      display: none;
-      margin-top: 60px;
-      text-align: center;
+    #loginBtn:hover { background: #006400; }
+    #loginBtn:disabled { background: gray; cursor: not-allowed; }
+    #statusMsg {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #555;
+      min-height: 24px;
     }
   </style>
 </head>
@@ -173,110 +54,10 @@
   <h1>JAMAL SAID KAZEMBE</h1>
   <h2>MULTISYSTEM MANAGEMENT</h2>
 
-  <!-- Countdown -->
-  <div id="countdownPage">
-    <div id="mainTimer">180</div>
-    <div style="margin-top:40px;">
-      <button id="businessBtn">BUSINESS</button>
-      <button id="exitBtn">EXIT</button>
-    </div>
-  </div>
+  <button id="loginBtn">LOGIN</button>
+  <div id="statusMsg"></div>
 
-  <!-- Logout -->
-  <button class="logout-btn" id="logoutBtn">LOGOUT</button>
-
-  <!-- Action Buttons -->
-  <div class="action-buttons" id="actionBtns">
-    <button class="free-btn" id="freeBtn">FREE</button>
-    <button class="pay-btn" id="payBtn">PAY</button>
-  </div>
-
-  <!-- Camera Page -->
-  <div id="cameraPage" style="margin-top:60px;">
-    <button id="openCamera">CAMERA</button>
-    <button id="openPhotos">PHOTOS</button>
-    <button id="cameraBack">BACK</button>
-    <br><br>
-    <video id="camera" width="300" autoplay style="display:none;"></video>
-    <br><br>
-    <button id="takePhoto" style="display:none;">TAKE PHOTO</button>
-    <canvas id="canvas" style="display:none;"></canvas>
-  </div>
-
-  <!-- Preview Page -->
-  <div id="previewPage">
-    <img id="photoPreview" width="300">
-    <br><br>
-    <button id="photoOk">OK</button>
-    <button id="photoCancel">CANCEL</button>
-  </div>
-
-  <!-- Submit Page -->
-  <div id="submitPage">
-    <br><br>
-    <button id="sendPhoto">SUBMIT</button>
-    <button id="submitBack">BACK</button>
-    <input type="file" id="fileInput" accept="image/*" style="display:none">
-  </div>
-
-  <!-- Payment Page -->
-  <div id="paymentPage">
-    <div style="color:purple; font-size:30px;">pay through</div>
-    <div style="color:green; font-size:30px;">mix by yas</div>
-    <div style="color:blue; font-size:30px;">+255 655 510 714</div>
-    <div style="color:red; font-size:30px;">airtel money</div>
-    <div style="color:orange; font-size:30px;">+255 780 526 437</div>
-    <div style="color:brown; font-size:30px;">crdb bank</div>
-    <div style="color:black; font-size:30px;">0152001GN6K00</div>
-    <div style="color:teal; font-size:30px;">JAMALI SAIDI KAZEMB</div>
-    <div style="margin-top:40px;">
-      <button id="backBtn">BACK</button>
-      <button id="nextBtn">NEXT</button>
-    </div>
-  </div>
-
-  <!-- Business Page -->
-  <div id="businessPage" style="margin-top:120px;">
-    <button id="addTx">ADD NEW TRANSACTION</button>
-    <button id="viewTx">VIEW</button>
-    <button id="businessExit">EXIT</button>
-  </div>
-
-  <!-- View Buttons Page -->
-  <div id="viewButtonsPage" style="margin-top:60px;">
-    <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px;">
-      <button id="listBtn">LIST</button>
-      <button id="cashBookBtn">CASH BOOK</button>
-      <button id="ledgersBtn">LEDGERS</button>
-      <button id="trialBalanceBtn">TRIAL BALANCE</button>
-      <button id="incomeStatementBtn">INCOME STATEMENT</button>
-      <button id="balanceSheetBtn">BALANCE SHEET</button>
-    </div>
-    <button id="backFromViewBtn">BACK</button>
-  </div>
-
-  <!-- Transaction Form -->
-  <div id="txForm" style="margin-top:120px; text-align:center;">
-    <input id="txDesc" placeholder="Enter description"><br><br>
-    <input id="txAmount" placeholder="Enter amount" style="display:none;"><br><br>
-    <div id="txType" style="display:none;">
-      <button id="inBtn">IN</button>
-      <button id="outBtn">OUT</button>
-    </div><br>
-    <div id="txMethod" style="display:none;">
-      <button class="method">CASH</button>
-      <button class="method">CREDIT</button>
-      <button class="method">BANK</button>
-    </div><br>
-    <div id="txActions">
-      <button id="okTx" style="display:none;">OK</button>
-      <button id="cancelTx">CANCEL</button>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-  <script type="module" src="dashboard.js"></script>
+  <script src="login.js"></script>
 
 </body>
 </html>
