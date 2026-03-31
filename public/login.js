@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
@@ -10,12 +10,20 @@ const firebaseConfig = {
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
-// Put your exact admin email here
 const ADMIN_EMAIL = "jmlsd75@gmail.com";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+
+// ✅ SET PERSISTENCE - Keeps user logged in even after closing browser
+setPersistence(auth, browserLocalPersistence)
+  .then(() => {
+    console.log("Persistence set to LOCAL - user will stay logged in");
+  })
+  .catch((error) => {
+    console.error("Error setting persistence:", error);
+  });
 
 const loginBtn = document.getElementById("loginBtn");
 const statusMsg = document.getElementById("statusMsg");
@@ -36,7 +44,6 @@ function checkAndRedirect(user) {
   var isAdmin = (email === ADMIN_EMAIL.toLowerCase());
 
   console.log("Logged in email:", email);
-  console.log("Admin email:", ADMIN_EMAIL.toLowerCase());
   console.log("Is admin?", isAdmin);
 
   var name = encodeURIComponent(user.displayName || "User");
@@ -51,9 +58,14 @@ function checkAndRedirect(user) {
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
+    // User is already logged in (from previous session)
     checkAndRedirect(user);
     return;
   }
+
+  // No user logged in - show login button
+  loginBtn.style.display = "block"; // Make sure button is visible
+  statusMsg.textContent = "Please sign in to continue";
 
   loginBtn.onclick = async () => {
     loginBtn.disabled = true;
@@ -61,6 +73,7 @@ onAuthStateChanged(auth, (user) => {
 
     try {
       await signInWithPopup(auth, provider);
+      // onAuthStateChanged will automatically trigger and redirect
     } catch (error) {
       loginBtn.disabled = false;
       if (error.code === "auth/popup-closed-by-user") {
