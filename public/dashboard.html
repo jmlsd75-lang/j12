@@ -5,16 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard — JAMALI SAID KAZEMBE</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200;400;700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200;400;700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            forest: { 950:'#020804', 900:'#040d06', 800:'#091a0e', 700:'#0e2515', 600:'#14331e', 500:'#1a4028', 400:'#256b3a', 300:'#2d8a48', 200:'#4ade80', 100:'#bbf7d0' },
-            bark: { 800:'#2a1c14', 700:'#3d2b1f', 600:'#5c3d2e', 500:'#7a5240', 400:'#9a7260', 300:'#c4a882' },
-            moss:'#8fbc6a', leaf:'#6abf4b', cream:'#f5f0e8', fog:'#a3b899', amber:'#d4a843', ember:'#c45d2c',
+            kili:{ night:'#050810', deep:'#0a1025', sky:'#122040', ridge:'#1e3050', rock:'#2a2e36', stone:'#3a3e48', ice:'#c8daf0', snow:'#e8eef8', frost:'#f0f4fa', mist:'#8899aa', dawn:'#e8a860', lava:'#1a1c22' },
+            cream:'#f0ece4',
           },
           fontFamily: { display:['Oswald','sans-serif'], body:['Source Sans 3','sans-serif'] },
         },
@@ -22,308 +21,317 @@
     };
   </script>
   <style>
-    :root {
-      --bg: #040d06;
-      --fg: #f5f0e8;
-      --muted: #a3b899;
-      --accent: #4ade80;
-      --card: rgba(14,37,21,0.7);
-      --border: rgba(45,138,72,0.18);
+    /* ===== SKY: deep night → dawn at horizon ===== */
+    body {
+      background: linear-gradient(
+        to bottom,
+        #050810 0%,
+        #080e1e 12%,
+        #0e1a38 25%,
+        #152545 38%,
+        #1e3050 48%,
+        #2d3848 56%,
+        #4a3d30 66%,
+        #7a5830 76%,
+        #b07838 84%,
+        #d09548 90%,
+        #e8a860 95%,
+        #f0b868 100%
+      );
     }
 
-    @keyframes breathe{0%{opacity:.5;transform:scale(1)}100%{opacity:1;transform:scale(1.06)}}
-    @keyframes revealUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-    @keyframes slideDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes pulseGlow{0%,100%{box-shadow:0 0 20px rgba(74,222,128,.1)}50%{box-shadow:0 0 50px rgba(74,222,128,.3),0 0 100px rgba(74,222,128,.08)}}
-    @keyframes freePulse{0%,100%{box-shadow:0 0 25px rgba(212,168,67,.15),0 0 60px rgba(212,168,67,.05)}50%{box-shadow:0 0 50px rgba(212,168,67,.35),0 0 120px rgba(212,168,67,.1),0 0 200px rgba(212,168,67,.04)}}
-    @keyframes freeShimmer{0%{background-position:-200% center}100%{background-position:200% center}}
-    @keyframes arrowBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+    /* ===== STARS — upper sky only ===== */
+    .stars {
+      position: absolute; inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 5% 3%, rgba(255,255,255,.8), transparent),
+        radial-gradient(1.2px 1.2px at 12% 7%, rgba(255,255,255,.6), transparent),
+        radial-gradient(1px 1px at 8% 11%, rgba(255,255,255,.5), transparent),
+        radial-gradient(1.5px 1.5px at 20% 4%, rgba(255,255,255,.7), transparent),
+        radial-gradient(1px 1px at 18% 14%, rgba(255,255,255,.4), transparent),
+        radial-gradient(1px 1px at 27% 6%, rgba(255,255,255,.6), transparent),
+        radial-gradient(1.3px 1.3px at 32% 2%, rgba(255,255,255,.8), transparent),
+        radial-gradient(1px 1px at 30% 10%, rgba(255,255,255,.4), transparent),
+        radial-gradient(1px 1px at 38% 8%, rgba(255,255,255,.5), transparent),
+        radial-gradient(1.2px 1.2px at 42% 3%, rgba(255,255,255,.7), transparent),
+        radial-gradient(1px 1px at 45% 12%, rgba(255,255,255,.3), transparent),
+        radial-gradient(1px 1px at 50% 5%, rgba(255,255,255,.6), transparent),
+        radial-gradient(1.4px 1.4px at 55% 1%, rgba(255,255,255,.9), transparent),
+        radial-gradient(1px 1px at 58% 9%, rgba(255,255,255,.4), transparent),
+        radial-gradient(1px 1px at 63% 6%, rgba(255,255,255,.5), transparent),
+        radial-gradient(1.2px 1.2px at 68% 11%, rgba(255,255,255,.6), transparent),
+        radial-gradient(1px 1px at 72% 3%, rgba(255,255,255,.7), transparent),
+        radial-gradient(1px 1px at 75% 8%, rgba(255,255,255,.4), transparent),
+        radial-gradient(1.3px 1.3px at 80% 5%, rgba(255,255,255,.8), transparent),
+        radial-gradient(1px 1px at 85% 10%, rgba(255,255,255,.3), transparent),
+        radial-gradient(1px 1px at 90% 2%, rgba(255,255,255,.7), transparent),
+        radial-gradient(1.2px 1.2px at 93% 7%, rgba(255,255,255,.5), transparent),
+        radial-gradient(1px 1px at 97% 4%, rgba(255,255,255,.6), transparent),
+        radial-gradient(1px 1px at 3% 16%, rgba(255,255,255,.3), transparent),
+        radial-gradient(1px 1px at 15% 18%, rgba(255,255,255,.2), transparent),
+        radial-gradient(1.2px 1.2px at 35% 15%, rgba(255,255,255,.4), transparent),
+        radial-gradient(1px 1px at 52% 17%, rgba(255,255,255,.2), transparent),
+        radial-gradient(1px 1px at 70% 16%, rgba(255,255,255,.3), transparent),
+        radial-gradient(1px 1px at 88% 14%, rgba(255,255,255,.2), transparent),
+        radial-gradient(1.5px 1.5px at 25% 1%, rgba(255,255,255,.9), transparent),
+        radial-gradient(1px 1px at 60% 14%, rgba(255,255,255,.2), transparent),
+        radial-gradient(1px 1px at 78% 1%, rgba(255,255,255,.7), transparent);
+    }
+
+    /* ===== DAWN GLOW behind mountain ===== */
+    .dawn-glow {
+      position: absolute;
+      bottom: 18%; left: 50%;
+      transform: translateX(-50%);
+      width: 130%; height: 55%;
+      background: radial-gradient(ellipse at 50% 85%, rgba(232,168,96,.22) 0%, rgba(200,120,50,.08) 40%, transparent 65%);
+    }
+
+    /* ===== DISTANT RANGE — atmospheric perspective ===== */
+    .distant-range {
+      position: absolute; bottom: 0;
+      width: 100%; height: 58%;
+      background: linear-gradient(to top, #141828, #1a2035);
+      clip-path: polygon(
+        0% 100%, 0% 72%, 4% 68%, 8% 62%, 12% 65%, 16% 58%,
+        22% 52%, 26% 55%, 30% 48%, 36% 44%, 40% 46%, 44% 42%,
+        48% 38%, 52% 40%, 56% 44%, 60% 48%, 64% 45%, 68% 50%,
+        72% 54%, 76% 50%, 80% 56%, 84% 60%, 88% 56%, 92% 62%,
+        96% 66%, 100% 70%, 100% 100%
+      );
+      opacity: 0.35;
+    }
+
+    /* ===== MAIN KIBO — flat-topped stratovolcano ===== */
+    .kibo {
+      position: absolute; bottom: 0;
+      width: 100%; height: 80%;
+      background: linear-gradient(to top, #12141a 0%, #1a1c24 15%, #22252e 30%, #2a2e38 45%, #30343e 60%, #363a44 75%, #3c404a 90%, #404450 100%);
+      clip-path: polygon(
+        0% 0%,
+        3% 3%,
+        8% 7%,
+        14% 14%,
+        20% 22%,
+        26% 32%,
+        31% 42%,
+        35% 50%,
+        38% 57%,
+        41% 64%,
+        43% 70%,
+        45% 76%,
+        47% 82%,
+        48% 86%,
+        49% 89%,
+        50% 91%,
+        51% 89%,
+        52% 86%,
+        53% 82%,
+        55% 76%,
+        57% 69%,
+        60% 62%,
+        63% 54%,
+        67% 44%,
+        72% 34%,
+        78% 26%,
+        84% 19%,
+        89% 13%,
+        94% 8%,
+        100% 4%,
+        100% 0%
+      );
+    }
+
+    /* ===== ROCK TEXTURE on Kibo ===== */
+    .kibo-texture {
+      position: absolute; bottom: 0;
+      width: 100%; height: 80%;
+      background:
+        linear-gradient(110deg, transparent 40%, rgba(0,0,0,.06) 40.5%, transparent 41%),
+        linear-gradient(150deg, transparent 55%, rgba(0,0,0,.04) 55.5%, transparent 56%),
+        linear-gradient(80deg, transparent 30%, rgba(0,0,0,.05) 30.5%, transparent 31%),
+        linear-gradient(130deg, transparent 65%, rgba(255,255,255,.02) 65.5%, transparent 66%);
+      clip-path: polygon(
+        0% 0%, 3% 3%, 8% 7%, 14% 14%, 20% 22%, 26% 32%, 31% 42%,
+        35% 50%, 38% 57%, 41% 64%, 43% 70%, 45% 76%, 47% 82%,
+        48% 86%, 49% 89%, 50% 91%, 51% 89%, 52% 86%, 53% 82%,
+        55% 76%, 57% 69%, 60% 62%, 63% 54%, 67% 44%, 72% 34%,
+        78% 26%, 84% 19%, 89% 13%, 94% 8%, 100% 4%, 100% 0%
+      );
+    }
+
+    /* ===== SNOW GLOW — warm backlight on ice ===== */
+    .snow-glow {
+      position: absolute; bottom: 0;
+      width: 100%; height: 80%;
+      background: radial-gradient(ellipse 18% 12% at 50% 89%, rgba(255,210,160,.12) 0%, transparent 100%);
+    }
+
+    /* ===== SNOW CAP — jagged glacier edges ===== */
+    .snow-cap {
+      position: absolute; bottom: 0;
+      width: 100%; height: 80%;
+      background: linear-gradient(to top, transparent 0%, rgba(180,200,225,.15) 55%, rgba(200,215,238,.5) 70%, rgba(220,232,248,.8) 85%, #e0e8f4 95%, #eef2fa 100%);
+      clip-path: polygon(
+        34% 72%,
+        35% 70%,
+        36% 72%,
+        37% 69%,
+        38% 71%,
+        39% 68%,
+        40% 71%,
+        41% 74%,
+        42% 72%,
+        43% 75%,
+        44% 77%,
+        45% 75%,
+        46% 79%,
+        47% 82%,
+        48% 80%,
+        49% 84%,
+        50% 91%,
+        51% 84%,
+        52% 80%,
+        53% 82%,
+        54% 79%,
+        55% 75%,
+        56% 77%,
+        57% 74%,
+        58% 76%,
+        59% 73%,
+        60% 75%,
+        61% 72%,
+        62% 74%,
+        63% 71%,
+        64% 73%,
+        65% 70%,
+        64% 68%,
+        63% 69%,
+        61% 67%,
+        59% 68%,
+        57% 66%,
+        55% 68%,
+        53% 66%,
+        51% 67%,
+        49% 66%,
+        47% 67%,
+        45% 66%,
+        43% 68%,
+        41% 66%,
+        39% 67%,
+        37% 66%,
+        35% 68%,
+        34% 66%
+      );
+    }
+
+    /* ===== MIST near snow line ===== */
+    .mist-band {
+      position: absolute;
+      bottom: 28%; width: 100%; height: 14%;
+      background: linear-gradient(to bottom, transparent 0%, rgba(140,160,185,.04) 30%, rgba(140,160,185,.06) 50%, rgba(140,160,185,.03) 70%, transparent 100%);
+    }
+    .mist-drift {
+      position: absolute;
+      bottom: 32%; width: 200%; height: 40px;
+      background: linear-gradient(90deg, transparent, rgba(160,180,200,.04), transparent);
+      animation: mistMove 25s linear infinite;
+    }
+    @keyframes mistMove { 0%{transform:translateX(-50%)} 100%{transform:translateX(0%)} }
+
+    /* ===== FOREGROUND savannah ===== */
+    .foreground {
+      position: absolute; bottom: 0;
+      width: 100%; height: 10%;
+      background: linear-gradient(to bottom, transparent 0%, #0a0c12 40%, #060810 100%);
+    }
+
+    /* ===== UI HELPERS ===== */
+    @keyframes pulseGlow{0%,100%{box-shadow:0 0 15px rgba(125,211,252,.08),inset 0 0 15px rgba(125,211,252,.02)}50%{box-shadow:0 0 45px rgba(125,211,252,.2),0 0 90px rgba(125,211,252,.05),inset 0 0 30px rgba(125,211,252,.04)}}
     @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
     @keyframes toastIn{from{opacity:0;transform:translateY(-20px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
-    @keyframes toastOut{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(-20px) scale(.95)}}
-    @keyframes fogDrift{0%{transform:translateX(-100%);opacity:0}30%{opacity:.25}70%{opacity:.15}100%{transform:translateX(100%);opacity:0}}
-    @keyframes ringPulse{0%{transform:scale(1);opacity:.3}100%{transform:scale(2.5);opacity:0}}
-    @keyframes countdownGlow{0%,100%{text-shadow:0 0 20px rgba(212,168,67,.3)}50%{text-shadow:0 0 40px rgba(212,168,67,.6)}}
-
-    .reveal{animation:revealUp .7s ease-out both}
-    .fade-in{animation:fadeIn .5s ease-out both}
-    .slide-down{animation:slideDown .4s ease-out both}
-    .d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.3s}.d4{animation-delay:.4s}.d5{animation-delay:.5s}.d6{animation-delay:.6s}.d7{animation-delay:.7s}.d8{animation-delay:.9s}.d9{animation-delay:1.1s}
-
-    .pulse-glow{animation:pulseGlow 4s ease-in-out infinite}
-    .free-pulse{animation:freePulse 3s ease-in-out infinite}
-    .fog-layer{animation:fogDrift 22s linear infinite}
-    .arrow-bounce{animation:arrowBounce 1.5s ease-in-out infinite}
-
-    .free-shimmer{
-      background:linear-gradient(90deg,#d4a843 0%,#f5e6b8 25%,#d4a843 50%,#f5e6b8 75%,#d4a843 100%);
-      background-size:200% auto;
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-      background-clip:text;
-      animation:freeShimmer 3s linear infinite;
-    }
-
-    .btn-sweep{position:relative;overflow:hidden}
-    .btn-sweep::after{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.15) 50%,transparent 70%);transform:translateX(-100%);transition:transform .5s ease}
-    .btn-sweep:hover::after{transform:translateX(100%)}
-
-    .toast{animation:toastIn .4s ease-out both}
-    .toast-exit{animation:toastOut .3s ease-in both}
-
-    ::-webkit-scrollbar{width:6px}
-    ::-webkit-scrollbar-track{background:var(--bg)}
-    ::-webkit-scrollbar-thumb{background:rgba(45,138,72,.3);border-radius:3px}
-
+    @keyframes toastOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-20px)}}
+    @keyframes revealUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .pulse-glow{animation:pulseGlow 3s ease-in-out infinite}
+    .glow-btn{position:relative;overflow:hidden}
+    .glow-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.12) 50%,transparent 70%);transform:translateX(-100%);transition:transform .5s ease}
+    .glow-btn:hover::before{transform:translateX(100%)}
+    .toast-in{animation:toastIn .4s ease-out both}
+    .toast-out{animation:toastOut .3s ease-in both}
+    .reveal{animation:revealUp .6s ease-out both}
+    .d1{animation-delay:.2s}.d2{animation-delay:.4s}
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
   </style>
 </head>
-<body class="bg-forest-900 text-cream font-body min-h-screen overflow-x-hidden">
+<body class="text-cream font-body h-screen overflow-hidden">
 
-  <!-- ═══ AMBIENT BACKGROUND ═══ -->
-  <div class="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
-    <div class="absolute top-[10%] left-[25%] w-[800px] h-[800px] rounded-full" style="background:radial-gradient(circle,rgba(42,100,50,.2) 0%,transparent 60%);animation:breathe 10s ease-in-out infinite alternate"></div>
-    <div class="absolute bottom-[5%] right-[10%] w-[600px] h-[600px] rounded-full" style="background:radial-gradient(circle,rgba(212,168,67,.05) 0%,transparent 60%);animation:breathe 13s ease-in-out infinite alternate;animation-delay:-5s"></div>
-    <div class="absolute inset-0" style="background-image:radial-gradient(rgba(74,222,128,.025) 1px,transparent 1px);background-size:50px 50px"></div>
-    <div class="absolute bottom-0 left-0 w-full h-[30%] overflow-hidden">
-      <div class="fog-layer absolute bottom-[10%] w-[200%] h-[70px] rounded-full" style="background:linear-gradient(90deg,transparent,rgba(163,184,153,.07),transparent)"></div>
-      <div class="fog-layer absolute bottom-[35%] w-[240%] h-[45px] rounded-full" style="background:linear-gradient(90deg,transparent,rgba(163,184,153,.04),transparent);animation-delay:-9s;animation-duration:28s"></div>
+  <!-- ===== MOUNT KILIMANJARO CSS PAINTING ===== -->
+  <div class="fixed inset-0 z-0" aria-hidden="true">
+    <div class="stars"></div>
+    <div class="dawn-glow"></div>
+    <div class="distant-range"></div>
+    <div class="kibo"></div>
+    <div class="kibo-texture"></div>
+    <div class="snow-glow"></div>
+    <div class="snow-cap"></div>
+    <div class="mist-band"></div>
+    <div class="mist-drift"></div>
+    <div class="foreground"></div>
+  </div>
+
+  <!-- Welcome toast -->
+  <div id="welcomeToast" class="fixed top-6 left-1/2 -translate-x-1/2 z-[200] hidden">
+    <div class="flex items-center gap-3 px-6 py-4 rounded-xl" style="background:rgba(10,16,37,.92);border:1px solid rgba(200,218,240,.15);backdrop-filter:blur(14px);box-shadow:0 8px 40px rgba(0,0,0,.5)">
+      <i class="fa-solid fa-mountain-sun text-kili-ice text-sm"></i>
+      <p class="text-cream text-sm font-semibold" id="toastName">Welcome!</p>
     </div>
   </div>
 
-  <!-- Fireflies -->
-  <canvas id="fireflies" class="fixed inset-0 z-[1] pointer-events-none" aria-hidden="true"></canvas>
+  <!-- ===== NAVBAR ===== -->
+  <nav class="relative z-[20] flex items-center justify-between px-5 sm:px-8 py-4" style="background:linear-gradient(180deg,rgba(5,8,16,.88),rgba(5,8,16,.4));border-bottom:1px solid rgba(200,218,240,.06);backdrop-filter:blur(8px)">
 
-  <!-- ═══ TOAST CONTAINER ═══ -->
-  <div id="toastContainer" class="fixed top-20 left-1/2 -translate-x-1/2 z-[200] flex flex-col items-center gap-3 pointer-events-none"></div>
+    <button id="logoutBtn"
+            class="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-300 hover:-translate-y-0.5 cursor-pointer focus-visible:outline-2 focus-visible:outline-kili-ice focus-visible:outline-offset-4"
+            style="background:rgba(26,28,34,.5);border:1px solid rgba(100,100,110,.15)"
+            aria-label="Sign out">
+      <i class="fa-solid fa-right-from-bracket text-kili-mist text-xs"></i>
+      <span class="font-display text-xs tracking-[0.12em] uppercase text-kili-mist">Logout</span>
+    </button>
 
-  <!-- ═══ NAVIGATION ═══ -->
-  <header id="mainNav" class="fixed top-0 left-0 right-0 z-[50] transition-all duration-500">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-      <nav class="flex items-center justify-between h-16 sm:h-20">
-
-        <!-- Brand -->
-        <a href="index.html" class="flex items-center gap-3 group no-underline" aria-label="Home">
-          <div class="w-9 h-9 rounded-lg flex items-center justify-center border border-forest-400/20 group-hover:border-forest-200/40 transition-colors" style="background:linear-gradient(135deg,rgba(45,138,72,.2),rgba(20,51,30,.4))">
-            <i class="fa-solid fa-leaf text-forest-200 text-sm group-hover:rotate-12 transition-transform duration-300"></i>
-          </div>
-          <div class="hidden sm:block">
-            <p class="font-display font-bold text-sm tracking-[0.12em] uppercase text-cream leading-none">Jamali</p>
-            <p class="font-display font-extralight text-[10px] tracking-[0.25em] uppercase text-fog/60 leading-none mt-0.5">Multisystem</p>
-          </div>
-        </a>
-
-        <!-- Right: User controls — ALWAYS visible on dashboard -->
-        <div class="flex items-center gap-3">
-
-          <!-- FREE button in nav -->
-          <a href="free.html" id="navFreeBtn"
-             class="btn-sweep inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-display text-sm tracking-[0.12em] uppercase no-underline transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.03] active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-amber focus-visible:outline-offset-2"
-             style="background:linear-gradient(140deg,#7a5240,#9a7260);border:1px solid rgba(212,168,67,.25);color:#f5f0e8;box-shadow:0 2px 20px rgba(212,168,67,.08)">
-            <i class="fa-solid fa-gift text-xs text-amber"></i>
-            <span>Free</span>
-          </a>
-
-          <!-- User avatar + name -->
-          <div class="relative">
-            <button id="userMenuBtn" class="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-forest-400/15 hover:border-forest-200/30 transition-all duration-300 cursor-pointer bg-forest-800/40 hover:bg-forest-700/40 focus-visible:outline-2 focus-visible:outline-forest-200 focus-visible:outline-offset-2" aria-label="User menu" aria-expanded="false">
-              <div id="userAvatar" class="w-8 h-8 rounded-full bg-forest-500 flex items-center justify-center text-sm font-display font-bold text-forest-200 border border-forest-400/20 overflow-hidden">
-                ?
-              </div>
-              <span id="userName" class="hidden sm:inline font-display text-sm tracking-wide text-cream max-w-[140px] truncate">User</span>
-              <i class="fa-solid fa-chevron-down text-[10px] text-fog/50 transition-transform duration-200" id="userChevron"></i>
-            </button>
-
-            <!-- Dropdown -->
-            <div id="userDropdown" class="absolute right-0 top-full mt-2 w-56 rounded-xl border border-forest-400/15 py-2 hidden slide-down" style="background:rgba(9,26,14,.96);backdrop-filter:blur(20px)" role="menu">
-              <div class="px-4 py-2.5 border-b border-forest-600/20">
-                <p id="dropdownName" class="text-sm font-semibold text-cream truncate">User</p>
-                <p id="dropdownEmail" class="text-xs text-fog/50 truncate mt-0.5">user@email.com</p>
-                <div id="adminBadge" class="hidden mt-1.5">
-                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-display tracking-wider uppercase" style="background:rgba(212,168,67,.12);color:#d4a843;border:1px solid rgba(212,168,67,.2)">
-                    <i class="fa-solid fa-crown text-[8px]"></i> Admin
-                  </span>
-                </div>
-              </div>
-              <a href="free.html" class="flex items-center gap-3 px-4 py-2.5 text-sm text-fog/80 hover:text-cream hover:bg-forest-700/30 transition-colors no-underline" role="menuitem">
-                <i class="fa-solid fa-gift text-xs text-amber/70 w-4"></i>
-                <span>Activate Free</span>
-              </a>
-              <div class="my-1 border-t border-forest-600/15"></div>
-              <button id="logoutBtn" class="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-400/80 hover:text-red-300 hover:bg-red-900/10 transition-colors cursor-pointer text-left" role="menuitem">
-                <i class="fa-solid fa-arrow-right-from-bracket text-xs w-4"></i>
-                <span>Sign Out</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div class="flex items-center gap-2.5">
+      <img id="userAvatar" src="" alt="" class="w-8 h-8 rounded-full object-cover hidden" style="border:2px solid rgba(200,218,240,.15)">
+      <div id="avatarFallback" class="w-8 h-8 rounded-full flex items-center justify-center" style="background:rgba(30,34,42,.6);border:2px solid rgba(200,218,240,.1)">
+        <i class="fa-solid fa-user text-kili-stone text-xs"></i>
+      </div>
+      <span id="navUserName" class="text-cream text-sm font-semibold truncate max-w-[160px]">User</span>
     </div>
-    <div class="absolute bottom-0 left-0 right-0 h-[1px]" style="background:linear-gradient(90deg,transparent 5%,rgba(45,138,72,.2) 30%,rgba(45,138,72,.08) 50%,rgba(45,138,72,.2) 70%,transparent 95%)"></div>
-  </header>
+  </nav>
 
-  <!-- ═══ MAIN DASHBOARD CONTENT ═══ -->
-  <main class="relative z-10 pt-24 sm:pt-32 pb-16 px-4 sm:px-6">
+  <!-- ===== CENTRE OF PAGE ===== -->
+  <main class="relative z-[10] flex flex-col items-center justify-center h-[calc(100vh-73px)] px-6">
 
-    <!-- ═══════ WELCOME BANNER (shown on fresh login only) ═══════ -->
-    <div id="welcomeBanner" class="hidden max-w-3xl mx-auto mb-8">
-      <div class="rounded-2xl p-6 sm:p-8 border border-forest-400/15 fade-in" style="background:linear-gradient(150deg,rgba(14,37,21,.85),rgba(9,26,14,.95));backdrop-filter:blur(16px)">
-        <div class="flex items-start gap-4">
-          <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style="background:linear-gradient(140deg,rgba(74,222,128,.15),rgba(45,138,72,.25));border:1px solid rgba(74,222,128,.15)">
-            <i class="fa-solid fa-check-circle text-forest-200 text-xl"></i>
-          </div>
-          <div>
-            <p class="font-display font-bold text-lg text-cream tracking-wide">Welcome, <span id="welcomeName" class="text-forest-200">User</span></p>
-            <p class="text-sm text-fog/60 mt-1 leading-relaxed">You are now signed in. To start using the system, click the FREE button below.</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <p class="text-sm sm:text-base tracking-wide text-center mb-10 reveal" style="color:rgba(200,218,240,.55);text-shadow:0 2px 12px rgba(0,0,0,.6)">Click free to start use the system</p>
 
-    <!-- ═══════ CENTRAL FREE SECTION ═══════ -->
-    <div class="max-w-3xl mx-auto text-center">
+    <a href="free.html"
+       class="glow-btn pulse-glow px-12 py-5 rounded-2xl flex items-center gap-3 no-underline transition-all duration-300 hover:-translate-y-1 hover:scale-[1.04] active:translate-y-0 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-kili-ice focus-visible:outline-offset-4 reveal d1"
+       style="background:linear-gradient(140deg,rgba(30,48,80,.85),rgba(42,46,54,.9));border:1px solid rgba(200,218,240,.18);box-shadow:0 8px 40px rgba(0,0,0,.4)"
+       aria-label="Go to Free">
+      <i class="fa-solid fa-bolt text-kili-ice text-xl"></i>
+      <span class="font-display text-2xl tracking-[0.18em] uppercase text-kili-snow">Free</span>
+    </a>
 
-      <!-- Instruction text at the top -->
-      <div class="reveal d1 mb-6">
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-forest-400/12" style="background:rgba(14,37,21,.5)">
-          <i class="fa-solid fa-circle-info text-xs text-forest-200"></i>
-          <span class="text-xs sm:text-sm text-fog/70 tracking-wide">Click <strong class="text-cream font-semibold">FREE</strong> to start using the system</span>
-        </div>
-      </div>
-
-      <!-- User greeting -->
-      <div class="reveal d2 mb-4">
-        <p class="text-fog/40 text-sm tracking-[0.2em] uppercase font-display">Signed in as</p>
-        <p id="dashboardUserName" class="font-display font-bold text-xl sm:text-2xl text-cream mt-1 tracking-wide">User</p>
-      </div>
-
-      <!-- Decorative divider -->
-      <div class="reveal d3 flex items-center justify-center gap-3 my-8" aria-hidden="true">
-        <div class="w-16 h-[1px] bg-gradient-to-r from-transparent to-forest-400/30"></div>
-        <div class="w-2 h-2 rounded-full bg-forest-400/40"></div>
-        <div class="w-24 h-[1px] bg-gradient-to-r from-forest-400/30 via-amber/20 to-forest-400/30"></div>
-        <div class="w-2 h-2 rounded-full bg-amber/30"></div>
-        <div class="w-16 h-[1px] bg-gradient-to-l from-transparent to-forest-400/30"></div>
-      </div>
-
-      <!-- ★ THE FREE BUTTON — CENTER STAGE ★ -->
-      <div class="reveal d4 mb-10">
-        <div class="relative inline-block">
-          <!-- Pulse ring behind -->
-          <div class="absolute inset-0 rounded-2xl" style="animation:ringPulse 3s ease-out infinite;border:2px solid rgba(212,168,67,.2)"></div>
-          <div class="absolute inset-0 rounded-2xl" style="animation:ringPulse 3s ease-out infinite;animation-delay:1s;border:2px solid rgba(212,168,67,.15)"></div>
-
-          <a href="free.html"
-             class="free-pulse btn-sweep relative inline-flex flex-col items-center gap-3 px-12 sm:px-16 py-8 sm:py-10 rounded-2xl no-underline transition-all duration-300 hover:-translate-y-2 hover:scale-[1.03] active:translate-y-0 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-amber focus-visible:outline-offset-4"
-             style="background:linear-gradient(150deg,rgba(122,82,64,.9),rgba(92,61,46,.95));border:2px solid rgba(212,168,67,.3);backdrop-filter:blur(10px)"
-             aria-label="Click FREE to start using the system">
-
-            <!-- Icon -->
-            <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background:linear-gradient(140deg,rgba(212,168,67,.2),rgba(154,114,96,.3));border:1px solid rgba(212,168,67,.2)">
-              <i class="fa-solid fa-gift text-2xl text-amber"></i>
-            </div>
-
-            <!-- FREE text — big shimmer -->
-            <span class="free-shimmer font-display font-bold text-5xl sm:text-7xl tracking-[0.15em] leading-none">FREE</span>
-
-            <!-- Subtitle -->
-            <span class="font-display font-extralight text-xs sm:text-sm tracking-[0.25em] uppercase" style="color:rgba(245,240,232,.6)">
-              Click to start using the system
-            </span>
-
-            <!-- Arrow indicator -->
-            <i class="fa-solid fa-chevron-down text-amber/50 text-sm arrow-bounce mt-1"></i>
-          </a>
-        </div>
-      </div>
-
-      <!-- Features cards below -->
-      <div class="reveal d6 grid sm:grid-cols-3 gap-4 mt-12 text-left">
-        <div class="rounded-xl p-5 border border-forest-400/10 transition-all duration-300 hover:border-forest-400/20 hover:-translate-y-1" style="background:var(--card);backdrop-filter:blur(8px)">
-          <div class="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style="background:rgba(74,222,128,.1)">
-            <i class="fa-solid fa-bolt text-forest-200 text-sm"></i>
-          </div>
-          <p class="font-display font-bold text-sm text-cream tracking-wide mb-1">Instant Access</p>
-          <p class="text-xs text-fog/50 leading-relaxed">No payment required to explore the full system.</p>
-        </div>
-
-        <div class="rounded-xl p-5 border border-forest-400/10 transition-all duration-300 hover:border-forest-400/20 hover:-translate-y-1" style="background:var(--card);backdrop-filter:blur(8px)">
-          <div class="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style="background:rgba(212,168,67,.1)">
-            <i class="fa-solid fa-shield-halved text-amber text-sm"></i>
-          </div>
-          <p class="font-display font-bold text-sm text-cream tracking-wide mb-1">Secure</p>
-          <p class="text-xs text-fog/50 leading-relaxed">Your data is encrypted and protected at every layer.</p>
-        </div>
-
-        <div class="rounded-xl p-5 border border-forest-400/10 transition-all duration-300 hover:border-forest-400/20 hover:-translate-y-1" style="background:var(--card);backdrop-filter:blur(8px)">
-          <div class="w-9 h-9 rounded-lg flex items-center justify-center mb-3" style="background:rgba(143,188,106,.1)">
-            <i class="fa-solid fa-infinity text-moss text-sm"></i>
-          </div>
-          <p class="font-display font-bold text-sm text-cream tracking-wide mb-1">Unlimited</p>
-          <p class="text-xs text-fog/50 leading-relaxed">Full system features available from the start.</p>
-        </div>
-      </div>
-    </div>
   </main>
 
-  <!-- ═══ FOOTER ═══ -->
-  <footer class="relative z-10 border-t border-forest-400/8 py-6 px-4 sm:px-6">
-    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-      <p class="text-xs text-fog/25 tracking-wide">Jamali Said Kazembe Multisystem Management</p>
-      <p class="text-xs text-fog/15 tracking-wide">Dashboard v1.0</p>
-    </div>
-  </footer>
+  <!-- Logout overlay -->
+  <div id="logoutOverlay" class="fixed inset-0 z-[100] flex-col items-center justify-center" style="background:rgba(5,8,16,.95);display:none">
+    <div class="w-12 h-12 rounded-full border-[3px] border-kili-ridge border-t-kili-ice" style="animation:spin 1s linear infinite"></div>
+    <p class="mt-5 text-kili-mist text-sm tracking-[0.2em] uppercase">Signing out...</p>
+  </div>
 
-  <!-- ═══ FIREFLIES ═══ -->
-  <script>
-    (() => {
-      const cv = document.getElementById('fireflies');
-      const cx = cv.getContext('2d');
-      let w, h;
-      const dots = [];
-      function resize() { w = cv.width = innerWidth; h = cv.height = innerHeight; }
-      addEventListener('resize', resize); resize();
-      class F {
-        constructor() { this.reset(); }
-        reset() { this.x = Math.random()*w; this.y = Math.random()*h; this.r = Math.max(0.5,Math.random()*1.8); this.vx = (Math.random()-0.5)*0.12; this.vy = (Math.random()-0.5)*0.08-0.02; this.p = Math.random()*Math.PI*2; this.s = Math.random()*0.012+0.004; this.m = Math.random()*0.4+0.08; }
-        update() { this.x += this.vx; this.y += this.vy; this.p += this.s; if(this.x<-20||this.x>w+20||this.y<-20||this.y>h+20) this.reset(); }
-        draw() { const a = this.m*Math.max(0,Math.sin(this.p)); if(a<0.01) return; const g = cx.createRadialGradient(this.x,this.y,0,this.x,this.y,Math.max(0.1,this.r*5)); g.addColorStop(0,`rgba(180,230,120,${(a*0.35).toFixed(3)})`); g.addColorStop(0.4,`rgba(140,210,90,${(a*0.08).toFixed(3)})`); g.addColorStop(1,'rgba(100,180,70,0)'); cx.beginPath(); cx.arc(this.x,this.y,Math.max(0.1,this.r*5),0,Math.PI*2); cx.fillStyle=g; cx.fill(); cx.beginPath(); cx.arc(this.x,this.y,Math.max(0.1,this.r),0,Math.PI*2); cx.fillStyle=`rgba(220,255,180,${a.toFixed(3)})`; cx.fill(); }
-      }
-      for(let i=0;i<25;i++) dots.push(new F());
-      (function loop(){ cx.clearRect(0,0,w,h); dots.forEach(d=>{d.update();d.draw();}); requestAnimationFrame(loop); })();
-    })();
-  </script>
-
-  <!-- ═══ NAV SCROLL EFFECT ═══ -->
-  <script>
-    (() => {
-      const nav = document.getElementById('mainNav');
-      addEventListener('scroll', () => {
-        if (scrollY > 30) { nav.style.background = 'rgba(4,13,6,0.88)'; nav.style.backdropFilter = 'blur(16px)'; }
-        else { nav.style.background = 'transparent'; nav.style.backdropFilter = 'none'; }
-      }, { passive: true });
-    })();
-  </script>
-
-  <!-- ═══ USER DROPDOWN ═══ -->
-  <script>
-    (() => {
-      const btn = document.getElementById('userMenuBtn');
-      const dropdown = document.getElementById('userDropdown');
-      const chevron = document.getElementById('userChevron');
-      if (!btn || !dropdown) return;
-      let open = false;
-      function toggle() { open = !open; dropdown.classList.toggle('hidden', !open); chevron.style.transform = open ? 'rotate(180deg)' : 'rotate(0)'; btn.setAttribute('aria-expanded', open); }
-      btn.addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
-      document.addEventListener('click', (e) => { if (open && !dropdown.contains(e.target)) { open = false; dropdown.classList.add('hidden'); chevron.style.transform = 'rotate(0)'; btn.setAttribute('aria-expanded', 'false'); } });
-    })();
-  </script>
-
-  <!-- ═══ AUTH + UI LOGIC ═══ -->
+  <!-- Dashboard script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
@@ -337,104 +345,57 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    const ADMIN_EMAIL = "camelkazembe1@gmail.com";
+    const navUserName = document.getElementById("navUserName");
+    const userAvatar = document.getElementById("userAvatar");
+    const avatarFallback = document.getElementById("avatarFallback");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const logoutOverlay = document.getElementById("logoutOverlay");
+    const welcomeToast = document.getElementById("welcomeToast");
+    const toastName = document.getElementById("toastName");
 
-    // ── DOM ──
-    const userAvatar = document.getElementById('userAvatar');
-    const userName = document.getElementById('userName');
-    const dashboardUserName = document.getElementById('dashboardUserName');
-    const dropdownName = document.getElementById('dropdownName');
-    const dropdownEmail = document.getElementById('dropdownEmail');
-    const adminBadge = document.getElementById('adminBadge');
-    const welcomeBanner = document.getElementById('welcomeBanner');
-    const welcomeName = document.getElementById('welcomeName');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const toastContainer = document.getElementById('toastContainer');
-
-    // ── Toast helper ──
-    function showToast(msg, type = 'success') {
-      const colors = {
-        success: 'border-forest-200/30 bg-forest-800/95',
-        error: 'border-red-400/30 bg-red-950/95',
-        info: 'border-amber/30 bg-bark-800/95'
-      };
-      const icons = {
-        success: 'fa-check-circle text-forest-200',
-        error: 'fa-exclamation-circle text-red-400',
-        info: 'fa-info-circle text-amber'
-      };
-      const el = document.createElement('div');
-      el.className = `toast pointer-events-auto flex items-center gap-3 px-5 py-3 rounded-xl border ${colors[type]} backdrop-blur-xl shadow-lg`;
-      el.innerHTML = `<i class="fa-solid ${icons[type]} text-sm"></i><span class="text-sm text-cream">${msg}</span>`;
-      toastContainer.appendChild(el);
-      setTimeout(() => { el.classList.add('toast-exit'); setTimeout(() => el.remove(), 300); }, 3500);
+    const name = localStorage.getItem("userName") || "User";
+    const photo = localStorage.getItem("userPhoto") || "";
+    navUserName.textContent = name;
+    if (photo && photo !== "null" && photo !== "undefined") {
+      userAvatar.src = photo;
+      userAvatar.classList.remove("hidden");
+      avatarFallback.classList.add("hidden");
     }
 
-    // ── Populate UI from user object ──
-    function setUserUI(user) {
-      const name = user.displayName || 'User';
-      const email = user.email || '';
-      const photo = user.photoURL || '';
-      const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-      const isAdmin = email === ADMIN_EMAIL;
-
-      // Avatar
-      if (photo) {
-        userAvatar.innerHTML = `<img src="${photo}" alt="" class="w-full h-full object-cover">`;
-      } else {
-        userAvatar.textContent = initials;
-      }
-
-      // Names
-      userName.textContent = name;
-      dashboardUserName.textContent = name;
-      dropdownName.textContent = name;
-      dropdownEmail.textContent = email;
-
-      // Admin badge
-      if (isAdmin) {
-        adminBadge.classList.remove('hidden');
-      } else {
-        adminBadge.classList.add('hidden');
-      }
+    if (sessionStorage.getItem("justLoggedIn") === "1") {
+      toastName.textContent = `Welcome, ${name}!`;
+      welcomeToast.classList.remove("hidden");
+      welcomeToast.querySelector("div").classList.add("toast-in");
+      sessionStorage.removeItem("justLoggedIn");
+      setTimeout(() => {
+        const inner = welcomeToast.querySelector("div");
+        inner.classList.remove("toast-in");
+        inner.classList.add("toast-out");
+        setTimeout(() => welcomeToast.classList.add("hidden"), 300);
+      }, 4000);
     }
 
-    // ── Auth state listener ──
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        // Not logged in — kick back to index.html
-        window.location.href = "index.html";
-        return;
-      }
-
-      // Logged in — populate UI
-      setUserUI(user);
-
-      // Check if this is a fresh login (from login.js)
-      const justLoggedIn = sessionStorage.getItem('justLoggedIn');
-      if (justLoggedIn === '1') {
-        // Show welcome banner
-        welcomeBanner.classList.remove('hidden');
-        welcomeName.textContent = user.displayName || 'User';
-        showToast(`Welcome back, ${user.displayName || 'User'}!`, 'success');
-
-        // Clear flag so refreshing doesn't re-show
-        sessionStorage.removeItem('justLoggedIn');
-      }
+    logoutBtn.addEventListener("click", async () => {
+      logoutOverlay.style.display = "flex";
+      try { await signOut(auth); } catch (e) { console.error(e); }
+      localStorage.removeItem("userName");
+      localStorage.removeItem("userEmail");
+      localStorage.removeItem("userPhoto");
+      localStorage.removeItem("userUid");
+      localStorage.removeItem("isAdmin");
+      sessionStorage.removeItem("justLoggedIn");
+      sessionStorage.removeItem("loginIntent");
+      window.location.href = "index.html";
     });
 
-    // ── Logout ──
-    logoutBtn.addEventListener('click', async () => {
-      try {
-        // Clear all session data
-        sessionStorage.clear();
-        await signOut(auth);
-        showToast('Signed out successfully', 'info');
-        // Small delay so user sees the toast
-        setTimeout(() => { window.location.href = "index.html"; }, 600);
-      } catch (e) {
-        console.error('Logout error:', e);
-        showToast('Could not sign out. Try again.', 'error');
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        localStorage.removeItem("userName");
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("userPhoto");
+        localStorage.removeItem("userUid");
+        localStorage.removeItem("isAdmin");
+        window.location.href = "index.html";
       }
     });
   </script>
