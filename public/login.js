@@ -1,5 +1,5 @@
 // ========================================
-// FIREBASE IMPORTS
+// FIREBASE — ALL FROM CLOUD CDN
 // ========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -30,7 +30,7 @@ const firebaseConfig = {
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
-const ADMIN_EMAIL = "jmlsd75@gmail.com";
+const ADMIN_EMAIL = "camelkazembe1@gmail.com";
 
 // ========================================
 // INITIALIZE FIREBASE
@@ -40,8 +40,14 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// Force Google to always ask for an account
-provider.setCustomParameters({ prompt: "select_account" });
+// ========================================
+// FORCE GOOGLE ACCOUNT PICKER
+// User MUST choose an account or create new.
+// Google will never auto-select the last account.
+// ========================================
+provider.setCustomParameters({
+  prompt: "select_account"
+});
 
 // ========================================
 // DOM ELEMENTS
@@ -49,6 +55,26 @@ provider.setCustomParameters({ prompt: "select_account" });
 const errorMsg = document.getElementById("errorMsg");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
+
+// ========================================
+// LOGIN INTENT — survives page reload
+// Stored in sessionStorage BEFORE the browser
+// leaves the page. Checked on return to know
+// whether user came back from a Google redirect.
+// ========================================
+const INTENT_KEY = "loginIntent";
+
+function markIntent() {
+  sessionStorage.setItem(INTENT_KEY, "1");
+}
+
+function hadIntent() {
+  return sessionStorage.getItem(INTENT_KEY) === "1";
+}
+
+function clearIntent() {
+  sessionStorage.removeItem(INTENT_KEY);
+}
 
 // ========================================
 // UI HELPERS
@@ -69,27 +95,20 @@ function hideLoading() {
 }
 
 // ========================================
-// REDIRECT ROUTER
-// Sends Admin to admin.html, everyone else to dashboard.html
-// ========================================
-function routeUser(user) {
-  if (user.email === ADMIN_EMAIL) {
-    window.location.href = "admin.html";
-  } else {
-    window.location.href = "dashboard.html";
-  }
-}
-
-// ========================================
-// SAVE USER TO LOCAL STORAGE
+// SAVE USER DATA TO LOCAL STORAGE
+// localStorage survives closing the browser
+// so the dashboard can read it on next visit
 // ========================================
 function saveUserToStorage(user, isNewLogin) {
   localStorage.setItem("userName", user.displayName || "User");
-  localStorage.setItem("userEmail", user.email);
+  localStorage.setItem("userEmail", user.email || "");
   localStorage.setItem("userPhoto", user.photoURL || "");
-  localStorage.setItem("userUid", user.uid);
+  localStorage.setItem("userUid", user.uid || "");
   localStorage.setItem("isAdmin", (user.email === ADMIN_EMAIL).toString());
-  
+
+  // justLoggedIn stays in sessionStorage so the
+  // welcome toast only shows once per tab visit,
+  // not every time they reopen the browser
   if (isNewLogin) {
     sessionStorage.setItem("justLoggedIn", "1");
   }
@@ -99,6 +118,7 @@ function saveUserToStorage(user, isNewLogin) {
 // SAVE LOGIN RECORD TO FIRESTORE
 // ========================================
 async function saveLoginRecord(user) {
+  if (!user) return;
   try {
     await addDoc(collection(db, "users", user.uid, "logins"), {
       name: user.displayName,
@@ -107,145 +127,186 @@ async function saveLoginRecord(user) {
       createdAt: serverTimestamp()
     });
   } catch (e) {
-    console.error("Firestore error:", e);
+    console.error("Failed to save login record:", e);
   }
 }
 
 // ========================================
-// LOGIN INTENT TRACKER
-// Prevents "false cancelled" errors
+// GO TO DASHBOARD
 // ========================================
-const INTENT_KEY = "loginIntent";
-function markIntent() { sessionStorage.setItem(INTENT_KEY, "1"); }
-function hadIntent() { return sessionStorage.getItem(INTENT_KEY) === "1"; }
-function clearIntent() { sessionStorage.removeItem(INTENT_KEY); }
+function goToDashboard() {
+  window.location.href = "dashboard.html";
+}
 
 // ========================================
-// AUTH STATE WAITER (THE FOOLPROOF FIX)
-// 
-// Sometimes getRedirectResult returns null even 
-// on a successful login. This function waits for 
-// Firebase to figure it out before giving up.
+// CLEAR ALL SESSION DATA (for errors)
 // ========================================
-function waitForAuthState(timeoutMs) {
+function clearAllSessionData() {
+  localStorage.removeItem("userName");
+  localStorage.removeItem("userEmail");
+  localStorage.removeItem("userPhoto");
+  localStorage.removeItem("userUid");
+  localStorage.removeItem("isAdmin");
+  sessionStorage.removeItem("justLoggedIn");
+  sessionStorage.removeItem(INTENT_KEY);
+}
+
+// ========================================
+// HANDLE AUTH STATE — single function used
+// in both redirect-return and fresh-visit paths
+// Returns a Promise that resolves with the user
+// (or null if not signed in)
+// ========================================
+function waitForAuthState() {
   return new Promise((resolve) => {
-    let settled = false;
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        settled = true;
-        unsubscribe();
-        resolve(user);
-      }
+      unsubscribe();
+      resolve(user);
     });
-    
-    // Give up after X milliseconds
-    setTimeout(() => {
-      if (!settled) {
-        settled = true;
-        unsubscribe();
-        resolve(null);
-      }
-    }, timeoutMs);
   });
 }
 
 // ========================================
-// MASTER LOGIN HANDLER
+// HANDLE SUCCESSFUL LOGIN
+// Central place so we never forget a step
 // ========================================
-async function finishLogin(user, isNewLogin) {
+async function handleSuccessfulLogin(user, isNewLogin) {
   showLoading("Verifying sign-in...");
   await saveLoginRecord(user);
   saveUserToStorage(user, isNewLogin);
-  await new Promise(r => setTimeout(r, 800)); // Brief pause for UX
-  routeUser(user);
+  await new Promise(r => setTimeout(r, 800));
+  goToDashboard();
 }
 
 // ========================================
-// MAIN STARTUP LOGIC
+// MAIN AUTH FLOW
+//
+// Step 0: Set Firebase persistence (remember forever)
+// Step 1: Check if user just returned from Google
+// Step 2: If getRedirectResult gave us a user → done
+// Step 3: If getRedirectResult threw an error → show it
+// Step 4: If had intent but no result/error → double check
+//         with onAuthStateChanged before assuming cancelled
+// Step 5: No intent at all → fresh visit → check session
 // ========================================
 (async () => {
-  showLoading("Securing connection...");
 
-  // 1. Set persistence (Remembers user forever)
-  await setPersistence(auth, browserLocalPersistence);
+  // ── STEP 0: Persist login across browser closes ──
+  try {
+    await setPersistence(auth, browserLocalPersistence);
+  } catch (e) {
+    console.error("Failed to set persistence:", e);
+  }
 
-  // 2. Check redirect result
+  // ── STEP 1: Check redirect result ──
   let result = null;
   let redirectError = null;
 
   try {
     result = await getRedirectResult(auth);
-  } catch (err) {
-    redirectError = err;
+  } catch (error) {
+    redirectError = error;
   }
 
-  // 3. If we got a user directly, log them in!
+  // ── STEP 2: Got a user directly from redirect ──
   if (result && result.user) {
     clearIntent();
-    await finishLogin(result.user, true);
+    await handleSuccessfulLogin(result.user, true);
     return;
   }
 
-  // 4. If Google threw a real error, show it
+  // ── STEP 3: Redirect returned an actual error ──
   if (redirectError) {
     hideLoading();
     clearIntent();
-    const msg = redirectError.code === "auth/network-request-failed" 
-      ? "Network error. Check your internet." 
-      : "Sign-in failed. Please try again.";
-    showError(msg);
-    return;
-  }
 
-  // 5. If we had intent but no result...
-  // DON'T SAY CANCELLED YET! Wait up to 4 seconds for Firebase to sync.
-  if (hadIntent()) {
-    clearIntent();
-    showLoading("Verifying sign-in...");
-    
-    const user = await waitForAuthState(4000); // Wait 4 seconds
-    
-    if (user) {
-      await finishLogin(user, true); // Success!
-    } else {
-      hideLoading();
-      showError("Sign-in was cancelled. Please select an account to continue."); // Truly failed
+    switch (redirectError.code) {
+      case "auth/redirect-cancelled-by-user":
+        showError("You cancelled the sign-in. Please select an account to continue.");
+        break;
+      case "auth/credential-already-in-use":
+        showError("This account is already linked. Try a different account.");
+        break;
+      case "auth/network-request-failed":
+        showError("Network error. Check your connection and try again.");
+        break;
+      case "auth/too-many-requests":
+        showError("Too many attempts. Wait a moment and try again.");
+        break;
+      case "auth/invalid-credential":
+        showError("Invalid credentials. Use a valid Google account.");
+        break;
+      default:
+        showError("Sign-in failed. Please try again.");
     }
     return;
   }
 
-  // 6. Fresh visit (No intent). Check if they are already logged in.
-  const user = await waitForAuthState(2000);
-  
+  // ── STEP 4: Had intent but no result and no error ──
+  // getRedirectResult sometimes returns null even when
+  // the login actually worked. So we MUST check the real
+  // auth state before telling the user they cancelled.
+  if (hadIntent()) {
+    clearIntent();
+    showLoading("Verifying sign-in...");
+
+    const user = await waitForAuthState();
+
+    if (user) {
+      // Login DID succeed — getRedirectResult just missed it
+      await handleSuccessfulLogin(user, true);
+    } else {
+      // TRULY no user — they actually cancelled or closed Google
+      hideLoading();
+      showError("Sign-in was cancelled. Please select a Google account or create a new one to continue.");
+    }
+    return;
+  }
+
+  // ── STEP 5: No redirect, no intent = fresh page load ──
+  // Check if user already has an active session from before
+  showLoading("Checking session...");
+
+  const user = await waitForAuthState();
+
   if (user) {
-    // They are logged in from a previous session!
     saveUserToStorage(user, false);
     showLoading("Welcome back...");
-    setTimeout(() => routeUser(user), 1000);
+    setTimeout(() => goToDashboard(), 1200);
   } else {
-    // Brand new visitor. Show the login button.
     hideLoading();
   }
 
 })();
 
 // ========================================
-// BUTTON CLICK HANDLER
+// BUTTON CLICK → MARK INTENT → GOOGLE
 // ========================================
 window.addEventListener("DOMContentLoaded", () => {
   const btn = document.getElementById("googleLoginBtn");
-  if (!btn) return;
+
+  if (!btn) {
+    console.error("googleLoginBtn not found");
+    return;
+  }
 
   btn.addEventListener("click", () => {
-    markIntent(); // Leave a note that we are going to Google
-    
-    // Disable button to prevent double clicks
+    // Mark intent BEFORE redirect so it survives the reload
+    markIntent();
+
+    // Disable button immediately — prevent double clicks
     btn.disabled = true;
     btn.style.opacity = "0.5";
     btn.style.pointerEvents = "none";
-    
+
     showLoading("Redirecting to Google...");
+
+    // This sends user to Google where they MUST:
+    // - Pick an existing account, OR
+    // - Click "Use another account", OR
+    // - Click "Create account"
+    // No auto-selection is possible because of
+    // provider.setCustomParameters({ prompt: "select_account" })
     signInWithRedirect(auth, provider);
   });
 });
-
