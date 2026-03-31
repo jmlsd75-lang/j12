@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jamal Said Kazembe Multisystem Management</title>
+  <title>Jamal Said Kazembe</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -20,7 +20,6 @@
       font-size: 38px;
       color: blue;
       margin-bottom: 5px;
-      letter-spacing: 1px;
     }
     h2 {
       color: red;
@@ -37,16 +36,10 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      letter-spacing: 1px;
     }
     #loginBtn:hover { background: #006400; }
     #loginBtn:disabled { background: gray; cursor: not-allowed; }
-    #statusMsg {
-      margin-top: 20px;
-      font-size: 16px;
-      color: #555;
-      min-height: 24px;
-    }
+    #statusMsg { margin-top: 20px; font-size: 16px; color: #555; }
   </style>
 </head>
 <body>
@@ -57,7 +50,7 @@
   <button id="loginBtn">LOGIN</button>
   <div id="statusMsg"></div>
 
-  <script src="login.js"></script>
+  <script src="login.js" type="module"></script>
 
 </body>
 </html>
