@@ -11,7 +11,7 @@ const firebaseConfig = {
 };
 
 // Put your exact admin email here
-const ADMIN_EMAIL = "jmlsd@gmail.com";
+const ADMIN_EMAIL = "jmlsd75@gmail.com";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
