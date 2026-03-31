@@ -23,7 +23,7 @@ const firebaseConfig = {
 };
 
 const ADMIN_EMAIL = "jmlsd75@gmail.com";
-
+let hasRedirected = false;
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -42,19 +42,18 @@ function showLoading(text) {
   loadingText.textContent = text;
   loadingOverlay.style.display = "flex";
 }
-
-// ============================================
-// THIS IS THE ONLY FUNCTION THAT REDIRECTS
-// IT CAN NEVER FAIL
-// IT CAN NEVER GO TO index.html
-// ONLY admin.html OR free.html
-// ============================================
+function safeRedirect(user, fresh) {
+  if (hasRedirected) return;
+  hasRedirected = true;
+  redirectUser(user, fresh);
+}
 function redirectUser(user, fresh) {
+  console.log("Redirecting user:", user);
   // Default destination — impossible to be anything else
   var destination = "free.html";
 
   try {
-    if (user && user.email === ADMIN_EMAIL) {
+    if (user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
       destination = "admin.html";
     }
   } catch (e) {
@@ -68,7 +67,10 @@ function redirectUser(user, fresh) {
     sessionStorage.setItem("userEmail", (user && user.email) || "");
     sessionStorage.setItem("userPhoto", (user && user.photoURL) || "");
     sessionStorage.setItem("userUid", (user && user.uid) || "");
-    sessionStorage.setItem("isAdmin", ((user && user.email) === ADMIN_EMAIL).toString());
+    sessionStorage.setItem(
+  "isAdmin",
+  (user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()).toString()
+);
     if (fresh) sessionStorage.setItem("justLoggedIn", "1");
   } catch (e) {
     // Session storage blocked? WHO CARES. Still redirect.
@@ -80,7 +82,11 @@ function redirectUser(user, fresh) {
       addDoc(collection(db, "users", user.uid, "logins"), {
         name: user.displayName,
         email: user.email,
-        role: user.email === ADMIN_EMAIL ? "admin" : "free",
+        role:
+  user.email &&
+  user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()
+    ? "admin"
+    : "free",
         createdAt: serverTimestamp()
       }).catch(function() {});
     }
@@ -102,7 +108,7 @@ function redirectUser(user, fresh) {
 getRedirectResult(auth).then(function(result) {
   if (result && result.user) {
     showLoading("Verifying...");
-    redirectUser(result.user, true);
+    safeRedirect(result.user, true);
   } else {
     // Step 2: No redirect — check if already logged in
     onAuthStateChanged(auth, function(user) {
