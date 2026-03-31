@@ -1,716 +1,764 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+<meta charset="UTF-8">
+<title>Jamal Said Kazembe Multisystem Management</title>
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#f4f4f4;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  align-items:center;
+  height:100vh;
+  text-align:center;
+  padding-top:20px;
+}
+h1{
+  font-size:40px;
+  color:blue;
+  margin:0;
+}
+h2{
+  color:red;
+  margin-top:5px;
+}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+/* Pages Layout */
+#cameraPage, #txForm, #businessPage, #viewButtonsPage {
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:20px;
+}
 
-        body {
-            min-height: 100vh;
-            font-family: 'Inter', sans-serif;
-            background: #050505;
-            color: #f5f5f4;
-            overflow-x: hidden;
-            position: relative;
-        }
+#countdownPage{
+  display:none; 
+  position:fixed; 
+  top:0; left:0; 
+  width:100%; height:100%; 
+  background:white; 
+  justify-content:center; 
+  align-items:center; 
+  flex-direction:column; 
+  font-size:30px;
+  z-index: 999;
+}
 
-        /* ===== TOP BAR ===== */
-        .top-bar {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px 32px;
-            background: rgba(15, 15, 15, 0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
+/* Buttons Styling */
+.login-btn{
+  margin-top:150px;
+  padding:12px 30px;
+  font-size:18px;
+  background:green;
+  color:white;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
 
-        .admin-badge {
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: #f97316;
-            background: rgba(249, 115, 22, 0.1);
-            border: 1px solid rgba(249, 115, 22, 0.2);
-            padding: 6px 16px;
-            border-radius: 8px;
-        }
+.free-btn, .pay-btn{
+  width:140px;
+  padding:12px 0;
+  font-size:18px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+.free-btn{
+  margin-top:120px;
+  background:green;
+  color:white;
+}
+.free-btn:disabled {
+  background:gray;
+  cursor:not-allowed;
+}
+.pay-btn{
+  background:blue;
+  color:white;
+}
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+.action-buttons{
+  margin-top:120px;
+  display:none; /* Hidden by default */
+  gap:20px;
+}
 
-        .user-name {
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: rgb(168, 162, 158);
-        }
+.logout-btn{
+  background:red;
+  color:white;
+  border:none;
+  padding:10px 25px;
+  border-radius:6px;
+  cursor:pointer;
+  position:absolute;
+  bottom:20px;
+}
 
-        .user-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #f97316, #ea580c);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: #fff;
-            overflow: hidden;
-            border: 2px solid rgba(249, 115, 22, 0.3);
-        }
+/* Business Page Buttons */
+#businessPage button, #viewButtonsPage button {
+  font-size:22px;
+  padding:15px 40px;
+  margin:5px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+#addTx{ background:green; color:white; }
+#viewTx{ background:blue; color:white; }
+#businessExit{ background:red; color:white; }
 
-        .user-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+/* View List Buttons */
+#cashBookBtn { background:lightgreen; color:black; }
+#ledgersBtn { background:lightblue; color:black; }
+#trialBalanceBtn { background:lightcoral; color:black; }
+#incomeStatementBtn { background:lightyellow; color:black; }
+#balanceSheetBtn { background:lightpink; color:black; }
+#backFromViewBtn { background:red; color:white; margin-top:20px; }
 
-        .logout-btn {
-            background: none;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: rgb(168, 162, 158);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.78rem;
-            padding: 6px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-left: 8px;
-        }
+/* Camera & Payment Styling */
+#cameraPage button, #previewPage button, #submitPage button {
+  font-size:22px;
+  padding:15px 40px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+#openCamera{ background:green; color:white; }
+#openPhotos{ background:blue; color:white; }
+#cameraBack{ background:red; color:white; }
+#photoOk, #sendPhoto{ background:purple; color:white; }
+#photoCancel, #submitBack{ background:red; color:white; }
 
-        .logout-btn:hover {
-            border-color: rgba(239, 68, 68, 0.3);
-            color: #f87171;
-            background: rgba(239, 68, 68, 0.05);
-        }
+#paymentPage{
+  display:none; 
+  margin-top:100px; 
+  text-align:center;
+}
+#backBtn, #nextBtn{
+  padding:20px 60px;
+  font-size:28px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  margin:15px;
+}
+#backBtn{ background:red; color:white; }
+#nextBtn{ background:purple; color:white; }
 
-        /* ===== HERO SECTION ===== */
-        .hero {
-            position: relative;
-            text-align: center;
-            padding: 60px 24px 0;
-            z-index: 2;
-        }
+/* Transaction Form */
+#txDesc, #txAmount {
+  font-size:22px; 
+  padding:10px; 
+  text-align:center;
+}
+#inBtn { background:green; color:white; padding:10px 20px; border:none; border-radius:6px; cursor:pointer; }
+#outBtn { background:red; color:white; padding:10px 20px; border:none; border-radius:6px; cursor:pointer; }
+.method { margin:5px; padding:10px; cursor:pointer; }
 
-        .hero h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            letter-spacing: -0.03em;
-            line-height: 1.1;
-            margin-bottom: 12px;
-        }
-
-        .hero h1 span {
-            background: linear-gradient(135deg, #f97316, #fb923c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero p {
-            font-size: 1rem;
-            color: rgb(120, 113, 108);
-            font-weight: 400;
-        }
-
-        /* ===== MOUNTAIN SCENE ===== */
-        .mountain-scene {
-            position: relative;
-            width: 100%;
-            max-width: 900px;
-            height: 520px;
-            margin: 40px auto 0;
-            overflow: hidden;
-        }
-
-        .sky {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(
-                180deg,
-                #0a0a0a 0%,
-                #0f0d0a 25%,
-                #1a1510 45%,
-                #2a1f15 60%,
-                #3d2b1a 72%,
-                #5c3d1e 82%,
-                #8b5e2f 90%,
-                #c47a30 95%,
-                #e8943a 100%
-            );
-        }
-
-        .stars {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 50%;
-        }
-
-        .star {
-            position: absolute;
-            background: #fff;
-            border-radius: 50%;
-            animation: twinkle 3s ease-in-out infinite;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.2; }
-            50% { opacity: 0.9; }
-        }
-
-        .moon {
-            position: absolute;
-            top: 60px;
-            right: 120px;
-            width: 50px;
-            height: 50px;
-            background: radial-gradient(circle at 35% 35%, #fef3c7, #fde68a, #fbbf24);
-            border-radius: 50%;
-            box-shadow: 0 0 40px 10px rgba(251, 191, 36, 0.15), 0 0 80px 30px rgba(251, 191, 36, 0.05);
-        }
-
-        .kibo {
-            position: absolute;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 180px solid transparent;
-            border-right: 180px solid transparent;
-            border-bottom: 340px solid #1c1917;
-            z-index: 5;
-        }
-
-        .kibo-snow {
-            position: absolute;
-            bottom: 418px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 50px solid transparent;
-            border-right: 50px solid transparent;
-            border-bottom: 90px solid #e7e5e4;
-            z-index: 6;
-            filter: blur(0.5px);
-        }
-
-        .kibo-snow::after {
-            content: '';
-            position: absolute;
-            top: 50px;
-            left: -70px;
-            width: 0;
-            height: 0;
-            border-left: 70px solid transparent;
-            border-right: 70px solid transparent;
-            border-bottom: 60px solid #d6d3d1;
-            filter: blur(1px);
-        }
-
-        .mawenzi {
-            position: absolute;
-            bottom: 80px;
-            left: 12%;
-            width: 0;
-            height: 0;
-            border-left: 130px solid transparent;
-            border-right: 140px solid transparent;
-            border-bottom: 260px solid #292524;
-            z-index: 4;
-        }
-
-        .mawenzi-snow {
-            position: absolute;
-            bottom: 338px;
-            left: calc(12% + 30px);
-            width: 0;
-            height: 0;
-            border-left: 30px solid transparent;
-            border-right: 35px solid transparent;
-            border-bottom: 45px solid #d6d3d1;
-            z-index: 5;
-            filter: blur(1px);
-        }
-
-        .shira {
-            position: absolute;
-            bottom: 80px;
-            right: 10%;
-            width: 0;
-            height: 0;
-            border-left: 150px solid transparent;
-            border-right: 120px solid transparent;
-            border-bottom: 220px solid #1c1917;
-            z-index: 4;
-        }
-
-        .shira-snow {
-            position: absolute;
-            bottom: 298px;
-            right: calc(10% + 20px);
-            width: 0;
-            height: 0;
-            border-left: 35px solid transparent;
-            border-right: 25px solid transparent;
-            border-bottom: 40px solid #d6d3d1;
-            z-index: 5;
-            filter: blur(1px);
-        }
-
-        .ridge {
-            position: absolute;
-            bottom: 200px;
-            left: 22%;
-            width: 56%;
-            height: 120px;
-            background: #1c1917;
-            clip-path: polygon(
-                5% 100%,
-                15% 60%,
-                30% 40%,
-                45% 20%,
-                55% 0%,
-                65% 15%,
-                80% 35%,
-                95% 55%,
-                100% 100%
-            );
-            z-index: 3;
-        }
-
-        .hill-left {
-            position: absolute;
-            bottom: 60px;
-            left: -10%;
-            width: 60%;
-            height: 140px;
-            background: #151312;
-            border-radius: 50% 60% 0 0;
-            z-index: 7;
-        }
-
-        .hill-right {
-            position: absolute;
-            bottom: 60px;
-            right: -10%;
-            width: 55%;
-            height: 120px;
-            background: #151312;
-            border-radius: 60% 50% 0 0;
-            z-index: 7;
-        }
-
-        .ground {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 90px;
-            background: linear-gradient(180deg, #1a1510 0%, #0f0d0a 100%);
-            z-index: 8;
-        }
-
-        .tree {
-            position: absolute;
-            bottom: 75px;
-            z-index: 9;
-        }
-
-        .tree-trunk {
-            width: 3px;
-            height: 40px;
-            background: #0a0908;
-            margin: 0 auto;
-        }
-
-        .tree-top {
-            width: 50px;
-            height: 20px;
-            background: #0a0908;
-            border-radius: 50%;
-            margin: 0 auto -4px;
-        }
-
-        .tree-1 { left: 8%; transform: scale(0.8); }
-        .tree-2 { left: 18%; transform: scale(1.1); }
-        .tree-3 { right: 12%; transform: scale(0.9); }
-        .tree-4 { right: 22%; transform: scale(0.7); }
-        .tree-5 { left: 35%; transform: scale(0.6); }
-
-        .mist {
-            position: absolute;
-            bottom: 140px;
-            left: 0;
-            width: 200%;
-            height: 60px;
-            background: linear-gradient(90deg,
-                transparent 0%,
-                rgba(168, 162, 158, 0.03) 15%,
-                rgba(168, 162, 158, 0.06) 30%,
-                rgba(168, 162, 158, 0.03) 50%,
-                transparent 65%,
-                rgba(168, 162, 158, 0.04) 80%,
-                transparent 100%
-            );
-            animation: drift 25s linear infinite;
-            z-index: 6;
-        }
-
-        @keyframes drift {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-
-        .mist-2 {
-            bottom: 180px;
-            height: 40px;
-            opacity: 0.5;
-            animation-duration: 35s;
-            animation-direction: reverse;
-        }
-
-        .altitude-label {
-            position: absolute;
-            right: 24px;
-            font-size: 0.6rem;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            color: rgba(249, 115, 22, 0.3);
-            z-index: 10;
-        }
-
-        .altitude-label::before {
-            content: '';
-            position: absolute;
-            right: 100%;
-            top: 50%;
-            width: 16px;
-            height: 1px;
-            background: rgba(249, 115, 22, 0.15);
-            margin-right: 6px;
-        }
-
-        .alt-1 { bottom: 400px; }
-        .alt-2 { bottom: 310px; }
-        .alt-3 { bottom: 220px; }
-
-        .uhuru-label {
-            position: absolute;
-            top: 48px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.65rem;
-            font-weight: 700;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            color: rgba(249, 115, 22, 0.5);
-            z-index: 10;
-            white-space: nowrap;
-        }
-
-        .uhuru-label::after {
-            content: '';
-            display: block;
-            width: 30px;
-            height: 1px;
-            background: rgba(249, 115, 22, 0.3);
-            margin: 4px auto 0;
-        }
-
-        /* ===== FOOTER ===== */
-        .footer-text {
-            text-align: center;
-            padding: 32px 24px;
-            position: relative;
-            z-index: 2;
-        }
-
-        .footer-text p {
-            font-size: 0.75rem;
-            color: rgb(120, 113, 108);
-            letter-spacing: 0.05em;
-        }
-
-        .footer-text .height {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #f97316;
-            display: block;
-            margin-top: 4px;
-            letter-spacing: 0.02em;
-        }
-
-        /* ===== ACCESS DENIED ===== */
-        .not-logged-in {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 100;
-            background: rgba(5, 5, 5, 0.95);
-            backdrop-filter: blur(12px);
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 16px;
-            text-align: center;
-            padding: 24px;
-        }
-
-        .not-logged-in p {
-            color: rgb(168, 162, 158);
-            font-size: 0.9rem;
-        }
-
-        .not-logged-in a {
-            color: #f97316;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            border-bottom: 1px solid rgba(249, 115, 22, 0.3);
-            transition: all 0.3s;
-        }
-
-        .not-logged-in a:hover {
-            color: #fb923c;
-            border-color: #fb923c;
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 640px) {
-            .hero h1 { font-size: 1.8rem; }
-            .mountain-scene { height: 400px; }
-            .kibo {
-                border-left-width: 120px;
-                border-right-width: 120px;
-                border-bottom-width: 240px;
-            }
-            .kibo-snow {
-                border-left-width: 35px;
-                border-right-width: 35px;
-                border-bottom-width: 65px;
-                bottom: 298px;
-            }
-            .kibo-snow::after {
-                left: -50px;
-                border-left-width: 50px;
-                border-right-width: 50px;
-                border-bottom-width: 42px;
-                top: 36px;
-            }
-            .mawenzi {
-                border-left-width: 90px;
-                border-right-width: 100px;
-                border-bottom-width: 180px;
-                left: 5%;
-            }
-            .mawenzi-snow {
-                bottom: 238px;
-                left: calc(5% + 20px);
-                border-left-width: 20px;
-                border-right-width: 25px;
-                border-bottom-width: 32px;
-            }
-            .shira {
-                border-left-width: 100px;
-                border-right-width: 80px;
-                border-bottom-width: 160px;
-                right: 2%;
-            }
-            .shira-snow {
-                bottom: 218px;
-                right: calc(2% + 15px);
-                border-left-width: 25px;
-                border-right-width: 18px;
-                border-bottom-width: 28px;
-            }
-            .moon {
-                right: 40px;
-                top: 40px;
-                width: 35px;
-                height: 35px;
-            }
-            .top-bar { padding: 16px 20px; }
-            .altitude-label { display: none; }
-        }
-    </style>
+</style>
 </head>
 <body>
 
-    <!-- Access Denied Overlay -->
-    <div class="not-logged-in" id="notLoggedIn">
-        <p>Access denied. You must be logged in as admin.</p>
-        <a href="index.html">Go to Login</a>
-    </div>
+<h1>JAMAL SAID KAZEMBE</h1>
+<h2>MULTISYSTEM MANAGEMENT</h2>
 
-    <!-- Top Bar -->
-    <div class="top-bar" id="topBar" style="display:none;">
-        <div class="admin-badge">Admin</div>
-        <div class="user-info">
-            <span class="user-name" id="userName">Admin</span>
-            <div class="user-avatar" id="userAvatar">A</div>
-            <button class="logout-btn" id="logoutBtn">Logout</button>
-        </div>
-    </div>
+<!-- Countdown Page -->
+<div id="countdownPage">
+  <div id="mainTimer">180</div>
+  <div style="margin-top:40px;">
+    <button id="businessBtn">BUSINESS</button>
+    <button id="exitBtn">EXIT</button>
+  </div>
+</div>
 
-    <!-- Hero Section -->
-    <div class="hero" id="heroSection" style="display:none;">
-        <h1>Welcome, <span id="heroName">Admin</span></h1>
-        <p>Amal Said Kazembe Multisystem Management</p>
-    </div>
+<!-- Login / Action Buttons -->
+<button class="login-btn">LOGIN</button>
+<button class="logout-btn" style="display:none;">LOGOUT</button>
+<div class="action-buttons">
+  <button class="free-btn">FREE</button>
+  <button class="pay-btn">PAY</button>
+</div>
 
-    <!-- Mount Kilimanjaro Scene -->
-    <div class="mountain-scene" id="mountainScene" style="display:none;">
-        <div class="sky"></div>
-        <div class="stars" id="starsContainer"></div>
-        <div class="moon"></div>
-        <div class="uhuru-label">Uhuru Peak 5,895m</div>
-        <div class="altitude-label alt-1">5,895m</div>
-        <div class="altitude-label alt-2">4,900m</div>
-        <div class="altitude-label alt-3">3,800m</div>
-        <div class="ridge"></div>
-        <div class="mawenzi"></div>
-        <div class="mawenzi-snow"></div>
-        <div class="shira"></div>
-        <div class="shira-snow"></div>
-        <div class="kibo"></div>
-        <div class="kibo-snow"></div>
-        <div class="mist"></div>
-        <div class="mist mist-2"></div>
-        <div class="hill-left"></div>
-        <div class="hill-right"></div>
-        <div class="ground"></div>
-        <div class="tree tree-1"><div class="tree-top"></div><div class="tree-trunk"></div></div>
-        <div class="tree tree-2"><div class="tree-top"></div><div class="tree-trunk"></div></div>
-        <div class="tree tree-3"><div class="tree-top"></div><div class="tree-trunk"></div></div>
-        <div class="tree tree-4"><div class="tree-top"></div><div class="tree-trunk"></div></div>
-        <div class="tree tree-5"><div class="tree-top"></div><div class="tree-trunk"></div></div>
-    </div>
+<!-- Camera Page -->
+<div id="cameraPage" style="margin-top:60px;">
+  <button id="openCamera">CAMERA</button>
+  <button id="openPhotos">PHOTOS</button>
+  <button id="cameraBack">BACK</button>
+  <br><br>
+  <video id="camera" width="300" autoplay style="display:none;"></video>
+  <br><br>
+  <button id="takePhoto" style="display:none;">TAKE PHOTO</button>
+  <canvas id="canvas" style="display:none;"></canvas>
+</div>
 
-    <!-- Footer -->
-    <div class="footer-text" id="footerSection" style="display:none;">
-        <p>Highest peak in Africa</p>
-        <span class="height">5,895 meters above sea level</span>
-    </div>
+<!-- Preview Page -->
+<div id="previewPage" style="display:none; margin-top:60px; text-align:center;">
+  <img id="photoPreview" width="300">
+  <br><br>
+  <button id="photoOk">OK</button>
+  <button id="photoCancel">CANCEL</button>
+</div>
 
-    <script>
-        // Generate stars
-        (function () {
-            var container = document.getElementById("starsContainer");
-            if (!container) return;
-            for (var i = 0; i < 60; i++) {
-                var star = document.createElement("div");
-                star.className = "star";
-                var size = Math.random() * 2 + 0.5;
-                star.style.width = size + "px";
-                star.style.height = size + "px";
-                star.style.left = Math.random() * 100 + "%";
-                star.style.top = Math.random() * 100 + "%";
-                star.style.animationDelay = (Math.random() * 4) + "s";
-                star.style.animationDuration = (Math.random() * 3 + 2) + "s";
-                container.appendChild(star);
-            }
-        })();
+<!-- Submit Page -->
+<div id="submitPage" style="display:none; margin-top:60px; text-align:center;">
+  <br><br>
+  <button id="sendPhoto">SUBMIT</button>
+  <button id="submitBack">BACK</button>
+  <input type="file" id="fileInput" accept="image/*" style="display:none">
+</div>
 
-        // Auth check and session handling
-        (function () {
-            var isAdmin = false;
-            var name = "";
-            var email = "";
-            var photo = "";
-            var uid = "";
+<!-- Payment Page -->
+<div id="paymentPage">
+  <div style="color:purple; font-size:30px;">pay through</div>
+  <div style="color:green; font-size:30px;">mix by yas</div>
+  <div style="color:blue; font-size:30px;">+255 655 510 714</div>
+  <div style="color:red; font-size:30px;">airtel money</div>
+  <div style="color:orange; font-size:30px;">+255 780 526 437</div>
+  <div style="color:brown; font-size:30px;">crdb bank</div>
+  <div style="color:black; font-size:30px;">0152001GN6K00</div>
+  <div style="color:teal; font-size:30px;">JAMALI SAIDI KAZEMB</div>
+  <div style="margin-top:40px;">
+    <button id="backBtn">BACK</button>
+    <button id="nextBtn">NEXT</button>
+  </div>
+</div>
 
-            // Step 1: Try URL parameters (from login redirect)
-            var params = new URLSearchParams(window.location.search);
-            var urlAdmin = params.get("admin");
-            var urlName = params.get("name");
-            var urlEmail = params.get("email");
-            var urlPhoto = params.get("photo");
-            var urlUid = params.get("uid");
+<!-- Business Page (Main Menu) -->
+<div id="businessPage" style="margin-top:120px;">
+  <button id="addTx">ADD NEW TRANSACTION</button>
+  <button id="viewTx">VIEW</button>
+  <button id="businessExit">EXIT</button>
+</div>
 
-            if (urlEmail && urlAdmin === "true") {
-                isAdmin = true;
-                // Decode to fix spaces (e.g. "John%20Doe" becomes "John Doe")
-                name = decodeURIComponent(urlName || "Admin");
-                email = decodeURIComponent(urlEmail);
-                photo = decodeURIComponent(urlPhoto || "");
-                uid = urlUid || "";
+<!-- View Buttons Page -->
+<div id="viewButtonsPage" style="margin-top:60px;">
+  <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px;">
+    <button id="listBtn">LIST</button> 
+    <button id="cashBookBtn">CASH BOOK</button>
+    <button id="ledgersBtn">LEDGERS</button>
+    <button id="trialBalanceBtn">TRIAL BALANCE</button>
+    <button id="incomeStatementBtn">INCOME STATEMENT</button>
+    <button id="balanceSheetBtn">BALANCE SHEET</button>
+  </div>
+  <button id="backFromViewBtn">BACK</button>
+</div>
 
-                // Save to sessionStorage for page refreshes
-                sessionStorage.setItem("isAdmin", "true");
-                sessionStorage.setItem("userName", name);
-                sessionStorage.setItem("userEmail", email);
-                sessionStorage.setItem("userPhoto", photo);
-                sessionStorage.setItem("userUid", uid);
+<!-- Transaction Form -->
+<div id="txForm" style="margin-top:120px; text-align:center;">
+  <input id="txDesc" placeholder="Enter description"><br><br>
+  <input id="txAmount" placeholder="Enter amount" style="display:none;"><br><br>
+  <div id="txType" style="display:none;">
+    <button id="inBtn">IN</button>
+    <button id="outBtn">OUT</button>
+  </div><br>
+  <div id="txMethod" style="display:none;">
+    <button class="method">CASH</button>
+    <button class="method">CREDIT</button>
+    <button class="method">BANK</button>
+  </div><br>
+  <div id="txActions">
+    <button id="okTx" style="display:none;">OK</button>
+    <button id="cancelTx">CANCEL</button>
+  </div>
+</div>
 
-                // Clean URL (remove parameters for security/cleanliness)
-                window.history.replaceState({}, "", window.location.pathname);
-            } else {
-                // Step 2: Try sessionStorage (for refreshes without URL params)
-                var sessionAdmin = sessionStorage.getItem("isAdmin");
-                var sessionName = sessionStorage.getItem("userName");
-                var sessionEmail = sessionStorage.getItem("userEmail");
-                var sessionPhoto = sessionStorage.getItem("userPhoto");
-                var sessionUid = sessionStorage.getItem("userUid");
+<script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
-                if (sessionEmail && sessionAdmin === "true") {
-                    isAdmin = true;
-                    name = sessionName || "Admin";
-                    email = sessionEmail;
-                    photo = sessionPhoto || "";
-                    uid = sessionUid || "";
-                }
-            }
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-            // Step 3: If still not admin, block access
-            if (!isAdmin || !email) {
-                document.getElementById("notLoggedIn").style.display = "flex";
-                return;
-            }
+// Config
+const firebaseConfig = {
+  apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+  authDomain: "my-project-66803-95cb3.firebaseapp.com",
+  projectId: "my-project-66803-95cb3",
+  storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+  messagingSenderId: "167159607898",
+  appId: "1:167159607898:web:23ca11366b88868b085e63"
+};
+const ADMIN_EMAIL = "camelkazembe1@gmail.com";
 
-            // Step 4: Show dashboard
-            document.getElementById("topBar").style.display = "flex";
-            document.getElementById("heroSection").style.display = "block";
-            document.getElementById("mountainScene").style.display = "block";
-            document.getElementById("footerSection").style.display = "block";
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
-            // Set user name
-            document.getElementById("userName").textContent = name;
-            document.getElementById("heroName").textContent = name;
+let isAdmin = false;
+let currentUser = null; // Track logged in user globally
+let stream = null;
 
-            // Set avatar
-            var avatar = document.getElementById("userAvatar");
-            if (photo) {
-                avatar.innerHTML = '<img src="' + photo + '" alt="avatar">';
-            } else {
-                avatar.textContent = name.charAt(0).toUpperCase();
-            }
+// Elements
+const systemName1 = document.querySelector("h1");
+const systemName2 = document.querySelector("h2");
+const loginBtn = document.querySelector(".login-btn");
+const logoutBtn = document.querySelector(".logout-btn");
+const actionBtns = document.querySelector(".action-buttons");
+const freeBtn = document.querySelector(".free-btn");
+const payBtn = document.querySelector(".pay-btn");
 
-            // Logout handler
-            document.getElementById("logoutBtn").addEventListener("click", function () {
-                sessionStorage.clear();
-                window.location.replace("index.html");
-            });
-        })();
-    </script>
+const countdownPage = document.getElementById("countdownPage");
+const mainTimer = document.getElementById("mainTimer");
+const businessBtn = document.getElementById("businessBtn");
+const exitBtn = document.getElementById("exitBtn");
+
+const paymentPage = document.getElementById("paymentPage");
+const backBtn = document.getElementById("backBtn");
+const nextBtn = document.getElementById("nextBtn");
+
+const businessPage = document.getElementById("businessPage");
+const businessExit = document.getElementById("businessExit");
+const viewTx = document.getElementById("viewTx");
+const viewButtonsPage = document.getElementById("viewButtonsPage");
+const backFromViewBtn = document.getElementById("backFromViewBtn");
+
+const cameraPage = document.getElementById("cameraPage");
+const camera = document.getElementById("camera");
+const canvas = document.getElementById("canvas");
+const takePhoto = document.getElementById("takePhoto");
+const openCamera = document.getElementById("openCamera");
+const openPhotos = document.getElementById("openPhotos");
+const cameraBack = document.getElementById("cameraBack");
+
+const previewPage = document.getElementById("previewPage");
+const photoPreview = document.getElementById("photoPreview");
+const photoOk = document.getElementById("photoOk");
+const photoCancel = document.getElementById("photoCancel");
+
+const submitPage = document.getElementById("submitPage");
+const sendPhoto = document.getElementById("sendPhoto");
+const submitBack = document.getElementById("submitBack");
+const fileInput = document.getElementById("fileInput");
+
+const txForm = document.getElementById("txForm");
+const txDesc = document.getElementById("txDesc");
+const txAmount = document.getElementById("txAmount");
+const txType = document.getElementById("txType");
+const txMethod = document.getElementById("txMethod");
+const okTx = document.getElementById("okTx");
+const cancelTx = document.getElementById("cancelTx");
+const addTx = document.getElementById("addTx");
+
+console.log("Cloud system connected");
+
+// --- Logic Functions ---
+
+function showUi(page) {
+  // Hide all main pages
+  countdownPage.style.display = "none";
+  actionBtns.style.display = "none";
+  paymentPage.style.display = "none";
+  businessPage.style.display = "none";
+  viewButtonsPage.style.display = "none";
+  cameraPage.style.display = "none";
+  previewPage.style.display = "none";
+  submitPage.style.display = "none";
+  txForm.style.display = "none";
+  
+  // Default visibility
+  systemName1.style.display = "block";
+  systemName2.style.display = "block";
+
+  // --- SMART LOGIN/LOGOUT BUTTON LOGIC ---
+  // This runs every time UI changes. 
+  // If user exists, show Logout. If not, show Login.
+  if (currentUser) {
+    loginBtn.style.display = "none";
+    logoutBtn.style.display = "block";
+  } else {
+    loginBtn.style.display = "block";
+    logoutBtn.style.display = "none";
+  }
+
+  if (page === 'actions') {
+    actionBtns.style.display = "flex";
+    checkWaitTimer();
+  } else if (page === 'countdown') {
+    countdownPage.style.display = "flex";
+    systemName1.style.display = "none";
+    systemName2.style.display = "none";
+  } else if (page === 'business') {
+    businessPage.style.display = "flex";
+    systemName1.style.display = "none";
+    systemName2.style.display = "none";
+  } else if (page === 'payment') {
+    paymentPage.style.display = "block";
+    systemName1.style.display = "none";
+    systemName2.style.display = "none";
+  } else if (page === 'camera') {
+    cameraPage.style.display = "flex";
+  }
+}
+
+// --- Timers ---
+
+let countdownInterval;
+
+function startCountdown(durationSeconds) {
+  clearInterval(countdownInterval);
+  
+  const endTime = Date.now() + (durationSeconds * 1000);
+  localStorage.setItem("sessionEnd", endTime);
+
+  runTimerTick();
+  countdownInterval = setInterval(runTimerTick, 1000);
+}
+
+function runTimerTick() {
+  const endTime = localStorage.getItem("sessionEnd");
+  if (!endTime) {
+    clearInterval(countdownInterval);
+    return;
+  }
+
+  const remaining = Math.floor((parseInt(endTime) - Date.now()) / 1000);
+
+  if (remaining <= 0) {
+    clearInterval(countdownInterval);
+    localStorage.removeItem("sessionEnd");
+    
+    // Session over
+    if (isAdmin) return; 
+    showUi('actions');
+    startWaitTimer(); // Start 24h wait
+  } else {
+    showUi('countdown');
+    mainTimer.textContent = remaining;
+  }
+}
+
+function checkExistingSession() {
+  const endTime = localStorage.getItem("sessionEnd");
+  if (endTime && parseInt(endTime) > Date.now()) {
+    runTimerTick(); 
+    return true;
+  }
+  return false;
+}
+
+let waitInterval;
+function startWaitTimer() {
+  let saved = localStorage.getItem("waitEnd");
+  if (!saved) {
+    saved = Date.now() + (24 * 3600 * 1000);
+    localStorage.setItem("waitEnd", saved);
+  }
+  
+  clearInterval(waitInterval);
+  waitInterval = setInterval(() => {
+    const remaining = Math.floor((parseInt(saved) - Date.now()) / 1000);
+    if (remaining <= 0) {
+      freeBtn.textContent = "FREE";
+      freeBtn.disabled = false;
+      clearInterval(waitInterval);
+      localStorage.removeItem("waitEnd");
+    } else {
+      freeBtn.disabled = true;
+      let h = Math.floor(remaining / 3600);
+      let m = Math.floor((remaining % 3600) / 60);
+      let s = remaining % 60;
+      freeBtn.textContent = `WAIT ${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    }
+  }, 1000);
+}
+
+function checkWaitTimer() {
+  const saved = localStorage.getItem("waitEnd");
+  if (saved && parseInt(saved) > Date.now()) {
+    startWaitTimer(); 
+  } else {
+    freeBtn.textContent = "FREE";
+    freeBtn.disabled = false;
+  }
+}
+
+// --- PREVENT REFRESH LOGIC ---
+// Warns user if they try to refresh during an active session or wait time
+window.addEventListener("beforeunload", function(e) {
+  const hasSession = localStorage.getItem("sessionEnd");
+  const hasWait = localStorage.getItem("waitEnd");
+  
+  if (hasSession || hasWait) {
+    const message = "Refreshing the page is not allowed during an active session or wait period.";
+    e.returnValue = message;
+    return message;
+  }
+});
+
+// --- Auth ---
+
+onAuthStateChanged(auth, (user) => {
+  clearInterval(countdownInterval);
+  clearInterval(waitInterval);
+  
+  currentUser = user; // Update global user state
+
+  if (user && user.email.toLowerCase() === ADMIN_EMAIL) {
+    isAdmin = true;
+    showUi('business');
+  } else if (user) {
+    isAdmin = false;
+    // Check if session is active
+    if (!checkExistingSession()) {
+      showUi('actions');
+    }
+  } else {
+    showUi('login');
+  }
+});
+
+loginBtn.onclick = async () => {
+  try { await signInWithPopup(auth, provider); } catch (e) { console.log(e); }
+};
+
+logoutBtn.onclick = async () => {
+  localStorage.removeItem("sessionEnd");
+  localStorage.removeItem("waitEnd");
+  currentUser = null;
+  await signOut(auth);
+};
+
+// --- Navigation Events ---
+
+exitBtn.onclick = async () => {
+  localStorage.removeItem("sessionEnd");
+  await signOut(auth);
+  location.reload();
+};
+
+businessBtn.onclick = () => {
+  showUi('business');
+};
+
+businessExit.onclick = () => {
+  if (isAdmin) {
+    signOut(auth); // This will trigger onAuthStateChanged which shows login
+  } else {
+    showUi('countdown'); 
+  }
+};
+
+freeBtn.onclick = () => {
+  if (freeBtn.textContent.startsWith("WAIT")) return;
+  startCountdown(180); // 3 minutes
+};
+
+payBtn.onclick = () => {
+  showUi('payment');
+};
+
+backBtn.onclick = () => {
+  showUi('actions');
+};
+
+nextBtn.onclick = () => {
+  showUi('camera');
+  camera.style.display = "none";
+  takePhoto.style.display = "none";
+};
+
+cameraBack.onclick = () => {
+  if (stream) { stream.getTracks().forEach(track => track.stop()); }
+  if (localStorage.getItem("sessionEnd")) showUi('countdown');
+  else showUi('payment');
+};
+
+// --- Camera Logic ---
+
+openCamera.onclick = async () => {
+  stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  camera.srcObject = stream;
+  camera.style.display = "block";
+  takePhoto.style.display = "inline-block";
+};
+
+openPhotos.onclick = () => {
+  fileInput.removeAttribute("capture");
+  fileInput.click();
+};
+
+fileInput.onchange = () => {
+  const file = fileInput.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    photoPreview.src = e.target.result;
+    cameraPage.style.display = "none";
+    previewPage.style.display = "flex";
+    photoOk.style.display = "inline-block";
+    photoCancel.style.display = "inline-block";
+  };
+  reader.readAsDataURL(file);
+  fileInput.value = "";
+};
+
+takePhoto.onclick = () => {
+  const ctx = canvas.getContext("2d");
+  canvas.width = camera.videoWidth;
+  canvas.height = camera.videoHeight;
+  ctx.drawImage(camera, 0, 0);
+  const img = canvas.toDataURL("image/png");
+  photoPreview.src = img;
+  
+  if (stream) stream.getTracks().forEach(track => track.stop());
+  
+  cameraPage.style.display = "none";
+  previewPage.style.display = "flex";
+};
+
+photoCancel.onclick = () => {
+  previewPage.style.display = "none";
+  cameraPage.style.display = "flex";
+  camera.style.display = "none";
+  takePhoto.style.display = "none";
+};
+
+photoOk.onclick = () => {
+  previewPage.style.display = "none";
+  submitPage.style.display = "flex";
+};
+
+submitBack.onclick = () => {
+  submitPage.style.display = "none";
+  cameraPage.style.display = "flex";
+};
+
+sendPhoto.onclick = async () => {
+  sendPhoto.textContent = "VERIFYING...";
+  sendPhoto.disabled = true;
+  const img = photoPreview.src;
+
+  // OCR & QR Logic
+  const image = new Image();
+  image.src = img;
+  await new Promise(resolve => image.onload = resolve);
+  
+  const qrCanvas = document.createElement("canvas");
+  const qrCtx = qrCanvas.getContext("2d");
+  qrCanvas.width = image.width;
+  qrCanvas.height = image.height;
+  qrCtx.drawImage(image, 0, 0);
+  const qrData = qrCtx.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
+  const qr = jsQR(qrData.data, qrCanvas.width, qrCanvas.height);
+  
+  let qrText = qr ? qr.data.toUpperCase() : "";
+  
+  let recognizedText = "";
+  try {
+    const result = await Tesseract.recognize(img, "eng");
+    recognizedText = result.data.text.toUpperCase();
+  } catch (e) {
+    console.error("OCR Error", e);
+  }
+
+  const t = recognizedText + " " + qrText;
+
+  // Validation
+  const channelOk = t.includes("MIX BY YAS") || t.includes("655 510 714") || t.includes("780 526 437") || t.includes("CRDB");
+  const nameOk = t.includes("JAMAL SAID") || t.includes("JAMAL KAZEMBE") || t.includes("JAMALI SAIDI");
+
+  if (!channelOk || !nameOk) {
+    alert("Invalid Payment Receipt. Names or Channels not found.");
+    sendPhoto.textContent = "SUBMIT";
+    sendPhoto.disabled = false;
+    submitPage.style.display = "none";
+    cameraPage.style.display = "flex";
+    return;
+  }
+
+  // Amount extraction
+  const amountMatch = t.match(/(AMOUNT|PAID|TZS|TSH)?\s*[:\-]?\s*([0-9]{3,7})/);
+  if (!amountMatch) {
+    alert("Could not read amount.");
+    sendPhoto.textContent = "SUBMIT";
+    sendPhoto.disabled = false;
+    return;
+  }
+
+  const amount = parseFloat(amountMatch[2]);
+  const seconds = (amount / 500) * 3600; // Example rate
+
+  // Start Paid Session
+  localStorage.removeItem("waitEnd"); // Clear any wait penalty
+  startCountdown(Math.floor(seconds));
+  
+  sendPhoto.textContent = "SUBMIT";
+  sendPhoto.disabled = false;
+};
+
+// --- Business Logic ---
+
+addTx.onclick = () => {
+  businessPage.style.display = "none";
+  txForm.style.display = "flex";
+  txDesc.value = "";
+  txAmount.value = "";
+  txAmount.style.display = "none";
+  txType.style.display = "none";
+  txMethod.style.display = "none";
+  okTx.style.display = "none";
+};
+
+let direction = "";
+let method = "";
+
+txDesc.oninput = () => { if(txDesc.value.length > 0) txAmount.style.display = "block"; };
+txAmount.oninput = () => { if(txAmount.value.length > 0) txType.style.display = "block"; };
+
+document.getElementById("inBtn").onclick = () => { direction = "IN"; txMethod.style.display = "block"; };
+document.getElementById("outBtn").onclick = () => { direction = "OUT"; txMethod.style.display = "block"; };
+
+document.querySelectorAll(".method").forEach(btn => {
+  btn.onclick = () => {
+    method = btn.textContent;
+    okTx.style.display = "inline-block";
+  };
+});
+
+okTx.onclick = () => {
+  const data = {
+    desc: txDesc.value,
+    amount: txAmount.value,
+    dir: direction,
+    method: method
+  };
+  console.log("Saving Transaction:", data);
+  // Add Firebase save logic here if needed
+  txForm.style.display = "none";
+  businessPage.style.display = "flex";
+};
+
+cancelTx.onclick = () => {
+  txForm.style.display = "none";
+  businessPage.style.display = "flex";
+};
+
+// --- View Logic ---
+
+viewTx.onclick = () => {
+  businessPage.style.display = "none";
+  viewButtonsPage.style.display = "flex";
+};
+
+backFromViewBtn.onclick = () => {
+  viewButtonsPage.style.display = "none";
+  businessPage.style.display = "flex";
+};
+
+// Placeholder clicks for view buttons
+document.getElementById("listBtn").onclick = () => alert("Opening List...");
+document.getElementById("cashBookBtn").onclick = () => alert("Opening Cash Book...");
+document.getElementById("ledgersBtn").onclick = () => alert("Opening Ledgers...");
+document.getElementById("trialBalanceBtn").onclick = () => alert("Opening Trial Balance...");
+document.getElementById("incomeStatementBtn").onclick = () => alert("Opening Income Statement...");
+document.getElementById("balanceSheetBtn").onclick = () => alert("Opening Balance Sheet...");
+</script>
 </body>
 </html>
