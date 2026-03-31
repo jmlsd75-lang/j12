@@ -4,7 +4,7 @@ import {
   GoogleAuthProvider,
   signInWithRedirect,
   getRedirectResult,
-  onAuthStateChanged
+  signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore,
@@ -13,6 +13,9 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+// ============================================
+// FIREBASE CONFIG
+// ============================================
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -23,17 +26,23 @@ const firebaseConfig = {
 };
 
 const ADMIN_EMAIL = "jmlsd75@gmail.com";
-let hasRedirected = false;
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
+// ============================================
+// DOM ELEMENTS
+// ============================================
 const errorMsg = document.getElementById("errorMsg");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
+const loginBtn = document.getElementById("googleLoginBtn");
 
+// ============================================
+// HELPER FUNCTIONS
+// ============================================
 function showError(msg) {
   errorMsg.textContent = msg;
   errorMsg.classList.remove("hidden");
@@ -44,97 +53,131 @@ function showLoading(text) {
   loadingOverlay.style.display = "flex";
 }
 
-// ✅ ADD THIS — was missing!
 function hideLoading() {
   loadingOverlay.style.display = "none";
 }
 
-function safeRedirect(user, fresh) {
-  if (hasRedirected) return;
-  hasRedirected = true;
-  redirectUser(user, fresh);
+// ============================================
+// SAVE SESSION DATA (synchronous)
+// ============================================
+function saveSession(user, fresh) {
+  const isAdminUser = user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  
+  sessionStorage.setItem("userName", user.displayName || "User");
+  sessionStorage.setItem("userEmail", user.email || "");
+  sessionStorage.setItem("userPhoto", user.photoURL || "");
+  sessionStorage.setItem("userUid", user.uid || "");
+  sessionStorage.setItem("isAdmin", isAdminUser.toString());
+  
+  if (fresh) {
+    sessionStorage.setItem("justLoggedIn", "1");
+  }
+  
+  return isAdminUser;
 }
 
-function redirectUser(user, fresh) {
-  console.log("Redirecting user:", user.email);
-  
-  let destination = "free.html";
-
-  if (user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-    destination = "admin.html";
+// ============================================
+// REDIRECT USER TO CORRECT PAGE
+// ============================================
+function redirectToDashboard(isAdmin) {
+  if (isAdmin) {
     console.log("→ Admin detected → admin.html");
+    window.location.replace("admin.html");
   } else {
     console.log("→ Regular user → free.html");
+    window.location.replace("free.html");
   }
+}
 
-  // Save session
+// ============================================
+// SAVE TO FIRESTORE (non-blocking, don't wait)
+// ============================================
+function saveLoginToFirestore(user) {
   try {
-    sessionStorage.setItem("userName", user.displayName || "User");
-    sessionStorage.setItem("userEmail", user.email || "");
-    sessionStorage.setItem("userPhoto", user.photoURL || "");
-    sessionStorage.setItem("userUid", user.uid || "");
-    sessionStorage.setItem("isAdmin", 
-      (user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()).toString()
-    );
-    if (fresh) sessionStorage.setItem("justLoggedIn", "1");
-  } catch (e) {
-    console.warn("Session error:", e);
-  }
-
-  // Save to Firestore (non-blocking)
-  try {
-    if (user && user.uid) {
-      addDoc(collection(db, "users", user.uid, "logins"), {
-        name: user.displayName,
-        email: user.email,
-        role: user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? "admin" : "free",
-        createdAt: serverTimestamp()
-      }).catch(function(err) { console.warn("Firestore error:", err); });
-    }
+    const isAdminUser = user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+    addDoc(collection(db, "users", user.uid, "logins"), {
+      name: user.displayName,
+      email: user.email,
+      role: isAdminUser ? "admin" : "free",
+      createdAt: serverTimestamp()
+    }).catch(function(err) {
+      console.warn("Firestore write error:", err);
+    });
   } catch (e) {
     console.warn("Firestore error:", e);
   }
-
-  console.log("FINAL DESTINATION:", destination);
-  window.location.href = destination;
 }
 
 // ============================================
-// MAIN FLOW
+// CHECK IF ALREADY LOGGED IN (session check)
 // ============================================
-
-getRedirectResult(auth).then(function(result) {
-  if (result && result.user) {
-    console.log("Got redirect result:", result.user.email);
-    showLoading("Verifying...");
-    safeRedirect(result.user, true);
-  } else {
-    console.log("No redirect result, checking auth state...");
-    onAuthStateChanged(auth, function(user) {
-      if (user) {
-        console.log("Already logged in:", user.email);
-        showLoading("Checking...");
-        safeRedirect(user, false);  // ✅ Changed from redirectUser to safeRedirect
-      } else {
-        console.log("No user — showing login button");
-      }
-    });
-  }
-}).catch(function(error) {
-  console.error("Auth error:", error.code, error.message);
-  hideLoading();  // ✅ Now this works!
+function checkExistingSession() {
+  var email = sessionStorage.getItem("userEmail");
+  var isAdmin = sessionStorage.getItem("isAdmin") === "true";
   
-  if (error.code === "auth/redirect-cancelled-by-user") {
-    showError("You cancelled the login. Try again.");
-  } else {
-    showError("Login failed. Please try again.");
+  if (email) {
+    console.log("Found existing session for:", email);
+    showLoading("Resuming session...");
+    
+    // Small delay to let loading show
+    setTimeout(function() {
+      redirectToDashboard(isAdmin);
+    }, 500);
+    
+    return true;
   }
-});
+  
+  return false;
+}
 
 // ============================================
-// BUTTON
+// MAIN AUTH FLOW
 // ============================================
-document.getElementById("googleLoginBtn").addEventListener("click", function() {
+
+// Step 1: Check if session already exists
+if (checkExistingSession()) {
+  // Already have session, redirecting...
+} else {
+  // Step 2: Check for redirect result (user just came back from Google)
+  getRedirectResult(auth).then(function(result) {
+    if (result && result.user) {
+      console.log("Got redirect result:", result.user.email);
+      showLoading("Verifying...");
+      
+      // Save session FIRST
+      var isAdmin = saveSession(result.user, true);
+      
+      // Save to Firestore (fire and forget)
+      saveLoginToFirestore(result.user);
+      
+      // Small delay to ensure session is written
+      setTimeout(function() {
+        redirectToDashboard(isAdmin);
+      }, 300);
+      
+    } else {
+      console.log("No redirect result — showing login button");
+      hideLoading();
+      // Login button is already visible
+    }
+  }).catch(function(error) {
+    console.error("Redirect result error:", error.code, error.message);
+    hideLoading();
+    
+    if (error.code === "auth/redirect-cancelled-by-user") {
+      showError("You cancelled the login. Try again.");
+    } else if (error.code === "auth/popup-blocked") {
+      showError("Popup was blocked. Please allow popups and try again.");
+    } else {
+      showError("Login failed. Please try again.");
+    }
+  });
+}
+
+// ============================================
+// LOGIN BUTTON CLICK
+// ============================================
+loginBtn.addEventListener("click", function() {
   this.disabled = true;
   this.style.opacity = "0.5";
   this.style.pointerEvents = "none";
