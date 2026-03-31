@@ -68,7 +68,6 @@ body::before {
   100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
 }
 
-/* System Name */
 .system-name {
   position: relative;
   z-index: 10;
@@ -102,7 +101,6 @@ body::before {
   margin-top: 8px;
 }
 
-/* Decorative line under name */
 .name-underline {
   position: relative;
   z-index: 10;
@@ -118,7 +116,6 @@ body::before {
   100% { width: 100px; opacity: 1; }
 }
 
-/* Login Button */
 .login-btn-wrapper {
   position: relative;
   z-index: 10;
@@ -133,6 +130,7 @@ body::before {
 }
 
 .login-btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -175,7 +173,6 @@ body::before {
   fill: #0d4a0d;
 }
 
-/* Subtle pulse on button */
 .login-btn::after {
   content: '';
   position: absolute;
@@ -236,6 +233,21 @@ body::before {
     Login
   </a>
 </div>
+
+<!-- Check if already logged in → skip login page -->
+<script>
+  (function() {
+    var email = sessionStorage.getItem("userEmail");
+    var isAdmin = sessionStorage.getItem("isAdmin") === "true";
+    if (email) {
+      if (isAdmin) {
+        window.location.replace("admin.html");
+      } else {
+        window.location.replace("free.html");
+      }
+    }
+  })();
+</script>
 
 </body>
 </html>
