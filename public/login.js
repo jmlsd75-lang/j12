@@ -17,7 +17,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // ========================================
-// YOUR EXACT FIREBASE CONFIG
+// YOUR FIREBASE CONFIG
 // ========================================
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
@@ -29,7 +29,7 @@ const firebaseConfig = {
 };
 
 // ========================================
-// YOUR EXACT ADMIN EMAIL
+// ADMIN EMAIL
 // ========================================
 const ADMIN_EMAIL = "camelkazembe1@gmail.com";
 
@@ -47,7 +47,6 @@ const provider = new GoogleAuthProvider();
 const errorMsg = document.getElementById("errorMsg");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
-const googleBtn = document.getElementById("googleLoginBtn");
 
 // ========================================
 // HELPERS
@@ -86,28 +85,13 @@ async function saveLogin(user) {
 }
 
 // ========================================
-// BUTTON CLICK → SEND TO GOOGLE
-// FIXED: Module scripts load AFTER DOM is ready,
-// so we don't need DOMContentLoaded. We attach directly.
-// ========================================
-if (googleBtn) {
-  googleBtn.addEventListener("click", () => {
-    console.log("CLICK WORKING");
-
-    googleBtn.disabled = true;
-    googleBtn.style.opacity = "0.5";
-    googleBtn.style.pointerEvents = "none";
-
-    showLoading("Redirecting to Google...");
-
-    signInWithRedirect(auth, provider);
-  });
-} else {
-  console.error("googleLoginBtn not found in HTML");
-}
-
-// ========================================
 // MAIN FLOW — sequential, no race condition
+//
+// await getRedirectResult() FIRST
+// THEN register onAuthStateChanged
+// → guaranteed order, no race possible
+//
+// ★ KEY DIFFERENCE: redirects to dashboard.html ★
 // ========================================
 (async () => {
 
@@ -135,7 +119,7 @@ if (googleBtn) {
       default:
         showError("Login failed. Please try again.");
     }
-    return; 
+    return;
   }
 
   // ── STEP 2: User just came back from Google ──
@@ -146,25 +130,42 @@ if (googleBtn) {
     console.log("Returned from Google:", user.email);
     console.log("Is admin:", user.email === ADMIN_EMAIL);
 
+    // Save to Firestore
     await saveLogin(user);
 
+    // Store user info in sessionStorage so dashboard.html can read it
+    // without waiting for Firebase to resolve again
+    sessionStorage.setItem("userName", user.displayName || "User");
+    sessionStorage.setItem("userEmail", user.email || "");
+    sessionStorage.setItem("userPhoto", user.photoURL || "");
+    sessionStorage.setItem("userUid", user.uid || "");
+    sessionStorage.setItem("isAdmin", (user.email === ADMIN_EMAIL).toString());
     sessionStorage.setItem("justLoggedIn", "1");
 
     await new Promise(r => setTimeout(r, 800));
 
-    window.location.href = "index.html";
-    return; 
+    // ★ REDIRECT TO DASHBOARD — not index.html ★
+    window.location.href = "dashboard.html";
+    return;
   }
 
   // ── STEP 3: No redirect result — check if already logged in ──
   await new Promise((resolve) => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      unsubscribe(); 
+      unsubscribe();
 
       if (user) {
+        // Already authenticated — send to dashboard
+        sessionStorage.setItem("userName", user.displayName || "User");
+        sessionStorage.setItem("userEmail", user.email || "");
+        sessionStorage.setItem("userPhoto", user.photoURL || "");
+        sessionStorage.setItem("userUid", user.uid || "");
+        sessionStorage.setItem("isAdmin", (user.email === ADMIN_EMAIL).toString());
+        // No "justLoggedIn" flag — dashboard won't show welcome toast
+
         console.log("Already authenticated:", user.email);
         setTimeout(() => {
-          window.location.href = "index.html";
+          window.location.href = "dashboard.html";
         }, 1200);
       }
 
@@ -173,3 +174,27 @@ if (googleBtn) {
   });
 
 })();
+
+// ========================================
+// BUTTON CLICK → SEND TO GOOGLE
+// ========================================
+window.addEventListener("DOMContentLoaded", () => {
+  const googleBtn = document.getElementById("googleLoginBtn");
+
+  if (!googleBtn) {
+    console.error("googleLoginBtn not found in HTML");
+    return;
+  }
+
+  googleBtn.addEventListener("click", () => {
+    console.log("CLICK — sending to Google");
+
+    googleBtn.disabled = true;
+    googleBtn.style.opacity = "0.5";
+    googleBtn.style.pointerEvents = "none";
+
+    showLoading("Redirecting to Google...");
+
+    signInWithRedirect(auth, provider);
+  });
+});
