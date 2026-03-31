@@ -58,13 +58,9 @@ const loadingText = document.getElementById("loadingText");
 
 // ========================================
 // LOGIN INTENT — survives page reload
-// When user clicks "Continue with Google",
-// we mark intent in sessionStorage BEFORE
-// the browser leaves the page.
-// When the page reloads after the redirect,
-// we check: did we have intent?
-//   - Yes + no result = user cancelled
-//   - No + no result = fresh visit, check session
+// Stored in sessionStorage BEFORE the browser
+// leaves the page. Checked on return to know
+// whether user came back from a Google redirect.
 // ========================================
 const INTENT_KEY = "loginIntent";
 
@@ -156,13 +152,42 @@ function clearAllSessionData() {
 }
 
 // ========================================
+// HANDLE AUTH STATE — single function used
+// in both redirect-return and fresh-visit paths
+// Returns a Promise that resolves with the user
+// (or null if not signed in)
+// ========================================
+function waitForAuthState() {
+  return new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe();
+      resolve(user);
+    });
+  });
+}
+
+// ========================================
+// HANDLE SUCCESSFUL LOGIN
+// Central place so we never forget a step
+// ========================================
+async function handleSuccessfulLogin(user, isNewLogin) {
+  showLoading("Verifying sign-in...");
+  await saveLoginRecord(user);
+  saveUserToStorage(user, isNewLogin);
+  await new Promise(r => setTimeout(r, 800));
+  goToDashboard();
+}
+
+// ========================================
 // MAIN AUTH FLOW
 //
 // Step 0: Set Firebase persistence (remember forever)
 // Step 1: Check if user just returned from Google
-// Step 2: If successful login → save → dashboard
-// Step 3: If had intent but no result → cancelled → show error
-// Step 4: If no intent → fresh visit → check existing session
+// Step 2: If getRedirectResult gave us a user → done
+// Step 3: If getRedirectResult threw an error → show it
+// Step 4: If had intent but no result/error → double check
+//         with onAuthStateChanged before assuming cancelled
+// Step 5: No intent at all → fresh visit → check session
 // ========================================
 (async () => {
 
@@ -175,13 +200,27 @@ function clearAllSessionData() {
 
   // ── STEP 1: Check redirect result ──
   let result = null;
+  let redirectError = null;
+
   try {
     result = await getRedirectResult(auth);
   } catch (error) {
+    redirectError = error;
+  }
+
+  // ── STEP 2: Got a user directly from redirect ──
+  if (result && result.user) {
+    clearIntent();
+    await handleSuccessfulLogin(result.user, true);
+    return;
+  }
+
+  // ── STEP 3: Redirect returned an actual error ──
+  if (redirectError) {
     hideLoading();
     clearIntent();
 
-    switch (error.code) {
+    switch (redirectError.code) {
       case "auth/redirect-cancelled-by-user":
         showError("You cancelled the sign-in. Please select an account to continue.");
         break;
@@ -203,47 +242,40 @@ function clearAllSessionData() {
     return;
   }
 
-  // ── STEP 2: Successful redirect from Google ──
-  if (result && result.user) {
+  // ── STEP 4: Had intent but no result and no error ──
+  // getRedirectResult sometimes returns null even when
+  // the login actually worked. So we MUST check the real
+  // auth state before telling the user they cancelled.
+  if (hadIntent()) {
     clearIntent();
     showLoading("Verifying sign-in...");
 
-    const user = result.user;
+    const user = await waitForAuthState();
 
-    await saveLoginRecord(user);
-    saveUserToStorage(user, true);
-
-    // Brief pause so user sees "Verifying" before redirect
-    await new Promise(r => setTimeout(r, 800));
-    goToDashboard();
+    if (user) {
+      // Login DID succeed — getRedirectResult just missed it
+      await handleSuccessfulLogin(user, true);
+    } else {
+      // TRULY no user — they actually cancelled or closed Google
+      hideLoading();
+      showError("Sign-in was cancelled. Please select a Google account or create a new one to continue.");
+    }
     return;
   }
 
-  // ── STEP 3: Had intent but no result = USER CANCELLED ──
-  if (hadIntent()) {
-    clearIntent();
+  // ── STEP 5: No redirect, no intent = fresh page load ──
+  // Check if user already has an active session from before
+  showLoading("Checking session...");
+
+  const user = await waitForAuthState();
+
+  if (user) {
+    saveUserToStorage(user, false);
+    showLoading("Welcome back...");
+    setTimeout(() => goToDashboard(), 1200);
+  } else {
     hideLoading();
-    showError("Sign-in was cancelled. Please select a Google account or create a new one to continue.");
-    return;
   }
-
-  // ── STEP 4: No redirect, no intent = fresh page load ──
-  // Check if user already has an active session
-  await new Promise((resolve) => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      unsubscribe();
-
-      if (user) {
-        saveUserToStorage(user, false);
-        showLoading("Welcome back...");
-        setTimeout(() => goToDashboard(), 1200);
-      } else {
-        hideLoading();
-      }
-
-      resolve();
-    });
-  });
 
 })();
 
@@ -262,6 +294,7 @@ window.addEventListener("DOMContentLoaded", () => {
     // Mark intent BEFORE redirect so it survives the reload
     markIntent();
 
+    // Disable button immediately — prevent double clicks
     btn.disabled = true;
     btn.style.opacity = "0.5";
     btn.style.pointerEvents = "none";
