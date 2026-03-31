@@ -1,7 +1,3 @@
-// ============================================
-// login.js
-// ============================================
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth,
@@ -16,9 +12,9 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// ============================================
-// FIREBASE CONFIG
-// ============================================
+// ======================
+// Firebase Config
+// ======================
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -30,36 +26,27 @@ const firebaseConfig = {
 
 const ADMIN_EMAIL = "jmlsd75@gmail.com";
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 const auth = getAuth(app);
+const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-// ============================================
-// HELPER FUNCTIONS
-// ============================================
+// ======================
+// Save session info
+// ======================
 function saveSession(user) {
   const isAdminUser = user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
-
   sessionStorage.setItem("userName", user.displayName || "User");
   sessionStorage.setItem("userEmail", user.email || "");
-  sessionStorage.setItem("userPhoto", user.photoURL || "");
   sessionStorage.setItem("userUid", user.uid || "");
   sessionStorage.setItem("isAdmin", isAdminUser.toString());
-
   return isAdminUser;
 }
 
-function redirectUser(isAdmin) {
-  if (isAdmin) {
-    // Redirect admin to admin.js
-    window.location.href = "admin.js";
-  } else {
-    // Redirect regular user to free.js
-    window.location.href = "free.js";
-  }
-}
-
+// ======================
+// Save login to Firestore
+// ======================
 async function saveLoginToFirestore(user) {
   try {
     const isAdminUser = user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
@@ -70,46 +57,47 @@ async function saveLoginToFirestore(user) {
       createdAt: serverTimestamp()
     });
   } catch (e) {
-    console.warn("Error saving login to Firestore:", e);
+    console.warn("Firestore error:", e);
   }
 }
 
-// ============================================
-// LOGIN FLOW
-// ============================================
-async function login() {
-  try {
-    // Step 1: Sign in with redirect
-    await signInWithRedirect(auth, provider);
-    // After redirect, user comes back to this page
-  } catch (error) {
-    console.error("Login error:", error);
-    alert("Login failed. Please try again.");
+// ======================
+// Redirect user based on role
+// ======================
+function redirectUser(isAdmin) {
+  if (isAdmin) {
+    window.location.href = "admin.html";
+  } else {
+    window.location.href = "free.html";
   }
 }
 
-// ============================================
-// CHECK REDIRECT RESULT (after Google login)
-// ============================================
-getRedirectResult(auth).then(async (result) => {
-  if (result && result.user) {
-    const user = result.user;
+// ======================
+// Trigger login
+// ======================
+function login() {
+  signInWithRedirect(auth, provider);
+}
 
-    // Save session
-    const isAdmin = saveSession(user);
+// ======================
+// Handle redirect result
+// ======================
+getRedirectResult(auth)
+  .then(async (result) => {
+    if (result && result.user) {
+      const user = result.user;
+      const isAdmin = saveSession(user);
+      await saveLoginToFirestore(user);
+      redirectUser(isAdmin);
+    }
+  })
+  .catch((error) => {
+    console.error("Redirect error:", error);
+    alert("Login failed: " + error.message);
+  });
 
-    // Save login to Firestore
-    saveLoginToFirestore(user);
-
-    // Redirect user based on role
-    redirectUser(isAdmin);
-  }
-}).catch((error) => {
-  console.error("Redirect result error:", error);
-  alert("Login error: " + error.message);
-});
-
-// ============================================
-// EXPORT FUNCTION FOR BUTTON CLICK
-// ============================================
+// Expose login function globally (for inline button if needed)
 window.login = login;
+
+// Attach click listener to button
+document.getElementById("googleLoginBtn").addEventListener("click", login);
