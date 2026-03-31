@@ -10,6 +10,7 @@ const firebaseConfig = {
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
+// Put your exact admin email here
 const ADMIN_EMAIL = "jmlsd@gmail.com";
 
 const app = initializeApp(firebaseConfig);
@@ -19,7 +20,6 @@ const provider = new GoogleAuthProvider();
 const loginBtn = document.getElementById("loginBtn");
 const statusMsg = document.getElementById("statusMsg");
 
-// Prevent double redirect from race condition
 let redirected = false;
 
 function safeRedirect(url) {
@@ -28,49 +28,41 @@ function safeRedirect(url) {
   window.location.replace(url);
 }
 
-function buildAdminUrl(user) {
-  const name = encodeURIComponent(user.displayName || "Admin");
-  const email = encodeURIComponent(user.email);
-  const photo = encodeURIComponent(user.photoURL || "");
-  return "admin.html?admin=true&name=" + name + "&email=" + email + "&photo=" + photo + "&uid=" + user.uid;
-}
+function checkAndRedirect(user) {
+  if (!user || !user.email) return;
 
-function buildFeeUrl(user) {
-  const name = encodeURIComponent(user.displayName || "User");
-  const email = encodeURIComponent(user.email);
-  const photo = encodeURIComponent(user.photoURL || "");
-  return "fee.html?name=" + name + "&email=" + email + "&photo=" + photo;
-}
+  var emailRaw = user.email.trim();
+  var email = emailRaw.toLowerCase();
+  var isAdmin = (email === ADMIN_EMAIL.toLowerCase());
 
-function redirectUser(user) {
-  const email = user.email.toLowerCase();
-  if (email === ADMIN_EMAIL) {
-    safeRedirect(buildAdminUrl(user));
+  console.log("Logged in email:", email);
+  console.log("Admin email:", ADMIN_EMAIL.toLowerCase());
+  console.log("Is admin?", isAdmin);
+
+  var name = encodeURIComponent(user.displayName || "User");
+  var photo = encodeURIComponent(user.photoURL || "");
+
+  if (isAdmin) {
+    safeRedirect("admin.html?admin=true&name=" + name + "&email=" + encodeURIComponent(email) + "&photo=" + photo + "&uid=" + user.uid);
   } else {
-    safeRedirect(buildFeeUrl(user));
+    safeRedirect("fee.html?name=" + name + "&email=" + encodeURIComponent(email) + "&photo=" + photo);
   }
 }
 
-// This handles BOTH: auto-redirect if already logged in,
-// AND redirect after fresh login — no race condition
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    redirectUser(user);
+    checkAndRedirect(user);
     return;
   }
 
-  // No user — attach click handler (only runs once)
   loginBtn.onclick = async () => {
     loginBtn.disabled = true;
     statusMsg.textContent = "Signing in...";
 
     try {
-      // Just trigger the popup — onAuthStateChanged above
-      // will fire with the new user and handle redirect
       await signInWithPopup(auth, provider);
     } catch (error) {
       loginBtn.disabled = false;
-
       if (error.code === "auth/popup-closed-by-user") {
         statusMsg.textContent = "Sign-in cancelled.";
       } else {
