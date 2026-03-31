@@ -48,27 +48,38 @@ function hideLoading() {
 }
 
 function saveSession(user, fresh) {
-    const isAdmin = user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+    const email = (user.email || "").toLowerCase();
+    const isAdmin = email === ADMIN_EMAIL.toLowerCase();
+    
+    // Save all data to sessionStorage
     sessionStorage.setItem("userName", user.displayName || "User");
     sessionStorage.setItem("userEmail", user.email || "");
     sessionStorage.setItem("userPhoto", user.photoURL || "");
     sessionStorage.setItem("userUid", user.uid || "");
-    sessionStorage.setItem("isAdmin", isAdmin.toString());
-    if (fresh) sessionStorage.setItem("justLoggedIn", "1");
+    sessionStorage.setItem("isAdmin", isAdmin ? "true" : "false");
+    
+    if (fresh) {
+        sessionStorage.setItem("justLoggedIn", "1");
+    }
+    
+    console.log("Session saved - Email:", user.email, "IsAdmin:", isAdmin);
     return isAdmin;
 }
 
 function redirect(isAdmin) {
     if (isAdmin) {
-        window.location.replace("admin.html");
+        console.log("Redirecting to admin.html");
+        window.location.href = "admin.html";
     } else {
-        window.location.replace("free.html");
+        console.log("Redirecting to free.html");
+        window.location.href = "free.html";
     }
 }
 
 function logToFirestore(user) {
     try {
-        const isAdmin = user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+        const email = (user.email || "").toLowerCase();
+        const isAdmin = email === ADMIN_EMAIL.toLowerCase();
         addDoc(collection(db, "users", user.uid, "logins"), {
             name: user.displayName,
             email: user.email,
@@ -81,26 +92,45 @@ function logToFirestore(user) {
 function checkSession() {
     const email = sessionStorage.getItem("userEmail");
     const isAdmin = sessionStorage.getItem("isAdmin") === "true";
-    if (email) {
+    
+    if (email && isAdmin) {
+        console.log("Existing admin session found, redirecting to admin.html");
         showLoading("Resuming session...");
-        setTimeout(function () { redirect(isAdmin); }, 500);
+        setTimeout(function () { redirect(true); }, 500);
         return true;
     }
+    
+    // If logged in but NOT admin, go to free page
+    if (email && !isAdmin) {
+        console.log("Existing free user session found, redirecting to free.html");
+        showLoading("Resuming session...");
+        setTimeout(function () { redirect(false); }, 500);
+        return true;
+    }
+    
     return false;
 }
 
+// Main execution
 if (!checkSession()) {
+    showLoading("Checking authentication...");
+    
     getRedirectResult(auth).then(function (result) {
         if (result && result.user) {
-            showLoading("Verifying...");
+            showLoading("Verifying credentials...");
             const isAdmin = saveSession(result.user, true);
             logToFirestore(result.user);
-            setTimeout(function () { redirect(isAdmin); }, 300);
+            
+            // Small delay to ensure session is saved
+            setTimeout(function () { 
+                redirect(isAdmin); 
+            }, 500);
         } else {
             hideLoading();
         }
     }).catch(function (error) {
         hideLoading();
+        console.error("Auth error:", error);
         if (error.code === "auth/redirect-cancelled-by-user") {
             showError("Login cancelled. Try again.");
         } else {
