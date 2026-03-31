@@ -47,6 +47,7 @@ const provider = new GoogleAuthProvider();
 const errorMsg = document.getElementById("errorMsg");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
+const googleBtn = document.getElementById("googleLoginBtn");
 
 // ========================================
 // HELPERS
@@ -85,6 +86,27 @@ async function saveLogin(user) {
 }
 
 // ========================================
+// BUTTON CLICK → SEND TO GOOGLE
+// FIXED: Module scripts load AFTER DOM is ready,
+// so we don't need DOMContentLoaded. We attach directly.
+// ========================================
+if (googleBtn) {
+  googleBtn.addEventListener("click", () => {
+    console.log("CLICK WORKING");
+
+    googleBtn.disabled = true;
+    googleBtn.style.opacity = "0.5";
+    googleBtn.style.pointerEvents = "none";
+
+    showLoading("Redirecting to Google...");
+
+    signInWithRedirect(auth, provider);
+  });
+} else {
+  console.error("googleLoginBtn not found in HTML");
+}
+
+// ========================================
 // MAIN FLOW — sequential, no race condition
 // ========================================
 (async () => {
@@ -113,7 +135,7 @@ async function saveLogin(user) {
       default:
         showError("Login failed. Please try again.");
     }
-    return; // Stop — don't proceed to step 2
+    return; 
   }
 
   // ── STEP 2: User just came back from Google ──
@@ -124,27 +146,22 @@ async function saveLogin(user) {
     console.log("Returned from Google:", user.email);
     console.log("Is admin:", user.email === ADMIN_EMAIL);
 
-    // Save to Firestore
     await saveLogin(user);
 
-    // ★ Flag so index.html knows this is a FRESH login ★
     sessionStorage.setItem("justLoggedIn", "1");
 
-    // Brief pause so user sees "Verifying login..."
     await new Promise(r => setTimeout(r, 800));
 
-    // Redirect to the main system page
     window.location.href = "index.html";
-    return; // Done — don't go to step 3
+    return; 
   }
 
   // ── STEP 3: No redirect result — check if already logged in ──
   await new Promise((resolve) => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      unsubscribe(); // Stop listening immediately
+      unsubscribe(); 
 
       if (user) {
-        // Already logged in — send to index.html
         console.log("Already authenticated:", user.email);
         setTimeout(() => {
           window.location.href = "index.html";
@@ -156,27 +173,3 @@ async function saveLogin(user) {
   });
 
 })();
-
-// ========================================
-// BUTTON CLICK → SEND TO GOOGLE
-// ========================================
-window.addEventListener("DOMContentLoaded", () => {
-  const googleBtn = document.getElementById("googleLoginBtn");
-
-  if (!googleBtn) {
-    console.error("googleLoginBtn not found in HTML");
-    return;
-  }
-
-  googleBtn.addEventListener("click", () => {
-    console.log("CLICK WORKING");
-
-    googleBtn.disabled = true;
-    googleBtn.style.opacity = "0.5";
-    googleBtn.style.pointerEvents = "none";
-
-    showLoading("Redirecting to Google...");
-
-    signInWithRedirect(auth, provider);
-  });
-});
