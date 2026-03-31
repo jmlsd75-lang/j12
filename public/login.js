@@ -19,43 +19,58 @@ const provider = new GoogleAuthProvider();
 const loginBtn = document.getElementById("loginBtn");
 const statusMsg = document.getElementById("statusMsg");
 
+// Prevent double redirect from race condition
+let redirected = false;
+
+function safeRedirect(url) {
+  if (redirected) return;
+  redirected = true;
+  window.location.replace(url);
+}
+
+function buildAdminUrl(user) {
+  const name = encodeURIComponent(user.displayName || "Admin");
+  const email = encodeURIComponent(user.email);
+  const photo = encodeURIComponent(user.photoURL || "");
+  return "admin.html?admin=true&name=" + name + "&email=" + email + "&photo=" + photo + "&uid=" + user.uid;
+}
+
+function buildFeeUrl(user) {
+  const name = encodeURIComponent(user.displayName || "User");
+  const email = encodeURIComponent(user.email);
+  const photo = encodeURIComponent(user.photoURL || "");
+  return "fee.html?name=" + name + "&email=" + email + "&photo=" + photo;
+}
+
+function redirectUser(user) {
+  const email = user.email.toLowerCase();
+  if (email === ADMIN_EMAIL) {
+    safeRedirect(buildAdminUrl(user));
+  } else {
+    safeRedirect(buildFeeUrl(user));
+  }
+}
+
+// This handles BOTH: auto-redirect if already logged in,
+// AND redirect after fresh login — no race condition
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    const email = user.email.toLowerCase();
-    const name = encodeURIComponent(user.displayName || "User");
-    const photo = encodeURIComponent(user.photoURL || "");
-    const uid = user.uid;
-
-    if (email === ADMIN_EMAIL) {
-      window.location.replace("admin.html?admin=true&name=" + name + "&email=" + encodeURIComponent(email) + "&photo=" + photo + "&uid=" + uid);
-    } else {
-      window.location.replace("fee.html?name=" + name + "&email=" + encodeURIComponent(email) + "&photo=" + photo);
-    }
+    redirectUser(user);
     return;
   }
 
-  // Not logged in — attach click to button
+  // No user — attach click handler (only runs once)
   loginBtn.onclick = async () => {
     loginBtn.disabled = true;
     statusMsg.textContent = "Signing in...";
 
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      const email = user.email.toLowerCase();
-      const name = encodeURIComponent(user.displayName || "User");
-      const photo = encodeURIComponent(user.photoURL || "");
-      const uid = user.uid;
-
-      if (email === ADMIN_EMAIL) {
-        statusMsg.textContent = "Admin recognized. Redirecting...";
-        window.location.replace("admin.html?admin=true&name=" + name + "&email=" + encodeURIComponent(email) + "&photo=" + photo + "&uid=" + uid);
-      } else {
-        statusMsg.textContent = "Welcome. Redirecting...";
-        window.location.replace("fee.html?name=" + name + "&email=" + encodeURIComponent(email) + "&photo=" + photo);
-      }
+      // Just trigger the popup — onAuthStateChanged above
+      // will fire with the new user and handle redirect
+      await signInWithPopup(auth, provider);
     } catch (error) {
       loginBtn.disabled = false;
+
       if (error.code === "auth/popup-closed-by-user") {
         statusMsg.textContent = "Sign-in cancelled.";
       } else {
@@ -63,4 +78,4 @@ onAuthStateChanged(auth, (user) => {
       }
     }
   };
-}); 
+});
