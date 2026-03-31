@@ -7,31 +7,37 @@
   <style>
     body {
       font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       margin: 0;
-      background-color: #f0f0f0;
     }
-    button {
-      padding: 15px 40px;
-      font-size: 18px;
-      border: none;
-      border-radius: 8px;
+
+    .login-btn {
+      padding: 20px 50px;
+      font-size: 20px;
       background-color: #007BFF;
       color: white;
+      border: none;
+      border-radius: 8px;
       cursor: pointer;
       transition: 0.2s;
     }
-    button:hover {
+
+    .login-btn:hover {
       background-color: #0056b3;
     }
   </style>
 </head>
 <body>
-  <button id="googleLoginBtn">Login with Google</button>
 
+  <!-- Login Button -->
+  <button id="googleLoginBtn" class="login-btn">Login with Google</button>
+
+  <!-- Include login.js -->
   <script type="module" src="login.js"></script>
+
 </body>
 </html>
