@@ -24,6 +24,7 @@ const firebaseConfig = {
 
 const ADMIN_EMAIL = "jmlsd75@gmail.com";
 let hasRedirected = false;
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -42,61 +43,59 @@ function showLoading(text) {
   loadingText.textContent = text;
   loadingOverlay.style.display = "flex";
 }
+
+// ✅ ADD THIS — was missing!
+function hideLoading() {
+  loadingOverlay.style.display = "none";
+}
+
 function safeRedirect(user, fresh) {
   if (hasRedirected) return;
   hasRedirected = true;
   redirectUser(user, fresh);
 }
-function redirectUser(user, fresh) {
-  console.log("Redirecting user:", user);
-  // Default destination — impossible to be anything else
-  var destination = "free.html";
 
-  try {
-    if (user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-      destination = "admin.html";
-    }
-  } catch (e) {
-    // If anything breaks, still goes to free.html
-    destination = "free.html";
+function redirectUser(user, fresh) {
+  console.log("Redirecting user:", user.email);
+  
+  let destination = "free.html";
+
+  if (user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+    destination = "admin.html";
+    console.log("→ Admin detected → admin.html");
+  } else {
+    console.log("→ Regular user → free.html");
   }
 
-  // Save session — wrapped so it can NEVER block
+  // Save session
   try {
-    sessionStorage.setItem("userName", (user && user.displayName) || "User");
-    sessionStorage.setItem("userEmail", (user && user.email) || "");
-    sessionStorage.setItem("userPhoto", (user && user.photoURL) || "");
-    sessionStorage.setItem("userUid", (user && user.uid) || "");
-    sessionStorage.setItem(
-  "isAdmin",
-  (user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()).toString()
-);
+    sessionStorage.setItem("userName", user.displayName || "User");
+    sessionStorage.setItem("userEmail", user.email || "");
+    sessionStorage.setItem("userPhoto", user.photoURL || "");
+    sessionStorage.setItem("userUid", user.uid || "");
+    sessionStorage.setItem("isAdmin", 
+      (user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()).toString()
+    );
     if (fresh) sessionStorage.setItem("justLoggedIn", "1");
   } catch (e) {
-    // Session storage blocked? WHO CARES. Still redirect.
+    console.warn("Session error:", e);
   }
 
-  // Save to Firestore — completely separate, can never block
+  // Save to Firestore (non-blocking)
   try {
     if (user && user.uid) {
       addDoc(collection(db, "users", user.uid, "logins"), {
         name: user.displayName,
         email: user.email,
-        role:
-  user.email &&
-  user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()
-    ? "admin"
-    : "free",
+        role: user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() ? "admin" : "free",
         createdAt: serverTimestamp()
-      }).catch(function() {});
+      }).catch(function(err) { console.warn("Firestore error:", err); });
     }
   } catch (e) {
-    // Firestore failed? WHO CARES. Still redirect.
+    console.warn("Firestore error:", e);
   }
 
-  // THIS LINE ALWAYS RUNS
-  // NO MATTER WHAT HAPPENED ABOVE
-  // NO await. NO delay. NO condition.
+  console.log("FINAL DESTINATION:", destination);
   window.location.href = destination;
 }
 
@@ -104,27 +103,31 @@ function redirectUser(user, fresh) {
 // MAIN FLOW
 // ============================================
 
-// Step 1: User just came back from Google?
 getRedirectResult(auth).then(function(result) {
   if (result && result.user) {
+    console.log("Got redirect result:", result.user.email);
     showLoading("Verifying...");
     safeRedirect(result.user, true);
   } else {
-    // Step 2: No redirect — check if already logged in
+    console.log("No redirect result, checking auth state...");
     onAuthStateChanged(auth, function(user) {
       if (user) {
+        console.log("Already logged in:", user.email);
         showLoading("Checking...");
-        redirectUser(user, false);
+        safeRedirect(user, false);  // ✅ Changed from redirectUser to safeRedirect
+      } else {
+        console.log("No user — showing login button");
       }
-      // No user? Stay here. Show the button.
     });
   }
 }).catch(function(error) {
-  hideLoading();
+  console.error("Auth error:", error.code, error.message);
+  hideLoading();  // ✅ Now this works!
+  
   if (error.code === "auth/redirect-cancelled-by-user") {
     showError("You cancelled the login. Try again.");
   } else {
-    showError("Login failed. Try again.");
+    showError("Login failed. Please try again.");
   }
 });
 
