@@ -6,63 +6,355 @@
   <title>User Access</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+      position: relative;
+    }
+
+    /* ── Sky gradient background ── */
+    .sky {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(180deg,
+        #1a8fe0 0%,
+        #4da6e8 25%,
+        #87ceeb 50%,
+        #b0e0f6 75%,
+        #d4eefb 100%
+      );
+      z-index: 0;
+    }
+
+    /* ── Sun glow ── */
+    .sun {
+      position: fixed;
+      top: 40px;
+      right: 80px;
+      width: 100px;
+      height: 100px;
+      background: radial-gradient(circle, #fff8c4 0%, #ffe066 30%, rgba(255,200,50,0.3) 60%, transparent 70%);
+      border-radius: 50%;
+      z-index: 1;
+      animation: sunPulse 4s ease-in-out infinite;
+    }
+
+    @keyframes sunPulse {
+      0%, 100% { transform: scale(1); opacity: 0.95; }
+      50% { transform: scale(1.08); opacity: 1; }
+    }
+
+    /* ── Cloud styles ── */
+    .cloud {
+      position: fixed;
+      background: white;
+      border-radius: 50%;
+      z-index: 2;
+      filter: blur(1px);
+    }
+
+    .cloud::before,
+    .cloud::after {
+      content: '';
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+    }
+
+    .cloud-1 {
+      width: 200px; height: 60px;
+      top: 8%; left: -250px;
+      animation: driftRight 32s linear infinite;
+      opacity: 0.95;
+    }
+    .cloud-1::before { width: 90px; height: 80px; top: -40px; left: 30px; }
+    .cloud-1::after  { width: 110px; height: 70px; top: -30px; left: 80px; }
+
+    .cloud-2 {
+      width: 160px; height: 48px;
+      top: 18%; left: -200px;
+      animation: driftRight 26s linear infinite;
+      animation-delay: -8s;
+      opacity: 0.85;
+    }
+    .cloud-2::before { width: 70px; height: 65px; top: -35px; left: 20px; }
+    .cloud-2::after  { width: 85px; height: 55px; top: -25px; left: 65px; }
+
+    .cloud-3 {
+      width: 120px; height: 36px;
+      top: 30%; left: -160px;
+      animation: driftRight 22s linear infinite;
+      animation-delay: -4s;
+      opacity: 0.75;
+    }
+    .cloud-3::before { width: 55px; height: 50px; top: -28px; left: 15px; }
+    .cloud-3::after  { width: 65px; height: 42px; top: -20px; left: 50px; }
+
+    .cloud-4 {
+      width: 90px; height: 28px;
+      top: 12%; left: -130px;
+      animation: driftRight 38s linear infinite;
+      animation-delay: -15s;
+      opacity: 0.5;
+      filter: blur(2px);
+    }
+    .cloud-4::before { width: 40px; height: 38px; top: -20px; left: 10px; }
+    .cloud-4::after  { width: 50px; height: 32px; top: -15px; left: 38px; }
+
+    .cloud-5 {
+      width: 240px; height: 65px;
+      top: 42%; left: -300px;
+      animation: driftRight 40s linear infinite;
+      animation-delay: -20s;
+      opacity: 0.6;
+      filter: blur(2px);
+    }
+    .cloud-5::before { width: 100px; height: 90px; top: -45px; left: 40px; }
+    .cloud-5::after  { width: 120px; height: 80px; top: -35px; left: 100px; }
+
+    .cloud-6 {
+      width: 140px; height: 30px;
+      top: 55%; left: -180px;
+      animation: driftRight 35s linear infinite;
+      animation-delay: -12s;
+      opacity: 0.4;
+      filter: blur(3px);
+    }
+    .cloud-6::before { width: 60px; height: 40px; top: -18px; left: 20px; }
+    .cloud-6::after  { width: 70px; height: 35px; top: -12px; left: 60px; }
+
+    .cloud-7 {
+      width: 180px; height: 50px;
+      top: 5%; left: -220px;
+      animation: driftRight 28s linear infinite;
+      animation-delay: -18s;
+      opacity: 0.7;
+    }
+    .cloud-7::before { width: 80px; height: 70px; top: -38px; left: 25px; }
+    .cloud-7::after  { width: 95px; height: 60px; top: -28px; left: 70px; }
+
+    .cloud-8 {
+      width: 170px; height: 45px;
+      top: 65%; left: -210px;
+      animation: driftRight 45s linear infinite;
+      animation-delay: -25s;
+      opacity: 0.35;
+      filter: blur(3px);
+    }
+    .cloud-8::before { width: 75px; height: 60px; top: -32px; left: 22px; }
+    .cloud-8::after  { width: 88px; height: 52px; top: -22px; left: 68px; }
+
+    @keyframes driftRight {
+      from { transform: translateX(0); }
+      to   { transform: translateX(calc(100vw + 400px)); }
+    }
+
+    /* ── Logout — top right, RED ── */
+    #logoutLink {
+      position: fixed;
+      top: 24px;
+      right: 28px;
+      z-index: 20;
+      color: #ff3b3b;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 8px 18px;
+      border-radius: 8px;
+      background: rgba(255, 59, 59, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 59, 59, 0.3);
+      transition: all 0.2s ease;
+      letter-spacing: 0.5px;
+    }
+
+    #logoutLink:hover {
+      color: #fff;
+      background: rgba(255, 59, 59, 0.45);
+      border-color: rgba(255, 59, 59, 0.6);
+    }
+
+    /* ── Content overlay ── */
+    .content {
+      position: relative;
+      z-index: 10;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       height: 100vh;
       text-align: center;
+      padding: 20px;
+      animation: fadeUp 0.8s ease-out both;
     }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .greeting-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 24px;
+      padding: 50px 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      box-shadow:
+        0 8px 32px rgba(0, 60, 120, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+
     h1 {
-      font-size: 28px;
-      color: #333;
-      margin-bottom: 8px;
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 2px 8px rgba(0, 40, 100, 0.2);
+      letter-spacing: 0.5px;
     }
+
     #userGreeting {
       font-size: 18px;
-      color: #666;
-      margin-bottom: 60px;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: 36px;
+      font-weight: 400;
     }
+
+    /* ── FREE button ── */
     #freeBtn {
-      padding: 16px 60px;
-      font-size: 22px;
-      font-weight: bold;
-      background: green;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      letter-spacing: 1px;
-    }
-    #freeBtn:hover { background: #006400; }
-    #logoutLink {
       display: inline-block;
-      margin-top: 30px;
-      color: red;
+      padding: 18px 80px;
+      font-size: 24px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #00c853, #00e676);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      letter-spacing: 3px;
+      text-transform: uppercase;
       text-decoration: none;
-      font-size: 14px;
-      border-bottom: 1px solid red;
+      box-shadow:
+        0 6px 20px rgba(0, 200, 83, 0.4),
+        0 2px 6px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
     }
-    #logoutLink:hover { color: darkred; }
+
+    #freeBtn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.25), transparent 60%);
+      border-radius: 14px;
+      pointer-events: none;
+    }
+
+    #freeBtn:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow:
+        0 10px 30px rgba(0, 200, 83, 0.5),
+        0 4px 10px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    #freeBtn:active {
+      transform: translateY(0) scale(0.98);
+      box-shadow:
+        0 3px 10px rgba(0, 200, 83, 0.35),
+        inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* ── Birds ── */
+    .birds {
+      position: fixed;
+      z-index: 3;
+      top: 15%;
+      left: -60px;
+      animation: birdsFly 18s linear infinite;
+      opacity: 0.3;
+    }
+    .birds span {
+      display: inline-block;
+      font-size: 10px;
+      color: #1a3a5c;
+      margin: 0 8px;
+      animation: flap 0.6s ease-in-out infinite alternate;
+    }
+    .birds span:nth-child(2) { animation-delay: 0.15s; font-size: 8px; margin-top: -6px; }
+    .birds span:nth-child(3) { animation-delay: 0.3s; font-size: 11px; }
+
+    @keyframes birdsFly {
+      from { transform: translateX(0); }
+      to   { transform: translateX(calc(100vw + 120px)); }
+    }
+    @keyframes flap {
+      from { transform: scaleY(1); }
+      to   { transform: scaleY(0.5); }
+    }
   </style>
 </head>
 <body>
 
-  <h1>Welcome</h1>
-  <div id="userGreeting">User</div>
+  <!-- Sky background -->
+  <div class="sky"></div>
+  <div class="sun"></div>
 
-  <button id="freeBtn">FREE</button>
-  <a href="index.html" id="logoutLink">Logout</a>
+  <!-- Animated clouds -->
+  <div class="cloud cloud-1"></div>
+  <div class="cloud cloud-2"></div>
+  <div class="cloud cloud-3"></div>
+  <div class="cloud cloud-4"></div>
+  <div class="cloud cloud-5"></div>
+  <div class="cloud cloud-6"></div>
+  <div class="cloud cloud-7"></div>
+  <div class="cloud cloud-8"></div>
+
+  <!-- Birds -->
+  <div class="birds">
+    <span>∨</span><span>∨</span><span>∨</span>
+  </div>
+
+  <!-- Logout — top right, red -->
+  <a href="#" id="logoutLink">Logout</a>
+
+  <!-- Main content -->
+  <div class="content">
+    <div class="greeting-card">
+      <h1>Welcome</h1>
+      <div id="userGreeting">User</div>
+      <a href="free.html" id="freeBtn">FREE</a>
+    </div>
+  </div>
 
   <script>
     (function () {
+      // ── Show user name from URL ──
       var params = new URLSearchParams(window.location.search);
       var name = decodeURIComponent(params.get("name") || "User");
       document.getElementById("userGreeting").textContent = "Hello, " + name;
       window.history.replaceState({}, "", window.location.pathname);
+
+      // ── Logout: clear all session data, prevent back ──
+      document.getElementById("logoutLink").addEventListener("click", function (e) {
+        e.preventDefault();
+        localStorage.removeItem("loggedIn");
+        localStorage.removeItem("userName");
+        localStorage.removeItem("userToken");
+        localStorage.removeItem("session");
+        sessionStorage.clear();
+        window.location.replace("index.html");
+      });
     })();
   </script>
 
