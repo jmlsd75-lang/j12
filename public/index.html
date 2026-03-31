@@ -3,276 +3,714 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jamal Said Kazembe Multisystem Management</title>
+    <title>Admin Dashboard</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             font-family: 'Inter', sans-serif;
             background: #050505;
-            overflow: hidden;
+            color: #f5f5f4;
+            overflow-x: hidden;
             position: relative;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: -30%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(249,115,22,0.08) 0%, transparent 70%);
-            pointer-events: none;
+        /* ===== TOP BAR ===== */
+        .top-bar {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 32px;
+            background: rgba(15, 15, 15, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        body::after {
-            content: '';
-            position: fixed;
-            bottom: -20%;
-            left: 30%;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(168,85,247,0.05) 0%, transparent 70%);
-            pointer-events: none;
+        .admin-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #f97316;
+            background: rgba(249, 115, 22, 0.1);
+            border: 1px solid rgba(249, 115, 22, 0.2);
+            padding: 6px 16px;
+            border-radius: 8px;
         }
 
-        .bg-dots {
-            position: fixed;
-            inset: 0;
-            background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
-            background-size: 32px 32px;
-            pointer-events: none;
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        .orbit {
-            position: fixed;
-            top: 50%;
-            left: 50%;
+        .user-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: rgb(168, 162, 158);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            pointer-events: none;
-        }
-
-        .orbit-1 {
-            width: 700px;
-            height: 700px;
-            transform: translate(-50%, -50%);
-            border: 1px solid rgba(249,115,22,0.03);
-            animation: spin 30s linear infinite;
-        }
-
-        .orbit-2 {
-            width: 900px;
-            height: 900px;
-            transform: translate(-50%, -50%);
-            border: 1px solid rgba(168,85,247,0.02);
-            animation: spin 45s linear infinite reverse;
-        }
-
-        @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
-
-        .card {
-            position: relative;
-            z-index: 1;
-            background: rgba(15, 15, 15, 0.6);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 24px;
-            padding: 56px 48px;
-            max-width: 440px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 25px 60px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04);
-            animation: fadeUp 0.8s ease-out;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(249,115,22,0.5), transparent);
-        }
-
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(30px) scale(0.97); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .icon-box {
-            width: 64px;
-            height: 64px;
-            margin: 0 auto 28px;
-            border-radius: 16px;
             background: linear-gradient(135deg, #f97316, #ea580c);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 24px -4px rgba(249,115,22,0.3);
-            animation: pulse 3s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 8px 24px -4px rgba(249,115,22,0.3); }
-            50% { box-shadow: 0 8px 32px -2px rgba(249,115,22,0.45); }
-        }
-
-        .icon-box svg { width: 30px; height: 30px; fill: #fff; }
-
-        h1 {
-            font-size: 1.5rem;
+            font-size: 0.8rem;
             font-weight: 700;
-            color: #f5f5f4;
-            line-height: 1.3;
-            margin-bottom: 12px;
-            letter-spacing: -0.02em;
+            color: #fff;
+            overflow: hidden;
+            border: 2px solid rgba(249, 115, 22, 0.3);
         }
 
-        .sub {
-            font-size: 0.9rem;
-            color: rgb(168, 162, 158);
-            margin-bottom: 36px;
-            line-height: 1.5;
-        }
-
-        #googleLoginBtn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
+        .user-avatar img {
             width: 100%;
-            padding: 14px 24px;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #f5f5f4;
-            background: rgba(255, 255, 255, 0.05);
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .logout-btn {
+            background: none;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 14px;
+            color: rgb(168, 162, 158);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.78rem;
+            padding: 6px 14px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.3s;
+            margin-left: 8px;
+        }
+
+        .logout-btn:hover {
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
             position: relative;
+            text-align: center;
+            padding: 60px 24px 0;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 12px;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, #f97316, #fb923c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1rem;
+            color: rgb(120, 113, 108);
+            font-weight: 400;
+        }
+
+        /* ===== MOUNTAIN SCENE ===== */
+        .mountain-scene {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            height: 520px;
+            margin: 40px auto 0;
             overflow: hidden;
         }
 
-        #googleLoginBtn::before {
-            content: '';
+        .sky {
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(249,115,22,0.08), transparent 60%);
-            opacity: 0;
-            transition: opacity 0.3s;
+            background: linear-gradient(
+                180deg,
+                #0a0a0a 0%,
+                #0f0d0a 25%,
+                #1a1510 45%,
+                #2a1f15 60%,
+                #3d2b1a 72%,
+                #5c3d1e 82%,
+                #8b5e2f 90%,
+                #c47a30 95%,
+                #e8943a 100%
+            );
         }
 
-        #googleLoginBtn:hover {
-            background: rgba(255, 255, 255, 0.09);
-            border-color: rgba(249, 115, 22, 0.25);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px -6px rgba(249,115,22,0.15);
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
         }
 
-        #googleLoginBtn:hover::before { opacity: 1; }
-        #googleLoginBtn:active { transform: translateY(0); box-shadow: none; }
+        .star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
 
-        .g-icon {
-            width: 20px;
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.9; }
+        }
+
+        .moon {
+            position: absolute;
+            top: 60px;
+            right: 120px;
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle at 35% 35%, #fef3c7, #fde68a, #fbbf24);
+            border-radius: 50%;
+            box-shadow: 0 0 40px 10px rgba(251, 191, 36, 0.15), 0 0 80px 30px rgba(251, 191, 36, 0.05);
+        }
+
+        .kibo {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 180px solid transparent;
+            border-right: 180px solid transparent;
+            border-bottom: 340px solid #1c1917;
+            z-index: 5;
+        }
+
+        .kibo-snow {
+            position: absolute;
+            bottom: 418px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 90px solid #e7e5e4;
+            z-index: 6;
+            filter: blur(0.5px);
+        }
+
+        .kibo-snow::after {
+            content: '';
+            position: absolute;
+            top: 50px;
+            left: -70px;
+            width: 0;
+            height: 0;
+            border-left: 70px solid transparent;
+            border-right: 70px solid transparent;
+            border-bottom: 60px solid #d6d3d1;
+            filter: blur(1px);
+        }
+
+        .mawenzi {
+            position: absolute;
+            bottom: 80px;
+            left: 12%;
+            width: 0;
+            height: 0;
+            border-left: 130px solid transparent;
+            border-right: 140px solid transparent;
+            border-bottom: 260px solid #292524;
+            z-index: 4;
+        }
+
+        .mawenzi-snow {
+            position: absolute;
+            bottom: 338px;
+            left: calc(12% + 30px);
+            width: 0;
+            height: 0;
+            border-left: 30px solid transparent;
+            border-right: 35px solid transparent;
+            border-bottom: 45px solid #d6d3d1;
+            z-index: 5;
+            filter: blur(1px);
+        }
+
+        .shira {
+            position: absolute;
+            bottom: 80px;
+            right: 10%;
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 120px solid transparent;
+            border-bottom: 220px solid #1c1917;
+            z-index: 4;
+        }
+
+        .shira-snow {
+            position: absolute;
+            bottom: 298px;
+            right: calc(10% + 20px);
+            width: 0;
+            height: 0;
+            border-left: 35px solid transparent;
+            border-right: 25px solid transparent;
+            border-bottom: 40px solid #d6d3d1;
+            z-index: 5;
+            filter: blur(1px);
+        }
+
+        .ridge {
+            position: absolute;
+            bottom: 200px;
+            left: 22%;
+            width: 56%;
+            height: 120px;
+            background: #1c1917;
+            clip-path: polygon(
+                5% 100%,
+                15% 60%,
+                30% 40%,
+                45% 20%,
+                55% 0%,
+                65% 15%,
+                80% 35%,
+                95% 55%,
+                100% 100%
+            );
+            z-index: 3;
+        }
+
+        .hill-left {
+            position: absolute;
+            bottom: 60px;
+            left: -10%;
+            width: 60%;
+            height: 140px;
+            background: #151312;
+            border-radius: 50% 60% 0 0;
+            z-index: 7;
+        }
+
+        .hill-right {
+            position: absolute;
+            bottom: 60px;
+            right: -10%;
+            width: 55%;
+            height: 120px;
+            background: #151312;
+            border-radius: 60% 50% 0 0;
+            z-index: 7;
+        }
+
+        .ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 90px;
+            background: linear-gradient(180deg, #1a1510 0%, #0f0d0a 100%);
+            z-index: 8;
+        }
+
+        .tree {
+            position: absolute;
+            bottom: 75px;
+            z-index: 9;
+        }
+
+        .tree-trunk {
+            width: 3px;
+            height: 40px;
+            background: #0a0908;
+            margin: 0 auto;
+        }
+
+        .tree-top {
+            width: 50px;
             height: 20px;
-            flex-shrink: 0;
+            background: #0a0908;
+            border-radius: 50%;
+            margin: 0 auto -4px;
+        }
+
+        .tree-1 { left: 8%; transform: scale(0.8); }
+        .tree-2 { left: 18%; transform: scale(1.1); }
+        .tree-3 { right: 12%; transform: scale(0.9); }
+        .tree-4 { right: 22%; transform: scale(0.7); }
+        .tree-5 { left: 35%; transform: scale(0.6); }
+
+        .mist {
+            position: absolute;
+            bottom: 140px;
+            left: 0;
+            width: 200%;
+            height: 60px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(168, 162, 158, 0.03) 15%,
+                rgba(168, 162, 158, 0.06) 30%,
+                rgba(168, 162, 158, 0.03) 50%,
+                transparent 65%,
+                rgba(168, 162, 158, 0.04) 80%,
+                transparent 100%
+            );
+            animation: drift 25s linear infinite;
+            z-index: 6;
+        }
+
+        @keyframes drift {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .mist-2 {
+            bottom: 180px;
+            height: 40px;
+            opacity: 0.5;
+            animation-duration: 35s;
+            animation-direction: reverse;
+        }
+
+        .altitude-label {
+            position: absolute;
+            right: 24px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            color: rgba(249, 115, 22, 0.3);
+            z-index: 10;
+        }
+
+        .altitude-label::before {
+            content: '';
+            position: absolute;
+            right: 100%;
+            top: 50%;
+            width: 16px;
+            height: 1px;
+            background: rgba(249, 115, 22, 0.15);
+            margin-right: 6px;
+        }
+
+        .alt-1 { bottom: 400px; }
+        .alt-2 { bottom: 310px; }
+        .alt-3 { bottom: 220px; }
+
+        .uhuru-label {
+            position: absolute;
+            top: 48px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(249, 115, 22, 0.5);
+            z-index: 10;
+            white-space: nowrap;
+        }
+
+        .uhuru-label::after {
+            content: '';
+            display: block;
+            width: 30px;
+            height: 1px;
+            background: rgba(249, 115, 22, 0.3);
+            margin: 4px auto 0;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer-text {
+            text-align: center;
+            padding: 32px 24px;
             position: relative;
-            z-index: 1;
+            z-index: 2;
         }
 
-        .btn-label { position: relative; z-index: 1; }
-
-        #errorMsg {
-            display: none;
-            margin-top: 16px;
-            padding: 10px 16px;
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            border-radius: 10px;
-            color: #f87171;
-            font-size: 0.82rem;
-        }
-
-        .note {
-            margin-top: 28px;
+        .footer-text p {
             font-size: 0.75rem;
             color: rgb(120, 113, 108);
+            letter-spacing: 0.05em;
         }
 
-        #loadingOverlay {
+        .footer-text .height {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #f97316;
+            display: block;
+            margin-top: 4px;
+            letter-spacing: 0.02em;
+        }
+
+        /* ===== ACCESS DENIED ===== */
+        .not-logged-in {
             display: none;
             position: fixed;
             inset: 0;
-            z-index: 9999;
-            background: rgba(5, 5, 5, 0.85);
+            z-index: 100;
+            background: rgba(5, 5, 5, 0.95);
             backdrop-filter: blur(12px);
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
+            text-align: center;
+            padding: 24px;
         }
 
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255, 255, 255, 0.08);
-            border-top-color: #f97316;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        #loadingText {
+        .not-logged-in p {
             color: rgb(168, 162, 158);
             font-size: 0.9rem;
         }
 
-        @media (max-width: 480px) {
-            .card { padding: 40px 28px; border-radius: 20px; }
-            h1 { font-size: 1.25rem; }
+        .not-logged-in a {
+            color: #f97316;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(249, 115, 22, 0.3);
+            transition: all 0.3s;
+        }
+
+        .not-logged-in a:hover {
+            color: #fb923c;
+            border-color: #fb923c;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 1.8rem; }
+            .mountain-scene { height: 400px; }
+            .kibo {
+                border-left-width: 120px;
+                border-right-width: 120px;
+                border-bottom-width: 240px;
+            }
+            .kibo-snow {
+                border-left-width: 35px;
+                border-right-width: 35px;
+                border-bottom-width: 65px;
+                bottom: 298px;
+            }
+            .kibo-snow::after {
+                left: -50px;
+                border-left-width: 50px;
+                border-right-width: 50px;
+                border-bottom-width: 42px;
+                top: 36px;
+            }
+            .mawenzi {
+                border-left-width: 90px;
+                border-right-width: 100px;
+                border-bottom-width: 180px;
+                left: 5%;
+            }
+            .mawenzi-snow {
+                bottom: 238px;
+                left: calc(5% + 20px);
+                border-left-width: 20px;
+                border-right-width: 25px;
+                border-bottom-width: 32px;
+            }
+            .shira {
+                border-left-width: 100px;
+                border-right-width: 80px;
+                border-bottom-width: 160px;
+                right: 2%;
+            }
+            .shira-snow {
+                bottom: 218px;
+                right: calc(2% + 15px);
+                border-left-width: 25px;
+                border-right-width: 18px;
+                border-bottom-width: 28px;
+            }
+            .moon {
+                right: 40px;
+                top: 40px;
+                width: 35px;
+                height: 35px;
+            }
+            .top-bar { padding: 16px 20px; }
+            .altitude-label { display: none; }
         }
     </style>
 </head>
 <body>
-    <div class="bg-dots"></div>
-    <div class="orbit orbit-1"></div>
-    <div class="orbit orbit-2"></div>
 
-    <div class="card">
-        <div class="icon-box">
-            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    <!-- Access Denied Overlay -->
+    <div class="not-logged-in" id="notLoggedIn">
+        <p>Access denied. You must be logged in as admin.</p>
+        <a href="index.html">Go to Login</a>
+    </div>
+
+    <!-- Top Bar -->
+    <div class="top-bar" id="topBar" style="display:none;">
+        <div class="admin-badge">Admin</div>
+        <div class="user-info">
+            <span class="user-name" id="userName">Admin</span>
+            <div class="user-avatar" id="userAvatar">A</div>
+            <button class="logout-btn" id="logoutBtn">Logout</button>
         </div>
-        <h1>Jamal Said Kazembe Multisystem Management</h1>
-        <p class="sub">login to start use the system</p>
-        <button id="googleLoginBtn">
-            <svg class="g-icon" viewBox="0 0 24 24">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-            </svg>
-            <span class="btn-label">Login with Google</span>
-        </button>
-        <div id="errorMsg"></div>
-        <p class="note">Secured & encrypted connection</p>
     </div>
 
-    <div id="loadingOverlay">
-        <div class="spinner"></div>
-        <p id="loadingText">Loading...</p>
+    <!-- Hero Section -->
+    <div class="hero" id="heroSection" style="display:none;">
+        <h1>Welcome, <span id="heroName">Admin</span></h1>
+        <p>Amal Said Kazembe Multisystem Management</p>
     </div>
 
-    <script type="module" src="login.js"></script>
+    <!-- Mount Kilimanjaro Scene -->
+    <div class="mountain-scene" id="mountainScene" style="display:none;">
+        <div class="sky"></div>
+        <div class="stars" id="starsContainer"></div>
+        <div class="moon"></div>
+        <div class="uhuru-label">Uhuru Peak 5,895m</div>
+        <div class="altitude-label alt-1">5,895m</div>
+        <div class="altitude-label alt-2">4,900m</div>
+        <div class="altitude-label alt-3">3,800m</div>
+        <div class="ridge"></div>
+        <div class="mawenzi"></div>
+        <div class="mawenzi-snow"></div>
+        <div class="shira"></div>
+        <div class="shira-snow"></div>
+        <div class="kibo"></div>
+        <div class="kibo-snow"></div>
+        <div class="mist"></div>
+        <div class="mist mist-2"></div>
+        <div class="hill-left"></div>
+        <div class="hill-right"></div>
+        <div class="ground"></div>
+        <div class="tree tree-1"><div class="tree-top"></div><div class="tree-trunk"></div></div>
+        <div class="tree tree-2"><div class="tree-top"></div><div class="tree-trunk"></div></div>
+        <div class="tree tree-3"><div class="tree-top"></div><div class="tree-trunk"></div></div>
+        <div class="tree tree-4"><div class="tree-top"></div><div class="tree-trunk"></div></div>
+        <div class="tree tree-5"><div class="tree-top"></div><div class="tree-trunk"></div></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-text" id="footerSection" style="display:none;">
+        <p>Highest peak in Africa</p>
+        <span class="height">5,895 meters above sea level</span>
+    </div>
+
+    <script>
+        // Generate stars
+        (function () {
+            var container = document.getElementById("starsContainer");
+            if (!container) return;
+            for (var i = 0; i < 60; i++) {
+                var star = document.createElement("div");
+                star.className = "star";
+                var size = Math.random() * 2 + 0.5;
+                star.style.width = size + "px";
+                star.style.height = size + "px";
+                star.style.left = Math.random() * 100 + "%";
+                star.style.top = Math.random() * 100 + "%";
+                star.style.animationDelay = (Math.random() * 4) + "s";
+                star.style.animationDuration = (Math.random() * 3 + 2) + "s";
+                container.appendChild(star);
+            }
+        })();
+
+        // Auth check and session handling
+        (function () {
+            var isAdmin = false;
+            var name = "";
+            var email = "";
+            var photo = "";
+            var uid = "";
+
+            // Step 1: Try URL parameters (from login redirect)
+            var params = new URLSearchParams(window.location.search);
+            var urlAdmin = params.get("admin");
+            var urlName = params.get("name");
+            var urlEmail = params.get("email");
+            var urlPhoto = params.get("photo");
+            var urlUid = params.get("uid");
+
+            if (urlEmail && urlAdmin === "true") {
+                isAdmin = true;
+                // Decode to fix spaces (e.g. "John%20Doe" becomes "John Doe")
+                name = decodeURIComponent(urlName || "Admin");
+                email = decodeURIComponent(urlEmail);
+                photo = decodeURIComponent(urlPhoto || "");
+                uid = urlUid || "";
+
+                // Save to sessionStorage for page refreshes
+                sessionStorage.setItem("isAdmin", "true");
+                sessionStorage.setItem("userName", name);
+                sessionStorage.setItem("userEmail", email);
+                sessionStorage.setItem("userPhoto", photo);
+                sessionStorage.setItem("userUid", uid);
+
+                // Clean URL (remove parameters for security/cleanliness)
+                window.history.replaceState({}, "", window.location.pathname);
+            } else {
+                // Step 2: Try sessionStorage (for refreshes without URL params)
+                var sessionAdmin = sessionStorage.getItem("isAdmin");
+                var sessionName = sessionStorage.getItem("userName");
+                var sessionEmail = sessionStorage.getItem("userEmail");
+                var sessionPhoto = sessionStorage.getItem("userPhoto");
+                var sessionUid = sessionStorage.getItem("userUid");
+
+                if (sessionEmail && sessionAdmin === "true") {
+                    isAdmin = true;
+                    name = sessionName || "Admin";
+                    email = sessionEmail;
+                    photo = sessionPhoto || "";
+                    uid = sessionUid || "";
+                }
+            }
+
+            // Step 3: If still not admin, block access
+            if (!isAdmin || !email) {
+                document.getElementById("notLoggedIn").style.display = "flex";
+                return;
+            }
+
+            // Step 4: Show dashboard
+            document.getElementById("topBar").style.display = "flex";
+            document.getElementById("heroSection").style.display = "block";
+            document.getElementById("mountainScene").style.display = "block";
+            document.getElementById("footerSection").style.display = "block";
+
+            // Set user name
+            document.getElementById("userName").textContent = name;
+            document.getElementById("heroName").textContent = name;
+
+            // Set avatar
+            var avatar = document.getElementById("userAvatar");
+            if (photo) {
+                avatar.innerHTML = '<img src="' + photo + '" alt="avatar">';
+            } else {
+                avatar.textContent = name.charAt(0).toUpperCase();
+            }
+
+            // Logout handler
+            document.getElementById("logoutBtn").addEventListener("click", function () {
+                sessionStorage.clear();
+                window.location.replace("index.html");
+            });
+        })();
+    </script>
 </body>
 </html>
