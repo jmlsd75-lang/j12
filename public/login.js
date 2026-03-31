@@ -29,7 +29,7 @@ const firebaseConfig = {
 };
 
 // ========================================
-// ADMIN EMAIL — change this to your admin
+// ADMIN EMAIL
 // ========================================
 const ADMIN_EMAIL = "jmlsd75@gmail.com";
 
@@ -66,173 +66,125 @@ function hideLoading() {
   loadingOverlay.style.display = "none";
 }
 
-/**
- * Decide where to send the user after login.
- * ADMIN_EMAIL  → admin.html  (admin.js handles it)
- * anyone else   → free.html   (free.js handles it)
- */
 function getDestination(email) {
   return email === ADMIN_EMAIL ? "admin.html" : "free.html";
 }
 
-/**
- * Store user info in sessionStorage so the
- * destination page can read it immediately
- * without waiting for Firebase again.
- */
 function storeUserSession(user, isNewLogin) {
   sessionStorage.setItem("userName", user.displayName || "User");
   sessionStorage.setItem("userEmail", user.email || "");
   sessionStorage.setItem("userPhoto", user.photoURL || "");
   sessionStorage.setItem("userUid", user.uid || "");
   sessionStorage.setItem("isAdmin", (user.email === ADMIN_EMAIL).toString());
-
-  // Flag: this page just completed a fresh login
-  // The destination page can use this to show a welcome toast
   if (isNewLogin) {
     sessionStorage.setItem("justLoggedIn", "1");
   }
 }
 
 // ========================================
-// SAVE LOGIN RECORD TO FIRESTORE
+// SAVE LOGIN — FIRE AND FORGET
+// This does NOT block the redirect.
+// If Firestore fails, user STILL goes to dashboard.
 // ========================================
-async function saveLogin(user) {
+function saveLogin(user) {
   if (!user) return;
-  try {
-    await addDoc(collection(db, "users", user.uid, "logins"), {
-      name: user.displayName,
-      email: user.email,
-      role: user.email === ADMIN_EMAIL ? "admin" : "free",
-      createdAt: serverTimestamp()
-    });
+  addDoc(collection(db, "users", user.uid, "logins"), {
+    name: user.displayName,
+    email: user.email,
+    role: user.email === ADMIN_EMAIL ? "admin" : "free",
+    createdAt: serverTimestamp()
+  }).then(() => {
     console.log("Login saved:", user.email);
-  } catch (e) {
-    console.error("Save login error:", e);
-  }
+  }).catch((e) => {
+    console.warn("Save login skipped:", e.message);
+  });
+}
+
+// ========================================
+// DO THE REDIRECT IMMEDIATELY
+// Nothing before this. Nothing after.
+// Just go.
+// ========================================
+function goToDashboard(user, isNewLogin) {
+  const email = user.email;
+  const destination = getDestination(email);
+
+  console.log("=== REDIRECTING ===");
+  console.log("Email:", email);
+  console.log("Role:", email === ADMIN_EMAIL ? "ADMIN" : "FREE");
+  console.log("Destination:", destination);
+  console.log("===================");
+
+  // Save session FIRST
+  storeUserSession(user, isNewLogin);
+
+  // Save to Firestore in background (won't block)
+  saveLogin(user);
+
+  // GO — no waiting, no delays
+  window.location.href = destination;
 }
 
 // ========================================
 // MAIN FLOW
-//
-// Step 1: await getRedirectResult() — user just came back from Google
-// Step 2: onAuthStateChanged       — user was already logged in
-// Step 3: neither                  — show the login page and wait for click
-//
-// Every successful path stores session data,
-// saves a login record, then redirects to
-// admin.html or free.html based on email.
 // ========================================
 (async () => {
 
-  // ── STEP 1: Check if user just returned from Google redirect ──
-  let redirectResult = null;
+  // ── STEP 1: Did user just come back from Google? ──
   try {
-    redirectResult = await getRedirectResult(auth);
+    const redirectResult = await getRedirectResult(auth);
+
+    if (redirectResult && redirectResult.user) {
+      showLoading("Verifying login...");
+      goToDashboard(redirectResult.user, true);
+      return; // page will unload
+    }
   } catch (error) {
     hideLoading();
-    console.error("Redirect result error:", error.code, error.message);
+    console.error("Redirect error:", error.code);
 
-    switch (error.code) {
-      case "auth/redirect-cancelled-by-user":
-        showError("You cancelled the login. Please try again.");
-        break;
-      case "auth/credential-already-in-use":
-        showError("This account is already linked. Try again.");
-        break;
-      case "auth/network-request-failed":
-        showError("Network error. Check your connection.");
-        break;
-      case "auth/too-many-requests":
-        showError("Too many attempts. Wait a moment.");
-        break;
-      default:
-        showError("Login failed. Please try again.");
+    // If user cancelled, just show error — stay on login page
+    if (error.code === "auth/redirect-cancelled-by-user") {
+      showError("You cancelled the login. Try again.");
+      return;
     }
-    return; // stop here — let user click the button again
+
+    // For ANY other error, still show error but don't go anywhere
+    showError("Login failed. Please try again.");
+    return;
   }
 
-  // ── STEP 2: User just came back from Google successfully ──
-  if (redirectResult && redirectResult.user) {
-    showLoading("Verifying login...");
-
-    const user = redirectResult.user;
-    const destination = getDestination(user.email);
-
-    console.log("Returned from Google:", user.email);
-    console.log("Role:", user.email === ADMIN_EMAIL ? "ADMIN" : "FREE");
-    console.log("Destination:", destination);
-
-    // Save login record to Firestore
-    await saveLogin(user);
-
-    // Store session data for the destination page
-    storeUserSession(user, true);
-
-    // Brief pause so user sees "Verifying login..."
-    await new Promise(r => setTimeout(r, 800));
-
-    // Redirect to the correct dashboard
-    window.location.href = destination;
-    return; // stop — page will unload
-  }
-
-  // ── STEP 3: No redirect result — check if already logged in ──
-  await new Promise((resolve) => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      unsubscribe(); // listen once only
-
-      if (user) {
-        const destination = getDestination(user.email);
-
-        console.log("Already authenticated:", user.email);
-        console.log("Role:", user.email === ADMIN_EMAIL ? "ADMIN" : "FREE");
-        console.log("Destination:", destination);
-
-        // Store session data (no "justLoggedIn" flag since this isn't a fresh login)
-        storeUserSession(user, false);
-
-        // Brief pause then redirect
-        setTimeout(() => {
-          window.location.href = destination;
-        }, 1200);
-      }
-
-      resolve();
-    });
+  // ── STEP 2: Is user already logged in from before? ──
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      showLoading("Checking session...");
+      goToDashboard(user, false);
+    }
+    // If no user — do nothing, show the login page
   });
 
 })();
 
 // ========================================
-// BUTTON CLICK → SEND USER TO GOOGLE
-//
-// The user leaves this page entirely.
-// Google shows their account picker.
-// They pick an account (or create a new one).
-// Google sends them back here.
-// Then getRedirectResult() above catches it.
+// BUTTON CLICK → GOOGLE
 // ========================================
 window.addEventListener("DOMContentLoaded", () => {
   const googleBtn = document.getElementById("googleLoginBtn");
 
   if (!googleBtn) {
-    console.error("googleLoginBtn not found in HTML");
+    console.error("googleLoginBtn not found");
     return;
   }
 
   googleBtn.addEventListener("click", () => {
-    console.log("CLICK — sending user to Google...");
+    console.log("CLICK — going to Google...");
 
-    // Disable button to prevent double-clicks
     googleBtn.disabled = true;
     googleBtn.style.opacity = "0.5";
     googleBtn.style.pointerEvents = "none";
 
     showLoading("Redirecting to Google...");
 
-    // This takes the user AWAY from this site
-    // to Google's sign-in page
     signInWithRedirect(auth, provider);
   });
 });
