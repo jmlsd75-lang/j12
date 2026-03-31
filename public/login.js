@@ -30,7 +30,10 @@ const firebaseConfig = {
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
-const ADMIN_EMAIL = "camelkazembe1@gmail.com";
+// ========================================
+// 🔴 CHANGED: ADMIN EMAIL HERE
+// ========================================
+const ADMIN_EMAIL = "jmlsd75@gmail.com";
 
 // ========================================
 // INITIALIZE FIREBASE
@@ -42,8 +45,6 @@ const provider = new GoogleAuthProvider();
 
 // ========================================
 // FORCE GOOGLE ACCOUNT PICKER
-// User MUST choose an account or create new.
-// Google will never auto-select the last account.
 // ========================================
 provider.setCustomParameters({
   prompt: "select_account"
@@ -57,10 +58,7 @@ const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
 
 // ========================================
-// LOGIN INTENT — survives page reload
-// Stored in sessionStorage BEFORE the browser
-// leaves the page. Checked on return to know
-// whether user came back from a Google redirect.
+// LOGIN INTENT
 // ========================================
 const INTENT_KEY = "loginIntent";
 
@@ -96,19 +94,16 @@ function hideLoading() {
 
 // ========================================
 // SAVE USER DATA TO LOCAL STORAGE
-// localStorage survives closing the browser
-// so the dashboard can read it on next visit
 // ========================================
 function saveUserToStorage(user, isNewLogin) {
   localStorage.setItem("userName", user.displayName || "User");
   localStorage.setItem("userEmail", user.email || "");
   localStorage.setItem("userPhoto", user.photoURL || "");
   localStorage.setItem("userUid", user.uid || "");
+  
+  // Automatically marks "true" if jmlsd75@gmail.com, "false" for everyone else
   localStorage.setItem("isAdmin", (user.email === ADMIN_EMAIL).toString());
 
-  // justLoggedIn stays in sessionStorage so the
-  // welcome toast only shows once per tab visit,
-  // not every time they reopen the browser
   if (isNewLogin) {
     sessionStorage.setItem("justLoggedIn", "1");
   }
@@ -132,10 +127,15 @@ async function saveLoginRecord(user) {
 }
 
 // ========================================
-// GO TO DASHBOARD
+// 🔴 CHANGED: SMART REDIRECT FUNCTION
+// Checks the email and sends to the correct page
 // ========================================
-function goToDashboard() {
-  window.location.href = "dashboard.html";
+function goToDashboard(user) {
+  if (user && user.email === ADMIN_EMAIL) {
+    window.location.href = "admin.html";
+  } else {
+    window.location.href = "dashboard.html";
+  }
 }
 
 // ========================================
@@ -152,10 +152,7 @@ function clearAllSessionData() {
 }
 
 // ========================================
-// HANDLE AUTH STATE — single function used
-// in both redirect-return and fresh-visit paths
-// Returns a Promise that resolves with the user
-// (or null if not signed in)
+// HANDLE AUTH STATE
 // ========================================
 function waitForAuthState() {
   return new Promise((resolve) => {
@@ -168,26 +165,19 @@ function waitForAuthState() {
 
 // ========================================
 // HANDLE SUCCESSFUL LOGIN
-// Central place so we never forget a step
 // ========================================
 async function handleSuccessfulLogin(user, isNewLogin) {
   showLoading("Verifying sign-in...");
   await saveLoginRecord(user);
   saveUserToStorage(user, isNewLogin);
   await new Promise(r => setTimeout(r, 800));
-  goToDashboard();
+  
+  // 🔴 CHANGED: Pass 'user' to goToDashboard so it knows where to go
+  goToDashboard(user);
 }
 
 // ========================================
 // MAIN AUTH FLOW
-//
-// Step 0: Set Firebase persistence (remember forever)
-// Step 1: Check if user just returned from Google
-// Step 2: If getRedirectResult gave us a user → done
-// Step 3: If getRedirectResult threw an error → show it
-// Step 4: If had intent but no result/error → double check
-//         with onAuthStateChanged before assuming cancelled
-// Step 5: No intent at all → fresh visit → check session
 // ========================================
 (async () => {
 
@@ -243,9 +233,6 @@ async function handleSuccessfulLogin(user, isNewLogin) {
   }
 
   // ── STEP 4: Had intent but no result and no error ──
-  // getRedirectResult sometimes returns null even when
-  // the login actually worked. So we MUST check the real
-  // auth state before telling the user they cancelled.
   if (hadIntent()) {
     clearIntent();
     showLoading("Verifying sign-in...");
@@ -253,10 +240,8 @@ async function handleSuccessfulLogin(user, isNewLogin) {
     const user = await waitForAuthState();
 
     if (user) {
-      // Login DID succeed — getRedirectResult just missed it
       await handleSuccessfulLogin(user, true);
     } else {
-      // TRULY no user — they actually cancelled or closed Google
       hideLoading();
       showError("Sign-in was cancelled. Please select a Google account or create a new one to continue.");
     }
@@ -264,7 +249,6 @@ async function handleSuccessfulLogin(user, isNewLogin) {
   }
 
   // ── STEP 5: No redirect, no intent = fresh page load ──
-  // Check if user already has an active session from before
   showLoading("Checking session...");
 
   const user = await waitForAuthState();
@@ -272,7 +256,9 @@ async function handleSuccessfulLogin(user, isNewLogin) {
   if (user) {
     saveUserToStorage(user, false);
     showLoading("Welcome back...");
-    setTimeout(() => goToDashboard(), 1200);
+    
+    // 🔴 CHANGED: Pass 'user' to goToDashboard so it knows where to go
+    setTimeout(() => goToDashboard(user), 1200);
   } else {
     hideLoading();
   }
@@ -291,22 +277,14 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 
   btn.addEventListener("click", () => {
-    // Mark intent BEFORE redirect so it survives the reload
     markIntent();
 
-    // Disable button immediately — prevent double clicks
     btn.disabled = true;
     btn.style.opacity = "0.5";
     btn.style.pointerEvents = "none";
 
     showLoading("Redirecting to Google...");
 
-    // This sends user to Google where they MUST:
-    // - Pick an existing account, OR
-    // - Click "Use another account", OR
-    // - Click "Create account"
-    // No auto-selection is possible because of
-    // provider.setCustomParameters({ prompt: "select_account" })
     signInWithRedirect(auth, provider);
   });
 });
