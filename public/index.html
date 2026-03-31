@@ -8,7 +8,6 @@
         body {
             font-family: Arial, sans-serif;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -16,34 +15,15 @@
             background-color: #f0f0f0;
         }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        .login-container {
-            background-color: #fff;
-            padding: 30px 50px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            text-align: center;
-        }
-
-        input[type="text"], input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
         button {
-            padding: 10px 20px;
+            padding: 15px 40px;
+            font-size: 18px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             background-color: #007BFF;
             color: white;
             cursor: pointer;
+            transition: 0.2s;
         }
 
         button:hover {
@@ -52,16 +32,8 @@
     </style>
 </head>
 <body>
+    <button id="googleLoginBtn">Login with Google</button>
 
-    <h1>JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT</h1>
-
-    <div class="login-container">
-        <input type="text" id="username" placeholder="Username" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <br>
-        <button onclick="login()">Login</button>
-    </div>
-
-    <script src="login.js"></script>
+    <script type="module" src="login.js"></script>
 </body>
 </html>
