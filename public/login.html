@@ -81,7 +81,7 @@
   </div>
 
   <!-- ===== MAIN CONTENT ===== -->
-  <main class="relative z-[10] flex flex-col items-center justify-center h-screen px-6">
+  <main id="loginContent" class="relative z-[10] flex flex-col items-center justify-center h-screen px-6">
 
     <div class="text-center mb-10 select-none">
       <p class="font-display font-bold text-forest-200 uppercase tracking-[0.15em] text-[clamp(1.7rem,5vw,3.2rem)] reveal" style="text-shadow:0 0 35px rgba(74,222,128,.22)">JAMALI</p>
@@ -126,15 +126,13 @@
       </div>
     </div>
 
-    <!-- NO BACK BUTTON — no way to return to index.html -->
-
   </main>
 
   <!-- Forest floor line -->
   <div class="fixed bottom-0 left-0 w-full h-[2px] z-[10]" style="background:linear-gradient(90deg,transparent 5%,rgba(45,138,72,.25) 30%,rgba(154,114,96,.15) 50%,rgba(45,138,72,.25) 70%,transparent 95%)" aria-hidden="true"></div>
 
   <!-- Loading overlay -->
-  <div id="loadingOverlay" class="fixed inset-0 z-[100] flex-col items-center justify-center" style="background:rgba(4,13,6,.94);display:none">
+  <div id="loadingOverlay" class="fixed inset-0 z-[100] items-center justify-center" style="background:rgba(4,13,6,.94);display:none">
     <div class="w-14 h-14 rounded-full border-[3px] border-forest-700 border-t-forest-200" style="animation:spin 1s linear infinite"></div>
     <p id="loadingText" class="mt-5 text-fog text-sm tracking-[0.2em] uppercase">Redirecting to Google...</p>
   </div>
