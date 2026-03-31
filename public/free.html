@@ -24,11 +24,18 @@
   <style>
     @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
     @keyframes breathe{0%{opacity:.4;transform:translateX(-50%) scale(1)}100%{opacity:.8;transform:translateX(-50%) scale(1.1)}}
+    @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
     .fade-up{animation:fadeUp .6s ease-out both}
     .d1{animation-delay:.15s}.d2{animation-delay:.3s}.d3{animation-delay:.45s}.d4{animation-delay:.6s}
   </style>
 </head>
 <body class="bg-forest-900 text-cream font-body min-h-screen">
+
+  <!-- Loading screen (shown until session verified) -->
+  <div id="pageLoader" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center" style="background:#040d06">
+    <div class="w-14 h-14 rounded-full border-[3px] border-forest-700 border-t-forest-200" style="animation:spin 1s linear infinite"></div>
+    <p class="mt-5 text-fog text-sm tracking-[0.2em] uppercase">VERIFYING ACCESS...</p>
+  </div>
 
   <!-- Background glow -->
   <div class="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
@@ -51,9 +58,9 @@
   </header>
 
   <!-- Main content -->
-  <main class="relative z-10 flex flex-col items-center justify-center px-6" style="min-height:calc(100vh - 65px)">
+  <main id="mainContent" class="relative z-10 flex flex-col items-center justify-center px-6" style="min-height:calc(100vh - 65px);display:none">
 
-    <!-- Welcome toast (only shows on fresh login) -->
+    <!-- Welcome toast -->
     <div id="welcomeToast" class="hidden fixed top-20 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-xl text-sm font-body text-cream fade-up" style="background:linear-gradient(135deg,rgba(37,107,58,.9),rgba(20,51,30,.95));border:1px solid rgba(74,222,128,.25);backdrop-filter:blur(10px)">
       <i class="fa-solid fa-circle-check text-forest-200 mr-2"></i>
       Welcome, <span id="toastName">User</span>
@@ -102,51 +109,65 @@
 
   <script>
     // ========================================
-    // READ SESSION DATA FROM login.js
+    // PROTECTION CHECK (runs immediately)
     // ========================================
-    const name = sessionStorage.getItem("userName") || "User";
-    const email = sessionStorage.getItem("userEmail") || "";
-    const photo = sessionStorage.getItem("userPhoto") || "";
-    const justLoggedIn = sessionStorage.getItem("justLoggedIn");
-
-    // Fill in the page
-    document.getElementById("userName").textContent = name;
-    document.getElementById("userEmail").textContent = email;
-    document.getElementById("toastName").textContent = name;
-
-    // Show photo if available
-    if (photo) {
-      document.getElementById("userPhoto").src = photo;
-      document.getElementById("userPhoto").style.display = "block";
-      document.getElementById("photoFallback").style.display = "none";
-    }
-
-    // Show welcome toast only on fresh login
-    if (justLoggedIn === "1") {
-      document.getElementById("welcomeToast").classList.remove("hidden");
-      sessionStorage.removeItem("justLoggedIn"); // clear so it doesn't show again on refresh
-      setTimeout(() => {
-        const toast = document.getElementById("welcomeToast");
-        if (toast) toast.classList.add("hidden");
-      }, 4000);
-    }
-
-    // ========================================
-    // LOGOUT — clear session and go back
-    // ========================================
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      // Clear all session data
-      sessionStorage.clear();
-      // Go back to home
-      window.location.href = "index.html";
-    });
-
-    // ========================================
-    // PROTECTION: if no email in session,
-    // user landed here directly — send back
-    // ========================================
-    if (!email) {
-      window.location.href = "login.html";
+    (function() {
+      var email = sessionStorage.getItem("userEmail");
+      var isAdmin = sessionStorage.getItem("isAdmin") === "true";
+      
+      // If admin tried to access free page, send to admin
+      if (isAdmin) {
+        window.location.replace("admin.html");
+        return;
+      }
+      
+      // If no session at all, send to login
+      if (!email) {
+        window.location.replace("login.html");
+        return;
+      }
+      
+      // Session exists — load the page
+      loadPage();
+    })();
+    
+    function loadPage() {
+      var name = sessionStorage.getItem("userName") || "User";
+      var email = sessionStorage.getItem("userEmail") || "";
+      var photo = sessionStorage.getItem("userPhoto") || "";
+      var justLoggedIn = sessionStorage.getItem("justLoggedIn");
+      
+      // Fill in page data
+      document.getElementById("userName").textContent = name;
+      document.getElementById("userEmail").textContent = email;
+      document.getElementById("toastName").textContent = name;
+      
+      // Show photo if available
+      if (photo) {
+        document.getElementById("userPhoto").src = photo;
+        document.getElementById("userPhoto").style.display = "block";
+        document.getElementById("photoFallback").style.display = "none";
+      }
+      
+      // Show welcome toast only on fresh login
+      if (justLoggedIn === "1") {
+        document.getElementById("welcomeToast").classList.remove("hidden");
+        sessionStorage.removeItem("justLoggedIn");
+        setTimeout(function() {
+          var toast = document.getElementById("welcomeToast");
+          if (toast) toast.classList.add("hidden");
+        }, 4000);
+      }
+      
+      // Hide loader, show content
+      document.getElementById("pageLoader").style.display = "none";
+      document.getElementById("mainContent").style.display = "flex";
+      
+      // Setup logout
+      document.getElementById("logoutBtn").addEventListener("click", function() {
+        sessionStorage.clear();
+        window.location.replace("index.html");
+      });
     }
   </script>
 </body>
