@@ -337,7 +337,22 @@
     </div>
   </div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+      authDomain: "my-project-66803-95cb3.firebaseapp.com",
+      projectId: "my-project-66803-95cb3",
+      storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+      messagingSenderId: "167159607898",
+      appId: "1:167159607898:web:23ca11366b88868b085e63"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
     (function () {
       // ── Show user name from URL ──
       var params = new URLSearchParams(window.location.search);
@@ -345,15 +360,22 @@
       document.getElementById("userGreeting").textContent = "Hello, " + name;
       window.history.replaceState({}, "", window.location.pathname);
 
-      // ── Logout: clear all session data, prevent back ──
+      // ── ACTUAL FIREBASE LOGOUT ──
       document.getElementById("logoutLink").addEventListener("click", function (e) {
         e.preventDefault();
-        localStorage.removeItem("loggedIn");
-        localStorage.removeItem("userName");
-        localStorage.removeItem("userToken");
-        localStorage.removeItem("session");
-        sessionStorage.clear();
-        window.location.replace("index.html");
+        var link = this;
+        link.textContent = "Logging out...";
+
+        signOut(auth).then(function () {
+          localStorage.clear();
+          sessionStorage.clear();
+          window.location.replace("index.html");
+        }).catch(function (error) {
+          console.error("Firebase sign out error:", error);
+          localStorage.clear();
+          sessionStorage.clear();
+          window.location.replace("index.html");
+        });
       });
     })();
   </script>
