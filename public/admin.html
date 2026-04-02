@@ -529,7 +529,22 @@
         <span class="height">5,895 meters above sea level</span>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
         // Generate stars
         (function () {
             var container = document.getElementById("starsContainer");
@@ -610,13 +625,25 @@
                 avatar.textContent = name.charAt(0).toUpperCase();
             }
 
+            // ACTUAL FIREBASE LOGOUT
             document.getElementById("logoutBtn").addEventListener("click", function () {
-                sessionStorage.clear();
-                localStorage.clear();
-                window.location.replace("index.html");
+                var btn = this;
+                btn.disabled = true;
+                btn.textContent = "Logging out...";
+
+                signOut(auth).then(function () {
+                    sessionStorage.clear();
+                    localStorage.clear();
+                    window.location.replace("index.html");
+                }).catch(function (error) {
+                    console.error("Firebase sign out error:", error);
+                    sessionStorage.clear();
+                    localStorage.clear();
+                    window.location.replace("index.html");
+                });
             });
 
-            // Menu button — add your navigation logic here
+            // Menu button
             document.getElementById("menuBtn").addEventListener("click", function () {
                 alert("Menu clicked — add your navigation here.");
             });
