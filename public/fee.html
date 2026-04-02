@@ -333,7 +333,7 @@
     <div class="greeting-card">
       <h1>Welcome</h1>
       <div id="userGreeting">User</div>
-      <a href="free.html" id="freeBtn">FREE</a>
+      <a href="#" id="freeBtn">FREE</a>
     </div>
   </div>
 
@@ -359,6 +359,12 @@
       var name = decodeURIComponent(params.get("name") || "User");
       document.getElementById("userGreeting").textContent = "Hello, " + name;
       window.history.replaceState({}, "", window.location.pathname);
+
+      // ── CLICK FREE → redirect to menu.html ──
+      document.getElementById("freeBtn").addEventListener("click", function (e) {
+        e.preventDefault();
+        window.location.href = "menu.html";
+      });
 
       // ── ACTUAL FIREBASE LOGOUT ──
       document.getElementById("logoutLink").addEventListener("click", function (e) {
