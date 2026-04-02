@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu — Admin Dashboard</title>
+    <title>Menu — Free Access</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
@@ -60,65 +60,33 @@
             transform: rotate(45deg);
         }
 
-        .admin-badge {
+        .free-badge {
             font-size: 0.7rem;
             font-weight: 700;
             letter-spacing: 0.15em;
             text-transform: uppercase;
-            color: #f97316;
-            background: rgba(249, 115, 22, 0.1);
-            border: 1px solid rgba(249, 115, 22, 0.2);
+            color: rgb(168, 162, 158);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             padding: 5px 12px;
             border-radius: 8px;
         }
 
-        .user-info {
+        .top-bar-right {
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        .user-name {
-            font-size: 0.85rem;
+        .top-bar-right a {
+            color: rgb(120, 113, 108);
+            text-decoration: none;
+            font-size: 0.78rem;
             font-weight: 500;
-            color: rgb(168, 162, 158);
+            transition: color 0.3s;
         }
 
-        .user-avatar {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #f97316, #ea580c);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: #fff;
-            overflow: hidden;
-            border: 2px solid rgba(249, 115, 22, 0.3);
-        }
-
-        .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-        .logout-btn {
-            background: none;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: rgb(168, 162, 158);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.75rem;
-            padding: 5px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-left: 4px;
-        }
-
-        .logout-btn:hover {
-            border-color: rgba(239, 68, 68, 0.3);
-            color: #f87171;
-            background: rgba(239, 68, 68, 0.05);
-        }
+        .top-bar-right a:hover { color: #f97316; }
 
         /* ===== GLOW ===== */
         .glow-orb {
@@ -133,61 +101,85 @@
             z-index: 0;
         }
 
-        /* ===== ADMIN UNLIMITED SECTION ===== */
-        .admin-unlimited {
-            display: none;
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            padding: 100px 24px 0;
-        }
-
-        .admin-unlimited .crown-icon {
-            width: 60px;
-            height: 60px;
-            margin: 0 auto 24px;
-            background: rgba(249, 115, 22, 0.1);
-            border: 1px solid rgba(249, 115, 22, 0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .admin-unlimited .crown-icon svg {
-            width: 28px;
-            height: 28px;
-            fill: #f97316;
-        }
-
-        .admin-unlimited h1 {
-            font-size: 2.4rem;
-            font-weight: 800;
-            letter-spacing: -0.03em;
-            line-height: 1.1;
-            margin-bottom: 12px;
-        }
-
-        .admin-unlimited h1 span {
-            background: linear-gradient(135deg, #f97316, #fb923c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .admin-unlimited .sub-text {
-            font-size: 0.95rem;
-            color: rgb(120, 113, 108);
-            margin-bottom: 48px;
-        }
-
-        /* ===== INTERMEDIATE SECTION (MENU btn + 3min) ===== */
-        .intermediate-section {
+        /* ===== PERSISTENT COUNTDOWN ===== */
+        .countdown-persistent {
             display: none;
             position: relative;
             z-index: 2;
             text-align: center;
             padding: 80px 24px 0;
+        }
+
+        .countdown-persistent .timer-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgb(87, 83, 78);
+            margin-bottom: 12px;
+        }
+
+        .countdown-persistent .timer-display {
+            font-size: 4rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            color: #f5f5f4;
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+            margin-bottom: 20px;
+        }
+
+        .countdown-persistent .timer-display.warning {
+            color: #f97316;
+            animation: pulse-glow 1s ease-in-out infinite;
+        }
+
+        .countdown-persistent .timer-display.danger {
+            color: #ef4444;
+            animation: pulse-glow-red 0.6s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { text-shadow: 0 0 20px rgba(249, 115, 22, 0.3); }
+            50% { text-shadow: 0 0 40px rgba(249, 115, 22, 0.6); }
+        }
+
+        @keyframes pulse-glow-red {
+            0%, 100% { text-shadow: 0 0 20px rgba(239, 68, 68, 0.3); }
+            50% { text-shadow: 0 0 40px rgba(239, 68, 68, 0.6); }
+        }
+
+        .countdown-persistent .timer-bar {
+            max-width: 360px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .countdown-persistent .timer-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f97316, #fb923c);
+            border-radius: 4px;
+            transition: width 1s linear;
+        }
+
+        .countdown-persistent .timer-bar-fill.warning {
+            background: linear-gradient(90deg, #f97316, #ef4444);
+        }
+
+        .countdown-persistent .timer-bar-fill.danger {
+            background: #ef4444;
+        }
+
+        /* ===== MENU BUTTON SECTION ===== */
+        .intermediate-section {
+            display: none;
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 48px 24px 0;
         }
 
         .intermediate-section h2 {
@@ -213,7 +205,6 @@
             box-shadow: 0 0 30px rgba(249, 115, 22, 0.2), 0 0 60px rgba(249, 115, 22, 0.05);
             text-decoration: none;
             font-family: 'Inter', sans-serif;
-            margin-bottom: 48px;
         }
 
         .btn-menu:hover {
@@ -222,64 +213,6 @@
         }
 
         .btn-menu:active { transform: translateY(0); }
-
-        .timer-label {
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: rgb(87, 83, 78);
-            margin-bottom: 12px;
-        }
-
-        .timer-display {
-            font-size: 4rem;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            color: #f5f5f4;
-            font-variant-numeric: tabular-nums;
-            line-height: 1;
-            margin-bottom: 20px;
-        }
-
-        .timer-display.warning {
-            color: #f97316;
-            animation: pulse-glow 1s ease-in-out infinite;
-        }
-
-        .timer-display.danger {
-            color: #ef4444;
-            animation: pulse-glow-red 0.6s ease-in-out infinite;
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% { text-shadow: 0 0 20px rgba(249, 115, 22, 0.3); }
-            50% { text-shadow: 0 0 40px rgba(249, 115, 22, 0.6); }
-        }
-
-        @keyframes pulse-glow-red {
-            0%, 100% { text-shadow: 0 0 20px rgba(239, 68, 68, 0.3); }
-            50% { text-shadow: 0 0 40px rgba(239, 68, 68, 0.6); }
-        }
-
-        .timer-bar {
-            max-width: 360px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
-            margin: 0 auto;
-            overflow: hidden;
-        }
-
-        .timer-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #f97316, #fb923c);
-            border-radius: 4px;
-            transition: width 1s linear;
-        }
-
-        .timer-bar-fill.warning { background: linear-gradient(90deg, #f97316, #ef4444); }
-        .timer-bar-fill.danger { background: #ef4444; }
 
         /* ===== MENU GRID ===== */
         .menu-grid {
@@ -582,15 +515,9 @@
             cursor: not-allowed;
         }
 
-        .unclickable-overlay.active {
-            display: block;
-        }
+        .unclickable-overlay.active { display: block; }
 
-        /* Pay button above overlay */
-        .btn-pay.z-top {
-            position: relative;
-            z-index: 52;
-        }
+        .btn-pay.z-top { position: relative; z-index: 52; }
 
         /* ===== FOOTER ===== */
         .footer-text {
@@ -606,43 +533,12 @@
             letter-spacing: 0.03em;
         }
 
-        /* ===== ACCESS DENIED ===== */
-        .not-logged-in {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 100;
-            background: rgba(5, 5, 5, 0.97);
-            backdrop-filter: blur(12px);
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 16px;
-            text-align: center;
-            padding: 24px;
-        }
-
-        .not-logged-in p { color: rgb(168, 162, 158); font-size: 0.9rem; }
-
-        .not-logged-in a {
-            color: #f97316;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            border-bottom: 1px solid rgba(249, 115, 22, 0.3);
-            transition: all 0.3s;
-        }
-
-        .not-logged-in a:hover { color: #fb923c; border-color: #fb923c; }
-
         @media (max-width: 640px) {
             .top-bar { padding: 16px 20px; }
             .back-link span { display: none; }
-            .user-name { display: none; }
-            .admin-unlimited { padding: 70px 20px 0; }
-            .admin-unlimited h1 { font-size: 1.8rem; }
-            .intermediate-section { padding: 60px 20px 0; }
-            .timer-display { font-size: 3rem; }
+            .countdown-persistent { padding: 60px 20px 0; }
+            .countdown-persistent .timer-display { font-size: 3rem; }
+            .intermediate-section { padding: 36px 20px 0; }
             .menu-grid { padding: 0 16px; gap: 12px; }
             .menu-card { padding: 28px 16px; }
             .menu-card.full-width { padding: 22px 20px; }
@@ -660,45 +556,25 @@
 </head>
 <body>
 
-    <!-- Access Denied -->
-    <div class="not-logged-in" id="notLoggedIn">
-        <p>Access denied. You must be logged in as admin.</p>
-        <a href="index.html">Go to Login</a>
-    </div>
-
     <!-- Background Glow -->
     <div class="glow-orb"></div>
 
     <!-- Top Bar -->
-    <div class="top-bar" id="topBar" style="display:none;">
+    <div class="top-bar" id="topBar">
         <div class="top-bar-left">
-            <a href="admin.html" class="back-link">
+            <a href="index.html" class="back-link">
                 <span class="back-arrow"></span>
-                <span>Dashboard</span>
+                <span>Home</span>
             </a>
-            <div class="admin-badge">Admin</div>
+            <div class="free-badge">Free</div>
         </div>
-        <div class="user-info">
-            <span class="user-name" id="userName">Admin</span>
-            <div class="user-avatar" id="userAvatar">A</div>
-            <button class="logout-btn" id="logoutBtn">Logout</button>
+        <div class="top-bar-right">
+            <a href="index.html">Back to site</a>
         </div>
     </div>
 
-    <!-- 1. ADMIN: Unlimited Access (jmlsd75@gmail.com only) -->
-    <div class="admin-unlimited" id="adminUnlimited">
-        <div class="crown-icon">
-            <svg viewBox="0 0 24 24"><path d="M2 4l3 12h14l3-12-6 7-4-9-4 9-6-7zm3 16h14v2H5v-2z"/></svg>
-        </div>
-        <h1>Admin <span>Unlimited Access</span></h1>
-        <p class="sub-text">Full privileges granted — no restrictions</p>
-        <a href="business.html" class="btn-menu">Business</a>
-    </div>
-
-    <!-- 2. INTERMEDIATE: MENU button + 3min countdown (other emails) -->
-    <div class="intermediate-section" id="intermediateSection">
-        <h2>Select an option below</h2>
-        <button class="btn-menu" id="revealMenuBtn">MENU</button>
+    <!-- Countdown (always visible until expired) -->
+    <div class="countdown-persistent" id="countdownPersistent">
         <div class="timer-label">Session Time Remaining</div>
         <div class="timer-display" id="timerDisplay">03:00</div>
         <div class="timer-bar">
@@ -706,7 +582,13 @@
         </div>
     </div>
 
-    <!-- 3. MENU GRID (hidden until MENU clicked) -->
+    <!-- MENU button (hidden after click) -->
+    <div class="intermediate-section" id="intermediateSection">
+        <h2>Select an option below</h2>
+        <button class="btn-menu" id="revealMenuBtn">MENU</button>
+    </div>
+
+    <!-- Menu Grid (hidden until MENU clicked) -->
     <div class="menu-grid" id="menuGrid">
         <a href="users.html" class="menu-card">
             <div class="card-icon">
@@ -787,7 +669,7 @@
         </a>
     </div>
 
-    <!-- 4. LOCK: 24hr wait + Pay button -->
+    <!-- 24hr Lock Screen -->
     <div class="lock-section" id="lockSection">
         <div class="lock-icon">
             <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -796,7 +678,7 @@
         <p class="lock-sub">Your session has expired</p>
         <div class="lock-row">
             <div class="wait-timer" id="waitTimerDisplay">24:00:00</div>
-            <a href="pay.html" class="btn-pay z-top" id="payBtn">Pay</a>
+            <a href="pay.html" class="btn-pay z-top">Pay</a>
         </div>
         <div class="wait-bar">
             <div class="wait-bar-fill" id="waitBarFill" style="width: 100%;"></div>
@@ -804,151 +686,77 @@
         <div class="wait-label">Waiting period</div>
     </div>
 
-    <!-- Unclickable overlay during 24hr wait -->
+    <!-- Unclickable overlay -->
     <div class="unclickable-overlay" id="unclickableOverlay"></div>
 
     <!-- Footer -->
-    <div class="footer-text" id="footerSection" style="display:none;">
+    <div class="footer-text" id="footerSection">
         <p>Jamal Said Kazembe Multisystem Management</p>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-            authDomain: "my-project-66803-95cb3.firebaseapp.com",
-            projectId: "my-project-66803-95cb3",
-            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-            messagingSenderId: "167159607898",
-            appId: "1:167159607898:web:23ca11366b88868b085e63"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-
+    <script>
         (function () {
-            var isAdmin = false;
-            var name = "";
-            var email = "";
-            var photo = "";
-
-            var sAdmin = sessionStorage.getItem("isAdmin");
-            var sName = sessionStorage.getItem("userName");
-            var sEmail = sessionStorage.getItem("userEmail");
-            var sPhoto = sessionStorage.getItem("userPhoto");
-
-            if (sEmail && sAdmin === "true") {
-                isAdmin = true;
-                name = sName || "Admin";
-                email = sEmail;
-                photo = sPhoto || "";
-            }
-
-            if (!isAdmin || !email) {
-                document.getElementById("notLoggedIn").style.display = "flex";
-                return;
-            }
-
-            // Show top bar + footer
-            document.getElementById("topBar").style.display = "flex";
-            document.getElementById("footerSection").style.display = "block";
-            document.getElementById("userName").textContent = name;
-
-            var avatar = document.getElementById("userAvatar");
-            if (photo) {
-                avatar.innerHTML = '<img src="' + photo + '" alt="avatar">';
-            } else {
-                avatar.textContent = name.charAt(0).toUpperCase();
-            }
-
-            // === PATH 1: SUPER ADMIN ===
-            if (email.toLowerCase() === "jmlsd75@gmail.com") {
-                document.getElementById("adminUnlimited").style.display = "block";
-                return;
-            }
-
-            // === PATH 2: OTHER EMAIL ===
+            // Show countdown + menu button immediately
+            document.getElementById("countdownPersistent").style.display = "block";
             document.getElementById("intermediateSection").style.display = "block";
-            startThreeMinuteCountdown();
 
-            // Click MENU → reveal card grid
+            // Click MENU → hide button, show grid (countdown stays)
             document.getElementById("revealMenuBtn").addEventListener("click", function () {
                 document.getElementById("intermediateSection").style.display = "none";
                 document.getElementById("menuGrid").classList.add("visible");
             });
 
-            // Firebase logout
-            document.getElementById("logoutBtn").addEventListener("click", function () {
-                var btn = this;
-                btn.disabled = true;
-                btn.textContent = "Logging out...";
-                signOut(auth).then(function () {
-                    sessionStorage.clear();
-                    localStorage.clear();
-                    window.location.replace("index.html");
-                }).catch(function () {
-                    sessionStorage.clear();
-                    localStorage.clear();
-                    window.location.replace("index.html");
-                });
-            });
+            // === 3 MINUTE COUNTDOWN ===
+            var totalSeconds = 180;
+            var timerDisplay = document.getElementById("timerDisplay");
+            var timerBarFill = document.getElementById("timerBarFill");
 
-            // === THREE MINUTE COUNTDOWN ===
-            var countdownInterval = null;
+            var countdownInterval = setInterval(function () {
+                totalSeconds--;
 
-            function startThreeMinuteCountdown() {
-                var totalSeconds = 180;
-                var timerDisplay = document.getElementById("timerDisplay");
-                var timerBarFill = document.getElementById("timerBarFill");
+                if (totalSeconds <= 0) {
+                    totalSeconds = 0;
+                    clearInterval(countdownInterval);
+                    timerDisplay.textContent = "00:00";
+                    timerBarFill.style.width = "0%";
 
-                countdownInterval = setInterval(function () {
-                    totalSeconds--;
+                    setTimeout(function () {
+                        // Hide everything
+                        document.getElementById("countdownPersistent").style.display = "none";
+                        document.getElementById("intermediateSection").style.display = "none";
+                        document.getElementById("menuGrid").style.display = "none";
+                        document.getElementById("menuGrid").classList.remove("visible");
+                        document.getElementById("footerSection").style.display = "none";
+                        document.getElementById("topBar").style.display = "none";
 
-                    if (totalSeconds <= 0) {
-                        totalSeconds = 0;
-                        clearInterval(countdownInterval);
-                        timerDisplay.textContent = "00:00";
-                        timerBarFill.style.width = "0%";
+                        // Start 24hr lock
+                        startTwentyFourHourWait();
+                    }, 800);
+                    return;
+                }
 
-                        setTimeout(function () {
-                            // Hide everything
-                            document.getElementById("intermediateSection").style.display = "none";
-                            document.getElementById("menuGrid").style.display = "none";
-                            document.getElementById("menuGrid").classList.remove("visible");
-                            document.getElementById("footerSection").style.display = "none";
-                            document.getElementById("topBar").style.display = "none";
+                var m = Math.floor(totalSeconds / 60);
+                var s = totalSeconds % 60;
+                timerDisplay.textContent = String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
 
-                            // Show 24hr lock
-                            startTwentyFourHourWait();
-                        }, 800);
-                        return;
-                    }
+                var pct = (totalSeconds / 180) * 100;
+                timerBarFill.style.width = pct + "%";
 
-                    var m = Math.floor(totalSeconds / 60);
-                    var s = totalSeconds % 60;
-                    timerDisplay.textContent = String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+                timerDisplay.classList.remove("warning", "danger");
+                timerBarFill.classList.remove("warning", "danger");
 
-                    var pct = (totalSeconds / 180) * 100;
-                    timerBarFill.style.width = pct + "%";
+                if (totalSeconds <= 10) {
+                    timerDisplay.classList.add("danger");
+                    timerBarFill.classList.add("danger");
+                } else if (totalSeconds <= 30) {
+                    timerDisplay.classList.add("warning");
+                    timerBarFill.classList.add("warning");
+                }
+            }, 1000);
 
-                    timerDisplay.classList.remove("warning", "danger");
-                    timerBarFill.classList.remove("warning", "danger");
-
-                    if (totalSeconds <= 10) {
-                        timerDisplay.classList.add("danger");
-                        timerBarFill.classList.add("danger");
-                    } else if (totalSeconds <= 30) {
-                        timerDisplay.classList.add("warning");
-                        timerBarFill.classList.add("warning");
-                    }
-                }, 1000);
-            }
-
-            // === TWENTY FOUR HOUR WAIT ===
+            // === 24 HOUR WAIT ===
             function startTwentyFourHourWait() {
-                var totalSeconds = 86400;
+                var waitSeconds = 86400;
                 var lockSection = document.getElementById("lockSection");
                 var waitTimerDisplay = document.getElementById("waitTimerDisplay");
                 var waitBarFill = document.getElementById("waitBarFill");
@@ -957,27 +765,26 @@
                 lockSection.style.display = "flex";
                 overlay.classList.add("active");
 
-                var interval = setInterval(function () {
-                    totalSeconds--;
+                var waitInterval = setInterval(function () {
+                    waitSeconds--;
 
-                    if (totalSeconds <= 0) {
-                        totalSeconds = 0;
-                        clearInterval(interval);
+                    if (waitSeconds <= 0) {
+                        waitSeconds = 0;
+                        clearInterval(waitInterval);
                         waitTimerDisplay.textContent = "00:00:00";
                         waitBarFill.style.width = "0%";
-                        // Overlay stays — pay button always visible via z-index: 52
                         return;
                     }
 
-                    var h = Math.floor(totalSeconds / 3600);
-                    var m = Math.floor((totalSeconds % 3600) / 60);
-                    var s = totalSeconds % 60;
+                    var h = Math.floor(waitSeconds / 3600);
+                    var m = Math.floor((waitSeconds % 3600) / 60);
+                    var s = waitSeconds % 60;
                     waitTimerDisplay.textContent =
                         String(h).padStart(2, "0") + ":" +
                         String(m).padStart(2, "0") + ":" +
                         String(s).padStart(2, "0");
 
-                    var pct = (totalSeconds / 86400) * 100;
+                    var pct = (waitSeconds / 86400) * 100;
                     waitBarFill.style.width = pct + "%";
                 }, 1000);
             }
