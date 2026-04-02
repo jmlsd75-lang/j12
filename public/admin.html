@@ -137,6 +137,7 @@
             cursor: pointer;
             transition: all 0.3s;
             box-shadow: 0 0 30px rgba(249, 115, 22, 0.2), 0 0 60px rgba(249, 115, 22, 0.05);
+            text-decoration: none;
         }
 
         #menuBtn:hover {
@@ -492,7 +493,7 @@
     <div class="hero" id="heroSection" style="display:none;">
         <h1>Welcome, <span id="heroName">Admin</span></h1>
         <p>Jamal Said Kazembe Multisystem Management</p>
-        <button id="menuBtn">MENU</button>
+        <a href="men.html" id="menuBtn">MENU</a>
     </div>
 
     <!-- Mount Kilimanjaro Scene -->
@@ -625,7 +626,7 @@
                 avatar.textContent = name.charAt(0).toUpperCase();
             }
 
-            // ACTUAL FIREBASE LOGOUT
+            // Firebase logout
             document.getElementById("logoutBtn").addEventListener("click", function () {
                 var btn = this;
                 btn.disabled = true;
@@ -641,11 +642,6 @@
                     localStorage.clear();
                     window.location.replace("index.html");
                 });
-            });
-
-            // Menu button
-            document.getElementById("menuBtn").addEventListener("click", function () {
-                alert("Menu clicked — add your navigation here.");
             });
         })();
     </script>
