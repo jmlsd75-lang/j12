@@ -52,7 +52,7 @@ function checkAndRedirect(user) {
   if (isAdmin) {
     safeRedirect("admin.html?admin=true&name=" + name + "&email=" + encodeURIComponent(email) + "&photo=" + photo + "&uid=" + user.uid);
   } else {
-    safeRedirect("fee.html?name=" + name + "&email=" + encodeURIComponent(email) + "&photo=" + photo);
+    safeRedirect("free.html?name=" + name + "&email=" + encodeURIComponent(email) + "&photo=" + photo);
   }
 }
 
