@@ -74,7 +74,7 @@
         .top-bar-right {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 16px;
         }
 
         .top-bar-right a {
@@ -86,6 +86,58 @@
         }
 
         .top-bar-right a:hover { color: #f97316; }
+
+        .btn-logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 18px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgb(168, 162, 158);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-logout:hover {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .btn-logout:active {
+            transform: scale(0.97);
+        }
+
+        .btn-logout:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .btn-logout svg {
+            width: 15px;
+            height: 15px;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            fill: none;
+            flex-shrink: 0;
+            transition: stroke 0.3s;
+        }
+
+        .btn-logout.loading svg {
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 
         .glow-orb {
             position: fixed;
@@ -202,7 +254,6 @@
         .timer-bar-fill.warning { background: linear-gradient(90deg, #f97316, #ef4444); }
         .timer-bar-fill.danger { background: #ef4444; }
 
-        /* Lock section — everything unclickable */
         .lock-section {
             display: none;
             position: fixed;
@@ -282,7 +333,6 @@
             line-height: 1;
         }
 
-        /* ONLY clickable thing on the lock page */
         .btn-pay {
             display: inline-block;
             padding: 14px 40px;
@@ -352,6 +402,32 @@
             letter-spacing: 0.03em;
         }
 
+        /* Logout toast */
+        .logout-toast {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: #fca5a5;
+            font-size: 0.78rem;
+            font-weight: 500;
+            padding: 12px 24px;
+            border-radius: 10px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s ease;
+        }
+
+        .logout-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
         @media (max-width: 640px) {
             .top-bar { padding: 16px 20px; }
             .back-link span { display: none; }
@@ -361,6 +437,8 @@
             .wait-timer { font-size: 2rem; }
             .lock-row { flex-direction: column; gap: 16px; }
             .btn-menu, .btn-pay { padding: 14px 40px; font-size: 0.9rem; }
+            .btn-logout span { display: none; }
+            .btn-logout { padding: 8px 12px; }
         }
     </style>
 </head>
@@ -378,6 +456,10 @@
         </div>
         <div class="top-bar-right">
             <a href="index.html">Back to site</a>
+            <button class="btn-logout" id="logoutBtn" type="button">
+                <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                <span>Logout</span>
+            </button>
         </div>
     </div>
 
@@ -411,7 +493,64 @@
         <p>Jamal Said Kazembe Multisystem Management</p>
     </div>
 
-    <script>
+    <div class="logout-toast" id="logoutToast">Signing out…</div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const logoutBtn = document.getElementById("logoutBtn");
+        const logoutToast = document.getElementById("logoutToast");
+
+        logoutBtn.addEventListener("click", async () => {
+            logoutBtn.disabled = true;
+            logoutBtn.classList.add("loading");
+
+            // Show toast
+            logoutToast.classList.add("show");
+
+            try {
+                // Clear all local session data
+                localStorage.removeItem("free_session_start");
+                localStorage.removeItem("free_lock_start");
+
+                // Actually sign out from Firebase
+                await signOut(auth);
+
+                // Small delay so the user sees the feedback
+                setTimeout(() => {
+                    logoutToast.textContent = "Signed out — redirecting…";
+                }, 400);
+
+                setTimeout(() => {
+                    // Hard redirect — no going back
+                    window.location.replace("index.html");
+                }, 1200);
+
+            } catch (error) {
+                console.error("Logout error:", error);
+                // Still clear and redirect even if Firebase throws
+                localStorage.removeItem("free_session_start");
+                localStorage.removeItem("free_lock_start");
+                setTimeout(() => {
+                    window.location.replace("index.html");
+                }, 800);
+            }
+        });
+
+        // ─── Session / Lock Timer Logic ───
         (function () {
             var SESSION_KEY = "free_session_start";
             var LOCK_KEY = "free_lock_start";
@@ -425,7 +564,6 @@
 
             var now = Date.now();
 
-            // Check active lock
             var lockStart = localStorage.getItem(LOCK_KEY);
             if (lockStart) {
                 var lockElapsed = Math.floor((now - parseInt(lockStart, 10)) / 1000);
@@ -438,7 +576,6 @@
                 }
             }
 
-            // Check ongoing session
             var sessionStart = localStorage.getItem(SESSION_KEY);
             if (sessionStart) {
                 var sessionElapsed = Math.floor((now - parseInt(sessionStart, 10)) / 1000);
@@ -453,7 +590,6 @@
                 }
             }
 
-            // Fresh start
             var freshStart = now;
             localStorage.setItem(SESSION_KEY, String(freshStart));
             showSession(freshStart);
