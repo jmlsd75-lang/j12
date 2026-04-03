@@ -202,6 +202,7 @@
         .timer-bar-fill.warning { background: linear-gradient(90deg, #f97316, #ef4444); }
         .timer-bar-fill.danger { background: #ef4444; }
 
+        /* Lock section — everything unclickable */
         .lock-section {
             display: none;
             position: fixed;
@@ -213,22 +214,44 @@
             justify-content: center;
             text-align: center;
             padding: 24px;
+            pointer-events: none;
         }
 
-        .lock-icon {
-            width: 48px;
-            height: 48px;
+        .lock-icon-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.15);
             margin-bottom: 28px;
-            opacity: 0.25;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: all 0.3s;
+            text-decoration: none;
         }
 
-        .lock-icon svg {
-            width: 48px;
-            height: 48px;
-            stroke: rgb(87, 83, 78);
+        .lock-icon-link:hover {
+            background: rgba(34, 197, 94, 0.15);
+            border-color: rgba(34, 197, 94, 0.3);
+            transform: scale(1.08);
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.15);
+        }
+
+        .lock-icon-link:active { transform: scale(0.97); }
+
+        .lock-icon-link svg {
+            width: 32px;
+            height: 32px;
+            stroke: #22c55e;
             stroke-width: 1.5;
             fill: none;
+            transition: stroke 0.3s;
         }
+
+        .lock-icon-link:hover svg { stroke: #4ade80; }
 
         .lock-section h2 {
             font-size: 1.15rem;
@@ -259,6 +282,7 @@
             line-height: 1;
         }
 
+        /* ONLY clickable thing on the lock page */
         .btn-pay {
             display: inline-block;
             padding: 14px 40px;
@@ -276,8 +300,7 @@
             text-decoration: none;
             font-family: 'Inter', sans-serif;
             flex-shrink: 0;
-            z-index: 60;
-            position: relative;
+            pointer-events: auto;
         }
 
         .btn-pay:hover {
@@ -312,17 +335,6 @@
             text-transform: uppercase;
             color: rgb(68, 64, 60);
         }
-
-        /* Block everything except the pay button */
-        .lock-blocker {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 55;
-            cursor: not-allowed;
-        }
-
-        .lock-blocker.active { display: block; }
 
         .footer-text {
             text-align: center;
@@ -380,23 +392,20 @@
     </div>
 
     <div class="lock-section" id="lockSection">
-        <div class="lock-icon">
+        <a href="pay.html" class="lock-icon-link">
             <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        </div>
+        </a>
         <h2>Pay to continue use system</h2>
-        <p class="lock-sub">Your session has expired</p>
+        <p class="lock-sub">Your session has expired — tap the lock or button below</p>
         <div class="lock-row">
             <div class="wait-timer" id="waitTimerDisplay">24:00:00</div>
-            <a href="pay.html" class="btn-pay" id="payBtn">Pay</a>
+            <a href="pay.html" class="btn-pay">Pay</a>
         </div>
         <div class="wait-bar">
             <div class="wait-bar-fill" id="waitBarFill" style="width: 100%;"></div>
         </div>
         <div class="wait-label">Waiting period</div>
     </div>
-
-    <!-- Blocker sits BETWEEN lock bg (z:50) and pay btn (z:60) -->
-    <div class="lock-blocker" id="lockBlocker"></div>
 
     <div class="footer-text" id="footerSection">
         <p>Jamal Said Kazembe Multisystem Management</p>
@@ -496,7 +505,6 @@
 
             function showLockScreen(lockTs) {
                 document.getElementById("lockSection").style.display = "flex";
-                document.getElementById("lockBlocker").classList.add("active");
 
                 var interval = setInterval(function () {
                     var elapsed = Math.floor((Date.now() - lockTs) / 1000);
