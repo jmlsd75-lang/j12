@@ -1,836 +1,670 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pay - Jamal Said Kazembe</title>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh;overflow-x:hidden}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Access</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-#payOptionsPage{
-  position:fixed;top:0;left:0;width:100%;height:100%;
-  background:linear-gradient(160deg,#0a0a0f 0%,#111827 40%,#0c1524 100%);
-  display:flex;flex-direction:column;align-items:center;
-  padding:20px;padding-top:16px;overflow-y:auto
-}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-.instruct-box{
-  width:100%;max-width:400px;
-  background:rgba(40,167,69,0.08);
-  border:1.5px solid rgba(40,167,69,0.25);
-  border-radius:10px;padding:14px 16px;
-  margin-bottom:16px;flex-shrink:0
-}
-.instruct-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.instruct-icon{
-  width:28px;height:28px;border-radius:7px;
-  background:rgba(40,167,69,0.15);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0
-}
-.instruct-icon svg{width:16px;height:16px}
-.instruct-heading{color:#34d399;font-size:13px;font-weight:700;letter-spacing:.6px;text-transform:uppercase}
-.instruct-steps{display:flex;flex-direction:column;gap:7px;margin-bottom:10px}
-.instruct-step{display:flex;align-items:flex-start;gap:8px}
-.step-n{
-  width:20px;height:20px;border-radius:50%;
-  background:rgba(40,167,69,0.15);color:#34d399;
-  font-size:11px;font-weight:700;
-  display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;margin-top:1px
-}
-.step-t{color:#c9d1d9;font-size:12px;line-height:1.45}
-.step-t b{color:#fff;font-weight:600}
-.instruct-line{width:100%;height:1px;background:rgba(255,255,255,0.06);margin-bottom:9px}
-.instruct-dont{display:flex;align-items:center;gap:7px}
-.instruct-dont svg{width:15px;height:15px;color:#f87171;flex-shrink:0}
-.instruct-dont span{color:#f87171;font-size:11.5px;font-weight:600}
+        body {
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background: #050505;
+            color: #f5f5f4;
+            overflow-x: hidden;
+        }
 
-.pay-header{text-align:center;margin-bottom:14px;flex-shrink:0}
-.pay-title{color:#fff;font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:3px;margin-bottom:6px}
-.pay-subtitle{color:#6b7280;font-size:13px;letter-spacing:1px}
+        .top-bar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 32px;
+            background: rgba(5, 5, 5, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
 
-.payment-methods{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:400px;margin-bottom:20px;flex-shrink:0}
-.method-card{
-  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
-  border-radius:10px;padding:14px 10px;text-align:center;color:#d1d5db;
-  font-size:12px;font-weight:600;transition:all .3s;cursor:default;
-  position:relative;overflow:hidden
-}
-.method-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:3px 0 0 3px}
-.method-card:hover{background:rgba(255,255,255,0.08);transform:translateY(-1px)}
-.method-card.airtel::before{background:#ed1c24}
-.method-card.vodacom::before{background:#e60000}
-.method-card.halotel::before{background:#00a651}
-.method-card.mix::before{background:#ffd700}
-.method-card.ttcl::before{background:#007bff}
-.method-card.crdb::before{background:#003366}
-.method-card.nmb::before{background:#ff6600}
-.method-card.nbc::before{background:#dc3545}
-.method-card.intl{grid-column:span 2}
-.method-card.intl::before{background:linear-gradient(180deg,#6f42c1,#007bff)}
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
 
-.brand-icon{
-  width:38px;height:38px;border-radius:10px;
-  display:flex;align-items:center;justify-content:center;
-  margin:0 auto 6px auto;position:relative
-}
-.brand-icon svg{width:22px;height:22px}
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: rgb(168, 162, 158);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
 
-.icon-airtel{background:linear-gradient(135deg,#ed1c24,#b8151b)}
-.icon-vodacom{background:linear-gradient(135deg,#e60000,#b30000)}
-.icon-halotel{background:linear-gradient(135deg,#00a651,#007a3d)}
-.icon-mix{background:linear-gradient(135deg,#ffd700,#e6b800)}
-.icon-mix svg path{fill:#0a0a0f}
-.icon-ttcl{background:linear-gradient(135deg,#007bff,#0056b3)}
-.icon-crdb{background:linear-gradient(135deg,#003366,#002244)}
-.icon-nmb{background:linear-gradient(135deg,#ff6600,#cc5200)}
-.icon-nbc{background:linear-gradient(135deg,#dc3545,#a71d2a)}
-.icon-intl{background:linear-gradient(135deg,#6f42c1,#007bff);width:auto;height:38px;padding:0 14px;border-radius:10px;gap:6px}
-.icon-intl svg{width:18px;height:18px}
+        .back-link:hover { color: #f97316; }
 
-.method-card .method-label{display:block;font-size:11.5px;font-weight:600;letter-spacing:.3px;line-height:1.3}
+        .back-arrow {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border-left: 2px solid currentColor;
+            border-bottom: 2px solid currentColor;
+            transform: rotate(45deg);
+        }
 
-.upload-prompt{
-  color:#ffd700;font-size:14px;font-weight:700;margin:18px 0;
-  text-align:center;padding:14px;
-  background:rgba(255,215,0,0.06);border:2px dashed rgba(255,215,0,0.3);
-  border-radius:12px;width:100%;max-width:400px;
-  letter-spacing:1px;animation:borderPulse 2s infinite;flex-shrink:0
-}
-@keyframes borderPulse{0%,100%{border-color:rgba(255,215,0,0.3)}50%{border-color:rgba(255,215,0,0.7)}}
-.receipt-info{
-  background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.06);
-  border-radius:14px;padding:16px 20px;width:100%;max-width:400px;margin-bottom:22px;flex-shrink:0
-}
-.receipt-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
-.receipt-row:last-child{border-bottom:none}
-.row-label{color:#6b7280;font-size:12px;font-weight:500}
-.row-value{color:#fff;font-size:14px;font-weight:700;letter-spacing:.5px}
-.row-value.gold{color:#ffd700}
-.row-value.red{color:#ff4444}
-.row-value.blue{color:#4da6ff}
-.receipt-name{text-align:center;color:#d1d5db;font-size:13px;font-weight:600;letter-spacing:1px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.05);margin-top:4px}
-.page-buttons{display:flex;gap:12px;width:100%;max-width:400px;flex-shrink:0;margin-bottom:20px}
-.btn{flex:1;padding:14px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all .3s;letter-spacing:1px}
-.btn:active{transform:scale(0.97)}
-.btn-back{background:rgba(255,255,255,0.08);color:#9ca3af;border:1px solid rgba(255,255,255,0.1)}
-.btn-back:hover{background:rgba(255,255,255,0.12)}
-.btn-next{background:linear-gradient(135deg,#ffd700,#f59e0b);color:#0a0a0f}
-.btn-next:hover{box-shadow:0 4px 20px rgba(255,215,0,0.3);transform:translateY(-1px)}
+        .free-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgb(168, 162, 158);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 5px 12px;
+            border-radius: 8px;
+        }
 
-#cameraSelectPage{
-  position:fixed;top:0;left:0;width:100%;height:100%;
-  background:linear-gradient(160deg,#0a0a0f 0%,#111827 40%,#0c1524 100%);
-  display:none;flex-direction:column;justify-content:center;align-items:center;gap:16px;padding:20px
-}
-.select-title{color:#fff;font-size:20px;font-weight:800;letter-spacing:2px}
-.select-subtitle{color:#6b7280;font-size:13px}
-.select-buttons{display:flex;flex-direction:column;gap:12px;width:100%;max-width:300px;margin-top:10px}
-.btn-sel{
-  padding:18px;color:#fff;border:none;border-radius:12px;
-  font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;letter-spacing:1px
-}
-.btn-sel:active{transform:scale(0.97)}
-.btn-cam{background:linear-gradient(135deg,#007bff,#0056b3)}
-.btn-cam:hover{box-shadow:0 4px 20px rgba(0,123,255,0.3)}
-.btn-gal{background:linear-gradient(135deg,#17a2b8,#117a8b)}
-.btn-gal:hover{box-shadow:0 4px 20px rgba(23,162,184,0.3)}
-.btn-sel-back{background:rgba(220,53,69,0.15);color:#ef4444;border:1px solid rgba(220,53,69,0.3)}
-.btn-sel-back:hover{background:rgba(220,53,69,0.25)}
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
 
-#previewPage{
-  position:fixed;top:0;left:0;width:100%;height:100%;
-  background:#0a0a0f;display:none;flex-direction:column;
-  justify-content:center;align-items:center;padding:20px
-}
-.preview-title{color:#fff;font-size:16px;font-weight:700;margin-bottom:14px;letter-spacing:1px}
-#previewImage{max-width:90%;max-height:50%;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.5);margin-bottom:18px;border:1px solid rgba(255,255,255,0.08)}
-.preview-buttons{display:flex;gap:12px}
-.btn-prev{padding:14px 28px;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all .3s;letter-spacing:1px}
-.btn-prev:active{transform:scale(0.97)}
-.btn-cancel{background:rgba(220,53,69,0.15);color:#ef4444;border:1px solid rgba(220,53,69,0.3)}
-.btn-cancel:hover{background:rgba(220,53,69,0.25)}
-.btn-submit{background:linear-gradient(135deg,#28a745,#1e7e34);color:#fff}
-.btn-submit:hover{box-shadow:0 4px 20px rgba(40,167,69,0.3)}
+        .top-bar-right a {
+            color: rgb(120, 113, 108);
+            text-decoration: none;
+            font-size: 0.78rem;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
 
-#loadingOverlay{
-  position:fixed;top:0;left:0;width:100%;height:100%;
-  background:rgba(5,5,10,0.97);display:none;justify-content:center;
-  align-items:center;flex-direction:column;z-index:1000;padding:30px
-}
-.loader-wrap{margin-bottom:24px;position:relative;width:60px;height:60px}
-.loader{border:4px solid rgba(255,255,255,0.08);border-top:4px solid #ffd700;border-radius:50%;width:60px;height:60px;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-#loadingTitle{color:#fff;font-size:17px;font-weight:700;margin-bottom:20px;letter-spacing:1px}
-.check-list{width:100%;max-width:320px;display:flex;flex-direction:column;gap:6px}
-.check-item{
-  display:flex;align-items:center;gap:10px;
-  padding:8px 12px;border-radius:8px;
-  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.04);
-  font-size:13px;color:#6b7280;transition:all .3s
-}
-.check-item.active{color:#d1d5db;border-color:rgba(255,215,0,0.2);background:rgba(255,215,0,0.04)}
-.check-item.pass{color:#34d399;border-color:rgba(52,211,153,0.3);background:rgba(52,211,153,0.06)}
-.check-item.fail{color:#f87171;border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.06)}
-.check-icon{width:20px;text-align:center;font-size:14px;flex-shrink:0}
+        .top-bar-right a:hover { color: #f97316; }
 
-#successOverlay{
-  position:fixed;top:0;left:0;width:100%;height:100%;
-  background:rgba(5,5,10,0.97);display:none;justify-content:center;
-  align-items:center;flex-direction:column;z-index:1500
-}
-.success-icon{
-  width:90px;height:90px;border-radius:50%;
-  background:linear-gradient(135deg,#28a745,#1e7e34);
-  display:flex;align-items:center;justify-content:center;
-  font-size:42px;margin-bottom:20px;
-  animation:successPop .5s cubic-bezier(.175,.885,.32,1.275)
-}
-@keyframes successPop{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
-.success-title{color:#34d399;font-size:22px;font-weight:800;letter-spacing:2px;margin-bottom:6px}
-.success-sub{color:#6b7280;font-size:13px;margin-bottom:20px}
-.success-amount{color:#ffd700;font-size:16px;font-weight:700;margin-bottom:6px}
-.success-redirect{color:#4b5563;font-size:12px;animation:blink 1.2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
-.success-bar{width:200px;height:3px;background:rgba(255,255,255,0.08);border-radius:3px;margin-top:20px;overflow:hidden}
-.success-bar-fill{height:100%;background:#28a745;border-radius:3px;animation:barFill 2.5s linear forwards}
-@keyframes barFill{0%{width:0}100%{width:100%}}
+        .btn-logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 18px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgb(168, 162, 158);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
 
-#failOverlay{
-  position:fixed;top:0;left:0;width:100%;height:100%;
-  background:rgba(5,5,10,0.97);display:none;justify-content:center;
-  align-items:center;flex-direction:column;z-index:2000;padding:30px;overflow-y:auto
-}
-.fail-icon{
-  width:90px;height:90px;border-radius:50%;
-  background:linear-gradient(135deg,#dc3545,#a71d2a);
-  display:flex;align-items:center;justify-content:center;
-  font-size:42px;margin-bottom:20px;
-  animation:failShake .5s ease
-}
-@keyframes failShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
-.fail-title{color:#f87171;font-size:22px;font-weight:800;letter-spacing:2px;margin-bottom:6px}
-.fail-reason{color:#6b7280;font-size:13px;margin-bottom:16px}
-.fail-checks{width:100%;max-width:320px;margin-bottom:20px;display:flex;flex-direction:column;gap:5px}
-.fail-check-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:500}
-.fail-check-item.pass{color:#34d399;background:rgba(52,211,153,0.06)}
-.fail-check-item.fail{color:#f87171;background:rgba(248,113,113,0.06)}
-.fail-redirect{color:#4b5563;font-size:12px;animation:blink 1.2s infinite}
+        .btn-logout:hover {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
 
-.hidden-input{display:none}
-</style>
+        .btn-logout:active {
+            transform: scale(0.97);
+        }
+
+        .btn-logout:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .btn-logout svg {
+            width: 15px;
+            height: 15px;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            fill: none;
+            flex-shrink: 0;
+            transition: stroke 0.3s;
+        }
+
+        .btn-logout.loading svg {
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .glow-orb {
+            position: fixed;
+            top: 35%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(249, 115, 22, 0.04) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .main-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 100px 24px 0;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .main-content.active { display: flex; }
+
+        .main-content h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: rgb(168, 162, 158);
+            margin-bottom: 12px;
+        }
+
+        .btn-menu {
+            display: inline-block;
+            padding: 16px 64px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #050505;
+            background: linear-gradient(135deg, #f97316, #fb923c);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px rgba(249, 115, 22, 0.2), 0 0 60px rgba(249, 115, 22, 0.05);
+            text-decoration: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-menu:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(249, 115, 22, 0.35), 0 0 80px rgba(249, 115, 22, 0.1);
+        }
+
+        .btn-menu:active { transform: translateY(0); }
+
+        .timer-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgb(87, 83, 78);
+            margin-top: 40px;
+        }
+
+        .timer-display {
+            font-size: 4rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            color: #f5f5f4;
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+            margin-bottom: 20px;
+        }
+
+        .timer-display.warning {
+            color: #f97316;
+            animation: pulse-glow 1s ease-in-out infinite;
+        }
+
+        .timer-display.danger {
+            color: #ef4444;
+            animation: pulse-glow-red 0.6s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { text-shadow: 0 0 20px rgba(249, 115, 22, 0.3); }
+            50% { text-shadow: 0 0 40px rgba(249, 115, 22, 0.6); }
+        }
+
+        @keyframes pulse-glow-red {
+            0%, 100% { text-shadow: 0 0 20px rgba(239, 68, 68, 0.3); }
+            50% { text-shadow: 0 0 40px rgba(239, 68, 68, 0.6); }
+        }
+
+        .timer-bar {
+            max-width: 360px;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .timer-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f97316, #fb923c);
+            border-radius: 4px;
+            transition: width 1s linear;
+        }
+
+        .timer-bar-fill.warning { background: linear-gradient(90deg, #f97316, #ef4444); }
+        .timer-bar-fill.danger { background: #ef4444; }
+
+        .lock-section {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            background: #050505;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 24px;
+            pointer-events: none;
+        }
+
+        .lock-icon-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.15);
+            margin-bottom: 28px;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .lock-icon-link:hover {
+            background: rgba(34, 197, 94, 0.15);
+            border-color: rgba(34, 197, 94, 0.3);
+            transform: scale(1.08);
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.15);
+        }
+
+        .lock-icon-link:active { transform: scale(0.97); }
+
+        .lock-icon-link svg {
+            width: 32px;
+            height: 32px;
+            stroke: #22c55e;
+            stroke-width: 1.5;
+            fill: none;
+            transition: stroke 0.3s;
+        }
+
+        .lock-icon-link:hover svg { stroke: #4ade80; }
+
+        .lock-section h2 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: rgb(120, 113, 108);
+            margin-bottom: 6px;
+        }
+
+        .lock-section .lock-sub {
+            font-size: 0.78rem;
+            color: rgb(87, 83, 78);
+            margin-bottom: 40px;
+        }
+
+        .lock-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .wait-timer {
+            font-size: 2.8rem;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            color: rgb(87, 83, 78);
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+        }
+
+        .btn-pay {
+            display: inline-block;
+            padding: 14px 40px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #050505;
+            background: linear-gradient(135deg, #22c55e, #4ade80);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.2), 0 0 60px rgba(34, 197, 94, 0.05);
+            text-decoration: none;
+            font-family: 'Inter', sans-serif;
+            flex-shrink: 0;
+            pointer-events: auto;
+        }
+
+        .btn-pay:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(34, 197, 94, 0.35), 0 0 80px rgba(34, 197, 94, 0.1);
+        }
+
+        .btn-pay:active { transform: translateY(0); }
+
+        .wait-bar {
+            max-width: 360px;
+            width: 100%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .wait-bar-fill {
+            height: 100%;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
+            transition: width 1s linear;
+        }
+
+        .wait-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgb(68, 64, 60);
+        }
+
+        .footer-text {
+            text-align: center;
+            padding: 48px 24px 32px;
+            position: relative;
+            z-index: 2;
+            display: none;
+        }
+
+        .footer-text.active { display: block; }
+
+        .footer-text p {
+            font-size: 0.7rem;
+            color: rgb(87, 83, 78);
+            letter-spacing: 0.03em;
+        }
+
+        /* Logout toast */
+        .logout-toast {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: #fca5a5;
+            font-size: 0.78rem;
+            font-weight: 500;
+            padding: 12px 24px;
+            border-radius: 10px;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s ease;
+        }
+
+        .logout-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 640px) {
+            .top-bar { padding: 16px 20px; }
+            .back-link span { display: none; }
+            .main-content { padding: 70px 20px 0; }
+            .main-content h2 { font-size: 1.1rem; }
+            .timer-display { font-size: 3rem; }
+            .wait-timer { font-size: 2rem; }
+            .lock-row { flex-direction: column; gap: 16px; }
+            .btn-menu, .btn-pay { padding: 14px 40px; font-size: 0.9rem; }
+            .btn-logout span { display: none; }
+            .btn-logout { padding: 8px 12px; }
+        }
+    </style>
 </head>
 <body>
 
-<input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden-input">
-<input type="file" id="photosInput" accept="image/*" class="hidden-input">
+    <div class="glow-orb"></div>
 
-<div id="payOptionsPage">
-  <div class="instruct-box">
-    <div class="instruct-top">
-      <div class="instruct-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-          <path d="M2 17l10 5 10-5"/>
-          <path d="M2 12l10 5 10-5"/>
-        </svg>
-      </div>
-      <div class="instruct-heading">How to Pay</div>
+    <div class="top-bar" id="topBar">
+        <div class="top-bar-left">
+            <a href="index.html" class="back-link">
+                <span class="back-arrow"></span>
+                <span>Home</span>
+            </a>
+            <div class="free-badge">Free</div>
+        </div>
+        <div class="top-bar-right">
+            <a href="index.html">Back to site</a>
+            <button class="btn-logout" id="logoutBtn" type="button">
+                <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                <span>Logout</span>
+            </button>
+        </div>
     </div>
-    <div class="instruct-steps">
-      <div class="instruct-step">
-        <div class="step-n">1</div>
-        <div class="step-t">Open <b>any mobile money or bank app</b> on your phone</div>
-      </div>
-      <div class="instruct-step">
-        <div class="step-n">2</div>
-        <div class="step-t">Go to <b>Send Money</b> or <b>Lipa Pesa</b></div>
-      </div>
-      <div class="instruct-step">
-        <div class="step-n">3</div>
-        <div class="step-t">Enter the <b>phone number or account</b> shown below</div>
-      </div>
-      <div class="instruct-step">
-        <div class="step-n">4</div>
-        <div class="step-t">Send the amount, then <b>screenshot the receipt</b></div>
-      </div>
+
+    <div class="main-content" id="mainContent">
+        <h2>Select an option below</h2>
+        <a href="menu.html" class="btn-menu">MENU</a>
+        <div class="timer-label">Session Time Remaining</div>
+        <div class="timer-display" id="timerDisplay">03:00</div>
+        <div class="timer-bar">
+            <div class="timer-bar-fill" id="timerBarFill" style="width: 100%;"></div>
+        </div>
     </div>
-    <div class="instruct-line"></div>
-    <div class="instruct-dont">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="15" y1="9" x2="9" y2="15"/>
-        <line x1="9" y1="9" x2="15" y2="15"/>
-      </svg>
-      <span>Do NOT use USSD codes like *150#, *111#, *100#</span>
+
+    <div class="lock-section" id="lockSection">
+        <a href="pay.html" class="lock-icon-link">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </a>
+        <h2>Pay to continue use system</h2>
+        <p class="lock-sub">Your session has expired — tap the lock or button below</p>
+        <div class="lock-row">
+            <div class="wait-timer" id="waitTimerDisplay">24:00:00</div>
+            <a href="pay.html" class="btn-pay">Pay</a>
+        </div>
+        <div class="wait-bar">
+            <div class="wait-bar-fill" id="waitBarFill" style="width: 100%;"></div>
+        </div>
+        <div class="wait-label">Waiting period</div>
     </div>
-  </div>
 
-  <div class="pay-header">
-    <div class="pay-title">Pay Through</div>
-    <div class="pay-subtitle">Mobile Money & Banking Apps</div>
-  </div>
-  
-  <div class="payment-methods">
-    <div class="method-card airtel">
-      <div class="brand-icon icon-airtel">
-        <svg viewBox="0 0 40 40" fill="none">
-          <circle cx="20" cy="16" r="7" stroke="#fff" stroke-width="2.5"/>
-          <path d="M14 26c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
-          <text x="20" y="19.5" text-anchor="middle" fill="#fff" font-size="8" font-weight="800" font-family="Arial">AM</text>
-        </svg>
-      </div>
-      <span class="method-label">Airtel Money</span>
+    <div class="footer-text" id="footerSection">
+        <p>Jamal Said Kazembe Multisystem Management</p>
     </div>
-    <div class="method-card vodacom">
-      <div class="brand-icon icon-vodacom">
-        <svg viewBox="0 0 40 40" fill="none">
-          <rect x="10" y="8" width="20" height="24" rx="4" stroke="#fff" stroke-width="2.2"/>
-          <circle cx="20" cy="22" r="5" stroke="#fff" stroke-width="2"/>
-          <text x="20" y="24.5" text-anchor="middle" fill="#fff" font-size="6.5" font-weight="800" font-family="Arial">M</text>
-          <line x1="16" y1="13" x2="24" y2="13" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <span class="method-label">Vodacom M-Pesa</span>
-    </div>
-    <div class="method-card halotel">
-      <div class="brand-icon icon-halotel">
-        <svg viewBox="0 0 40 40" fill="none">
-          <rect x="10" y="8" width="20" height="24" rx="4" stroke="#fff" stroke-width="2.2"/>
-          <circle cx="20" cy="22" r="5" stroke="#fff" stroke-width="2"/>
-          <text x="20" y="24.5" text-anchor="middle" fill="#fff" font-size="6.5" font-weight="800" font-family="Arial">H</text>
-          <line x1="16" y1="13" x2="24" y2="13" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <span class="method-label">Halotel Halopesa</span>
-    </div>
-    <div class="method-card mix">
-      <div class="brand-icon icon-mix">
-        <svg viewBox="0 0 40 40" fill="none">
-          <circle cx="20" cy="20" r="12" stroke="#0a0a0f" stroke-width="2.2"/>
-          <text x="20" y="22.5" text-anchor="middle" fill="#0a0a0f" font-size="9" font-weight="900" font-family="Arial">Mx</text>
-          <circle cx="20" cy="20" r="14.5" stroke="#0a0a0f" stroke-width="1" opacity=".3"/>
-        </svg>
-      </div>
-      <span class="method-label">Mix by Yas</span>
-    </div>
-    <div class="method-card ttcl">
-      <div class="brand-icon icon-ttcl">
-        <svg viewBox="0 0 40 40" fill="none">
-          <rect x="8" y="10" width="24" height="20" rx="3" stroke="#fff" stroke-width="2.2"/>
-          <line x1="8" y1="16" x2="32" y2="16" stroke="#fff" stroke-width="1.5"/>
-          <circle cx="20" cy="24" r="3.5" stroke="#fff" stroke-width="1.8"/>
-          <text x="20" y="15" text-anchor="middle" fill="#fff" font-size="5.5" font-weight="800" font-family="Arial" opacity=".9">TTCL</text>
-        </svg>
-      </div>
-      <span class="method-label">TTCL</span>
-    </div>
-    <div class="method-card crdb">
-      <div class="brand-icon icon-crdb">
-        <svg viewBox="0 0 40 40" fill="none">
-          <rect x="6" y="10" width="28" height="20" rx="3" stroke="#fff" stroke-width="2"/>
-          <line x1="6" y1="16" x2="34" y2="16" stroke="#fff" stroke-width="1.3"/>
-          <rect x="10" y="20" width="8" height="2.5" rx="1" fill="#fff" opacity=".7"/>
-          <rect x="10" y="24.5" width="12" height="2" rx="1" fill="#fff" opacity=".4"/>
-          <text x="15" y="15" text-anchor="middle" fill="#fff" font-size="5" font-weight="800" font-family="Arial">CRDB</text>
-        </svg>
-      </div>
-      <span class="method-label">CRDB Bank App</span>
-    </div>
-    <div class="method-card nmb">
-      <div class="brand-icon icon-nmb">
-        <svg viewBox="0 0 40 40" fill="none">
-          <rect x="6" y="10" width="28" height="20" rx="3" stroke="#fff" stroke-width="2"/>
-          <line x1="6" y1="16" x2="34" y2="16" stroke="#fff" stroke-width="1.3"/>
-          <rect x="10" y="20" width="8" height="2.5" rx="1" fill="#fff" opacity=".7"/>
-          <rect x="10" y="24.5" width="12" height="2" rx="1" fill="#fff" opacity=".4"/>
-          <text x="14" y="15" text-anchor="middle" fill="#fff" font-size="5" font-weight="800" font-family="Arial">NMB</text>
-        </svg>
-      </div>
-      <span class="method-label">NMB Bank App</span>
-    </div>
-    <div class="method-card nbc">
-      <div class="brand-icon icon-nbc">
-        <svg viewBox="0 0 40 40" fill="none">
-          <rect x="6" y="10" width="28" height="20" rx="3" stroke="#fff" stroke-width="2"/>
-          <line x1="6" y1="16" x2="34" y2="16" stroke="#fff" stroke-width="1.3"/>
-          <rect x="10" y="20" width="8" height="2.5" rx="1" fill="#fff" opacity=".7"/>
-          <rect x="10" y="24.5" width="12" height="2" rx="1" fill="#fff" opacity=".4"/>
-          <text x="14" y="15" text-anchor="middle" fill="#fff" font-size="5.5" font-weight="800" font-family="Arial">NBC</text>
-        </svg>
-      </div>
-      <span class="method-label">NBC Bank App</span>
-    </div>
-    <div class="method-card intl">
-      <div class="brand-icon icon-intl">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="2" y1="12" x2="22" y2="12"/>
-          <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z"/>
-        </svg>
-        <span style="color:#fff;font-size:12px;font-weight:700;letter-spacing:.5px">Other International Bank Apps</span>
-      </div>
-    </div>
-  </div>
-  
-  <div class="upload-prompt">📷 UPLOAD RECEIPT AFTER PAYMENT</div>
-  
-  <div class="receipt-info">
-    <div class="receipt-row">
-      <span class="row-label">Mix by Yas</span>
-      <span class="row-value gold">+255 655 510 714</span>
-    </div>
-    <div class="receipt-row">
-      <span class="row-label">Airtel Money</span>
-      <span class="row-value red">+255 780 526 437</span>
-    </div>
-    <div class="receipt-row">
-      <span class="row-label">CRDB</span>
-      <span class="row-value blue">0152001GN6K00</span>
-    </div>
-    <div class="receipt-name">Jamali Saidi Kazemb</div>
-  </div>
-  
-  <div class="page-buttons">
-    <button class="btn btn-back" onclick="goBack()">⬅ BACK</button>
-    <button class="btn btn-next" onclick="goNext()">NEXT ➡</button>
-  </div>
-</div>
 
-<div id="cameraSelectPage">
-  <div class="select-title">Upload Receipt</div>
-  <div class="select-subtitle">Choose how to upload your payment receipt</div>
-  <div class="select-buttons">
-    <button class="btn-sel btn-cam" onclick="openCamera()">📸 CAMERA</button>
-    <button class="btn-sel btn-gal" onclick="openPhotos()">🖼️ PHOTOS</button>
-    <button class="btn-sel btn-sel-back" onclick="goBackToPayOptions()">⬅ BACK</button>
-  </div>
-</div>
+    <div class="logout-toast" id="logoutToast">Signing out…</div>
 
-<div id="previewPage">
-  <div class="preview-title">Receipt Preview</div>
-  <img id="previewImage" src="" alt="Receipt Preview">
-  <div class="preview-buttons">
-    <button class="btn-prev btn-cancel" onclick="cancelPreview()">✖ CANCEL</button>
-    <button class="btn-prev btn-submit" onclick="submitReceipt()">✓ SUBMIT</button>
-  </div>
-</div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-<div id="loadingOverlay">
-  <div class="loader-wrap"><div class="loader"></div></div>
-  <div id="loadingTitle">Scanning Image...</div>
-  <div class="check-list">
-    <div class="check-item" id="ck-photoType"><span class="check-icon">⏳</span>Photo Type (Receipt/QR)</div>
-    <div class="check-item" id="ck-textExtract"><span class="check-icon">⏳</span>Text Extraction</div>
-    <div class="check-item" id="ck-nameMatch"><span class="check-icon">⏳</span>Name Validation</div>
-    <div class="check-item" id="ck-phoneMatch"><span class="check-icon">⏳</span>Phone Number Match</div>
-    <div class="check-item" id="ck-timeDelay"><span class="check-icon">⏳</span>Time Delay (&lt;10 min)</div>
-    <div class="check-item" id="ck-currency"><span class="check-icon">⏳</span>Currency (TZS)</div>
-  </div>
-</div>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
 
-<div id="successOverlay">
-  <div class="success-icon">✓</div>
-  <div class="success-title">PAYMENT VERIFIED</div>
-  <div class="success-sub">All 6 checks passed successfully</div>
-  <div class="success-amount" id="successAmount"></div>
-  <div class="success-redirect">Redirecting to menu.html ...</div>
-  <div class="success-bar"><div class="success-bar-fill"></div></div>
-</div>
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
 
-<div id="failOverlay">
-  <div class="fail-icon">✕</div>
-  <div class="fail-title">PAYMENT INVALID</div>
-  <div class="fail-reason" id="failReason"></div>
-  <div class="fail-checks" id="failChecks"></div>
-  <div class="fail-redirect">Redirecting to free.html ...</div>
-</div>
+        const logoutBtn = document.getElementById("logoutBtn");
+        const logoutToast = document.getElementById("logoutToast");
 
-<script>
-let selectedFile = null;
+        logoutBtn.addEventListener("click", async () => {
+            logoutBtn.disabled = true;
+            logoutBtn.classList.add("loading");
 
-const VALID_NAMES = [
-  "JAMAL KAZEMBE",
-  "JAMAL SAID",
-  "JAMAL SAID KAZEMBE"
-];
+            // Show toast
+            logoutToast.classList.add("show");
 
-const PHONE_PATTERNS = [
-  /(?:\+?255\s?)?780\s?526\s?437/,
-  /(?:\+?255\s?)?655\s?510\s?714/
-];
+            try {
+                // Clear all local session data
+                localStorage.removeItem("free_session_start");
+                localStorage.removeItem("free_lock_start");
 
-const FOREIGN_CURRENCIES = [
-  "USD","EUR","GBP","KES","UGX","RWF","BIF","ZAR","CNY","JPY",
-  "INR","AED","SAR","QAR","OMR","BHD","KWD","MAD","EGP","CDF"
-];
+                // Actually sign out from Firebase
+                await signOut(auth);
 
-const results = {
-  photoType:    { pass: false, label: "Photo Type (Receipt/QR)" },
-  textExtract:  { pass: false, label: "Text Extraction" },
-  nameMatch:    { pass: false, label: "Name Validation" },
-  phoneMatch:   { pass: false, label: "Phone Number Match" },
-  timeDelay:    { pass: false, label: "Time Delay (<10 min)" },
-  currency:     { pass: false, label: "Currency (TZS)" }
-};
+                // Small delay so the user sees the feedback
+                setTimeout(() => {
+                    logoutToast.textContent = "Signed out — redirecting…";
+                }, 400);
 
-const ckEls = {
-  photoType:   document.getElementById("ck-photoType"),
-  textExtract: document.getElementById("ck-textExtract"),
-  nameMatch:   document.getElementById("ck-nameMatch"),
-  phoneMatch:  document.getElementById("ck-phoneMatch"),
-  timeDelay:   document.getElementById("ck-timeDelay"),
-  currency:    document.getElementById("ck-currency")
-};
+                setTimeout(() => {
+                    // Hard redirect — no going back
+                    window.location.replace("index.html");
+                }, 1200);
 
-function setCk(key, status) {
-  const el = ckEls[key];
-  el.className = "check-item " + status;
-  const icon = el.querySelector(".check-icon");
-  if (status === "active") icon.textContent = "⏳";
-  if (status === "pass")   icon.textContent = "✅";
-  if (status === "fail")   icon.textContent = "❌";
-}
+            } catch (error) {
+                console.error("Logout error:", error);
+                // Still clear and redirect even if Firebase throws
+                localStorage.removeItem("free_session_start");
+                localStorage.removeItem("free_lock_start");
+                setTimeout(() => {
+                    window.location.replace("index.html");
+                }, 800);
+            }
+        });
 
-function failAllInstant() {
-  Object.keys(ckEls).forEach(k => {
-    ckEls[k].className = "check-item fail";
-    ckEls[k].querySelector(".check-icon").textContent = "❌";
-    results[k].pass = false;
-  });
-}
+        // ─── Session / Lock Timer Logic ───
+        (function () {
+            var SESSION_KEY = "free_session_start";
+            var LOCK_KEY = "free_lock_start";
+            var SESSION_SEC = 180;
+            var LOCK_SEC = 86400;
 
-function resetAllCk() {
-  Object.keys(ckEls).forEach(k => {
-    ckEls[k].className = "check-item";
-    ckEls[k].querySelector(".check-icon").textContent = "⏳";
-    results[k].pass = false;
-  });
-}
+            var timerDisplay = document.getElementById("timerDisplay");
+            var timerBarFill = document.getElementById("timerBarFill");
+            var waitDisplay = document.getElementById("waitTimerDisplay");
+            var waitBar = document.getElementById("waitBarFill");
 
-function showPage(id) {
-  ["payOptionsPage","cameraSelectPage","previewPage"].forEach(p => {
-    document.getElementById(p).style.display = "none";
-  });
-  document.getElementById(id).style.display = "flex";
-}
+            var now = Date.now();
 
-function goBack()  { window.location.href = "free.html"; }
-function goNext()  { showPage("cameraSelectPage"); }
-function goBackToPayOptions() { showPage("payOptionsPage"); }
+            var lockStart = localStorage.getItem(LOCK_KEY);
+            if (lockStart) {
+                var lockElapsed = Math.floor((now - parseInt(lockStart, 10)) / 1000);
+                if (lockElapsed < LOCK_SEC) {
+                    showLockScreen(parseInt(lockStart, 10));
+                    return;
+                } else {
+                    localStorage.removeItem(LOCK_KEY);
+                    localStorage.removeItem(SESSION_KEY);
+                }
+            }
 
-function openCamera() { document.getElementById("cameraInput").click(); }
-function openPhotos() { document.getElementById("photosInput").click(); }
+            var sessionStart = localStorage.getItem(SESSION_KEY);
+            if (sessionStart) {
+                var sessionElapsed = Math.floor((now - parseInt(sessionStart, 10)) / 1000);
+                if (sessionElapsed < SESSION_SEC) {
+                    showSession(parseInt(sessionStart, 10));
+                    return;
+                } else {
+                    localStorage.removeItem(SESSION_KEY);
+                    localStorage.setItem(LOCK_KEY, String(parseInt(sessionStart, 10) + SESSION_SEC * 1000));
+                    showLockScreen(parseInt(sessionStart, 10) + SESSION_SEC * 1000);
+                    return;
+                }
+            }
 
-function handleFile(file) {
-  if (!file) return;
-  selectedFile = file;
-  const reader = new FileReader();
-  reader.onload = e => {
-    document.getElementById("previewImage").src = e.target.result;
-    showPage("previewPage");
-  };
-  reader.readAsDataURL(file);
-  document.getElementById("cameraInput").value = "";
-  document.getElementById("photosInput").value = "";
-}
+            var freshStart = now;
+            localStorage.setItem(SESSION_KEY, String(freshStart));
+            showSession(freshStart);
 
-document.getElementById("cameraInput").addEventListener("change", e => handleFile(e.target.files[0]));
-document.getElementById("photosInput").addEventListener("change", e => handleFile(e.target.files[0]));
+            function showSession(startTs) {
+                document.getElementById("topBar").style.display = "flex";
+                document.getElementById("mainContent").classList.add("active");
+                document.getElementById("footerSection").classList.add("active");
 
-function cancelPreview() {
-  selectedFile = null;
-  document.getElementById("previewImage").src = "";
-  showPage("cameraSelectPage");
-}
+                var interval = setInterval(function () {
+                    var elapsed = Math.floor((Date.now() - startTs) / 1000);
+                    var remaining = Math.max(0, SESSION_SEC - elapsed);
 
-/* ============================================================
-   FAST PIXEL CHECK — detects if image has text-like content
-   Runs in ~50ms, no OCR needed. Rejects blank photos, 
-   selfies, scenery, solid colors instantly.
-   ============================================================ */
-function hasTextPixels(imageData) {
-  const d = imageData.data;
-  const w = imageData.width;
-  const h = imageData.height;
-  let edges = 0;
-  let checked = 0;
-  const step = 3;
+                    if (remaining <= 0) {
+                        clearInterval(interval);
+                        timerDisplay.textContent = "00:00";
+                        timerBarFill.style.width = "0%";
 
-  for (let y = 1; y < h - 1; y += step) {
-    for (let x = 1; x < w - 1; x += step) {
-      const i = (y * w + x) * 4;
-      const iR = (y * w + x + step) * 4;
-      const iD = ((y + step) * w + x) * 4;
+                        setTimeout(function () {
+                            document.getElementById("mainContent").classList.remove("active");
+                            document.getElementById("footerSection").classList.remove("active");
+                            document.getElementById("topBar").style.display = "none";
 
-      const g  = d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114;
-      const gR = d[iR] * 0.299 + d[iR+1] * 0.587 + d[iR+2] * 0.114;
-      const gD = d[iD] * 0.299 + d[iD+1] * 0.587 + d[iD+2] * 0.114;
+                            var lockTs = startTs + SESSION_SEC * 1000;
+                            localStorage.removeItem(SESSION_KEY);
+                            localStorage.setItem(LOCK_KEY, String(lockTs));
+                            showLockScreen(lockTs);
+                        }, 800);
+                        return;
+                    }
 
-      if (Math.abs(g - gR) > 40 || Math.abs(g - gD) > 40) edges++;
-      checked++;
-    }
-  }
+                    var m = Math.floor(remaining / 60);
+                    var s = remaining % 60;
+                    timerDisplay.textContent = String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+                    timerBarFill.style.width = ((remaining / SESSION_SEC) * 100) + "%";
 
-  const ratio = edges / checked;
-  return ratio > 0.04;
-}
+                    timerDisplay.classList.remove("warning", "danger");
+                    timerBarFill.classList.remove("warning", "danger");
 
-function preprocessImage(canvas) {
-  const ctx = canvas.getContext("2d");
-  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const d = imgData.data;
-  let totalB = 0;
-  for (let i = 0; i < d.length; i += 4) {
-    const avg = d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114;
-    d[i] = d[i+1] = d[i+2] = avg;
-    totalB += avg;
-  }
-  const avgB = totalB / (d.length / 4);
-  const inv = avgB < 128;
-  for (let i = 0; i < d.length; i += 4) {
-    let v = d[i];
-    if (inv) v = 255 - v;
-    v = v > 140 ? 255 : (v < 110 ? 0 : v);
-    d[i] = d[i+1] = d[i+2] = v;
-  }
-  ctx.putImageData(imgData, 0, 0);
-  return canvas;
-}
+                    if (remaining <= 10) {
+                        timerDisplay.classList.add("danger");
+                        timerBarFill.classList.add("danger");
+                    } else if (remaining <= 30) {
+                        timerDisplay.classList.add("warning");
+                        timerBarFill.classList.add("warning");
+                    }
+                }, 1000);
+            }
 
-function isTimeValidFromText(text) {
-  const clean = text.toUpperCase().replace(/\s+/g, " ");
-  const match = clean.match(/\b(\d{1,2})[:.](\d{2})([:.](\d{2}))?\s?(AM|PM)?\b/);
-  if (!match) return false;
-  let hours = parseInt(match[1]);
-  const minutes = parseInt(match[2]);
-  const ampm = match[5];
-  if (ampm) {
-    if (ampm === "PM" && hours < 12) hours += 12;
-    if (ampm === "AM" && hours === 12) hours = 0;
-  }
-  if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return false;
-  const now = new Date();
-  const receipt = new Date();
-  receipt.setHours(hours, minutes, 0, 0);
-  if (receipt > now) receipt.setDate(receipt.getDate() - 1);
-  return Math.abs((now - receipt) / 60000) <= 10;
-}
+            function showLockScreen(lockTs) {
+                document.getElementById("lockSection").style.display = "flex";
 
-function isCurrencyValid(text) {
-  for (const fc of FOREIGN_CURRENCIES) {
-    if (text.includes(fc)) return false;
-  }
-  return true;
-}
+                var interval = setInterval(function () {
+                    var elapsed = Math.floor((Date.now() - lockTs) / 1000);
+                    var remaining = Math.max(0, LOCK_SEC - elapsed);
 
-function extractAmount(text) {
-  const patterns = [
-    /(?:TSH|TZS|T\.?\s*S\.?\s*H?)\s*[:.\s]*([\d,]+(?:\.\d+)?)/i,
-    /([\d,]+(?:\.\d+)?)\s*(?:TSH|TZS|T\.?\s*S\.?\s*H?)/i,
-    /(?:AMOUNT|AMNT|TOTAL|SUM|PAID)\s*[:.\s]*([\d,]+(?:\.\d+)?)/i
-  ];
-  for (const p of patterns) {
-    const m = text.match(p);
-    if (m) return parseFloat(m[1].replace(/,/g, ""));
-  }
-  const nums = text.match(/\b[\d,]{3,}\b/g);
-  if (nums) {
-    const parsed = nums.map(n => parseInt(n.replace(/,/g, ""))).filter(n => n > 0);
-    if (parsed.length) return Math.max(...parsed);
-  }
-  return 0;
-}
+                    if (remaining <= 0) {
+                        clearInterval(interval);
+                        waitDisplay.textContent = "00:00:00";
+                        waitBar.style.width = "0%";
+                        localStorage.removeItem(LOCK_KEY);
+                        return;
+                    }
 
-function calcSeconds(amount) {
-  return Math.floor((amount / 500) * 3600);
-}
-
-function showSuccess(amount, seconds) {
-  const tzsDisplay = amount.toLocaleString() + " TZS";
-  const hrs = Math.floor(seconds / 3600);
-  const mins = Math.floor((seconds % 3600) / 60);
-  const timeStr = hrs > 0 ? hrs + "h " + mins + "m" : mins + "m";
-  document.getElementById("successAmount").textContent =
-    "Paid: " + tzsDisplay + "  •  Session: " + timeStr;
-  document.getElementById("successOverlay").style.display = "flex";
-  localStorage.setItem("sessionEnd", String(Date.now() + seconds * 1000));
-  localStorage.setItem("sessionAmount", tzsDisplay);
-  setTimeout(() => { window.location.href = "menu.html"; }, 2800);
-}
-
-function showFail(reason, redirectMs) {
-  const ms = redirectMs || 3500;
-  document.getElementById("failReason").textContent = reason || "";
-  const container = document.getElementById("failChecks");
-  container.innerHTML = "";
-  Object.keys(results).forEach(key => {
-    const r = results[key];
-    const div = document.createElement("div");
-    div.className = "fail-check-item " + (r.pass ? "pass" : "fail");
-    div.innerHTML = (r.pass ? "✅ " : "❌ ") + r.label;
-    container.appendChild(div);
-  });
-  document.getElementById("failOverlay").style.display = "flex";
-  setTimeout(() => { window.location.href = "free.html"; }, ms);
-}
-
-/* ============================================================
-   MAIN VERIFICATION FLOW
-   ============================================================ */
-async function submitReceipt() {
-  if (!selectedFile) { alert("No receipt selected!"); return; }
-
-  const loadingOverlay = document.getElementById("loadingOverlay");
-  const loadingTitle   = document.getElementById("loadingTitle");
-  resetAllCk();
-  loadingOverlay.style.display = "flex";
-  loadingTitle.textContent = "Scanning Image...";
-
-  let objectUrl = null;
-  try {
-    /* --- Load image --- */
-    const img = new Image();
-    objectUrl = URL.createObjectURL(selectedFile);
-    img.src = objectUrl;
-    await new Promise((resolve, reject) => {
-      const t = setTimeout(() => reject(new Error("Timeout")), 8000);
-      img.onload  = () => { clearTimeout(t); resolve(); };
-      img.onerror = () => { clearTimeout(t); reject(new Error("Bad image")); };
-    });
-
-    const MAX_W = 1500;
-    const scale = Math.min(1, MAX_W / img.width);
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    canvas.width  = Math.floor(img.width * scale);
-    canvas.height = Math.floor(img.height * scale);
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-    /* --- Step 1: QR check (instant) --- */
-    let extractedText = "";
-    let isQR = false;
-    const qr = jsQR(imageData.data, canvas.width, canvas.height);
-    if (qr && qr.data && qr.data.trim().length > 0) {
-      isQR = true;
-      extractedText = qr.data.trim();
-    }
-
-    /* --- Step 2: If no QR, fast pixel text check --- */
-    if (!isQR) {
-      const hasText = hasTextPixels(imageData);
-
-      if (!hasText) {
-        /* INSTANT REJECT — no receipt, no QR, no text at all.
-           Total time from submit to redirect: ~2.5 seconds max */
-        loadingTitle.textContent = "No receipt or QR code detected";
-        failAllInstant();
-        await delay(1500);
-        loadingOverlay.style.display = "none";
-        showFail("Uploaded image is not a valid receipt or QR code", 2000);
-        return;
-      }
-
-      /* Has potential text — run full OCR */
-      loadingTitle.textContent = "Reading Receipt...";
-      const preCanvas = preprocessImage(canvas);
-      const { data } = await Tesseract.recognize(preCanvas, "eng", {
-        tessedit_pageseg_mode: 6
-      });
-      extractedText = (data.text || "").replace(/\s+/g, " ").trim();
-    }
-
-    /* --- Check if any text was extracted at all --- */
-    results.photoType.pass = isQR || extractedText.length > 0;
-    setCk("photoType", results.photoType.pass ? "pass" : "fail");
-    await delay(200);
-
-    results.textExtract.pass = extractedText.length > 0;
-    setCk("textExtract", results.textExtract.pass ? "pass" : "fail");
-    await delay(200);
-
-    if (!results.photoType.pass || !results.textExtract.pass) {
-      loadingOverlay.style.display = "none";
-      showFail("No readable receipt or QR code found in image", 2000);
-      return;
-    }
-
-    /* --- Remaining checks only if text exists --- */
-    const upperText = extractedText.toUpperCase();
-    const compactText = upperText.replace(/\s+/g, " ");
-
-    setCk("nameMatch", "active");
-    loadingTitle.textContent = "Validating Name...";
-    await delay(300);
-    results.nameMatch.pass = VALID_NAMES.some(n => compactText.includes(n));
-    setCk("nameMatch", results.nameMatch.pass ? "pass" : "fail");
-    await delay(200);
-
-    setCk("phoneMatch", "active");
-    loadingTitle.textContent = "Checking Phone Number...";
-    await delay(300);
-    results.phoneMatch.pass = PHONE_PATTERNS.some(p => p.test(upperText));
-    setCk("phoneMatch", results.phoneMatch.pass ? "pass" : "fail");
-    await delay(200);
-
-    setCk("timeDelay", "active");
-    loadingTitle.textContent = "Validating Timestamp...";
-    await delay(300);
-    results.timeDelay.pass = isTimeValidFromText(compactText);
-    setCk("timeDelay", results.timeDelay.pass ? "pass" : "fail");
-    await delay(200);
-
-    setCk("currency", "active");
-    loadingTitle.textContent = "Checking Currency...";
-    await delay(300);
-    results.currency.pass = isCurrencyValid(upperText);
-    setCk("currency", results.currency.pass ? "pass" : "fail");
-    await delay(200);
-
-    loadingTitle.textContent = "Finalizing...";
-    await delay(400);
-
-    if (Object.values(results).every(r => r.pass)) {
-      const amount = extractAmount(upperText);
-      const seconds = calcSeconds(amount);
-      if (seconds > 0) {
-        loadingOverlay.style.display = "none";
-        showSuccess(amount, seconds);
-      } else {
-        results.currency.pass = false;
-        results.currency.label = "Currency / Amount (TZS)";
-        loadingOverlay.style.display = "none";
-        showFail("Could not extract valid TZS amount", 2000);
-      }
-    } else {
-      loadingOverlay.style.display = "none";
-      showFail("Some checks did not pass", 2000);
-    }
-  } catch (error) {
-    console.error("Verification error:", error);
-    loadingOverlay.style.display = "none";
-    showFail("Error processing image", 2000);
-  } finally {
-    if (objectUrl) URL.revokeObjectURL(objectUrl);
-    selectedFile = null;
-  }
-}
-
-function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-window.onload = () => {
-  const endTime = parseInt(localStorage.getItem("sessionEnd"));
-  if (endTime && Date.now() < endTime) {
-    window.location.href = "menu.html";
-    return;
-  }
-  localStorage.removeItem("sessionEnd");
-  localStorage.removeItem("sessionAmount");
-};
-</script>
+                    var h = Math.floor(remaining / 3600);
+                    var m = Math.floor((remaining % 3600) / 60);
+                    var s = remaining % 60;
+                    waitDisplay.textContent =
+                        String(h).padStart(2, "0") + ":" +
+                        String(m).padStart(2, "0") + ":" +
+                        String(s).padStart(2, "0");
+                    waitBar.style.width = ((remaining / LOCK_SEC) * 100) + "%";
+                }, 1000);
+            }
+        })();
+    </script>
 </body>
 </html>
