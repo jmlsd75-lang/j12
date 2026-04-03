@@ -7,165 +7,130 @@
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:Arial, sans-serif; background:#f4f4f4; min-height:100vh; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#f4f4f4;min-height:100vh}
 
-/* ========== PAGE 1: PAY OPTIONS ========== */
-#payOptionsPage {
-  position:fixed; top:0; left:0; width:100%; height:100%;
-  background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  display:flex; flex-direction:column; justify-content:center; align-items:center;
-  padding:20px; overflow-y:auto;
+#payOptionsPage{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding:20px;overflow-y:auto
 }
-.pay-title {
-  color:#fff; font-size:24px; font-weight:bold; margin-bottom:20px;
-  text-align:center; text-transform:uppercase; letter-spacing:2px;
+.pay-title{color:#fff;font-size:24px;font-weight:bold;margin-bottom:20px;text-align:center;text-transform:uppercase;letter-spacing:2px}
+.pay-subtitle{color:#aaa;font-size:14px;margin-bottom:25px}
+.payment-methods{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:400px;margin-bottom:25px}
+.method-card{
+  background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);
+  border-radius:10px;padding:12px;text-align:center;color:#fff;
+  font-size:13px;font-weight:bold;transition:0.3s
 }
-.pay-subtitle {
-  color:#aaa; font-size:14px; margin-bottom:25px;
+.method-card:hover{background:rgba(255,255,255,0.2);transform:scale(1.02)}
+.method-card.airtel{border-left:4px solid #ff0000}
+.method-card.vodacom{border-left:4px solid #ff0000}
+.method-card.halotel{border-left:4px solid #00a651}
+.method-card.mix{border-left:4px solid #ffd700}
+.method-card.ttcl{border-left:4px solid #007bff}
+.method-card.crdb{border-left:4px solid #003366}
+.method-card.nmb{border-left:4px solid #ff6600}
+.method-card.nbc{border-left:4px solid #dc3545}
+.method-card.intl{border-left:4px solid #6f42c1;grid-column:span 2}
+.upload-text{
+  color:#ffd700;font-size:16px;font-weight:bold;margin:20px 0;
+  text-align:center;padding:15px;background:rgba(255,215,0,0.1);
+  border-radius:10px;border:2px dashed #ffd700;width:100%;max-width:400px
 }
-.payment-methods {
-  display:grid; grid-template-columns:1fr 1fr; gap:10px;
-  width:100%; max-width:400px; margin-bottom:25px;
-}
-.method-card {
-  background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);
-  border-radius:10px; padding:12px; text-align:center; color:#fff;
-  font-size:13px; font-weight:bold; transition:0.3s;
-}
-.method-card:hover { background:rgba(255,255,255,0.2); transform:scale(1.02); }
-.method-card.airtel { border-left:4px solid #ff0000; }
-.method-card.vodacom { border-left:4px solid #ff0000; }
-.method-card.halotel { border-left:4px solid #00a651; }
-.method-card.mix { border-left:4px solid #ffd700; }
-.method-card.ttcl { border-left:4px solid #007bff; }
-.method-card.crdb { border-left:4px solid #003366; }
-.method-card.nmb { border-left:4px solid #ff6600; }
-.method-card.nbc { border-left:4px solid #dc3545; }
-.method-card.intl { border-left:4px solid #6f42c1; grid-column:span 2; }
-.upload-text {
-  color:#ffd700; font-size:16px; font-weight:bold; margin:20px 0;
-  text-align:center; padding:15px; background:rgba(255,215,0,0.1);
-  border-radius:10px; border:2px dashed #ffd700; width:100%; max-width:400px;
-}
-.receipt-info {
-  background:rgba(0,0,0,0.3); border-radius:15px; padding:20px;
-  width:100%; max-width:400px; margin-bottom:25px;
-}
-.receipt-number {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.1);
-}
-.receipt-number:last-child { border-bottom:none; }
-.number-label { color:#aaa; font-size:13px; }
-.number-value { color:#fff; font-size:15px; font-weight:bold; }
-.number-value.mix-color { color:#ffd700; }
-.number-value.airtel-color { color:#ff4444; }
-.page-buttons {
-  display:flex; gap:15px; width:100%; max-width:400px;
-}
-.btn {
-  flex:1; padding:15px; border:none; border-radius:10px;
-  font-size:16px; font-weight:bold; cursor:pointer; transition:0.3s;
-}
-.btn:hover { transform:translateY(-2px); box-shadow:0 5px 15px rgba(0,0,0,0.3); }
-.btn-back { background:#6c757d; color:#fff; }
-.btn-next { background:#28a745; color:#fff; }
+.receipt-info{background:rgba(0,0,0,0.3);border-radius:15px;padding:20px;width:100%;max-width:400px;margin-bottom:25px}
+.receipt-number{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.1)}
+.receipt-number:last-child{border-bottom:none}
+.number-label{color:#aaa;font-size:13px}
+.number-value{color:#fff;font-size:15px;font-weight:bold}
+.number-value.mix-color{color:#ffd700}
+.number-value.airtel-color{color:#ff4444}
+.page-buttons{display:flex;gap:15px;width:100%;max-width:400px}
+.btn{flex:1;padding:15px;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;transition:0.3s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,0.3)}
+.btn-back{background:#6c757d;color:#fff}
+.btn-next{background:#28a745;color:#fff}
 
-/* ========== PAGE 2: CAMERA/PHOTOS SELECTION ========== */
-#cameraSelectPage {
-  position:fixed; top:0; left:0; width:100%; height:100%;
-  background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  display:none; flex-direction:column; justify-content:center; align-items:center;
-  gap:20px; padding:20px;
+#cameraSelectPage{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);
+  display:none;flex-direction:column;justify-content:center;align-items:center;gap:20px;padding:20px
 }
-.select-title {
-  color:#fff; font-size:22px; font-weight:bold; margin-bottom:10px;
+.select-title{color:#fff;font-size:22px;font-weight:bold;margin-bottom:10px}
+.select-subtitle{color:#aaa;font-size:14px;margin-bottom:20px}
+.select-buttons{display:flex;flex-direction:column;gap:15px;width:100%;max-width:300px}
+.btn-camera,.btn-photos,.btn-back-select{
+  padding:20px;color:#fff;border:none;border-radius:12px;
+  font-size:18px;font-weight:bold;cursor:pointer;transition:0.3s
 }
-.select-subtitle {
-  color:#aaa; font-size:14px; margin-bottom:20px;
-}
-.select-buttons { display:flex; flex-direction:column; gap:15px; width:100%; max-width:300px; }
-.btn-camera {
-  padding:20px; background:#007bff; color:#fff; border:none;
-  border-radius:12px; font-size:18px; font-weight:bold; cursor:pointer;
-  display:flex; align-items:center; justify-content:center; gap:10px; transition:0.3s;
-}
-.btn-camera:hover { background:#0056b3; transform:scale(1.02); }
-.btn-photos {
-  padding:20px; background:#17a2b8; color:#fff; border:none;
-  border-radius:12px; font-size:18px; font-weight:bold; cursor:pointer;
-  display:flex; align-items:center; justify-content:center; gap:10px; transition:0.3s;
-}
-.btn-photos:hover { background:#117a8b; transform:scale(1.02); }
-.btn-back-select {
-  padding:20px; background:#dc3545; color:#fff; border:none;
-  border-radius:12px; font-size:18px; font-weight:bold; cursor:pointer; transition:0.3s;
-}
-.btn-back-select:hover { background:#c82333; transform:scale(1.02); }
+.btn-camera{background:#007bff}
+.btn-camera:hover{background:#0056b3;transform:scale(1.02)}
+.btn-photos{background:#17a2b8}
+.btn-photos:hover{background:#117a8b;transform:scale(1.02)}
+.btn-back-select{background:#dc3545}
+.btn-back-select:hover{background:#c82333;transform:scale(1.02)}
 
-/* ========== PAGE 3: PREVIEW ========== */
-#previewPage {
-  position:fixed; top:0; left:0; width:100%; height:100%;
-  background:#fff; display:none; flex-direction:column;
-  justify-content:center; align-items:center; padding:20px;
+#previewPage{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:#fff;display:none;flex-direction:column;
+  justify-content:center;align-items:center;padding:20px
 }
-.preview-title {
-  color:#333; font-size:18px; font-weight:bold; margin-bottom:15px;
-}
-#previewImage {
-  max-width:90%; max-height:55%; border-radius:12px;
-  box-shadow:0 8px 25px rgba(0,0,0,0.2); margin-bottom:20px;
-}
-.preview-buttons { display:flex; gap:15px; }
-.btn-cancel {
-  padding:15px 30px; background:#dc3545; color:#fff; border:none;
-  border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; transition:0.3s;
-}
-.btn-cancel:hover { background:#c82333; }
-.btn-submit {
-  padding:15px 30px; background:#28a745; color:#fff; border:none;
-  border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; transition:0.3s;
-}
-.btn-submit:hover { background:#218838; }
+.preview-title{color:#333;font-size:18px;font-weight:bold;margin-bottom:15px}
+#previewImage{max-width:90%;max-height:55%;border-radius:12px;box-shadow:0 8px 25px rgba(0,0,0,0.2);margin-bottom:20px}
+.preview-buttons{display:flex;gap:15px}
+.btn-cancel,.btn-submit{padding:15px 30px;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;transition:0.3s}
+.btn-cancel{background:#dc3545}
+.btn-cancel:hover{background:#c82333}
+.btn-submit{background:#28a745}
+.btn-submit:hover{background:#218838}
 
-/* ========== LOADING OVERLAY ========== */
-#loadingOverlay {
-  position:fixed; top:0; left:0; width:100%; height:100%;
-  background:rgba(0,0,0,0.9); display:none; justify-content:center;
-  align-items:center; flex-direction:column; z-index:1000;
+#timerPage{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:linear-gradient(135deg,#0d0d0d 0%,#1a1a2e 50%,#0f3460 100%);
+  display:none;flex-direction:column;justify-content:center;align-items:center;z-index:500;padding:20px
 }
-.loader {
-  border:8px solid #333; border-top:8px solid #ffd700;
-  border-radius:50%; width:60px; height:60px;
-  animation:spin 1s linear infinite;
+.timer-success-icon{font-size:60px;margin-bottom:15px;animation:pulse 2s infinite}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+.timer-title{color:#28a745;font-size:20px;font-weight:bold;margin-bottom:5px}
+.timer-subtitle{color:#aaa;font-size:14px;margin-bottom:30px}
+#timerDisplay{
+  font-size:70px;font-weight:bold;color:#fff;
+  font-family:'Courier New',monospace;
+  background:rgba(0,0,0,0.4);padding:20px 40px;
+  border-radius:15px;border:2px solid rgba(40,167,69,0.5);
+  margin-bottom:20px;text-shadow:0 0 20px rgba(40,167,69,0.5)
 }
-@keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
-#loadingText { color:#fff; margin-top:20px; font-size:16px; }
+.timer-info{color:#888;font-size:13px;margin-top:10px}
+.timer-amount{color:#ffd700;font-size:18px;font-weight:bold;margin-top:5px}
 
-/* ========== SUCCESS/FAIL OVERLAY ========== */
-#resultOverlay {
-  position:fixed; top:0; left:0; width:100%; height:100%;
-  display:none; justify-content:center; align-items:center;
-  flex-direction:column; z-index:2000;
+#loadingOverlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.9);display:none;justify-content:center;
+  align-items:center;flex-direction:column;z-index:1000
 }
-#resultOverlay.success { background:rgba(40,167,69,0.95); }
-#resultOverlay.fail { background:rgba(220,53,69,0.95); }
-.result-icon { font-size:80px; margin-bottom:20px; }
-.result-text { color:#fff; font-size:24px; font-weight:bold; margin-bottom:10px; }
-.result-sub { color:rgba(255,255,255,0.8); font-size:14px; }
+.loader{border:8px solid #333;border-top:8px solid #ffd700;border-radius:50%;width:60px;height:60px;animation:spin 1s linear infinite}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+#loadingText{color:#fff;margin-top:20px;font-size:16px}
 
-/* Hidden inputs */
-.hidden-input { display:none; }
+#failOverlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(220,53,69,0.95);display:none;justify-content:center;
+  align-items:center;flex-direction:column;z-index:2000
+}
+.fail-icon{font-size:80px;margin-bottom:20px}
+.fail-text{color:#fff;font-size:24px;font-weight:bold;margin-bottom:10px}
+.fail-sub{color:rgba(255,255,255,0.8);font-size:14px}
+
+.hidden-input{display:none}
 </style>
 </head>
 <body>
 
-<!-- HIDDEN FILE INPUTS -->
 <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden-input">
 <input type="file" id="photosInput" accept="image/*" class="hidden-input">
 
-<!-- ========== PAGE 1: PAY OPTIONS ========== -->
+<!-- PAGE 1: PAY OPTIONS -->
 <div id="payOptionsPage">
   <div class="pay-title">Pay Through</div>
   <div class="pay-subtitle">Mobile Money & Banking Apps</div>
@@ -201,11 +166,10 @@ body { font-family:Arial, sans-serif; background:#f4f4f4; min-height:100vh; }
   </div>
 </div>
 
-<!-- ========== PAGE 2: CAMERA/PHOTOS SELECTION ========== -->
+<!-- PAGE 2: CAMERA/PHOTOS SELECTION -->
 <div id="cameraSelectPage">
   <div class="select-title">Upload Receipt</div>
   <div class="select-subtitle">Choose how to upload your payment receipt</div>
-  
   <div class="select-buttons">
     <button class="btn-camera" onclick="openCamera()">📸 CAMERA</button>
     <button class="btn-photos" onclick="openPhotos()">🖼️ PHOTOS</button>
@@ -213,7 +177,7 @@ body { font-family:Arial, sans-serif; background:#f4f4f4; min-height:100vh; }
   </div>
 </div>
 
-<!-- ========== PAGE 3: PREVIEW ========== -->
+<!-- PAGE 3: PREVIEW -->
 <div id="previewPage">
   <div class="preview-title">Receipt Preview</div>
   <img id="previewImage" src="" alt="Receipt Preview">
@@ -223,24 +187,33 @@ body { font-family:Arial, sans-serif; background:#f4f4f4; min-height:100vh; }
   </div>
 </div>
 
-<!-- ========== LOADING OVERLAY ========== -->
+<!-- TIMER PAGE -->
+<div id="timerPage">
+  <div class="timer-success-icon">✅</div>
+  <div class="timer-title">PAYMENT VERIFIED!</div>
+  <div class="timer-subtitle">Your session is now active</div>
+  <div id="timerDisplay">00:00:00</div>
+  <div class="timer-amount" id="timerAmount"></div>
+  <div class="timer-info">When timer reaches 00:00:00 you will return to free page</div>
+</div>
+
+<!-- LOADING OVERLAY -->
 <div id="loadingOverlay">
   <div class="loader"></div>
   <p id="loadingText">Processing Payment...</p>
 </div>
 
-<!-- ========== RESULT OVERLAY ========== -->
-<div id="resultOverlay">
-  <div class="result-icon" id="resultIcon"></div>
-  <div class="result-text" id="resultText"></div>
-  <div class="result-sub" id="resultSub"></div>
+<!-- FAIL OVERLAY -->
+<div id="failOverlay">
+  <div class="fail-icon">❌</div>
+  <div class="fail-text">PAYMENT INVALID!</div>
+  <div class="fail-sub">Redirecting back...</div>
 </div>
 
 <script>
-// ============ GLOBAL VARIABLES ============
 let selectedFile = null;
+let timerInterval = null;
 
-// ============ VALIDATION DATA ============
 const VALID_NAMES = [
   "JAMAL SAID KAZEMBE",
   "JAMAL SAID",
@@ -258,6 +231,7 @@ function showPage(pageId) {
   document.getElementById("payOptionsPage").style.display = "none";
   document.getElementById("cameraSelectPage").style.display = "none";
   document.getElementById("previewPage").style.display = "none";
+  document.getElementById("timerPage").style.display = "none";
   document.getElementById(pageId).style.display = "flex";
 }
 
@@ -284,7 +258,6 @@ function openPhotos() {
 
 function handleFile(file) {
   if (!file) return;
-  
   selectedFile = file;
   const reader = new FileReader();
   reader.onload = (e) => {
@@ -292,8 +265,6 @@ function handleFile(file) {
     showPage("previewPage");
   };
   reader.readAsDataURL(file);
-  
-  // Reset inputs
   document.getElementById("cameraInput").value = "";
   document.getElementById("photosInput").value = "";
 }
@@ -312,6 +283,42 @@ function cancelPreview() {
   showPage("cameraSelectPage");
 }
 
+// ============ TIMER ============
+function startTimer(totalSeconds, amountTZS) {
+  clearInterval(timerInterval);
+  
+  const endTime = Date.now() + totalSeconds * 1000;
+  localStorage.setItem("sessionEnd", String(endTime));
+  
+  document.getElementById("timerAmount").textContent = "Paid: " + amountTZS.toLocaleString() + " TZS";
+  
+  timerInterval = setInterval(() => {
+    const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+    
+    if (remaining <= 0) {
+      clearInterval(timerInterval);
+      localStorage.removeItem("sessionEnd");
+      document.getElementById("timerDisplay").textContent = "00:00:00";
+      
+      // REDIRECT TO FREE.HTML WHEN TIMER REACHES 00:00:00
+      setTimeout(() => {
+        window.location.href = "free.html";
+      }, 1500);
+      return;
+    }
+    
+    const hrs = Math.floor(remaining / 3600);
+    const mins = Math.floor((remaining % 3600) / 60);
+    const secs = remaining % 60;
+    
+    document.getElementById("timerDisplay").textContent =
+      String(hrs).padStart(2, "0") + ":" +
+      String(mins).padStart(2, "0") + ":" +
+      String(secs).padStart(2, "0");
+      
+  }, 1000);
+}
+
 // ============ IMAGE PREPROCESSING ============
 function preprocessImage(canvas) {
   const ctx = canvas.getContext("2d");
@@ -319,7 +326,6 @@ function preprocessImage(canvas) {
   const data = imageData.data;
   let totalBrightness = 0;
   
-  // Convert to grayscale
   for (let i = 0; i < data.length; i += 4) {
     const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
     data[i] = avg;
@@ -330,7 +336,6 @@ function preprocessImage(canvas) {
   
   const avgBrightness = totalBrightness / (data.length / 4);
   
-  // Apply threshold
   for (let i = 0; i < data.length; i += 4) {
     let val = data[i];
     if (avgBrightness < 128) val = 255 - val;
@@ -348,20 +353,14 @@ function preprocessImage(canvas) {
 // ============ TIME VALIDATION ============
 function isTimeValidFromText(text) {
   const clean = text.toUpperCase().replace(/\s+/g, " ");
-  
-  // Match time patterns
   const match = clean.match(/\b(\d{1,2})[:. ](\d{2})([:. ](\d{2}))?\s?(AM|PM)?\b/);
   
-  if (!match) {
-    console.log("❌ No time found in receipt");
-    return false;
-  }
+  if (!match) return false;
   
   let hours = parseInt(match[1]);
   const minutes = parseInt(match[2]);
   const ampm = match[5];
   
-  // Convert AM/PM to 24h
   if (ampm) {
     if (ampm === "PM" && hours < 12) hours += 12;
     if (ampm === "AM" && hours === 12) hours = 0;
@@ -373,18 +372,11 @@ function isTimeValidFromText(text) {
   receipt.setMinutes(minutes);
   receipt.setSeconds(0);
   
-  // If receipt time is in future, assume it's from yesterday
   if (receipt > now) {
     receipt.setDate(receipt.getDate() - 1);
   }
   
-  const diff = Math.abs((now - receipt) / 60000); // diff in minutes
-  
-  console.log("⏱ Current time:", now);
-  console.log("⏱ Receipt time:", receipt);
-  console.log("⏱ Difference (mins):", diff);
-  
-  // Valid if within 10 minutes
+  const diff = Math.abs((now - receipt) / 60000);
   return diff <= 10;
 }
 
@@ -399,7 +391,6 @@ function detectCurrency(text) {
     };
   }
   
-  // Default to TZS if no currency symbol found
   const nums = text.match(/\d{3,7}/g);
   return {
     currency: "TZS",
@@ -412,44 +403,20 @@ async function convertToTZS(amount, currency) {
   if (currency === "TZS" || currency === "TSH") return amount;
   
   try {
-    const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${currency}`);
+    const res = await fetch("https://api.exchangerate-api.com/v4/latest/" + currency);
     const data = await res.json();
     const rate = data.rates["TZS"];
     return rate ? amount * rate : 0;
   } catch (e) {
-    console.error("Conversion error:", e);
     return 0;
   }
 }
 
-// ============ SHOW RESULT ============
-function showResult(success) {
-  const overlay = document.getElementById("resultOverlay");
-  const icon = document.getElementById("resultIcon");
-  const text = document.getElementById("resultText");
-  const sub = document.getElementById("resultSub");
-  
-  if (success) {
-    overlay.className = "success";
-    icon.textContent = "✅";
-    text.textContent = "PAYMENT VERIFIED!";
-    sub.textContent = "Redirecting to menu...";
-  } else {
-    overlay.className = "fail";
-    icon.textContent = "❌";
-    text.textContent = "PAYMENT INVALID!";
-    sub.textContent = "Redirecting back...";
-  }
-  
-  overlay.style.display = "flex";
-  
-  // Redirect after delay
+// ============ FAIL REDIRECT ============
+function showFail() {
+  document.getElementById("failOverlay").style.display = "flex";
   setTimeout(() => {
-    if (success) {
-      window.location.href = "menu.html";
-    } else {
-      window.location.href = "free.html";
-    }
+    window.location.href = "free.html";
   }, 2000);
 }
 
@@ -469,18 +436,16 @@ async function submitReceipt() {
   let objectUrl = null;
   
   try {
-    // Load image
     const img = new Image();
     objectUrl = URL.createObjectURL(selectedFile);
     img.src = objectUrl;
     
     await new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error("Image load timeout")), 8000);
+      const timer = setTimeout(() => reject(new Error("Timeout")), 8000);
       img.onload = () => { clearTimeout(timer); resolve(); };
-      img.onerror = () => reject(new Error("Invalid image file"));
+      img.onerror = () => reject(new Error("Invalid image"));
     });
     
-    // Resize image for processing
     const MAX_W = 1500;
     const scale = Math.min(1, MAX_W / img.width);
     const canvas = document.createElement("canvas");
@@ -490,30 +455,22 @@ async function submitReceipt() {
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     
     let detectedText = "";
-    let isQR = false;
     
-    // Try QR code detection first
     loadingText.textContent = "Scanning QR Code...";
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const qr = jsQR(imageData.data, canvas.width, canvas.height);
     
     if (qr && qr.data) {
       detectedText = qr.data;
-      isQR = true;
-      console.log("✅ QR Code Found:", detectedText);
     } else {
-      // Fall back to OCR
       loadingText.textContent = "Reading Receipt Text...";
       preprocessImage(canvas);
-      
       const { data } = await Tesseract.recognize(canvas, "eng", {
         tessedit_pageseg_mode: 6
       });
       detectedText = (data.text || "").replace(/\s+/g, " ").trim();
-      console.log("✅ OCR Text Found:", detectedText);
     }
     
-    // ============ VALIDATION ============
     loadingText.textContent = "Validating Payment...";
     
     const upperText = detectedText.toUpperCase();
@@ -524,7 +481,6 @@ async function submitReceipt() {
     for (const name of VALID_NAMES) {
       if (cleanSearchText.includes(name)) {
         nameFound = true;
-        console.log("✅ Name Matched:", name);
         break;
       }
     }
@@ -535,56 +491,80 @@ async function submitReceipt() {
       for (const num of VALID_NUMBERS) {
         if (cleanSearchText.includes(num)) {
           numberFound = true;
-          console.log("✅ Number Matched:", num);
           break;
         }
       }
     }
     
-    // Check time validity
+    // Check time
     let timeValid = isTimeValidFromText(cleanSearchText);
     
-    // Detect currency and amount
+    // Detect amount
     const { currency, amount } = detectCurrency(cleanSearchText);
     const tzsAmount = await convertToTZS(amount, currency);
     
-    // Calculate time based on amount (300 TZS = 1 hour)
+    // Calculate seconds (300 TZS = 1 hour)
     const seconds = Math.floor((tzsAmount / 300) * 3600);
     
-    console.log("💰 Amount:", amount, currency);
-    console.log("💰 TZS Amount:", tzsAmount);
-    console.log("⏱ Time Seconds:", seconds);
-    
-    // Final validation
+    // FINAL CHECK
     if (nameFound && numberFound && timeValid && seconds > 0) {
-      // Store timer data in localStorage
-      const endTime = Date.now() + seconds * 1000;
-      localStorage.setItem("sessionEnd", String(endTime));
-      localStorage.setItem("timerSeconds", String(seconds));
-      
       loadingOverlay.style.display = "none";
-      showResult(true);
+      showPage("timerPage");
+      startTimer(seconds, tzsAmount);
     } else {
-      // Log why it failed
-      console.log("❌ Validation Failed:");
-      console.log("  - Name Found:", nameFound);
-      console.log("  - Number Found:", numberFound);
-      console.log("  - Time Valid:", timeValid);
-      console.log("  - Seconds:", seconds);
-      
       loadingOverlay.style.display = "none";
-      showResult(false);
+      showFail();
     }
     
   } catch (error) {
-    console.error("❌ Error:", error);
+    console.error(error);
     loadingOverlay.style.display = "none";
-    showResult(false);
+    showFail();
   } finally {
     if (objectUrl) URL.revokeObjectURL(objectUrl);
     selectedFile = null;
   }
 }
+
+// ============ CHECK EXISTING TIMER ON LOAD ============
+window.onload = () => {
+  const endTime = parseInt(localStorage.getItem("sessionEnd"));
+  if (endTime && Date.now() < endTime) {
+    const remaining = Math.floor((endTime - Date.now()) / 1000);
+    const hrs = Math.floor(remaining / 3600);
+    const mins = Math.floor((remaining % 3600) / 60);
+    const secs = remaining % 60;
+    const timeStr = String(hrs).padStart(2,"0") + ":" + String(mins).padStart(2,"0") + ":" + String(secs).padStart(2,"0");
+    
+    // Estimate amount from remaining seconds
+    const estimatedTZS = Math.floor((remaining / 3600) * 300);
+    
+    showPage("timerPage");
+    document.getElementById("timerAmount").textContent = "Paid: " + estimatedTZS.toLocaleString() + " TZS";
+    
+    timerInterval = setInterval(() => {
+      const rem = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+      
+      if (rem <= 0) {
+        clearInterval(timerInterval);
+        localStorage.removeItem("sessionEnd");
+        document.getElementById("timerDisplay").textContent = "00:00:00";
+        setTimeout(() => {
+          window.location.href = "free.html";
+        }, 1500);
+        return;
+      }
+      
+      const h = Math.floor(rem / 3600);
+      const m = Math.floor((rem % 3600) / 60);
+      const s = rem % 60;
+      document.getElementById("timerDisplay").textContent =
+        String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+    }, 1000);
+  } else {
+    localStorage.removeItem("sessionEnd");
+  }
+};
 </script>
 </body>
-</html>    
+</html>
