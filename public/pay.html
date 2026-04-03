@@ -426,7 +426,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
     <div class="check-item" id="ck-textExtract"><span class="check-icon">⏳</span>Text Extraction</div>
     <div class="check-item" id="ck-nameMatch"><span class="check-icon">⏳</span>Name Validation</div>
     <div class="check-item" id="ck-phoneMatch"><span class="check-icon">⏳</span>Phone Number Match</div>
-    <div class="check-item" id="ck-txnId"><span class="check-icon">⏳</span>Transaction ID</div>
+    <div class="check-item" id="ck-txnId"><span class="check-icon">⏳</span>Transaction ID / Ref</div>
     <div class="check-item" id="ck-timeDelay"><span class="check-icon">⏳</span>Time Delay (&lt;10 min)</div>
     <div class="check-item" id="ck-currency"><span class="check-icon">⏳</span>Currency (TZS)</div>
   </div>
@@ -483,7 +483,7 @@ const results = {
   textExtract:  { pass: false, label: "Text Extraction" },
   nameMatch:    { pass: false, label: "Name Validation" },
   phoneMatch:   { pass: false, label: "Phone Number Match" },
-  txnId:        { pass: false, label: "Transaction ID" },
+  txnId:        { pass: false, label: "Transaction ID / Ref" },
   timeDelay:    { pass: false, label: "Time Delay (<10 min)" },
   currency:     { pass: false, label: "Currency (TZS)" }
 };
@@ -584,15 +584,20 @@ function preprocessImage(canvas) {
 }
 
 /* ============================================================
-   RULE 5: Transaction ID Detection
+   RULE 5: Transaction ID / REF Detection (All Networks)
    ============================================================ */
 function hasTransactionId(text) {
-  if (/(?:transaction\s*id|tid|txn|ref(?:erence)?|trans\s*id|receipt\s*(?:no|number))\s*[:.\-]?\s*[A-Z0-9]{4,}/i.test(text)) return true;
+  // 1. Look for explicit keywords followed by an alphanumeric code (Handles ID, REF, TRX, TXN, etc.)
+  if (/(?:transaction\s*id|tid|txn|ref(?:erence)?(?:\s*(?:no|number))?|trans\s*id|receipt\s*(?:no|number)|trx|batch|confirmation)\s*[:.\-]?\s*[A-Z0-9]{4,}/i.test(text)) return true;
+
+  // 2. Fallback: Scan for standalone mixed alphanumeric codes typical of TZ networks
   const words = text.replace(/[^\w\s]/g, " ").split(/\s+/);
   for (const w of words) {
     if (w.length >= 8 && /[A-Z]/i.test(w) && /[0-9]/.test(w)) {
       const digits = w.replace(/\D/g, "");
+      // Exclude phone numbers
       if (digits.length === 9 && /^(780|655)/.test(digits)) continue;
+      if (digits.length === 12 && /^(255)/.test(digits)) continue;
       return true;
     }
   }
@@ -775,7 +780,7 @@ async function submitReceipt() {
     await delay(300);
 
     setCk("txnId", "active");
-    loadingTitle.textContent = "Checking Transaction ID...";
+    loadingTitle.textContent = "Checking Transaction ID / Ref...";
     await delay(400);
     results.txnId.pass = hasTransactionId(upperText);
     setCk("txnId", results.txnId.pass ? "pass" : "fail");
@@ -843,3 +848,5 @@ window.onload = () => {
 </script>
 </body>
 </html>
+
+        
