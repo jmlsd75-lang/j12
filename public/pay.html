@@ -17,32 +17,47 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
   display:flex;flex-direction:column;justify-content:center;align-items:center;
   padding:20px;overflow-y:auto
 }
-.pay-header{text-align:center;margin-bottom:16px}
+.pay-header{text-align:center;margin-bottom:14px}
 .pay-title{color:#fff;font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:3px;margin-bottom:6px}
 .pay-subtitle{color:#6b7280;font-size:13px;letter-spacing:1px}
 
-/* ===== USSD WARNING BANNER ===== */
-.ussd-warning{
+/* ===== APP PAYMENT BANNER ===== */
+.app-banner{
   width:100%;max-width:400px;
-  background:linear-gradient(135deg,rgba(255,215,0,0.1),rgba(245,158,11,0.08));
-  border:1.5px solid rgba(255,215,0,0.35);
-  border-radius:10px;padding:12px 16px;
-  display:flex;align-items:center;gap:10px;
-  margin-bottom:18px;animation:warningGlow 2.5s ease-in-out infinite
+  background:linear-gradient(135deg,rgba(40,167,69,0.12),rgba(0,123,255,0.08));
+  border:1.5px solid rgba(40,167,69,0.35);
+  border-radius:12px;padding:14px 16px;
+  margin-bottom:18px
 }
-@keyframes warningGlow{
-  0%,100%{border-color:rgba(255,215,0,0.25);box-shadow:0 0 0 rgba(255,215,0,0)}
-  50%{border-color:rgba(255,215,0,0.55);box-shadow:0 0 18px rgba(255,215,0,0.08)}
+.app-banner-main{
+  color:#34d399;font-size:13px;font-weight:700;
+  letter-spacing:.8px;text-transform:uppercase;
+  margin-bottom:8px;display:flex;align-items:center;gap:8px
 }
-.ussd-warning-icon{
-  width:32px;height:32px;border-radius:8px;
-  background:rgba(255,215,0,0.15);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0
+.app-banner-main svg{width:18px;height:18px;flex-shrink:0}
+.app-banner-examples{
+  display:flex;flex-wrap:wrap;gap:6px
 }
-.ussd-warning-icon svg{width:18px;height:18px}
-.ussd-warning-text{display:flex;flex-direction:column;gap:2px}
-.ussd-warning-main{color:#ffd700;font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase}
-.ussd-warning-sub{color:#b8960f;font-size:11px;font-weight:500;opacity:.85}
+.app-tag{
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+  border-radius:6px;padding:4px 10px;
+  color:#d1d5db;font-size:11px;font-weight:600;
+  display:flex;align-items:center;gap:5px
+}
+.app-tag .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot-red{background:#ed1c24}
+.dot-green{background:#00a651}
+.dot-blue{background:#007bff}
+.dot-orange{background:#ff6600}
+.dot-darkblue{background:#003366}
+.dot-gold{background:#ffd700}
+.app-banner-note{
+  color:#6b7280;font-size:10.5px;font-weight:500;
+  margin-top:8px;padding-top:8px;
+  border-top:1px solid rgba(255,255,255,0.06);
+  display:flex;align-items:center;gap:6px
+}
+.app-banner-note svg{width:13px;height:13px;flex-shrink:0;color:#f87171}
 
 .payment-methods{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:400px;margin-bottom:20px}
 .method-card{
@@ -240,16 +255,30 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
     <div class="pay-subtitle">Mobile Money & Banking Apps</div>
   </div>
 
-  <!-- ===== USSD WARNING BANNER ===== -->
-  <div class="ussd-warning">
-    <div class="ussd-warning-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+  <!-- ===== APP PAYMENT BANNER ===== -->
+  <div class="app-banner">
+    <div class="app-banner-main">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+        <line x1="12" y1="18" x2="12.01" y2="18"/>
       </svg>
+      Pay With Mobile App — Not USSD
     </div>
-    <div class="ussd-warning-text">
-      <span class="ussd-warning-main">Use Mobile App — Not USSD Code</span>
-      <span class="ussd-warning-sub">Open the app directly to send money, don't dial *150# etc.</span>
+    <div class="app-banner-examples">
+      <div class="app-tag"><span class="dot dot-red"></span>M-Pesa App</div>
+      <div class="app-tag"><span class="dot dot-red"></span>Airtel Money App</div>
+      <div class="app-tag"><span class="dot dot-green"></span>Halopesa App</div>
+      <div class="app-tag"><span class="dot dot-darkblue"></span>CRDB Simbank</div>
+      <div class="app-tag"><span class="dot dot-orange"></span>NMB App</div>
+      <div class="app-tag"><span class="dot dot-gold"></span>Mix by Yas</div>
+    </div>
+    <div class="app-banner-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="15" y1="9" x2="9" y2="15"/>
+        <line x1="9" y1="9" x2="15" y2="15"/>
+      </svg>
+      Don't dial *150#, *111#, *100# etc — open the app directly
     </div>
   </div>
   
@@ -426,7 +455,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
     <div class="check-item" id="ck-textExtract"><span class="check-icon">⏳</span>Text Extraction</div>
     <div class="check-item" id="ck-nameMatch"><span class="check-icon">⏳</span>Name Validation</div>
     <div class="check-item" id="ck-phoneMatch"><span class="check-icon">⏳</span>Phone Number Match</div>
-    <div class="check-item" id="ck-txnId"><span class="check-icon">⏳</span>Transaction ID / Ref</div>
     <div class="check-item" id="ck-timeDelay"><span class="check-icon">⏳</span>Time Delay (&lt;10 min)</div>
     <div class="check-item" id="ck-currency"><span class="check-icon">⏳</span>Currency (TZS)</div>
   </div>
@@ -436,7 +464,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
 <div id="successOverlay">
   <div class="success-icon">✓</div>
   <div class="success-title">PAYMENT VERIFIED</div>
-  <div class="success-sub">All 7 checks passed successfully</div>
+  <div class="success-sub">All 6 checks passed successfully</div>
   <div class="success-amount" id="successAmount"></div>
   <div class="success-redirect">Redirecting to menu.html ...</div>
   <div class="success-bar"><div class="success-bar-fill"></div></div>
@@ -453,48 +481,40 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
 <script>
 /* ============================================================
    PAYMENT VERIFICATION ENGINE
-   Rules 1–10 fully implemented
    ============================================================ */
 
 let selectedFile = null;
 
-/* ---------- Rule 3: Valid Names (Exact Match, Case-Insensitive) ---------- */
 const VALID_NAMES = [
   "JAMAL KAZEMBE",
   "JAMAL SAID",
   "JAMAL SAID KAZEMBE"
 ];
 
-/* ---------- Rule 4: Valid Phone Numbers (Spaces Allowed) ---------- */
 const PHONE_PATTERNS = [
   /(?:\+?255\s?)?780\s?526\s?437/,
   /(?:\+?255\s?)?655\s?510\s?714/
 ];
 
-/* ---------- Foreign currency codes to reject (Rule 7) ---------- */
 const FOREIGN_CURRENCIES = [
   "USD","EUR","GBP","KES","UGX","RWF","BIF","ZAR","CNY","JPY",
   "INR","AED","SAR","QAR","OMR","BHD","KWD","MAD","EGP","CDF"
 ];
 
-/* ---------- Verification results storage ---------- */
 const results = {
   photoType:    { pass: false, label: "Photo Type (Receipt/QR)" },
   textExtract:  { pass: false, label: "Text Extraction" },
   nameMatch:    { pass: false, label: "Name Validation" },
   phoneMatch:   { pass: false, label: "Phone Number Match" },
-  txnId:        { pass: false, label: "Transaction ID / Ref" },
   timeDelay:    { pass: false, label: "Time Delay (<10 min)" },
   currency:     { pass: false, label: "Currency (TZS)" }
 };
 
-/* ---------- DOM references for checklist items ---------- */
 const ckEls = {
   photoType:   document.getElementById("ck-photoType"),
   textExtract: document.getElementById("ck-textExtract"),
   nameMatch:   document.getElementById("ck-nameMatch"),
   phoneMatch:  document.getElementById("ck-phoneMatch"),
-  txnId:       document.getElementById("ck-txnId"),
   timeDelay:   document.getElementById("ck-timeDelay"),
   currency:    document.getElementById("ck-currency")
 };
@@ -584,28 +604,7 @@ function preprocessImage(canvas) {
 }
 
 /* ============================================================
-   RULE 5: Transaction ID / REF Detection (All Networks)
-   ============================================================ */
-function hasTransactionId(text) {
-  // 1. Look for explicit keywords followed by an alphanumeric code (Handles ID, REF, TRX, TXN, etc.)
-  if (/(?:transaction\s*id|tid|txn|ref(?:erence)?(?:\s*(?:no|number))?|trans\s*id|receipt\s*(?:no|number)|trx|batch|confirmation)\s*[:.\-]?\s*[A-Z0-9]{4,}/i.test(text)) return true;
-
-  // 2. Fallback: Scan for standalone mixed alphanumeric codes typical of TZ networks
-  const words = text.replace(/[^\w\s]/g, " ").split(/\s+/);
-  for (const w of words) {
-    if (w.length >= 8 && /[A-Z]/i.test(w) && /[0-9]/.test(w)) {
-      const digits = w.replace(/\D/g, "");
-      // Exclude phone numbers
-      if (digits.length === 9 && /^(780|655)/.test(digits)) continue;
-      if (digits.length === 12 && /^(255)/.test(digits)) continue;
-      return true;
-    }
-  }
-  return false;
-}
-
-/* ============================================================
-   RULE 6: Time Delay Check (≤ 10 minutes)
+   TIME DELAY CHECK
    ============================================================ */
 function isTimeValidFromText(text) {
   const clean = text.toUpperCase().replace(/\s+/g, " ");
@@ -628,7 +627,7 @@ function isTimeValidFromText(text) {
 }
 
 /* ============================================================
-   RULE 7: Currency Check
+   CURRENCY CHECK
    ============================================================ */
 function isCurrencyValid(text) {
   for (const fc of FOREIGN_CURRENCIES) {
@@ -658,9 +657,6 @@ function extractAmount(text) {
   return 0;
 }
 
-/* ============================================================
-   RULE 9: TZS Conversion
-   ============================================================ */
 function calcSeconds(amount) {
   return Math.floor((amount / 500) * 3600);
 }
@@ -700,7 +696,7 @@ function showFail() {
 }
 
 /* ============================================================
-   RULE 8 & 10: MAIN VERIFICATION FLOW
+   MAIN VERIFICATION FLOW
    ============================================================ */
 async function submitReceipt() {
   if (!selectedFile) { alert("No receipt selected!"); return; }
@@ -779,13 +775,6 @@ async function submitReceipt() {
     setCk("phoneMatch", results.phoneMatch.pass ? "pass" : "fail");
     await delay(300);
 
-    setCk("txnId", "active");
-    loadingTitle.textContent = "Checking Transaction ID / Ref...";
-    await delay(400);
-    results.txnId.pass = hasTransactionId(upperText);
-    setCk("txnId", results.txnId.pass ? "pass" : "fail");
-    await delay(300);
-
     setCk("timeDelay", "active");
     loadingTitle.textContent = "Validating Timestamp...";
     await delay(400);
@@ -848,5 +837,3 @@ window.onload = () => {
 </script>
 </body>
 </html>
-
-        
