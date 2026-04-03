@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pay - Jamal Said Kazembe</title>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:Arial, sans-serif; background:#f4f4f4; min-height:100vh; }
+
+/* ========== PAGE 1: PAY OPTIONS ========== */
+#payOptionsPage {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  padding:20px; overflow-y:auto;
+}
+.pay-title {
+  color:#fff; font-size:24px; font-weight:bold; margin-bottom:20px;
+  text-align:center; text-transform:uppercase; letter-spacing:2px;
+}
+.pay-subtitle {
+  color:#aaa; font-size:14px; margin-bottom:25px;
+}
+.payment-methods {
+  display:grid; grid-template-columns:1fr 1fr; gap:10px;
+  width:100%; max-width:400px; margin-bottom:25px;
+}
+.method-card {
+  background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);
+  border-radius:10px; padding:12px; text-align:center; color:#fff;
+  font-size:13px; font-weight:bold; transition:0.3s;
+}
+.method-card:hover { background:rgba(255,255,255,0.2); transform:scale(1.02); }
+.method-card.airtel { border-left:4px solid #ff0000; }
+.method-card.vodacom { border-left:4px solid #ff0000; }
+.method-card.halotel { border-left:4px solid #00a651; }
+.method-card.mix { border-left:4px solid #ffd700; }
+.method-card.ttcl { border-left:4px solid #007bff; }
+.method-card.crdb { border-left:4px solid #003366; }
+.method-card.nmb { border-left:4px solid #ff6600; }
+.method-card.nbc { border-left:4px solid #dc3545; }
+.method-card.intl { border-left:4px solid #6f42c1; grid-column:span 2; }
+.upload-text {
+  color:#ffd700; font-size:16px; font-weight:bold; margin:20px 0;
+  text-align:center; padding:15px; background:rgba(255,215,0,0.1);
+  border-radius:10px; border:2px dashed #ffd700; width:100%; max-width:400px;
+}
+.receipt-info {
+  background:rgba(0,0,0,0.3); border-radius:15px; padding:20px;
+  width:100%; max-width:400px; margin-bottom:25px;
+}
+.receipt-number {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.1);
+}
+.receipt-number:last-child { border-bottom:none; }
+.number-label { color:#aaa; font-size:13px; }
+.number-value { color:#fff; font-size:15px; font-weight:bold; }
+.number-value.mix-color { color:#ffd700; }
+.number-value.airtel-color { color:#ff4444; }
+.page-buttons {
+  display:flex; gap:15px; width:100%; max-width:400px;
+}
+.btn {
+  flex:1; padding:15px; border:none; border-radius:10px;
+  font-size:16px; font-weight:bold; cursor:pointer; transition:0.3s;
+}
+.btn:hover { transform:translateY(-2px); box-shadow:0 5px 15px rgba(0,0,0,0.3); }
+.btn-back { background:#6c757d; color:#fff; }
+.btn-next { background:#28a745; color:#fff; }
+
+/* ========== PAGE 2: CAMERA/PHOTOS SELECTION ========== */
+#cameraSelectPage {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  display:none; flex-direction:column; justify-content:center; align-items:center;
+  gap:20px; padding:20px;
+}
+.select-title {
+  color:#fff; font-size:22px; font-weight:bold; margin-bottom:10px;
+}
+.select-subtitle {
+  color:#aaa; font-size:14px; margin-bottom:20px;
+}
+.select-buttons { display:flex; flex-direction:column; gap:15px; width:100%; max-width:300px; }
+.btn-camera {
+  padding:20px; background:#007bff; color:#fff; border:none;
+  border-radius:12px; font-size:18px; font-weight:bold; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:10px; transition:0.3s;
+}
+.btn-camera:hover { background:#0056b3; transform:scale(1.02); }
+.btn-photos {
+  padding:20px; background:#17a2b8; color:#fff; border:none;
+  border-radius:12px; font-size:18px; font-weight:bold; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:10px; transition:0.3s;
+}
+.btn-photos:hover { background:#117a8b; transform:scale(1.02); }
+.btn-back-select {
+  padding:20px; background:#dc3545; color:#fff; border:none;
+  border-radius:12px; font-size:18px; font-weight:bold; cursor:pointer; transition:0.3s;
+}
+.btn-back-select:hover { background:#c82333; transform:scale(1.02); }
+
+/* ========== PAGE 3: PREVIEW ========== */
+#previewPage {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:#fff; display:none; flex-direction:column;
+  justify-content:center; align-items:center; padding:20px;
+}
+.preview-title {
+  color:#333; font-size:18px; font-weight:bold; margin-bottom:15px;
+}
+#previewImage {
+  max-width:90%; max-height:55%; border-radius:12px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.2); margin-bottom:20px;
+}
+.preview-buttons { display:flex; gap:15px; }
+.btn-cancel {
+  padding:15px 30px; background:#dc3545; color:#fff; border:none;
+  border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; transition:0.3s;
+}
+.btn-cancel:hover { background:#c82333; }
+.btn-submit {
+  padding:15px 30px; background:#28a745; color:#fff; border:none;
+  border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer; transition:0.3s;
+}
+.btn-submit:hover { background:#218838; }
+
+/* ========== LOADING OVERLAY ========== */
+#loadingOverlay {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:rgba(0,0,0,0.9); display:none; justify-content:center;
+  align-items:center; flex-direction:column; z-index:1000;
+}
+.loader {
+  border:8px solid #333; border-top:8px solid #ffd700;
+  border-radius:50%; width:60px; height:60px;
+  animation:spin 1s linear infinite;
+}
+@keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+#loadingText { color:#fff; margin-top:20px; font-size:16px; }
+
+/* ========== SUCCESS/FAIL OVERLAY ========== */
+#resultOverlay {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  display:none; justify-content:center; align-items:center;
+  flex-direction:column; z-index:2000;
+}
+#resultOverlay.success { background:rgba(40,167,69,0.95); }
+#resultOverlay.fail { background:rgba(220,53,69,0.95); }
+.result-icon { font-size:80px; margin-bottom:20px; }
+.result-text { color:#fff; font-size:24px; font-weight:bold; margin-bottom:10px; }
+.result-sub { color:rgba(255,255,255,0.8); font-size:14px; }
+
+/* Hidden inputs */
+.hidden-input { display:none; }
+</style>
+</head>
+<body>
+
+<!-- HIDDEN FILE INPUTS -->
+<input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden-input">
+<input type="file" id="photosInput" accept="image/*" class="hidden-input">
+
+<!-- ========== PAGE 1: PAY OPTIONS ========== -->
+<div id="payOptionsPage">
+  <div class="pay-title">Pay Through</div>
+  <div class="pay-subtitle">Mobile Money & Banking Apps</div>
+  
+  <div class="payment-methods">
+    <div class="method-card airtel">📱 Airtel Money</div>
+    <div class="method-card vodacom">📱 Vodacom M-Pesa</div>
+    <div class="method-card halotel">📱 Halotel Halopesa</div>
+    <div class="method-card mix">💰 Mix by Yas</div>
+    <div class="method-card ttcl">📱 TTCL</div>
+    <div class="method-card crdb">🏦 CRDB Bank App</div>
+    <div class="method-card nmb">🏦 NMB Bank App</div>
+    <div class="method-card nbc">🏦 NBC Bank App</div>
+    <div class="method-card intl">🌐 Other International Bank Apps</div>
+  </div>
+  
+  <div class="upload-text">📷 UPLOAD RECEIPT AFTER PAYMENT</div>
+  
+  <div class="receipt-info">
+    <div class="receipt-number">
+      <span class="number-label">Mix by Yas</span>
+      <span class="number-value mix-color">+255 655 510 714</span>
+    </div>
+    <div class="receipt-number">
+      <span class="number-label">Airtel Money</span>
+      <span class="number-value airtel-color">+255 780 526 437</span>
+    </div>
+  </div>
+  
+  <div class="page-buttons">
+    <button class="btn btn-back" onclick="goBack()">⬅ BACK</button>
+    <button class="btn btn-next" onclick="goNext()">NEXT ➡</button>
+  </div>
+</div>
+
+<!-- ========== PAGE 2: CAMERA/PHOTOS SELECTION ========== -->
+<div id="cameraSelectPage">
+  <div class="select-title">Upload Receipt</div>
+  <div class="select-subtitle">Choose how to upload your payment receipt</div>
+  
+  <div class="select-buttons">
+    <button class="btn-camera" onclick="openCamera()">📸 CAMERA</button>
+    <button class="btn-photos" onclick="openPhotos()">🖼️ PHOTOS</button>
+    <button class="btn-back-select" onclick="goBackToPayOptions()">⬅ BACK</button>
+  </div>
+</div>
+
+<!-- ========== PAGE 3: PREVIEW ========== -->
+<div id="previewPage">
+  <div class="preview-title">Receipt Preview</div>
+  <img id="previewImage" src="" alt="Receipt Preview">
+  <div class="preview-buttons">
+    <button class="btn-cancel" onclick="cancelPreview()">✖ CANCEL</button>
+    <button class="btn-submit" onclick="submitReceipt()">✓ SUBMIT</button>
+  </div>
+</div>
+
+<!-- ========== LOADING OVERLAY ========== -->
+<div id="loadingOverlay">
+  <div class="loader"></div>
+  <p id="loadingText">Processing Payment...</p>
+</div>
+
+<!-- ========== RESULT OVERLAY ========== -->
+<div id="resultOverlay">
+  <div class="result-icon" id="resultIcon"></div>
+  <div class="result-text" id="resultText"></div>
+  <div class="result-sub" id="resultSub"></div>
+</div>
+
+<script>
+// ============ GLOBAL VARIABLES ============
+let selectedFile = null;
+
+// ============ VALIDATION DATA ============
+const VALID_NAMES = [
+  "JAMAL SAID KAZEMBE",
+  "JAMAL SAID",
+  "JAMAL KAZEMBE",
+  "JAMALI SAIDI KAZEMBE"
+];
+
+const VALID_NUMBERS = [
+  "655510714",
+  "780526437"
+];
+
+// ============ PAGE NAVIGATION ============
+function showPage(pageId) {
+  document.getElementById("payOptionsPage").style.display = "none";
+  document.getElementById("cameraSelectPage").style.display = "none";
+  document.getElementById("previewPage").style.display = "none";
+  document.getElementById(pageId).style.display = "flex";
+}
+
+function goBack() {
+  window.location.href = "free.html";
+}
+
+function goNext() {
+  showPage("cameraSelectPage");
+}
+
+function goBackToPayOptions() {
+  showPage("payOptionsPage");
+}
+
+// ============ CAMERA & PHOTOS ============
+function openCamera() {
+  document.getElementById("cameraInput").click();
+}
+
+function openPhotos() {
+  document.getElementById("photosInput").click();
+}
+
+function handleFile(file) {
+  if (!file) return;
+  
+  selectedFile = file;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById("previewImage").src = e.target.result;
+    showPage("previewPage");
+  };
+  reader.readAsDataURL(file);
+  
+  // Reset inputs
+  document.getElementById("cameraInput").value = "";
+  document.getElementById("photosInput").value = "";
+}
+
+document.getElementById("cameraInput").addEventListener("change", (e) => {
+  handleFile(e.target.files[0]);
+});
+
+document.getElementById("photosInput").addEventListener("change", (e) => {
+  handleFile(e.target.files[0]);
+});
+
+function cancelPreview() {
+  selectedFile = null;
+  document.getElementById("previewImage").src = "";
+  showPage("cameraSelectPage");
+}
+
+// ============ IMAGE PREPROCESSING ============
+function preprocessImage(canvas) {
+  const ctx = canvas.getContext("2d");
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imageData.data;
+  let totalBrightness = 0;
+  
+  // Convert to grayscale
+  for (let i = 0; i < data.length; i += 4) {
+    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+    data[i] = avg;
+    data[i + 1] = avg;
+    data[i + 2] = avg;
+    totalBrightness += avg;
+  }
+  
+  const avgBrightness = totalBrightness / (data.length / 4);
+  
+  // Apply threshold
+  for (let i = 0; i < data.length; i += 4) {
+    let val = data[i];
+    if (avgBrightness < 128) val = 255 - val;
+    if (val > 140) val = 255;
+    else if (val < 120) val = 0;
+    data[i] = val;
+    data[i + 1] = val;
+    data[i + 2] = val;
+  }
+  
+  ctx.putImageData(imageData, 0, 0);
+  return canvas;
+}
+
+// ============ TIME VALIDATION ============
+function isTimeValidFromText(text) {
+  const clean = text.toUpperCase().replace(/\s+/g, " ");
+  
+  // Match time patterns
+  const match = clean.match(/\b(\d{1,2})[:. ](\d{2})([:. ](\d{2}))?\s?(AM|PM)?\b/);
+  
+  if (!match) {
+    console.log("❌ No time found in receipt");
+    return false;
+  }
+  
+  let hours = parseInt(match[1]);
+  const minutes = parseInt(match[2]);
+  const ampm = match[5];
+  
+  // Convert AM/PM to 24h
+  if (ampm) {
+    if (ampm === "PM" && hours < 12) hours += 12;
+    if (ampm === "AM" && hours === 12) hours = 0;
+  }
+  
+  const now = new Date();
+  const receipt = new Date();
+  receipt.setHours(hours);
+  receipt.setMinutes(minutes);
+  receipt.setSeconds(0);
+  
+  // If receipt time is in future, assume it's from yesterday
+  if (receipt > now) {
+    receipt.setDate(receipt.getDate() - 1);
+  }
+  
+  const diff = Math.abs((now - receipt) / 60000); // diff in minutes
+  
+  console.log("⏱ Current time:", now);
+  console.log("⏱ Receipt time:", receipt);
+  console.log("⏱ Difference (mins):", diff);
+  
+  // Valid if within 10 minutes
+  return diff <= 10;
+}
+
+// ============ CURRENCY DETECTION ============
+function detectCurrency(text) {
+  const match = text.match(/([A-Z]{3}|[$€£¥₦₵₱₴])\s?([\d,]+)/i);
+  
+  if (match) {
+    return {
+      currency: match[1].toUpperCase(),
+      amount: parseInt(match[2].replace(/,/g, ""))
+    };
+  }
+  
+  // Default to TZS if no currency symbol found
+  const nums = text.match(/\d{3,7}/g);
+  return {
+    currency: "TZS",
+    amount: nums ? Math.max(...nums.map(n => parseInt(n))) : 0
+  };
+}
+
+// ============ CURRENCY CONVERSION ============
+async function convertToTZS(amount, currency) {
+  if (currency === "TZS" || currency === "TSH") return amount;
+  
+  try {
+    const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${currency}`);
+    const data = await res.json();
+    const rate = data.rates["TZS"];
+    return rate ? amount * rate : 0;
+  } catch (e) {
+    console.error("Conversion error:", e);
+    return 0;
+  }
+}
+
+// ============ SHOW RESULT ============
+function showResult(success) {
+  const overlay = document.getElementById("resultOverlay");
+  const icon = document.getElementById("resultIcon");
+  const text = document.getElementById("resultText");
+  const sub = document.getElementById("resultSub");
+  
+  if (success) {
+    overlay.className = "success";
+    icon.textContent = "✅";
+    text.textContent = "PAYMENT VERIFIED!";
+    sub.textContent = "Redirecting to menu...";
+  } else {
+    overlay.className = "fail";
+    icon.textContent = "❌";
+    text.textContent = "PAYMENT INVALID!";
+    sub.textContent = "Redirecting back...";
+  }
+  
+  overlay.style.display = "flex";
+  
+  // Redirect after delay
+  setTimeout(() => {
+    if (success) {
+      window.location.href = "menu.html";
+    } else {
+      window.location.href = "free.html";
+    }
+  }, 2000);
+}
+
+// ============ SUBMIT RECEIPT ============
+async function submitReceipt() {
+  if (!selectedFile) {
+    alert("No receipt selected!");
+    return;
+  }
+  
+  const loadingOverlay = document.getElementById("loadingOverlay");
+  const loadingText = document.getElementById("loadingText");
+  
+  loadingOverlay.style.display = "flex";
+  loadingText.textContent = "Verifying Account...";
+  
+  let objectUrl = null;
+  
+  try {
+    // Load image
+    const img = new Image();
+    objectUrl = URL.createObjectURL(selectedFile);
+    img.src = objectUrl;
+    
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error("Image load timeout")), 8000);
+      img.onload = () => { clearTimeout(timer); resolve(); };
+      img.onerror = () => reject(new Error("Invalid image file"));
+    });
+    
+    // Resize image for processing
+    const MAX_W = 1500;
+    const scale = Math.min(1, MAX_W / img.width);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = Math.floor(img.width * scale);
+    canvas.height = Math.floor(img.height * scale);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    
+    let detectedText = "";
+    let isQR = false;
+    
+    // Try QR code detection first
+    loadingText.textContent = "Scanning QR Code...";
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const qr = jsQR(imageData.data, canvas.width, canvas.height);
+    
+    if (qr && qr.data) {
+      detectedText = qr.data;
+      isQR = true;
+      console.log("✅ QR Code Found:", detectedText);
+    } else {
+      // Fall back to OCR
+      loadingText.textContent = "Reading Receipt Text...";
+      preprocessImage(canvas);
+      
+      const { data } = await Tesseract.recognize(canvas, "eng", {
+        tessedit_pageseg_mode: 6
+      });
+      detectedText = (data.text || "").replace(/\s+/g, " ").trim();
+      console.log("✅ OCR Text Found:", detectedText);
+    }
+    
+    // ============ VALIDATION ============
+    loadingText.textContent = "Validating Payment...";
+    
+    const upperText = detectedText.toUpperCase();
+    const cleanSearchText = upperText.replace(/\s+/g, " ");
+    
+    // Check name
+    let nameFound = false;
+    for (const name of VALID_NAMES) {
+      if (cleanSearchText.includes(name)) {
+        nameFound = true;
+        console.log("✅ Name Matched:", name);
+        break;
+      }
+    }
+    
+    // Check number
+    let numberFound = false;
+    if (nameFound) {
+      for (const num of VALID_NUMBERS) {
+        if (cleanSearchText.includes(num)) {
+          numberFound = true;
+          console.log("✅ Number Matched:", num);
+          break;
+        }
+      }
+    }
+    
+    // Check time validity
+    let timeValid = isTimeValidFromText(cleanSearchText);
+    
+    // Detect currency and amount
+    const { currency, amount } = detectCurrency(cleanSearchText);
+    const tzsAmount = await convertToTZS(amount, currency);
+    
+    // Calculate time based on amount (300 TZS = 1 hour)
+    const seconds = Math.floor((tzsAmount / 300) * 3600);
+    
+    console.log("💰 Amount:", amount, currency);
+    console.log("💰 TZS Amount:", tzsAmount);
+    console.log("⏱ Time Seconds:", seconds);
+    
+    // Final validation
+    if (nameFound && numberFound && timeValid && seconds > 0) {
+      // Store timer data in localStorage
+      const endTime = Date.now() + seconds * 1000;
+      localStorage.setItem("sessionEnd", String(endTime));
+      localStorage.setItem("timerSeconds", String(seconds));
+      
+      loadingOverlay.style.display = "none";
+      showResult(true);
+    } else {
+      // Log why it failed
+      console.log("❌ Validation Failed:");
+      console.log("  - Name Found:", nameFound);
+      console.log("  - Number Found:", numberFound);
+      console.log("  - Time Valid:", timeValid);
+      console.log("  - Seconds:", seconds);
+      
+      loadingOverlay.style.display = "none";
+      showResult(false);
+    }
+    
+  } catch (error) {
+    console.error("❌ Error:", error);
+    loadingOverlay.style.display = "none";
+    showResult(false);
+  } finally {
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    selectedFile = null;
+  }
+}
+</script>
+</body>
+</html>    
