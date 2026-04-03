@@ -17,9 +17,33 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
   display:flex;flex-direction:column;justify-content:center;align-items:center;
   padding:20px;overflow-y:auto
 }
-.pay-header{text-align:center;margin-bottom:24px}
+.pay-header{text-align:center;margin-bottom:16px}
 .pay-title{color:#fff;font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:3px;margin-bottom:6px}
 .pay-subtitle{color:#6b7280;font-size:13px;letter-spacing:1px}
+
+/* ===== USSD WARNING BANNER ===== */
+.ussd-warning{
+  width:100%;max-width:400px;
+  background:linear-gradient(135deg,rgba(255,215,0,0.1),rgba(245,158,11,0.08));
+  border:1.5px solid rgba(255,215,0,0.35);
+  border-radius:10px;padding:12px 16px;
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:18px;animation:warningGlow 2.5s ease-in-out infinite
+}
+@keyframes warningGlow{
+  0%,100%{border-color:rgba(255,215,0,0.25);box-shadow:0 0 0 rgba(255,215,0,0)}
+  50%{border-color:rgba(255,215,0,0.55);box-shadow:0 0 18px rgba(255,215,0,0.08)}
+}
+.ussd-warning-icon{
+  width:32px;height:32px;border-radius:8px;
+  background:rgba(255,215,0,0.15);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0
+}
+.ussd-warning-icon svg{width:18px;height:18px}
+.ussd-warning-text{display:flex;flex-direction:column;gap:2px}
+.ussd-warning-main{color:#ffd700;font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+.ussd-warning-sub{color:#b8960f;font-size:11px;font-weight:500;opacity:.85}
+
 .payment-methods{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:400px;margin-bottom:20px}
 .method-card{
   background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
@@ -29,8 +53,8 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
 }
 .method-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:3px 0 0 3px}
 .method-card:hover{background:rgba(255,255,255,0.08);transform:translateY(-1px)}
-.method-card.airtel::before{background:#ff0000}
-.method-card.vodacom::before{background:#ff0000}
+.method-card.airtel::before{background:#ed1c24}
+.method-card.vodacom::before{background:#e60000}
 .method-card.halotel::before{background:#00a651}
 .method-card.mix::before{background:#ffd700}
 .method-card.ttcl::before{background:#007bff}
@@ -39,7 +63,29 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
 .method-card.nbc::before{background:#dc3545}
 .method-card.intl{grid-column:span 2}
 .method-card.intl::before{background:linear-gradient(180deg,#6f42c1,#007bff)}
-.method-icon{font-size:20px;margin-bottom:4px;display:block}
+
+/* ===== BRAND ICONS ===== */
+.brand-icon{
+  width:38px;height:38px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 6px auto;position:relative
+}
+.brand-icon svg{width:22px;height:22px}
+
+.icon-airtel{background:linear-gradient(135deg,#ed1c24,#b8151b)}
+.icon-vodacom{background:linear-gradient(135deg,#e60000,#b30000)}
+.icon-halotel{background:linear-gradient(135deg,#00a651,#007a3d)}
+.icon-mix{background:linear-gradient(135deg,#ffd700,#e6b800)}
+.icon-mix svg path{fill:#0a0a0f}
+.icon-ttcl{background:linear-gradient(135deg,#007bff,#0056b3)}
+.icon-crdb{background:linear-gradient(135deg,#003366,#002244)}
+.icon-nmb{background:linear-gradient(135deg,#ff6600,#cc5200)}
+.icon-nbc{background:linear-gradient(135deg,#dc3545,#a71d2a)}
+.icon-intl{background:linear-gradient(135deg,#6f42c1,#007bff);width:auto;height:38px;padding:0 14px;border-radius:10px;gap:6px}
+.icon-intl svg{width:18px;height:18px}
+
+.method-card .method-label{display:block;font-size:11.5px;font-weight:600;letter-spacing:.3px;line-height:1.3}
+
 .upload-prompt{
   color:#ffd700;font-size:14px;font-weight:700;margin:18px 0;
   text-align:center;padding:14px;
@@ -193,17 +239,137 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
     <div class="pay-title">Pay Through</div>
     <div class="pay-subtitle">Mobile Money & Banking Apps</div>
   </div>
+
+  <!-- ===== USSD WARNING BANNER ===== -->
+  <div class="ussd-warning">
+    <div class="ussd-warning-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#ffd700" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+      </svg>
+    </div>
+    <div class="ussd-warning-text">
+      <span class="ussd-warning-main">Use Mobile App — Not USSD Code</span>
+      <span class="ussd-warning-sub">Open the app directly to send money, don't dial *150# etc.</span>
+    </div>
+  </div>
   
   <div class="payment-methods">
-    <div class="method-card airtel"><span class="method-icon">📱</span>Airtel Money</div>
-    <div class="method-card vodacom"><span class="method-icon">📱</span>Vodacom M-Pesa</div>
-    <div class="method-card halotel"><span class="method-icon">📱</span>Halotel Halopesa</div>
-    <div class="method-card mix"><span class="method-icon">💰</span>Mix by Yas</div>
-    <div class="method-card ttcl"><span class="method-icon">📱</span>TTCL</div>
-    <div class="method-card crdb"><span class="method-icon">🏦</span>CRDB Bank App</div>
-    <div class="method-card nmb"><span class="method-icon">🏦</span>NMB Bank App</div>
-    <div class="method-card nbc"><span class="method-icon">🏦</span>NBC Bank App</div>
-    <div class="method-card intl"><span class="method-icon">🌐</span>Other International Bank Apps</div>
+    <!-- Airtel Money -->
+    <div class="method-card airtel">
+      <div class="brand-icon icon-airtel">
+        <svg viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="16" r="7" stroke="#fff" stroke-width="2.5"/>
+          <path d="M14 26c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+          <text x="20" y="19.5" text-anchor="middle" fill="#fff" font-size="8" font-weight="800" font-family="Arial">AM</text>
+        </svg>
+      </div>
+      <span class="method-label">Airtel Money</span>
+    </div>
+
+    <!-- Vodacom M-Pesa -->
+    <div class="method-card vodacom">
+      <div class="brand-icon icon-vodacom">
+        <svg viewBox="0 0 40 40" fill="none">
+          <rect x="10" y="8" width="20" height="24" rx="4" stroke="#fff" stroke-width="2.2"/>
+          <circle cx="20" cy="22" r="5" stroke="#fff" stroke-width="2"/>
+          <text x="20" y="24.5" text-anchor="middle" fill="#fff" font-size="6.5" font-weight="800" font-family="Arial">M</text>
+          <line x1="16" y1="13" x2="24" y2="13" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="method-label">Vodacom M-Pesa</span>
+    </div>
+
+    <!-- Halotel Halopesa -->
+    <div class="method-card halotel">
+      <div class="brand-icon icon-halotel">
+        <svg viewBox="0 0 40 40" fill="none">
+          <rect x="10" y="8" width="20" height="24" rx="4" stroke="#fff" stroke-width="2.2"/>
+          <circle cx="20" cy="22" r="5" stroke="#fff" stroke-width="2"/>
+          <text x="20" y="24.5" text-anchor="middle" fill="#fff" font-size="6.5" font-weight="800" font-family="Arial">H</text>
+          <line x1="16" y1="13" x2="24" y2="13" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="method-label">Halotel Halopesa</span>
+    </div>
+
+    <!-- Mix by Yas -->
+    <div class="method-card mix">
+      <div class="brand-icon icon-mix">
+        <svg viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="12" stroke="#0a0a0f" stroke-width="2.2"/>
+          <text x="20" y="22.5" text-anchor="middle" fill="#0a0a0f" font-size="9" font-weight="900" font-family="Arial">Mx</text>
+          <circle cx="20" cy="20" r="14.5" stroke="#0a0a0f" stroke-width="1" opacity=".3"/>
+        </svg>
+      </div>
+      <span class="method-label">Mix by Yas</span>
+    </div>
+
+    <!-- TTCL -->
+    <div class="method-card ttcl">
+      <div class="brand-icon icon-ttcl">
+        <svg viewBox="0 0 40 40" fill="none">
+          <rect x="8" y="10" width="24" height="20" rx="3" stroke="#fff" stroke-width="2.2"/>
+          <line x1="8" y1="16" x2="32" y2="16" stroke="#fff" stroke-width="1.5"/>
+          <circle cx="20" cy="24" r="3.5" stroke="#fff" stroke-width="1.8"/>
+          <text x="20" y="15" text-anchor="middle" fill="#fff" font-size="5.5" font-weight="800" font-family="Arial" opacity=".9">TTCL</text>
+        </svg>
+      </div>
+      <span class="method-label">TTCL</span>
+    </div>
+
+    <!-- CRDB Bank -->
+    <div class="method-card crdb">
+      <div class="brand-icon icon-crdb">
+        <svg viewBox="0 0 40 40" fill="none">
+          <rect x="6" y="10" width="28" height="20" rx="3" stroke="#fff" stroke-width="2"/>
+          <line x1="6" y1="16" x2="34" y2="16" stroke="#fff" stroke-width="1.3"/>
+          <rect x="10" y="20" width="8" height="2.5" rx="1" fill="#fff" opacity=".7"/>
+          <rect x="10" y="24.5" width="12" height="2" rx="1" fill="#fff" opacity=".4"/>
+          <text x="15" y="15" text-anchor="middle" fill="#fff" font-size="5" font-weight="800" font-family="Arial">CRDB</text>
+        </svg>
+      </div>
+      <span class="method-label">CRDB Bank App</span>
+    </div>
+
+    <!-- NMB Bank -->
+    <div class="method-card nmb">
+      <div class="brand-icon icon-nmb">
+        <svg viewBox="0 0 40 40" fill="none">
+          <rect x="6" y="10" width="28" height="20" rx="3" stroke="#fff" stroke-width="2"/>
+          <line x1="6" y1="16" x2="34" y2="16" stroke="#fff" stroke-width="1.3"/>
+          <rect x="10" y="20" width="8" height="2.5" rx="1" fill="#fff" opacity=".7"/>
+          <rect x="10" y="24.5" width="12" height="2" rx="1" fill="#fff" opacity=".4"/>
+          <text x="14" y="15" text-anchor="middle" fill="#fff" font-size="5" font-weight="800" font-family="Arial">NMB</text>
+        </svg>
+      </div>
+      <span class="method-label">NMB Bank App</span>
+    </div>
+
+    <!-- NBC Bank -->
+    <div class="method-card nbc">
+      <div class="brand-icon icon-nbc">
+        <svg viewBox="0 0 40 40" fill="none">
+          <rect x="6" y="10" width="28" height="20" rx="3" stroke="#fff" stroke-width="2"/>
+          <line x1="6" y1="16" x2="34" y2="16" stroke="#fff" stroke-width="1.3"/>
+          <rect x="10" y="20" width="8" height="2.5" rx="1" fill="#fff" opacity=".7"/>
+          <rect x="10" y="24.5" width="12" height="2" rx="1" fill="#fff" opacity=".4"/>
+          <text x="14" y="15" text-anchor="middle" fill="#fff" font-size="5.5" font-weight="800" font-family="Arial">NBC</text>
+        </svg>
+      </div>
+      <span class="method-label">NBC Bank App</span>
+    </div>
+
+    <!-- International -->
+    <div class="method-card intl">
+      <div class="brand-icon icon-intl">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z"/>
+        </svg>
+        <span style="color:#fff;font-size:12px;font-weight:700;letter-spacing:.5px">Other International Bank Apps</span>
+      </div>
+    </div>
   </div>
   
   <div class="upload-prompt">📷 UPLOAD RECEIPT AFTER PAYMENT</div>
@@ -333,7 +499,6 @@ const ckEls = {
   currency:    document.getElementById("ck-currency")
 };
 
-/* Update a checklist item to active / pass / fail */
 function setCk(key, status) {
   const el = ckEls[key];
   el.className = "check-item " + status;
@@ -394,21 +559,19 @@ function cancelPreview() {
 }
 
 /* ============================================================
-   IMAGE PREPROCESSING (grayscale + threshold for OCR)
+   IMAGE PREPROCESSING
    ============================================================ */
 function preprocessImage(canvas) {
   const ctx = canvas.getContext("2d");
   const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   const d = imgData.data;
   let totalB = 0;
-  /* Grayscale */
   for (let i = 0; i < d.length; i += 4) {
     const avg = d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114;
     d[i] = d[i+1] = d[i+2] = avg;
     totalB += avg;
   }
   const avgB = totalB / (d.length / 4);
-  /* Adaptive threshold: invert dark backgrounds */
   const inv = avgB < 128;
   for (let i = 0; i < d.length; i += 4) {
     let v = d[i];
@@ -422,18 +585,14 @@ function preprocessImage(canvas) {
 
 /* ============================================================
    RULE 5: Transaction ID Detection
-   Looks for labeled IDs or mixed alphanumeric strings ≥8 chars
    ============================================================ */
 function hasTransactionId(text) {
-  /* Labeled patterns: "TID: xxx", "Transaction ID xxx", "Ref: xxx", etc. */
   if (/(?:transaction\s*id|tid|txn|ref(?:erence)?|trans\s*id|receipt\s*(?:no|number))\s*[:.\-]?\s*[A-Z0-9]{4,}/i.test(text)) return true;
-  /* Standalone mixed alphanumeric strings of 8+ characters */
   const words = text.replace(/[^\w\s]/g, " ").split(/\s+/);
   for (const w of words) {
     if (w.length >= 8 && /[A-Z]/i.test(w) && /[0-9]/.test(w)) {
-      /* Exclude known phone-number-like digit patterns */
       const digits = w.replace(/\D/g, "");
-      if (digits.length === 9 && /^(780|655)/.test(digits)) continue; /* skip our phone numbers */
+      if (digits.length === 9 && /^(780|655)/.test(digits)) continue;
       return true;
     }
   }
@@ -445,43 +604,36 @@ function hasTransactionId(text) {
    ============================================================ */
 function isTimeValidFromText(text) {
   const clean = text.toUpperCase().replace(/\s+/g, " ");
-  /* Match time patterns: HH:MM, HH:MM:SS, HH.MM, with optional AM/PM */
   const match = clean.match(/\b(\d{1,2})[:.](\d{2})([:.](\d{2}))?\s?(AM|PM)?\b/);
   if (!match) return false;
-
   let hours = parseInt(match[1]);
   const minutes = parseInt(match[2]);
   const ampm = match[5];
-
   if (ampm) {
     if (ampm === "PM" && hours < 12) hours += 12;
     if (ampm === "AM" && hours === 12) hours = 0;
   }
   if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return false;
-
   const now = new Date();
   const receipt = new Date();
   receipt.setHours(hours, minutes, 0, 0);
-
-  /* If receipt time is ahead of now, assume yesterday */
   if (receipt > now) receipt.setDate(receipt.getDate() - 1);
-
   const diffMin = Math.abs((now - receipt) / 60000);
   return diffMin <= 10;
 }
 
 /* ============================================================
-   RULE 7: Currency Check (must be TZS — reject foreign)
+   RULE 7: Currency Check
    ============================================================ */
 function isCurrencyValid(text) {
   for (const fc of FOREIGN_CURRENCIES) {
     if (text.includes(fc)) return false;
   }
-  return true; /* No foreign currency detected → assume TZS */
+  return true;
 }
 
 /* ============================================================
-   AMOUNT EXTRACTION from receipt text
+   AMOUNT EXTRACTION
    ============================================================ */
 function extractAmount(text) {
   const patterns = [
@@ -493,7 +645,6 @@ function extractAmount(text) {
     const m = text.match(p);
     if (m) return parseFloat(m[1].replace(/,/g, ""));
   }
-  /* Fallback: largest number found (3+ digits) */
   const nums = text.match(/\b[\d,]{3,}\b/g);
   if (nums) {
     const parsed = nums.map(n => parseInt(n.replace(/,/g, ""))).filter(n => n > 0);
@@ -503,44 +654,35 @@ function extractAmount(text) {
 }
 
 /* ============================================================
-   RULE 9: TZS Conversion Formula
-   Amount in TZS = (Amount / 500) × 3600  →  this gives seconds
+   RULE 9: TZS Conversion
    ============================================================ */
 function calcSeconds(amount) {
   return Math.floor((amount / 500) * 3600);
 }
 
 /* ============================================================
-   SHOW SUCCESS → REDIRECT TO menu.html
+   SHOW SUCCESS
    ============================================================ */
 function showSuccess(amount, seconds) {
   const tzsDisplay = amount.toLocaleString() + " TZS";
   const hrs = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
   const timeStr = hrs > 0 ? hrs + "h " + mins + "m" : mins + "m";
-
   document.getElementById("successAmount").textContent =
     "Paid: " + tzsDisplay + "  •  Session: " + timeStr;
   document.getElementById("successOverlay").style.display = "flex";
-
-  /* Save session end time to localStorage */
   const endTime = Date.now() + seconds * 1000;
   localStorage.setItem("sessionEnd", String(endTime));
   localStorage.setItem("sessionAmount", tzsDisplay);
-
-  /* Redirect to menu.html after animation */
-  setTimeout(() => {
-    window.location.href = "menu.html";
-  }, 2800);
+  setTimeout(() => { window.location.href = "menu.html"; }, 2800);
 }
 
 /* ============================================================
-   SHOW FAIL → REDIRECT TO free.html
+   SHOW FAIL
    ============================================================ */
 function showFail() {
   const container = document.getElementById("failChecks");
   container.innerHTML = "";
-
   Object.keys(results).forEach(key => {
     const r = results[key];
     const div = document.createElement("div");
@@ -548,13 +690,8 @@ function showFail() {
     div.innerHTML = (r.pass ? "✅ " : "❌ ") + r.label;
     container.appendChild(div);
   });
-
   document.getElementById("failOverlay").style.display = "flex";
-
-  /* Redirect to free.html after delay */
-  setTimeout(() => {
-    window.location.href = "free.html";
-  }, 3500);
+  setTimeout(() => { window.location.href = "free.html"; }, 3500);
 }
 
 /* ============================================================
@@ -562,28 +699,21 @@ function showFail() {
    ============================================================ */
 async function submitReceipt() {
   if (!selectedFile) { alert("No receipt selected!"); return; }
-
   const loadingOverlay = document.getElementById("loadingOverlay");
   const loadingTitle   = document.getElementById("loadingTitle");
-
   resetAllCk();
   loadingOverlay.style.display = "flex";
   loadingTitle.textContent = "Verifying Payment...";
-
   let objectUrl = null;
-
   try {
-    /* ---- Load image into canvas ---- */
     const img = new Image();
     objectUrl = URL.createObjectURL(selectedFile);
     img.src = objectUrl;
-
     await new Promise((resolve, reject) => {
       const t = setTimeout(() => reject(new Error("Image load timeout")), 10000);
       img.onload  = () => { clearTimeout(t); resolve(); };
       img.onerror = () => { clearTimeout(t); reject(new Error("Invalid image")); };
     });
-
     const MAX_W = 1500;
     const scale = Math.min(1, MAX_W / img.width);
     const canvas = document.createElement("canvas");
@@ -593,21 +723,15 @@ async function submitReceipt() {
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-    /* ==== RULE 1: Photo Type Check ==== */
     setCk("photoType", "active");
     await delay(400);
-
     let extractedText = "";
     let isQR = false;
-
-    /* Try QR code first */
     const qr = jsQR(imageData.data, canvas.width, canvas.height);
     if (qr && qr.data && qr.data.trim().length > 0) {
       isQR = true;
       extractedText = qr.data.trim();
     }
-
-    /* If not QR, try OCR (receipt) */
     if (!isQR) {
       const preCanvas = preprocessImage(canvas);
       loadingTitle.textContent = "Reading Receipt...";
@@ -616,33 +740,26 @@ async function submitReceipt() {
       });
       extractedText = (data.text || "").replace(/\s+/g, " ").trim();
     }
-
-    /* Photo type is valid if it's a QR code OR extractable text (receipt) */
     const isReceipt = extractedText.length > 0;
     results.photoType.pass = isQR || isReceipt;
     setCk("photoType", results.photoType.pass ? "pass" : "fail");
     await delay(300);
 
-    /* ==== RULE 2: Text Extraction ==== */
     setCk("textExtract", "active");
     await delay(300);
     results.textExtract.pass = extractedText.length > 0;
     setCk("textExtract", results.textExtract.pass ? "pass" : "fail");
     await delay(300);
 
-    /* If photo type or text extraction failed, stop early */
     if (!results.photoType.pass || !results.textExtract.pass) {
       loadingOverlay.style.display = "none";
       showFail();
       return;
     }
 
-    /* Normalize text for matching */
     const upperText = extractedText.toUpperCase();
-    /* Keep original spacing for phone matching, create compact version for name matching */
     const compactText = upperText.replace(/\s+/g, " ");
 
-    /* ==== RULE 3: Name Validation (Exact Match) ==== */
     setCk("nameMatch", "active");
     loadingTitle.textContent = "Validating Name...";
     await delay(400);
@@ -650,7 +767,6 @@ async function submitReceipt() {
     setCk("nameMatch", results.nameMatch.pass ? "pass" : "fail");
     await delay(300);
 
-    /* ==== RULE 4: Phone Number Validation (Exact Match, Spaces Allowed) ==== */
     setCk("phoneMatch", "active");
     loadingTitle.textContent = "Checking Phone Number...";
     await delay(400);
@@ -658,7 +774,6 @@ async function submitReceipt() {
     setCk("phoneMatch", results.phoneMatch.pass ? "pass" : "fail");
     await delay(300);
 
-    /* ==== RULE 5: Transaction ID Check ==== */
     setCk("txnId", "active");
     loadingTitle.textContent = "Checking Transaction ID...";
     await delay(400);
@@ -666,7 +781,6 @@ async function submitReceipt() {
     setCk("txnId", results.txnId.pass ? "pass" : "fail");
     await delay(300);
 
-    /* ==== RULE 6: Time Delay Check (≤ 10 min) ==== */
     setCk("timeDelay", "active");
     loadingTitle.textContent = "Validating Timestamp...";
     await delay(400);
@@ -674,7 +788,6 @@ async function submitReceipt() {
     setCk("timeDelay", results.timeDelay.pass ? "pass" : "fail");
     await delay(300);
 
-    /* ==== RULE 7: Currency Check (must be TZS) ==== */
     setCk("currency", "active");
     loadingTitle.textContent = "Checking Currency...";
     await delay(400);
@@ -682,42 +795,29 @@ async function submitReceipt() {
     setCk("currency", results.currency.pass ? "pass" : "fail");
     await delay(300);
 
-    /* ==== RULE 8: Valid Payment Determination ==== */
     loadingTitle.textContent = "Finalizing...";
     await delay(500);
 
     const allPassed = Object.values(results).every(r => r.pass);
 
     if (allPassed) {
-      /* ==== RULE 9: TZS Conversion ==== */
       const amount  = extractAmount(upperText);
       const seconds = calcSeconds(amount);
-
       if (seconds > 0) {
         loadingOverlay.style.display = "none";
-        /* ==== RULE 10: Valid → redirect to menu.html ==== */
         showSuccess(amount, seconds);
       } else {
-        /* Amount too low or undetectable — treat as invalid */
         results.currency.pass = false;
         results.currency.label = "Currency / Amount (TZS)";
         loadingOverlay.style.display = "none";
         showFail();
       }
     } else {
-      /* ==== RULE 10: Invalid → redirect to free.html ==== */
       loadingOverlay.style.display = "none";
       showFail();
     }
-
   } catch (error) {
     console.error("Verification error:", error);
-    /* On any error, mark remaining checks as failed and show fail */
-    Object.keys(results).forEach(k => {
-      if (!results[k].pass) {
-        /* Keep whatever state they're in, the overlay will show fail */
-      }
-    });
     loadingOverlay.style.display = "none";
     showFail();
   } finally {
@@ -726,22 +826,17 @@ async function submitReceipt() {
   }
 }
 
-/* Helper: promise-based delay */
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 /* ============================================================
-   SESSION PERSISTENCE — On page load, check for active session
-   If session is still active → redirect to menu.html
-   If expired → clean up, show pay options
+   SESSION PERSISTENCE
    ============================================================ */
 window.onload = () => {
   const endTime = parseInt(localStorage.getItem("sessionEnd"));
   if (endTime && Date.now() < endTime) {
-    /* Active session exists — redirect straight to menu.html */
     window.location.href = "menu.html";
     return;
   }
-  /* Session expired or doesn't exist — clean up */
   localStorage.removeItem("sessionEnd");
   localStorage.removeItem("sessionAmount");
 };
