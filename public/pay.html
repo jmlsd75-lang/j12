@@ -10,56 +10,49 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh;overflow-x:hidden}
 
-/* ===== PAGE 1: PAY OPTIONS ===== */
 #payOptionsPage{
   position:fixed;top:0;left:0;width:100%;height:100%;
   background:linear-gradient(160deg,#0a0a0f 0%,#111827 40%,#0c1524 100%);
-  display:flex;flex-direction:column;justify-content:center;align-items:center;
-  padding:20px;overflow-y:auto
+  display:flex;flex-direction:column;align-items:center;
+  padding:20px;padding-top:16px;overflow-y:auto
 }
-.pay-header{text-align:center;margin-bottom:14px}
+
+.instruct-box{
+  width:100%;max-width:400px;
+  background:rgba(40,167,69,0.08);
+  border:1.5px solid rgba(40,167,69,0.25);
+  border-radius:10px;padding:14px 16px;
+  margin-bottom:16px;flex-shrink:0
+}
+.instruct-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.instruct-icon{
+  width:28px;height:28px;border-radius:7px;
+  background:rgba(40,167,69,0.15);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0
+}
+.instruct-icon svg{width:16px;height:16px}
+.instruct-heading{color:#34d399;font-size:13px;font-weight:700;letter-spacing:.6px;text-transform:uppercase}
+.instruct-steps{display:flex;flex-direction:column;gap:7px;margin-bottom:10px}
+.instruct-step{display:flex;align-items:flex-start;gap:8px}
+.step-n{
+  width:20px;height:20px;border-radius:50%;
+  background:rgba(40,167,69,0.15);color:#34d399;
+  font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px
+}
+.step-t{color:#c9d1d9;font-size:12px;line-height:1.45}
+.step-t b{color:#fff;font-weight:600}
+.instruct-line{width:100%;height:1px;background:rgba(255,255,255,0.06);margin-bottom:9px}
+.instruct-dont{display:flex;align-items:center;gap:7px}
+.instruct-dont svg{width:15px;height:15px;color:#f87171;flex-shrink:0}
+.instruct-dont span{color:#f87171;font-size:11.5px;font-weight:600}
+
+.pay-header{text-align:center;margin-bottom:14px;flex-shrink:0}
 .pay-title{color:#fff;font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:3px;margin-bottom:6px}
 .pay-subtitle{color:#6b7280;font-size:13px;letter-spacing:1px}
 
-/* ===== APP PAYMENT BANNER ===== */
-.app-banner{
-  width:100%;max-width:400px;
-  background:linear-gradient(135deg,rgba(40,167,69,0.12),rgba(0,123,255,0.08));
-  border:1.5px solid rgba(40,167,69,0.35);
-  border-radius:12px;padding:14px 16px;
-  margin-bottom:18px
-}
-.app-banner-main{
-  color:#34d399;font-size:13px;font-weight:700;
-  letter-spacing:.8px;text-transform:uppercase;
-  margin-bottom:8px;display:flex;align-items:center;gap:8px
-}
-.app-banner-main svg{width:18px;height:18px;flex-shrink:0}
-.app-banner-examples{
-  display:flex;flex-wrap:wrap;gap:6px
-}
-.app-tag{
-  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
-  border-radius:6px;padding:4px 10px;
-  color:#d1d5db;font-size:11px;font-weight:600;
-  display:flex;align-items:center;gap:5px
-}
-.app-tag .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.dot-red{background:#ed1c24}
-.dot-green{background:#00a651}
-.dot-blue{background:#007bff}
-.dot-orange{background:#ff6600}
-.dot-darkblue{background:#003366}
-.dot-gold{background:#ffd700}
-.app-banner-note{
-  color:#6b7280;font-size:10.5px;font-weight:500;
-  margin-top:8px;padding-top:8px;
-  border-top:1px solid rgba(255,255,255,0.06);
-  display:flex;align-items:center;gap:6px
-}
-.app-banner-note svg{width:13px;height:13px;flex-shrink:0;color:#f87171}
-
-.payment-methods{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:400px;margin-bottom:20px}
+.payment-methods{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:400px;margin-bottom:20px;flex-shrink:0}
 .method-card{
   background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
   border-radius:10px;padding:14px 10px;text-align:center;color:#d1d5db;
@@ -79,7 +72,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
 .method-card.intl{grid-column:span 2}
 .method-card.intl::before{background:linear-gradient(180deg,#6f42c1,#007bff)}
 
-/* ===== BRAND ICONS ===== */
 .brand-icon{
   width:38px;height:38px;border-radius:10px;
   display:flex;align-items:center;justify-content:center;
@@ -106,12 +98,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
   text-align:center;padding:14px;
   background:rgba(255,215,0,0.06);border:2px dashed rgba(255,215,0,0.3);
   border-radius:12px;width:100%;max-width:400px;
-  letter-spacing:1px;animation:borderPulse 2s infinite
+  letter-spacing:1px;animation:borderPulse 2s infinite;flex-shrink:0
 }
 @keyframes borderPulse{0%,100%{border-color:rgba(255,215,0,0.3)}50%{border-color:rgba(255,215,0,0.7)}}
 .receipt-info{
   background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.06);
-  border-radius:14px;padding:16px 20px;width:100%;max-width:400px;margin-bottom:22px
+  border-radius:14px;padding:16px 20px;width:100%;max-width:400px;margin-bottom:22px;flex-shrink:0
 }
 .receipt-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
 .receipt-row:last-child{border-bottom:none}
@@ -121,7 +113,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
 .row-value.red{color:#ff4444}
 .row-value.blue{color:#4da6ff}
 .receipt-name{text-align:center;color:#d1d5db;font-size:13px;font-weight:600;letter-spacing:1px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.05);margin-top:4px}
-.page-buttons{display:flex;gap:12px;width:100%;max-width:400px}
+.page-buttons{display:flex;gap:12px;width:100%;max-width:400px;flex-shrink:0;margin-bottom:20px}
 .btn{flex:1;padding:14px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all .3s;letter-spacing:1px}
 .btn:active{transform:scale(0.97)}
 .btn-back{background:rgba(255,255,255,0.08);color:#9ca3af;border:1px solid rgba(255,255,255,0.1)}
@@ -129,7 +121,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
 .btn-next{background:linear-gradient(135deg,#ffd700,#f59e0b);color:#0a0a0f}
 .btn-next:hover{box-shadow:0 4px 20px rgba(255,215,0,0.3);transform:translateY(-1px)}
 
-/* ===== PAGE 2: CAMERA SELECT ===== */
 #cameraSelectPage{
   position:fixed;top:0;left:0;width:100%;height:100%;
   background:linear-gradient(160deg,#0a0a0f 0%,#111827 40%,#0c1524 100%);
@@ -150,7 +141,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
 .btn-sel-back{background:rgba(220,53,69,0.15);color:#ef4444;border:1px solid rgba(220,53,69,0.3)}
 .btn-sel-back:hover{background:rgba(220,53,69,0.25)}
 
-/* ===== PAGE 3: PREVIEW ===== */
 #previewPage{
   position:fixed;top:0;left:0;width:100%;height:100%;
   background:#0a0a0f;display:none;flex-direction:column;
@@ -166,7 +156,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
 .btn-submit{background:linear-gradient(135deg,#28a745,#1e7e34);color:#fff}
 .btn-submit:hover{box-shadow:0 4px 20px rgba(40,167,69,0.3)}
 
-/* ===== LOADING OVERLAY ===== */
 #loadingOverlay{
   position:fixed;top:0;left:0;width:100%;height:100%;
   background:rgba(5,5,10,0.97);display:none;justify-content:center;
@@ -181,14 +170,13 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
   display:flex;align-items:center;gap:10px;
   padding:8px 12px;border-radius:8px;
   background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.04);
-  font-size:13px;color:#6b7280;transition:all .4s
+  font-size:13px;color:#6b7280;transition:all .3s
 }
 .check-item.active{color:#d1d5db;border-color:rgba(255,215,0,0.2);background:rgba(255,215,0,0.04)}
 .check-item.pass{color:#34d399;border-color:rgba(52,211,153,0.3);background:rgba(52,211,153,0.06)}
 .check-item.fail{color:#f87171;border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.06)}
 .check-icon{width:20px;text-align:center;font-size:14px;flex-shrink:0}
 
-/* ===== SUCCESS OVERLAY ===== */
 #successOverlay{
   position:fixed;top:0;left:0;width:100%;height:100%;
   background:rgba(5,5,10,0.97);display:none;justify-content:center;
@@ -207,19 +195,14 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
 .success-amount{color:#ffd700;font-size:16px;font-weight:700;margin-bottom:6px}
 .success-redirect{color:#4b5563;font-size:12px;animation:blink 1.2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
-.success-bar{
-  width:200px;height:3px;background:rgba(255,255,255,0.08);border-radius:3px;
-  margin-top:20px;overflow:hidden
-}
+.success-bar{width:200px;height:3px;background:rgba(255,255,255,0.08);border-radius:3px;margin-top:20px;overflow:hidden}
 .success-bar-fill{height:100%;background:#28a745;border-radius:3px;animation:barFill 2.5s linear forwards}
 @keyframes barFill{0%{width:0}100%{width:100%}}
 
-/* ===== FAIL OVERLAY ===== */
 #failOverlay{
   position:fixed;top:0;left:0;width:100%;height:100%;
   background:rgba(5,5,10,0.97);display:none;justify-content:center;
-  align-items:center;flex-direction:column;z-index:2000;padding:30px;
-  overflow-y:auto
+  align-items:center;flex-direction:column;z-index:2000;padding:30px;overflow-y:auto
 }
 .fail-icon{
   width:90px;height:90px;border-radius:50%;
@@ -229,13 +212,10 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
   animation:failShake .5s ease
 }
 @keyframes failShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
-.fail-title{color:#f87171;font-size:22px;font-weight:800;letter-spacing:2px;margin-bottom:16px}
+.fail-title{color:#f87171;font-size:22px;font-weight:800;letter-spacing:2px;margin-bottom:6px}
+.fail-reason{color:#6b7280;font-size:13px;margin-bottom:16px}
 .fail-checks{width:100%;max-width:320px;margin-bottom:20px;display:flex;flex-direction:column;gap:5px}
-.fail-check-item{
-  display:flex;align-items:center;gap:10px;
-  padding:8px 12px;border-radius:8px;
-  font-size:12px;font-weight:500;
-}
+.fail-check-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:500}
 .fail-check-item.pass{color:#34d399;background:rgba(52,211,153,0.06)}
 .fail-check-item.fail{color:#f87171;background:rgba(248,113,113,0.06)}
 .fail-redirect{color:#4b5563;font-size:12px;animation:blink 1.2s infinite}
@@ -248,42 +228,53 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
 <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden-input">
 <input type="file" id="photosInput" accept="image/*" class="hidden-input">
 
-<!-- ===== PAGE 1: PAY OPTIONS ===== -->
 <div id="payOptionsPage">
-  <div class="pay-header">
-    <div class="pay-title">Pay Through</div>
-    <div class="pay-subtitle">Mobile Money & Banking Apps</div>
-  </div>
-
-  <!-- ===== APP PAYMENT BANNER ===== -->
-  <div class="app-banner">
-    <div class="app-banner-main">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
-        <line x1="12" y1="18" x2="12.01" y2="18"/>
-      </svg>
-      Pay With Mobile App — Not USSD
+  <div class="instruct-box">
+    <div class="instruct-top">
+      <div class="instruct-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div class="instruct-heading">How to Pay</div>
     </div>
-    <div class="app-banner-examples">
-      <div class="app-tag"><span class="dot dot-red"></span>M-Pesa App</div>
-      <div class="app-tag"><span class="dot dot-red"></span>Airtel Money App</div>
-      <div class="app-tag"><span class="dot dot-green"></span>Halopesa App</div>
-      <div class="app-tag"><span class="dot dot-darkblue"></span>CRDB Simbank</div>
-      <div class="app-tag"><span class="dot dot-orange"></span>NMB App</div>
-      <div class="app-tag"><span class="dot dot-gold"></span>Mix by Yas</div>
+    <div class="instruct-steps">
+      <div class="instruct-step">
+        <div class="step-n">1</div>
+        <div class="step-t">Open <b>any mobile money or bank app</b> on your phone</div>
+      </div>
+      <div class="instruct-step">
+        <div class="step-n">2</div>
+        <div class="step-t">Go to <b>Send Money</b> or <b>Lipa Pesa</b></div>
+      </div>
+      <div class="instruct-step">
+        <div class="step-n">3</div>
+        <div class="step-t">Enter the <b>phone number or account</b> shown below</div>
+      </div>
+      <div class="instruct-step">
+        <div class="step-n">4</div>
+        <div class="step-t">Send the amount, then <b>screenshot the receipt</b></div>
+      </div>
     </div>
-    <div class="app-banner-note">
+    <div class="instruct-line"></div>
+    <div class="instruct-dont">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="10"/>
         <line x1="15" y1="9" x2="9" y2="15"/>
         <line x1="9" y1="9" x2="15" y2="15"/>
       </svg>
-      Don't dial *150#, *111#, *100# etc — open the app directly
+      <span>Do NOT use USSD codes like *150#, *111#, *100#</span>
     </div>
+  </div>
+
+  <div class="pay-header">
+    <div class="pay-title">Pay Through</div>
+    <div class="pay-subtitle">Mobile Money & Banking Apps</div>
   </div>
   
   <div class="payment-methods">
-    <!-- Airtel Money -->
     <div class="method-card airtel">
       <div class="brand-icon icon-airtel">
         <svg viewBox="0 0 40 40" fill="none">
@@ -294,8 +285,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
       </div>
       <span class="method-label">Airtel Money</span>
     </div>
-
-    <!-- Vodacom M-Pesa -->
     <div class="method-card vodacom">
       <div class="brand-icon icon-vodacom">
         <svg viewBox="0 0 40 40" fill="none">
@@ -307,8 +296,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
       </div>
       <span class="method-label">Vodacom M-Pesa</span>
     </div>
-
-    <!-- Halotel Halopesa -->
     <div class="method-card halotel">
       <div class="brand-icon icon-halotel">
         <svg viewBox="0 0 40 40" fill="none">
@@ -320,8 +307,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
       </div>
       <span class="method-label">Halotel Halopesa</span>
     </div>
-
-    <!-- Mix by Yas -->
     <div class="method-card mix">
       <div class="brand-icon icon-mix">
         <svg viewBox="0 0 40 40" fill="none">
@@ -332,8 +317,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
       </div>
       <span class="method-label">Mix by Yas</span>
     </div>
-
-    <!-- TTCL -->
     <div class="method-card ttcl">
       <div class="brand-icon icon-ttcl">
         <svg viewBox="0 0 40 40" fill="none">
@@ -345,8 +328,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
       </div>
       <span class="method-label">TTCL</span>
     </div>
-
-    <!-- CRDB Bank -->
     <div class="method-card crdb">
       <div class="brand-icon icon-crdb">
         <svg viewBox="0 0 40 40" fill="none">
@@ -359,8 +340,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
       </div>
       <span class="method-label">CRDB Bank App</span>
     </div>
-
-    <!-- NMB Bank -->
     <div class="method-card nmb">
       <div class="brand-icon icon-nmb">
         <svg viewBox="0 0 40 40" fill="none">
@@ -373,8 +352,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
       </div>
       <span class="method-label">NMB Bank App</span>
     </div>
-
-    <!-- NBC Bank -->
     <div class="method-card nbc">
       <div class="brand-icon icon-nbc">
         <svg viewBox="0 0 40 40" fill="none">
@@ -387,8 +364,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
       </div>
       <span class="method-label">NBC Bank App</span>
     </div>
-
-    <!-- International -->
     <div class="method-card intl">
       <div class="brand-icon icon-intl">
         <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -425,7 +400,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
   </div>
 </div>
 
-<!-- ===== PAGE 2: CAMERA/PHOTOS SELECT ===== -->
 <div id="cameraSelectPage">
   <div class="select-title">Upload Receipt</div>
   <div class="select-subtitle">Choose how to upload your payment receipt</div>
@@ -436,7 +410,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
   </div>
 </div>
 
-<!-- ===== PAGE 3: PREVIEW ===== -->
 <div id="previewPage">
   <div class="preview-title">Receipt Preview</div>
   <img id="previewImage" src="" alt="Receipt Preview">
@@ -446,10 +419,9 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
   </div>
 </div>
 
-<!-- ===== LOADING: VERIFICATION CHECKLIST ===== -->
 <div id="loadingOverlay">
   <div class="loader-wrap"><div class="loader"></div></div>
-  <div id="loadingTitle">Verifying Payment...</div>
+  <div id="loadingTitle">Scanning Image...</div>
   <div class="check-list">
     <div class="check-item" id="ck-photoType"><span class="check-icon">⏳</span>Photo Type (Receipt/QR)</div>
     <div class="check-item" id="ck-textExtract"><span class="check-icon">⏳</span>Text Extraction</div>
@@ -460,7 +432,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
   </div>
 </div>
 
-<!-- ===== SUCCESS OVERLAY ===== -->
 <div id="successOverlay">
   <div class="success-icon">✓</div>
   <div class="success-title">PAYMENT VERIFIED</div>
@@ -470,19 +441,15 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
   <div class="success-bar"><div class="success-bar-fill"></div></div>
 </div>
 
-<!-- ===== FAIL OVERLAY ===== -->
 <div id="failOverlay">
   <div class="fail-icon">✕</div>
   <div class="fail-title">PAYMENT INVALID</div>
+  <div class="fail-reason" id="failReason"></div>
   <div class="fail-checks" id="failChecks"></div>
   <div class="fail-redirect">Redirecting to free.html ...</div>
 </div>
 
 <script>
-/* ============================================================
-   PAYMENT VERIFICATION ENGINE
-   ============================================================ */
-
 let selectedFile = null;
 
 const VALID_NAMES = [
@@ -523,9 +490,17 @@ function setCk(key, status) {
   const el = ckEls[key];
   el.className = "check-item " + status;
   const icon = el.querySelector(".check-icon");
-  if (status === "active")  icon.textContent = "⏳";
-  if (status === "pass")    icon.textContent = "✅";
-  if (status === "fail")    icon.textContent = "❌";
+  if (status === "active") icon.textContent = "⏳";
+  if (status === "pass")   icon.textContent = "✅";
+  if (status === "fail")   icon.textContent = "❌";
+}
+
+function failAllInstant() {
+  Object.keys(ckEls).forEach(k => {
+    ckEls[k].className = "check-item fail";
+    ckEls[k].querySelector(".check-icon").textContent = "❌";
+    results[k].pass = false;
+  });
 }
 
 function resetAllCk() {
@@ -536,9 +511,6 @@ function resetAllCk() {
   });
 }
 
-/* ============================================================
-   PAGE NAVIGATION
-   ============================================================ */
 function showPage(id) {
   ["payOptionsPage","cameraSelectPage","previewPage"].forEach(p => {
     document.getElementById(p).style.display = "none";
@@ -550,9 +522,6 @@ function goBack()  { window.location.href = "free.html"; }
 function goNext()  { showPage("cameraSelectPage"); }
 function goBackToPayOptions() { showPage("payOptionsPage"); }
 
-/* ============================================================
-   CAMERA & PHOTO INPUT
-   ============================================================ */
 function openCamera() { document.getElementById("cameraInput").click(); }
 function openPhotos() { document.getElementById("photosInput").click(); }
 
@@ -579,8 +548,37 @@ function cancelPreview() {
 }
 
 /* ============================================================
-   IMAGE PREPROCESSING
+   FAST PIXEL CHECK — detects if image has text-like content
+   Runs in ~50ms, no OCR needed. Rejects blank photos, 
+   selfies, scenery, solid colors instantly.
    ============================================================ */
+function hasTextPixels(imageData) {
+  const d = imageData.data;
+  const w = imageData.width;
+  const h = imageData.height;
+  let edges = 0;
+  let checked = 0;
+  const step = 3;
+
+  for (let y = 1; y < h - 1; y += step) {
+    for (let x = 1; x < w - 1; x += step) {
+      const i = (y * w + x) * 4;
+      const iR = (y * w + x + step) * 4;
+      const iD = ((y + step) * w + x) * 4;
+
+      const g  = d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114;
+      const gR = d[iR] * 0.299 + d[iR+1] * 0.587 + d[iR+2] * 0.114;
+      const gD = d[iD] * 0.299 + d[iD+1] * 0.587 + d[iD+2] * 0.114;
+
+      if (Math.abs(g - gR) > 40 || Math.abs(g - gD) > 40) edges++;
+      checked++;
+    }
+  }
+
+  const ratio = edges / checked;
+  return ratio > 0.04;
+}
+
 function preprocessImage(canvas) {
   const ctx = canvas.getContext("2d");
   const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -603,9 +601,6 @@ function preprocessImage(canvas) {
   return canvas;
 }
 
-/* ============================================================
-   TIME DELAY CHECK
-   ============================================================ */
 function isTimeValidFromText(text) {
   const clean = text.toUpperCase().replace(/\s+/g, " ");
   const match = clean.match(/\b(\d{1,2})[:.](\d{2})([:.](\d{2}))?\s?(AM|PM)?\b/);
@@ -622,13 +617,9 @@ function isTimeValidFromText(text) {
   const receipt = new Date();
   receipt.setHours(hours, minutes, 0, 0);
   if (receipt > now) receipt.setDate(receipt.getDate() - 1);
-  const diffMin = Math.abs((now - receipt) / 60000);
-  return diffMin <= 10;
+  return Math.abs((now - receipt) / 60000) <= 10;
 }
 
-/* ============================================================
-   CURRENCY CHECK
-   ============================================================ */
 function isCurrencyValid(text) {
   for (const fc of FOREIGN_CURRENCIES) {
     if (text.includes(fc)) return false;
@@ -636,9 +627,6 @@ function isCurrencyValid(text) {
   return true;
 }
 
-/* ============================================================
-   AMOUNT EXTRACTION
-   ============================================================ */
 function extractAmount(text) {
   const patterns = [
     /(?:TSH|TZS|T\.?\s*S\.?\s*H?)\s*[:.\s]*([\d,]+(?:\.\d+)?)/i,
@@ -661,9 +649,6 @@ function calcSeconds(amount) {
   return Math.floor((amount / 500) * 3600);
 }
 
-/* ============================================================
-   SHOW SUCCESS
-   ============================================================ */
 function showSuccess(amount, seconds) {
   const tzsDisplay = amount.toLocaleString() + " TZS";
   const hrs = Math.floor(seconds / 3600);
@@ -672,16 +657,14 @@ function showSuccess(amount, seconds) {
   document.getElementById("successAmount").textContent =
     "Paid: " + tzsDisplay + "  •  Session: " + timeStr;
   document.getElementById("successOverlay").style.display = "flex";
-  const endTime = Date.now() + seconds * 1000;
-  localStorage.setItem("sessionEnd", String(endTime));
+  localStorage.setItem("sessionEnd", String(Date.now() + seconds * 1000));
   localStorage.setItem("sessionAmount", tzsDisplay);
   setTimeout(() => { window.location.href = "menu.html"; }, 2800);
 }
 
-/* ============================================================
-   SHOW FAIL
-   ============================================================ */
-function showFail() {
+function showFail(reason, redirectMs) {
+  const ms = redirectMs || 3500;
+  document.getElementById("failReason").textContent = reason || "";
   const container = document.getElementById("failChecks");
   container.innerHTML = "";
   Object.keys(results).forEach(key => {
@@ -692,7 +675,7 @@ function showFail() {
     container.appendChild(div);
   });
   document.getElementById("failOverlay").style.display = "flex";
-  setTimeout(() => { window.location.href = "free.html"; }, 3500);
+  setTimeout(() => { window.location.href = "free.html"; }, ms);
 }
 
 /* ============================================================
@@ -700,21 +683,25 @@ function showFail() {
    ============================================================ */
 async function submitReceipt() {
   if (!selectedFile) { alert("No receipt selected!"); return; }
+
   const loadingOverlay = document.getElementById("loadingOverlay");
   const loadingTitle   = document.getElementById("loadingTitle");
   resetAllCk();
   loadingOverlay.style.display = "flex";
-  loadingTitle.textContent = "Verifying Payment...";
+  loadingTitle.textContent = "Scanning Image...";
+
   let objectUrl = null;
   try {
+    /* --- Load image --- */
     const img = new Image();
     objectUrl = URL.createObjectURL(selectedFile);
     img.src = objectUrl;
     await new Promise((resolve, reject) => {
-      const t = setTimeout(() => reject(new Error("Image load timeout")), 10000);
+      const t = setTimeout(() => reject(new Error("Timeout")), 8000);
       img.onload  = () => { clearTimeout(t); resolve(); };
-      img.onerror = () => { clearTimeout(t); reject(new Error("Invalid image")); };
+      img.onerror = () => { clearTimeout(t); reject(new Error("Bad image")); };
     });
+
     const MAX_W = 1500;
     const scale = Math.min(1, MAX_W / img.width);
     const canvas = document.createElement("canvas");
@@ -724,8 +711,7 @@ async function submitReceipt() {
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-    setCk("photoType", "active");
-    await delay(400);
+    /* --- Step 1: QR check (instant) --- */
     let extractedText = "";
     let isQR = false;
     const qr = jsQR(imageData.data, canvas.width, canvas.height);
@@ -733,69 +719,83 @@ async function submitReceipt() {
       isQR = true;
       extractedText = qr.data.trim();
     }
+
+    /* --- Step 2: If no QR, fast pixel text check --- */
     if (!isQR) {
-      const preCanvas = preprocessImage(canvas);
+      const hasText = hasTextPixels(imageData);
+
+      if (!hasText) {
+        /* INSTANT REJECT — no receipt, no QR, no text at all.
+           Total time from submit to redirect: ~2.5 seconds max */
+        loadingTitle.textContent = "No receipt or QR code detected";
+        failAllInstant();
+        await delay(1500);
+        loadingOverlay.style.display = "none";
+        showFail("Uploaded image is not a valid receipt or QR code", 2000);
+        return;
+      }
+
+      /* Has potential text — run full OCR */
       loadingTitle.textContent = "Reading Receipt...";
+      const preCanvas = preprocessImage(canvas);
       const { data } = await Tesseract.recognize(preCanvas, "eng", {
         tessedit_pageseg_mode: 6
       });
       extractedText = (data.text || "").replace(/\s+/g, " ").trim();
     }
-    const isReceipt = extractedText.length > 0;
-    results.photoType.pass = isQR || isReceipt;
-    setCk("photoType", results.photoType.pass ? "pass" : "fail");
-    await delay(300);
 
-    setCk("textExtract", "active");
-    await delay(300);
+    /* --- Check if any text was extracted at all --- */
+    results.photoType.pass = isQR || extractedText.length > 0;
+    setCk("photoType", results.photoType.pass ? "pass" : "fail");
+    await delay(200);
+
     results.textExtract.pass = extractedText.length > 0;
     setCk("textExtract", results.textExtract.pass ? "pass" : "fail");
-    await delay(300);
+    await delay(200);
 
     if (!results.photoType.pass || !results.textExtract.pass) {
       loadingOverlay.style.display = "none";
-      showFail();
+      showFail("No readable receipt or QR code found in image", 2000);
       return;
     }
 
+    /* --- Remaining checks only if text exists --- */
     const upperText = extractedText.toUpperCase();
     const compactText = upperText.replace(/\s+/g, " ");
 
     setCk("nameMatch", "active");
     loadingTitle.textContent = "Validating Name...";
-    await delay(400);
-    results.nameMatch.pass = VALID_NAMES.some(name => compactText.includes(name));
-    setCk("nameMatch", results.nameMatch.pass ? "pass" : "fail");
     await delay(300);
+    results.nameMatch.pass = VALID_NAMES.some(n => compactText.includes(n));
+    setCk("nameMatch", results.nameMatch.pass ? "pass" : "fail");
+    await delay(200);
 
     setCk("phoneMatch", "active");
     loadingTitle.textContent = "Checking Phone Number...";
-    await delay(400);
+    await delay(300);
     results.phoneMatch.pass = PHONE_PATTERNS.some(p => p.test(upperText));
     setCk("phoneMatch", results.phoneMatch.pass ? "pass" : "fail");
-    await delay(300);
+    await delay(200);
 
     setCk("timeDelay", "active");
     loadingTitle.textContent = "Validating Timestamp...";
-    await delay(400);
+    await delay(300);
     results.timeDelay.pass = isTimeValidFromText(compactText);
     setCk("timeDelay", results.timeDelay.pass ? "pass" : "fail");
-    await delay(300);
+    await delay(200);
 
     setCk("currency", "active");
     loadingTitle.textContent = "Checking Currency...";
-    await delay(400);
+    await delay(300);
     results.currency.pass = isCurrencyValid(upperText);
     setCk("currency", results.currency.pass ? "pass" : "fail");
-    await delay(300);
+    await delay(200);
 
     loadingTitle.textContent = "Finalizing...";
-    await delay(500);
+    await delay(400);
 
-    const allPassed = Object.values(results).every(r => r.pass);
-
-    if (allPassed) {
-      const amount  = extractAmount(upperText);
+    if (Object.values(results).every(r => r.pass)) {
+      const amount = extractAmount(upperText);
       const seconds = calcSeconds(amount);
       if (seconds > 0) {
         loadingOverlay.style.display = "none";
@@ -804,16 +804,16 @@ async function submitReceipt() {
         results.currency.pass = false;
         results.currency.label = "Currency / Amount (TZS)";
         loadingOverlay.style.display = "none";
-        showFail();
+        showFail("Could not extract valid TZS amount", 2000);
       }
     } else {
       loadingOverlay.style.display = "none";
-      showFail();
+      showFail("Some checks did not pass", 2000);
     }
   } catch (error) {
     console.error("Verification error:", error);
     loadingOverlay.style.display = "none";
-    showFail();
+    showFail("Error processing image", 2000);
   } finally {
     if (objectUrl) URL.revokeObjectURL(objectUrl);
     selectedFile = null;
@@ -822,9 +822,6 @@ async function submitReceipt() {
 
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-/* ============================================================
-   SESSION PERSISTENCE
-   ============================================================ */
 window.onload = () => {
   const endTime = parseInt(localStorage.getItem("sessionEnd"));
   if (endTime && Date.now() < endTime) {
