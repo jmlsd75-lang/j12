@@ -8,119 +8,174 @@
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Arial,sans-serif;background:#f4f4f4;min-height:100vh}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh;overflow-x:hidden}
 
+/* ===== PAGE 1: PAY OPTIONS ===== */
 #payOptionsPage{
   position:fixed;top:0;left:0;width:100%;height:100%;
-  background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);
+  background:linear-gradient(160deg,#0a0a0f 0%,#111827 40%,#0c1524 100%);
   display:flex;flex-direction:column;justify-content:center;align-items:center;
   padding:20px;overflow-y:auto
 }
-.pay-title{color:#fff;font-size:24px;font-weight:bold;margin-bottom:20px;text-align:center;text-transform:uppercase;letter-spacing:2px}
-.pay-subtitle{color:#aaa;font-size:14px;margin-bottom:25px}
-.payment-methods{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:400px;margin-bottom:25px}
+.pay-header{text-align:center;margin-bottom:24px}
+.pay-title{color:#fff;font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:3px;margin-bottom:6px}
+.pay-subtitle{color:#6b7280;font-size:13px;letter-spacing:1px}
+.payment-methods{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:400px;margin-bottom:20px}
 .method-card{
-  background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);
-  border-radius:10px;padding:12px;text-align:center;color:#fff;
-  font-size:13px;font-weight:bold;transition:0.3s
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  border-radius:10px;padding:14px 10px;text-align:center;color:#d1d5db;
+  font-size:12px;font-weight:600;transition:all .3s;cursor:default;
+  position:relative;overflow:hidden
 }
-.method-card:hover{background:rgba(255,255,255,0.2);transform:scale(1.02)}
-.method-card.airtel{border-left:4px solid #ff0000}
-.method-card.vodacom{border-left:4px solid #ff0000}
-.method-card.halotel{border-left:4px solid #00a651}
-.method-card.mix{border-left:4px solid #ffd700}
-.method-card.ttcl{border-left:4px solid #007bff}
-.method-card.crdb{border-left:4px solid #003366}
-.method-card.nmb{border-left:4px solid #ff6600}
-.method-card.nbc{border-left:4px solid #dc3545}
-.method-card.intl{border-left:4px solid #6f42c1;grid-column:span 2}
-.upload-text{
-  color:#ffd700;font-size:16px;font-weight:bold;margin:20px 0;
-  text-align:center;padding:15px;background:rgba(255,215,0,0.1);
-  border-radius:10px;border:2px dashed #ffd700;width:100%;max-width:400px
+.method-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:3px 0 0 3px}
+.method-card:hover{background:rgba(255,255,255,0.08);transform:translateY(-1px)}
+.method-card.airtel::before{background:#ff0000}
+.method-card.vodacom::before{background:#ff0000}
+.method-card.halotel::before{background:#00a651}
+.method-card.mix::before{background:#ffd700}
+.method-card.ttcl::before{background:#007bff}
+.method-card.crdb::before{background:#003366}
+.method-card.nmb::before{background:#ff6600}
+.method-card.nbc::before{background:#dc3545}
+.method-card.intl{grid-column:span 2}
+.method-card.intl::before{background:linear-gradient(180deg,#6f42c1,#007bff)}
+.method-icon{font-size:20px;margin-bottom:4px;display:block}
+.upload-prompt{
+  color:#ffd700;font-size:14px;font-weight:700;margin:18px 0;
+  text-align:center;padding:14px;
+  background:rgba(255,215,0,0.06);border:2px dashed rgba(255,215,0,0.3);
+  border-radius:12px;width:100%;max-width:400px;
+  letter-spacing:1px;animation:borderPulse 2s infinite
 }
-.receipt-info{background:rgba(0,0,0,0.3);border-radius:15px;padding:20px;width:100%;max-width:400px;margin-bottom:25px}
-.receipt-number{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.1)}
-.receipt-number:last-child{border-bottom:none}
-.number-label{color:#aaa;font-size:13px}
-.number-value{color:#fff;font-size:15px;font-weight:bold}
-.number-value.mix-color{color:#ffd700}
-.number-value.airtel-color{color:#ff4444}
-.page-buttons{display:flex;gap:15px;width:100%;max-width:400px}
-.btn{flex:1;padding:15px;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;transition:0.3s}
-.btn:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,0.3)}
-.btn-back{background:#6c757d;color:#fff}
-.btn-next{background:#28a745;color:#fff}
+@keyframes borderPulse{0%,100%{border-color:rgba(255,215,0,0.3)}50%{border-color:rgba(255,215,0,0.7)}}
+.receipt-info{
+  background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.06);
+  border-radius:14px;padding:16px 20px;width:100%;max-width:400px;margin-bottom:22px
+}
+.receipt-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.receipt-row:last-child{border-bottom:none}
+.row-label{color:#6b7280;font-size:12px;font-weight:500}
+.row-value{color:#fff;font-size:14px;font-weight:700;letter-spacing:.5px}
+.row-value.gold{color:#ffd700}
+.row-value.red{color:#ff4444}
+.page-buttons{display:flex;gap:12px;width:100%;max-width:400px}
+.btn{flex:1;padding:14px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all .3s;letter-spacing:1px}
+.btn:active{transform:scale(0.97)}
+.btn-back{background:rgba(255,255,255,0.08);color:#9ca3af;border:1px solid rgba(255,255,255,0.1)}
+.btn-back:hover{background:rgba(255,255,255,0.12)}
+.btn-next{background:linear-gradient(135deg,#ffd700,#f59e0b);color:#0a0a0f}
+.btn-next:hover{box-shadow:0 4px 20px rgba(255,215,0,0.3);transform:translateY(-1px)}
 
+/* ===== PAGE 2: CAMERA SELECT ===== */
 #cameraSelectPage{
   position:fixed;top:0;left:0;width:100%;height:100%;
-  background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);
-  display:none;flex-direction:column;justify-content:center;align-items:center;gap:20px;padding:20px
+  background:linear-gradient(160deg,#0a0a0f 0%,#111827 40%,#0c1524 100%);
+  display:none;flex-direction:column;justify-content:center;align-items:center;gap:16px;padding:20px
 }
-.select-title{color:#fff;font-size:22px;font-weight:bold;margin-bottom:10px}
-.select-subtitle{color:#aaa;font-size:14px;margin-bottom:20px}
-.select-buttons{display:flex;flex-direction:column;gap:15px;width:100%;max-width:300px}
-.btn-camera,.btn-photos,.btn-back-select{
-  padding:20px;color:#fff;border:none;border-radius:12px;
-  font-size:18px;font-weight:bold;cursor:pointer;transition:0.3s
+.select-title{color:#fff;font-size:20px;font-weight:800;letter-spacing:2px}
+.select-subtitle{color:#6b7280;font-size:13px}
+.select-buttons{display:flex;flex-direction:column;gap:12px;width:100%;max-width:300px;margin-top:10px}
+.btn-sel{
+  padding:18px;color:#fff;border:none;border-radius:12px;
+  font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;letter-spacing:1px
 }
-.btn-camera{background:#007bff}
-.btn-camera:hover{background:#0056b3;transform:scale(1.02)}
-.btn-photos{background:#17a2b8}
-.btn-photos:hover{background:#117a8b;transform:scale(1.02)}
-.btn-back-select{background:#dc3545}
-.btn-back-select:hover{background:#c82333;transform:scale(1.02)}
+.btn-sel:active{transform:scale(0.97)}
+.btn-cam{background:linear-gradient(135deg,#007bff,#0056b3)}
+.btn-cam:hover{box-shadow:0 4px 20px rgba(0,123,255,0.3)}
+.btn-gal{background:linear-gradient(135deg,#17a2b8,#117a8b)}
+.btn-gal:hover{box-shadow:0 4px 20px rgba(23,162,184,0.3)}
+.btn-sel-back{background:rgba(220,53,69,0.15);color:#ef4444;border:1px solid rgba(220,53,69,0.3)}
+.btn-sel-back:hover{background:rgba(220,53,69,0.25)}
 
+/* ===== PAGE 3: PREVIEW ===== */
 #previewPage{
   position:fixed;top:0;left:0;width:100%;height:100%;
-  background:#fff;display:none;flex-direction:column;
+  background:#0a0a0f;display:none;flex-direction:column;
   justify-content:center;align-items:center;padding:20px
 }
-.preview-title{color:#333;font-size:18px;font-weight:bold;margin-bottom:15px}
-#previewImage{max-width:90%;max-height:55%;border-radius:12px;box-shadow:0 8px 25px rgba(0,0,0,0.2);margin-bottom:20px}
-.preview-buttons{display:flex;gap:15px}
-.btn-cancel,.btn-submit{padding:15px 30px;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer;transition:0.3s}
-.btn-cancel{background:#dc3545}
-.btn-cancel:hover{background:#c82333}
-.btn-submit{background:#28a745}
-.btn-submit:hover{background:#218838}
+.preview-title{color:#fff;font-size:16px;font-weight:700;margin-bottom:14px;letter-spacing:1px}
+#previewImage{max-width:90%;max-height:50%;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.5);margin-bottom:18px;border:1px solid rgba(255,255,255,0.08)}
+.preview-buttons{display:flex;gap:12px}
+.btn-prev{padding:14px 28px;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all .3s;letter-spacing:1px}
+.btn-prev:active{transform:scale(0.97)}
+.btn-cancel{background:rgba(220,53,69,0.15);color:#ef4444;border:1px solid rgba(220,53,69,0.3)}
+.btn-cancel:hover{background:rgba(220,53,69,0.25)}
+.btn-submit{background:linear-gradient(135deg,#28a745,#1e7e34);color:#fff}
+.btn-submit:hover{box-shadow:0 4px 20px rgba(40,167,69,0.3)}
 
-#timerPage{
-  position:fixed;top:0;left:0;width:100%;height:100%;
-  background:linear-gradient(135deg,#0d0d0d 0%,#1a1a2e 50%,#0f3460 100%);
-  display:none;flex-direction:column;justify-content:center;align-items:center;z-index:500;padding:20px
-}
-.timer-success-icon{font-size:60px;margin-bottom:15px;animation:pulse 2s infinite}
-@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
-.timer-title{color:#28a745;font-size:20px;font-weight:bold;margin-bottom:5px}
-.timer-subtitle{color:#aaa;font-size:14px;margin-bottom:30px}
-#timerDisplay{
-  font-size:70px;font-weight:bold;color:#fff;
-  font-family:'Courier New',monospace;
-  background:rgba(0,0,0,0.4);padding:20px 40px;
-  border-radius:15px;border:2px solid rgba(40,167,69,0.5);
-  margin-bottom:20px;text-shadow:0 0 20px rgba(40,167,69,0.5)
-}
-.timer-info{color:#888;font-size:13px;margin-top:10px}
-.timer-amount{color:#ffd700;font-size:18px;font-weight:bold;margin-top:5px}
-
+/* ===== LOADING OVERLAY ===== */
 #loadingOverlay{
   position:fixed;top:0;left:0;width:100%;height:100%;
-  background:rgba(0,0,0,0.9);display:none;justify-content:center;
-  align-items:center;flex-direction:column;z-index:1000
+  background:rgba(5,5,10,0.97);display:none;justify-content:center;
+  align-items:center;flex-direction:column;z-index:1000;padding:30px
 }
-.loader{border:8px solid #333;border-top:8px solid #ffd700;border-radius:50%;width:60px;height:60px;animation:spin 1s linear infinite}
-@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-#loadingText{color:#fff;margin-top:20px;font-size:16px}
+.loader-wrap{margin-bottom:24px;position:relative;width:60px;height:60px}
+.loader{border:4px solid rgba(255,255,255,0.08);border-top:4px solid #ffd700;border-radius:50%;width:60px;height:60px;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loadingTitle{color:#fff;font-size:17px;font-weight:700;margin-bottom:20px;letter-spacing:1px}
+.check-list{width:100%;max-width:320px;display:flex;flex-direction:column;gap:6px}
+.check-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 12px;border-radius:8px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.04);
+  font-size:13px;color:#6b7280;transition:all .4s
+}
+.check-item.active{color:#d1d5db;border-color:rgba(255,215,0,0.2);background:rgba(255,215,0,0.04)}
+.check-item.pass{color:#34d399;border-color:rgba(52,211,153,0.3);background:rgba(52,211,153,0.06)}
+.check-item.fail{color:#f87171;border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.06)}
+.check-icon{width:20px;text-align:center;font-size:14px;flex-shrink:0}
 
+/* ===== SUCCESS OVERLAY ===== */
+#successOverlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(5,5,10,0.97);display:none;justify-content:center;
+  align-items:center;flex-direction:column;z-index:1500
+}
+.success-icon{
+  width:90px;height:90px;border-radius:50%;
+  background:linear-gradient(135deg,#28a745,#1e7e34);
+  display:flex;align-items:center;justify-content:center;
+  font-size:42px;margin-bottom:20px;
+  animation:successPop .5s cubic-bezier(.175,.885,.32,1.275)
+}
+@keyframes successPop{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+.success-title{color:#34d399;font-size:22px;font-weight:800;letter-spacing:2px;margin-bottom:6px}
+.success-sub{color:#6b7280;font-size:13px;margin-bottom:20px}
+.success-amount{color:#ffd700;font-size:16px;font-weight:700;margin-bottom:6px}
+.success-redirect{color:#4b5563;font-size:12px;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.success-bar{
+  width:200px;height:3px;background:rgba(255,255,255,0.08);border-radius:3px;
+  margin-top:20px;overflow:hidden
+}
+.success-bar-fill{height:100%;background:#28a745;border-radius:3px;animation:barFill 2.5s linear forwards}
+@keyframes barFill{0%{width:0}100%{width:100%}}
+
+/* ===== FAIL OVERLAY ===== */
 #failOverlay{
   position:fixed;top:0;left:0;width:100%;height:100%;
-  background:rgba(220,53,69,0.95);display:none;justify-content:center;
-  align-items:center;flex-direction:column;z-index:2000
+  background:rgba(5,5,10,0.97);display:none;justify-content:center;
+  align-items:center;flex-direction:column;z-index:2000;padding:30px;
+  overflow-y:auto
 }
-.fail-icon{font-size:80px;margin-bottom:20px}
-.fail-text{color:#fff;font-size:24px;font-weight:bold;margin-bottom:10px}
-.fail-sub{color:rgba(255,255,255,0.8);font-size:14px}
+.fail-icon{
+  width:90px;height:90px;border-radius:50%;
+  background:linear-gradient(135deg,#dc3545,#a71d2a);
+  display:flex;align-items:center;justify-content:center;
+  font-size:42px;margin-bottom:20px;
+  animation:failShake .5s ease
+}
+@keyframes failShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.fail-title{color:#f87171;font-size:22px;font-weight:800;letter-spacing:2px;margin-bottom:16px}
+.fail-checks{width:100%;max-width:320px;margin-bottom:20px;display:flex;flex-direction:column;gap:5px}
+.fail-check-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 12px;border-radius:8px;
+  font-size:12px;font-weight:500;
+}
+.fail-check-item.pass{color:#34d399;background:rgba(52,211,153,0.06)}
+.fail-check-item.fail{color:#f87171;background:rgba(248,113,113,0.06)}
+.fail-redirect{color:#4b5563;font-size:12px;animation:blink 1.2s infinite}
 
 .hidden-input{display:none}
 </style>
@@ -130,33 +185,35 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;min-height:100vh}
 <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden-input">
 <input type="file" id="photosInput" accept="image/*" class="hidden-input">
 
-<!-- PAGE 1: PAY OPTIONS -->
+<!-- ===== PAGE 1: PAY OPTIONS ===== -->
 <div id="payOptionsPage">
-  <div class="pay-title">Pay Through</div>
-  <div class="pay-subtitle">Mobile Money & Banking Apps</div>
-  
-  <div class="payment-methods">
-    <div class="method-card airtel">📱 Airtel Money</div>
-    <div class="method-card vodacom">📱 Vodacom M-Pesa</div>
-    <div class="method-card halotel">📱 Halotel Halopesa</div>
-    <div class="method-card mix">💰 Mix by Yas</div>
-    <div class="method-card ttcl">📱 TTCL</div>
-    <div class="method-card crdb">🏦 CRDB Bank App</div>
-    <div class="method-card nmb">🏦 NMB Bank App</div>
-    <div class="method-card nbc">🏦 NBC Bank App</div>
-    <div class="method-card intl">🌐 Other International Bank Apps</div>
+  <div class="pay-header">
+    <div class="pay-title">Pay Through</div>
+    <div class="pay-subtitle">Mobile Money & Banking Apps</div>
   </div>
   
-  <div class="upload-text">📷 UPLOAD RECEIPT AFTER PAYMENT</div>
+  <div class="payment-methods">
+    <div class="method-card airtel"><span class="method-icon">📱</span>Airtel Money</div>
+    <div class="method-card vodacom"><span class="method-icon">📱</span>Vodacom M-Pesa</div>
+    <div class="method-card halotel"><span class="method-icon">📱</span>Halotel Halopesa</div>
+    <div class="method-card mix"><span class="method-icon">💰</span>Mix by Yas</div>
+    <div class="method-card ttcl"><span class="method-icon">📱</span>TTCL</div>
+    <div class="method-card crdb"><span class="method-icon">🏦</span>CRDB Bank App</div>
+    <div class="method-card nmb"><span class="method-icon">🏦</span>NMB Bank App</div>
+    <div class="method-card nbc"><span class="method-icon">🏦</span>NBC Bank App</div>
+    <div class="method-card intl"><span class="method-icon">🌐</span>Other International Bank Apps</div>
+  </div>
+  
+  <div class="upload-prompt">📷 UPLOAD RECEIPT AFTER PAYMENT</div>
   
   <div class="receipt-info">
-    <div class="receipt-number">
-      <span class="number-label">Mix by Yas</span>
-      <span class="number-value mix-color">+255 655 510 714</span>
+    <div class="receipt-row">
+      <span class="row-label">Mix by Yas</span>
+      <span class="row-value gold">+255 655 510 714</span>
     </div>
-    <div class="receipt-number">
-      <span class="number-label">Airtel Money</span>
-      <span class="number-value airtel-color">+255 780 526 437</span>
+    <div class="receipt-row">
+      <span class="row-label">Airtel Money</span>
+      <span class="row-value red">+255 780 526 437</span>
     </div>
   </div>
   
@@ -166,101 +223,152 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;min-height:100vh}
   </div>
 </div>
 
-<!-- PAGE 2: CAMERA/PHOTOS SELECTION -->
+<!-- ===== PAGE 2: CAMERA/PHOTOS SELECT ===== -->
 <div id="cameraSelectPage">
   <div class="select-title">Upload Receipt</div>
   <div class="select-subtitle">Choose how to upload your payment receipt</div>
   <div class="select-buttons">
-    <button class="btn-camera" onclick="openCamera()">📸 CAMERA</button>
-    <button class="btn-photos" onclick="openPhotos()">🖼️ PHOTOS</button>
-    <button class="btn-back-select" onclick="goBackToPayOptions()">⬅ BACK</button>
+    <button class="btn-sel btn-cam" onclick="openCamera()">📸 CAMERA</button>
+    <button class="btn-sel btn-gal" onclick="openPhotos()">🖼️ PHOTOS</button>
+    <button class="btn-sel btn-sel-back" onclick="goBackToPayOptions()">⬅ BACK</button>
   </div>
 </div>
 
-<!-- PAGE 3: PREVIEW -->
+<!-- ===== PAGE 3: PREVIEW ===== -->
 <div id="previewPage">
   <div class="preview-title">Receipt Preview</div>
   <img id="previewImage" src="" alt="Receipt Preview">
   <div class="preview-buttons">
-    <button class="btn-cancel" onclick="cancelPreview()">✖ CANCEL</button>
-    <button class="btn-submit" onclick="submitReceipt()">✓ SUBMIT</button>
+    <button class="btn-prev btn-cancel" onclick="cancelPreview()">✖ CANCEL</button>
+    <button class="btn-prev btn-submit" onclick="submitReceipt()">✓ SUBMIT</button>
   </div>
 </div>
 
-<!-- TIMER PAGE -->
-<div id="timerPage">
-  <div class="timer-success-icon">✅</div>
-  <div class="timer-title">PAYMENT VERIFIED!</div>
-  <div class="timer-subtitle">Your session is now active</div>
-  <div id="timerDisplay">00:00:00</div>
-  <div class="timer-amount" id="timerAmount"></div>
-  <div class="timer-info">When timer reaches 00:00:00 you will return to free page</div>
-</div>
-
-<!-- LOADING OVERLAY -->
+<!-- ===== LOADING: VERIFICATION CHECKLIST ===== -->
 <div id="loadingOverlay">
-  <div class="loader"></div>
-  <p id="loadingText">Processing Payment...</p>
+  <div class="loader-wrap"><div class="loader"></div></div>
+  <div id="loadingTitle">Verifying Payment...</div>
+  <div class="check-list">
+    <div class="check-item" id="ck-photoType"><span class="check-icon">⏳</span>Photo Type (Receipt/QR)</div>
+    <div class="check-item" id="ck-textExtract"><span class="check-icon">⏳</span>Text Extraction</div>
+    <div class="check-item" id="ck-nameMatch"><span class="check-icon">⏳</span>Name Validation</div>
+    <div class="check-item" id="ck-phoneMatch"><span class="check-icon">⏳</span>Phone Number Match</div>
+    <div class="check-item" id="ck-txnId"><span class="check-icon">⏳</span>Transaction ID</div>
+    <div class="check-item" id="ck-timeDelay"><span class="check-icon">⏳</span>Time Delay (&lt;10 min)</div>
+    <div class="check-item" id="ck-currency"><span class="check-icon">⏳</span>Currency (TZS)</div>
+  </div>
 </div>
 
-<!-- FAIL OVERLAY -->
+<!-- ===== SUCCESS OVERLAY ===== -->
+<div id="successOverlay">
+  <div class="success-icon">✓</div>
+  <div class="success-title">PAYMENT VERIFIED</div>
+  <div class="success-sub">All 7 checks passed successfully</div>
+  <div class="success-amount" id="successAmount"></div>
+  <div class="success-redirect">Redirecting to menu.html ...</div>
+  <div class="success-bar"><div class="success-bar-fill"></div></div>
+</div>
+
+<!-- ===== FAIL OVERLAY ===== -->
 <div id="failOverlay">
-  <div class="fail-icon">❌</div>
-  <div class="fail-text">PAYMENT INVALID!</div>
-  <div class="fail-sub">Redirecting back...</div>
+  <div class="fail-icon">✕</div>
+  <div class="fail-title">PAYMENT INVALID</div>
+  <div class="fail-checks" id="failChecks"></div>
+  <div class="fail-redirect">Redirecting to free.html ...</div>
 </div>
 
 <script>
+/* ============================================================
+   PAYMENT VERIFICATION ENGINE
+   Rules 1–10 fully implemented
+   ============================================================ */
+
 let selectedFile = null;
-let timerInterval = null;
 
+/* ---------- Rule 3: Valid Names (Exact Match, Case-Insensitive) ---------- */
 const VALID_NAMES = [
-  "JAMAL SAID KAZEMBE",
-  "JAMAL SAID",
   "JAMAL KAZEMBE",
-  "JAMALI SAIDI KAZEMBE"
+  "JAMAL SAID",
+  "JAMAL SAID KAZEMBE"
 ];
 
-const VALID_NUMBERS = [
-  "655510714",
-  "780526437"
+/* ---------- Rule 4: Valid Phone Numbers (Spaces Allowed) ---------- */
+const PHONE_PATTERNS = [
+  /(?:\+?255\s?)?780\s?526\s?437/,
+  /(?:\+?255\s?)?655\s?510\s?714/
 ];
 
-// ============ PAGE NAVIGATION ============
-function showPage(pageId) {
-  document.getElementById("payOptionsPage").style.display = "none";
-  document.getElementById("cameraSelectPage").style.display = "none";
-  document.getElementById("previewPage").style.display = "none";
-  document.getElementById("timerPage").style.display = "none";
-  document.getElementById(pageId).style.display = "flex";
+/* ---------- Foreign currency codes to reject (Rule 7) ---------- */
+const FOREIGN_CURRENCIES = [
+  "USD","EUR","GBP","KES","UGX","RWF","BIF","ZAR","CNY","JPY",
+  "INR","AED","SAR","QAR","OMR","BHD","KWD","MAD","EGP","CDF"
+];
+
+/* ---------- Verification results storage ---------- */
+const results = {
+  photoType:    { pass: false, label: "Photo Type (Receipt/QR)" },
+  textExtract:  { pass: false, label: "Text Extraction" },
+  nameMatch:    { pass: false, label: "Name Validation" },
+  phoneMatch:   { pass: false, label: "Phone Number Match" },
+  txnId:        { pass: false, label: "Transaction ID" },
+  timeDelay:    { pass: false, label: "Time Delay (<10 min)" },
+  currency:     { pass: false, label: "Currency (TZS)" }
+};
+
+/* ---------- DOM references for checklist items ---------- */
+const ckEls = {
+  photoType:   document.getElementById("ck-photoType"),
+  textExtract: document.getElementById("ck-textExtract"),
+  nameMatch:   document.getElementById("ck-nameMatch"),
+  phoneMatch:  document.getElementById("ck-phoneMatch"),
+  txnId:       document.getElementById("ck-txnId"),
+  timeDelay:   document.getElementById("ck-timeDelay"),
+  currency:    document.getElementById("ck-currency")
+};
+
+/* Update a checklist item to active / pass / fail */
+function setCk(key, status) {
+  const el = ckEls[key];
+  el.className = "check-item " + status;
+  const icon = el.querySelector(".check-icon");
+  if (status === "active")  icon.textContent = "⏳";
+  if (status === "pass")    icon.textContent = "✅";
+  if (status === "fail")    icon.textContent = "❌";
 }
 
-function goBack() {
-  window.location.href = "free.html";
+function resetAllCk() {
+  Object.keys(ckEls).forEach(k => {
+    ckEls[k].className = "check-item";
+    ckEls[k].querySelector(".check-icon").textContent = "⏳";
+    results[k].pass = false;
+  });
 }
 
-function goNext() {
-  showPage("cameraSelectPage");
+/* ============================================================
+   PAGE NAVIGATION
+   ============================================================ */
+function showPage(id) {
+  ["payOptionsPage","cameraSelectPage","previewPage"].forEach(p => {
+    document.getElementById(p).style.display = "none";
+  });
+  document.getElementById(id).style.display = "flex";
 }
 
-function goBackToPayOptions() {
-  showPage("payOptionsPage");
-}
+function goBack()  { window.location.href = "free.html"; }
+function goNext()  { showPage("cameraSelectPage"); }
+function goBackToPayOptions() { showPage("payOptionsPage"); }
 
-// ============ CAMERA & PHOTOS ============
-function openCamera() {
-  document.getElementById("cameraInput").click();
-}
-
-function openPhotos() {
-  document.getElementById("photosInput").click();
-}
+/* ============================================================
+   CAMERA & PHOTO INPUT
+   ============================================================ */
+function openCamera() { document.getElementById("cameraInput").click(); }
+function openPhotos() { document.getElementById("photosInput").click(); }
 
 function handleFile(file) {
   if (!file) return;
   selectedFile = file;
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = e => {
     document.getElementById("previewImage").src = e.target.result;
     showPage("previewPage");
   };
@@ -269,13 +377,8 @@ function handleFile(file) {
   document.getElementById("photosInput").value = "";
 }
 
-document.getElementById("cameraInput").addEventListener("change", (e) => {
-  handleFile(e.target.files[0]);
-});
-
-document.getElementById("photosInput").addEventListener("change", (e) => {
-  handleFile(e.target.files[0]);
-});
+document.getElementById("cameraInput").addEventListener("change", e => handleFile(e.target.files[0]));
+document.getElementById("photosInput").addEventListener("change", e => handleFile(e.target.files[0]));
 
 function cancelPreview() {
   selectedFile = null;
@@ -283,241 +386,331 @@ function cancelPreview() {
   showPage("cameraSelectPage");
 }
 
-// ============ TIMER ============
-function startTimer(totalSeconds, amountTZS) {
-  clearInterval(timerInterval);
-  
-  const endTime = Date.now() + totalSeconds * 1000;
-  localStorage.setItem("sessionEnd", String(endTime));
-  
-  document.getElementById("timerAmount").textContent = "Paid: " + amountTZS.toLocaleString() + " TZS";
-  
-  timerInterval = setInterval(() => {
-    const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
-    
-    if (remaining <= 0) {
-      clearInterval(timerInterval);
-      localStorage.removeItem("sessionEnd");
-      document.getElementById("timerDisplay").textContent = "00:00:00";
-      
-      // REDIRECT TO FREE.HTML WHEN TIMER REACHES 00:00:00
-      setTimeout(() => {
-        window.location.href = "free.html";
-      }, 1500);
-      return;
-    }
-    
-    const hrs = Math.floor(remaining / 3600);
-    const mins = Math.floor((remaining % 3600) / 60);
-    const secs = remaining % 60;
-    
-    document.getElementById("timerDisplay").textContent =
-      String(hrs).padStart(2, "0") + ":" +
-      String(mins).padStart(2, "0") + ":" +
-      String(secs).padStart(2, "0");
-      
-  }, 1000);
-}
-
-// ============ IMAGE PREPROCESSING ============
+/* ============================================================
+   IMAGE PREPROCESSING (grayscale + threshold for OCR)
+   ============================================================ */
 function preprocessImage(canvas) {
   const ctx = canvas.getContext("2d");
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const data = imageData.data;
-  let totalBrightness = 0;
-  
-  for (let i = 0; i < data.length; i += 4) {
-    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-    data[i] = avg;
-    data[i + 1] = avg;
-    data[i + 2] = avg;
-    totalBrightness += avg;
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const d = imgData.data;
+  let totalB = 0;
+  /* Grayscale */
+  for (let i = 0; i < d.length; i += 4) {
+    const avg = d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114;
+    d[i] = d[i+1] = d[i+2] = avg;
+    totalB += avg;
   }
-  
-  const avgBrightness = totalBrightness / (data.length / 4);
-  
-  for (let i = 0; i < data.length; i += 4) {
-    let val = data[i];
-    if (avgBrightness < 128) val = 255 - val;
-    if (val > 140) val = 255;
-    else if (val < 120) val = 0;
-    data[i] = val;
-    data[i + 1] = val;
-    data[i + 2] = val;
+  const avgB = totalB / (d.length / 4);
+  /* Adaptive threshold: invert dark backgrounds */
+  const inv = avgB < 128;
+  for (let i = 0; i < d.length; i += 4) {
+    let v = d[i];
+    if (inv) v = 255 - v;
+    v = v > 140 ? 255 : (v < 110 ? 0 : v);
+    d[i] = d[i+1] = d[i+2] = v;
   }
-  
-  ctx.putImageData(imageData, 0, 0);
+  ctx.putImageData(imgData, 0, 0);
   return canvas;
 }
 
-// ============ TIME VALIDATION ============
+/* ============================================================
+   RULE 5: Transaction ID Detection
+   Looks for labeled IDs or mixed alphanumeric strings ≥8 chars
+   ============================================================ */
+function hasTransactionId(text) {
+  /* Labeled patterns: "TID: xxx", "Transaction ID xxx", "Ref: xxx", etc. */
+  if (/(?:transaction\s*id|tid|txn|ref(?:erence)?|trans\s*id|receipt\s*(?:no|number))\s*[:.\-]?\s*[A-Z0-9]{4,}/i.test(text)) return true;
+  /* Standalone mixed alphanumeric strings of 8+ characters */
+  const words = text.replace(/[^\w\s]/g, " ").split(/\s+/);
+  for (const w of words) {
+    if (w.length >= 8 && /[A-Z]/i.test(w) && /[0-9]/.test(w)) {
+      /* Exclude known phone-number-like digit patterns */
+      const digits = w.replace(/\D/g, "");
+      if (digits.length === 9 && /^(780|655)/.test(digits)) continue; /* skip our phone numbers */
+      return true;
+    }
+  }
+  return false;
+}
+
+/* ============================================================
+   RULE 6: Time Delay Check (≤ 10 minutes)
+   ============================================================ */
 function isTimeValidFromText(text) {
   const clean = text.toUpperCase().replace(/\s+/g, " ");
-  const match = clean.match(/\b(\d{1,2})[:. ](\d{2})([:. ](\d{2}))?\s?(AM|PM)?\b/);
-  
+  /* Match time patterns: HH:MM, HH:MM:SS, HH.MM, with optional AM/PM */
+  const match = clean.match(/\b(\d{1,2})[:.](\d{2})([:.](\d{2}))?\s?(AM|PM)?\b/);
   if (!match) return false;
-  
+
   let hours = parseInt(match[1]);
   const minutes = parseInt(match[2]);
   const ampm = match[5];
-  
+
   if (ampm) {
     if (ampm === "PM" && hours < 12) hours += 12;
     if (ampm === "AM" && hours === 12) hours = 0;
   }
-  
+  if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return false;
+
   const now = new Date();
   const receipt = new Date();
-  receipt.setHours(hours);
-  receipt.setMinutes(minutes);
-  receipt.setSeconds(0);
-  
-  if (receipt > now) {
-    receipt.setDate(receipt.getDate() - 1);
-  }
-  
-  const diff = Math.abs((now - receipt) / 60000);
-  return diff <= 10;
+  receipt.setHours(hours, minutes, 0, 0);
+
+  /* If receipt time is ahead of now, assume yesterday */
+  if (receipt > now) receipt.setDate(receipt.getDate() - 1);
+
+  const diffMin = Math.abs((now - receipt) / 60000);
+  return diffMin <= 10;
 }
 
-// ============ CURRENCY DETECTION ============
-function detectCurrency(text) {
-  const match = text.match(/([A-Z]{3}|[$€£¥₦₵₱₴])\s?([\d,]+)/i);
-  
-  if (match) {
-    return {
-      currency: match[1].toUpperCase(),
-      amount: parseInt(match[2].replace(/,/g, ""))
-    };
+/* ============================================================
+   RULE 7: Currency Check (must be TZS — reject foreign)
+   ============================================================ */
+function isCurrencyValid(text) {
+  for (const fc of FOREIGN_CURRENCIES) {
+    if (text.includes(fc)) return false;
   }
-  
-  const nums = text.match(/\d{3,7}/g);
-  return {
-    currency: "TZS",
-    amount: nums ? Math.max(...nums.map(n => parseInt(n))) : 0
-  };
+  return true; /* No foreign currency detected → assume TZS */
 }
 
-// ============ CURRENCY CONVERSION ============
-async function convertToTZS(amount, currency) {
-  if (currency === "TZS" || currency === "TSH") return amount;
-  
-  try {
-    const res = await fetch("https://api.exchangerate-api.com/v4/latest/" + currency);
-    const data = await res.json();
-    const rate = data.rates["TZS"];
-    return rate ? amount * rate : 0;
-  } catch (e) {
-    return 0;
+/* ============================================================
+   AMOUNT EXTRACTION from receipt text
+   ============================================================ */
+function extractAmount(text) {
+  const patterns = [
+    /(?:TSH|TZS|T\.?\s*S\.?\s*H?)\s*[:.\s]*([\d,]+(?:\.\d+)?)/i,
+    /([\d,]+(?:\.\d+)?)\s*(?:TSH|TZS|T\.?\s*S\.?\s*H?)/i,
+    /(?:AMOUNT|AMNT|TOTAL|SUM|PAID)\s*[:.\s]*([\d,]+(?:\.\d+)?)/i
+  ];
+  for (const p of patterns) {
+    const m = text.match(p);
+    if (m) return parseFloat(m[1].replace(/,/g, ""));
   }
+  /* Fallback: largest number found (3+ digits) */
+  const nums = text.match(/\b[\d,]{3,}\b/g);
+  if (nums) {
+    const parsed = nums.map(n => parseInt(n.replace(/,/g, ""))).filter(n => n > 0);
+    if (parsed.length) return Math.max(...parsed);
+  }
+  return 0;
 }
 
-// ============ FAIL REDIRECT ============
+/* ============================================================
+   RULE 9: TZS Conversion Formula
+   Amount in TZS = (Amount / 500) × 3600  →  this gives seconds
+   ============================================================ */
+function calcSeconds(amount) {
+  return Math.floor((amount / 500) * 3600);
+}
+
+/* ============================================================
+   SHOW SUCCESS → REDIRECT TO menu.html
+   ============================================================ */
+function showSuccess(amount, seconds) {
+  const tzsDisplay = amount.toLocaleString() + " TZS";
+  const hrs = Math.floor(seconds / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
+  const timeStr = hrs > 0 ? hrs + "h " + mins + "m" : mins + "m";
+
+  document.getElementById("successAmount").textContent =
+    "Paid: " + tzsDisplay + "  •  Session: " + timeStr;
+  document.getElementById("successOverlay").style.display = "flex";
+
+  /* Save session end time to localStorage */
+  const endTime = Date.now() + seconds * 1000;
+  localStorage.setItem("sessionEnd", String(endTime));
+  localStorage.setItem("sessionAmount", tzsDisplay);
+
+  /* Redirect to menu.html after animation */
+  setTimeout(() => {
+    window.location.href = "menu.html";
+  }, 2800);
+}
+
+/* ============================================================
+   SHOW FAIL → REDIRECT TO free.html
+   ============================================================ */
 function showFail() {
+  const container = document.getElementById("failChecks");
+  container.innerHTML = "";
+
+  Object.keys(results).forEach(key => {
+    const r = results[key];
+    const div = document.createElement("div");
+    div.className = "fail-check-item " + (r.pass ? "pass" : "fail");
+    div.innerHTML = (r.pass ? "✅ " : "❌ ") + r.label;
+    container.appendChild(div);
+  });
+
   document.getElementById("failOverlay").style.display = "flex";
+
+  /* Redirect to free.html after delay */
   setTimeout(() => {
     window.location.href = "free.html";
-  }, 2000);
+  }, 3500);
 }
 
-// ============ SUBMIT RECEIPT ============
+/* ============================================================
+   RULE 8 & 10: MAIN VERIFICATION FLOW
+   ============================================================ */
 async function submitReceipt() {
-  if (!selectedFile) {
-    alert("No receipt selected!");
-    return;
-  }
-  
+  if (!selectedFile) { alert("No receipt selected!"); return; }
+
   const loadingOverlay = document.getElementById("loadingOverlay");
-  const loadingText = document.getElementById("loadingText");
-  
+  const loadingTitle   = document.getElementById("loadingTitle");
+
+  resetAllCk();
   loadingOverlay.style.display = "flex";
-  loadingText.textContent = "Verifying Account...";
-  
+  loadingTitle.textContent = "Verifying Payment...";
+
   let objectUrl = null;
-  
+
   try {
+    /* ---- Load image into canvas ---- */
     const img = new Image();
     objectUrl = URL.createObjectURL(selectedFile);
     img.src = objectUrl;
-    
+
     await new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error("Timeout")), 8000);
-      img.onload = () => { clearTimeout(timer); resolve(); };
-      img.onerror = () => reject(new Error("Invalid image"));
+      const t = setTimeout(() => reject(new Error("Image load timeout")), 10000);
+      img.onload  = () => { clearTimeout(t); resolve(); };
+      img.onerror = () => { clearTimeout(t); reject(new Error("Invalid image")); };
     });
-    
+
     const MAX_W = 1500;
     const scale = Math.min(1, MAX_W / img.width);
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
-    canvas.width = Math.floor(img.width * scale);
+    canvas.width  = Math.floor(img.width * scale);
     canvas.height = Math.floor(img.height * scale);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    
-    let detectedText = "";
-    
-    loadingText.textContent = "Scanning QR Code...";
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    /* ==== RULE 1: Photo Type Check ==== */
+    setCk("photoType", "active");
+    await delay(400);
+
+    let extractedText = "";
+    let isQR = false;
+
+    /* Try QR code first */
     const qr = jsQR(imageData.data, canvas.width, canvas.height);
-    
-    if (qr && qr.data) {
-      detectedText = qr.data;
-    } else {
-      loadingText.textContent = "Reading Receipt Text...";
-      preprocessImage(canvas);
-      const { data } = await Tesseract.recognize(canvas, "eng", {
+    if (qr && qr.data && qr.data.trim().length > 0) {
+      isQR = true;
+      extractedText = qr.data.trim();
+    }
+
+    /* If not QR, try OCR (receipt) */
+    if (!isQR) {
+      const preCanvas = preprocessImage(canvas);
+      loadingTitle.textContent = "Reading Receipt...";
+      const { data } = await Tesseract.recognize(preCanvas, "eng", {
         tessedit_pageseg_mode: 6
       });
-      detectedText = (data.text || "").replace(/\s+/g, " ").trim();
+      extractedText = (data.text || "").replace(/\s+/g, " ").trim();
     }
-    
-    loadingText.textContent = "Validating Payment...";
-    
-    const upperText = detectedText.toUpperCase();
-    const cleanSearchText = upperText.replace(/\s+/g, " ");
-    
-    // Check name
-    let nameFound = false;
-    for (const name of VALID_NAMES) {
-      if (cleanSearchText.includes(name)) {
-        nameFound = true;
-        break;
-      }
-    }
-    
-    // Check number
-    let numberFound = false;
-    if (nameFound) {
-      for (const num of VALID_NUMBERS) {
-        if (cleanSearchText.includes(num)) {
-          numberFound = true;
-          break;
-        }
-      }
-    }
-    
-    // Check time
-    let timeValid = isTimeValidFromText(cleanSearchText);
-    
-    // Detect amount
-    const { currency, amount } = detectCurrency(cleanSearchText);
-    const tzsAmount = await convertToTZS(amount, currency);
-    
-    // Calculate seconds (300 TZS = 1 hour)
-    const seconds = Math.floor((tzsAmount / 300) * 3600);
-    
-    // FINAL CHECK
-    if (nameFound && numberFound && timeValid && seconds > 0) {
+
+    /* Photo type is valid if it's a QR code OR extractable text (receipt) */
+    const isReceipt = extractedText.length > 0;
+    results.photoType.pass = isQR || isReceipt;
+    setCk("photoType", results.photoType.pass ? "pass" : "fail");
+    await delay(300);
+
+    /* ==== RULE 2: Text Extraction ==== */
+    setCk("textExtract", "active");
+    await delay(300);
+    results.textExtract.pass = extractedText.length > 0;
+    setCk("textExtract", results.textExtract.pass ? "pass" : "fail");
+    await delay(300);
+
+    /* If photo type or text extraction failed, stop early */
+    if (!results.photoType.pass || !results.textExtract.pass) {
       loadingOverlay.style.display = "none";
-      showPage("timerPage");
-      startTimer(seconds, tzsAmount);
+      showFail();
+      return;
+    }
+
+    /* Normalize text for matching */
+    const upperText = extractedText.toUpperCase();
+    /* Keep original spacing for phone matching, create compact version for name matching */
+    const compactText = upperText.replace(/\s+/g, " ");
+
+    /* ==== RULE 3: Name Validation (Exact Match) ==== */
+    setCk("nameMatch", "active");
+    loadingTitle.textContent = "Validating Name...";
+    await delay(400);
+    results.nameMatch.pass = VALID_NAMES.some(name => compactText.includes(name));
+    setCk("nameMatch", results.nameMatch.pass ? "pass" : "fail");
+    await delay(300);
+
+    /* ==== RULE 4: Phone Number Validation (Exact Match, Spaces Allowed) ==== */
+    setCk("phoneMatch", "active");
+    loadingTitle.textContent = "Checking Phone Number...";
+    await delay(400);
+    results.phoneMatch.pass = PHONE_PATTERNS.some(p => p.test(upperText));
+    setCk("phoneMatch", results.phoneMatch.pass ? "pass" : "fail");
+    await delay(300);
+
+    /* ==== RULE 5: Transaction ID Check ==== */
+    setCk("txnId", "active");
+    loadingTitle.textContent = "Checking Transaction ID...";
+    await delay(400);
+    results.txnId.pass = hasTransactionId(upperText);
+    setCk("txnId", results.txnId.pass ? "pass" : "fail");
+    await delay(300);
+
+    /* ==== RULE 6: Time Delay Check (≤ 10 min) ==== */
+    setCk("timeDelay", "active");
+    loadingTitle.textContent = "Validating Timestamp...";
+    await delay(400);
+    results.timeDelay.pass = isTimeValidFromText(compactText);
+    setCk("timeDelay", results.timeDelay.pass ? "pass" : "fail");
+    await delay(300);
+
+    /* ==== RULE 7: Currency Check (must be TZS) ==== */
+    setCk("currency", "active");
+    loadingTitle.textContent = "Checking Currency...";
+    await delay(400);
+    results.currency.pass = isCurrencyValid(upperText);
+    setCk("currency", results.currency.pass ? "pass" : "fail");
+    await delay(300);
+
+    /* ==== RULE 8: Valid Payment Determination ==== */
+    loadingTitle.textContent = "Finalizing...";
+    await delay(500);
+
+    const allPassed = Object.values(results).every(r => r.pass);
+
+    if (allPassed) {
+      /* ==== RULE 9: TZS Conversion ==== */
+      const amount  = extractAmount(upperText);
+      const seconds = calcSeconds(amount);
+
+      if (seconds > 0) {
+        loadingOverlay.style.display = "none";
+        /* ==== RULE 10: Valid → redirect to menu.html ==== */
+        showSuccess(amount, seconds);
+      } else {
+        /* Amount too low or undetectable — treat as invalid */
+        results.currency.pass = false;
+        results.currency.label = "Currency / Amount (TZS)";
+        loadingOverlay.style.display = "none";
+        showFail();
+      }
     } else {
+      /* ==== RULE 10: Invalid → redirect to free.html ==== */
       loadingOverlay.style.display = "none";
       showFail();
     }
-    
+
   } catch (error) {
-    console.error(error);
+    console.error("Verification error:", error);
+    /* On any error, mark remaining checks as failed and show fail */
+    Object.keys(results).forEach(k => {
+      if (!results[k].pass) {
+        /* Keep whatever state they're in, the overlay will show fail */
+      }
+    });
     loadingOverlay.style.display = "none";
     showFail();
   } finally {
@@ -526,44 +719,24 @@ async function submitReceipt() {
   }
 }
 
-// ============ CHECK EXISTING TIMER ON LOAD ============
+/* Helper: promise-based delay */
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+/* ============================================================
+   SESSION PERSISTENCE — On page load, check for active session
+   If session is still active → redirect to menu.html
+   If expired → clean up, show pay options
+   ============================================================ */
 window.onload = () => {
   const endTime = parseInt(localStorage.getItem("sessionEnd"));
   if (endTime && Date.now() < endTime) {
-    const remaining = Math.floor((endTime - Date.now()) / 1000);
-    const hrs = Math.floor(remaining / 3600);
-    const mins = Math.floor((remaining % 3600) / 60);
-    const secs = remaining % 60;
-    const timeStr = String(hrs).padStart(2,"0") + ":" + String(mins).padStart(2,"0") + ":" + String(secs).padStart(2,"0");
-    
-    // Estimate amount from remaining seconds
-    const estimatedTZS = Math.floor((remaining / 3600) * 300);
-    
-    showPage("timerPage");
-    document.getElementById("timerAmount").textContent = "Paid: " + estimatedTZS.toLocaleString() + " TZS";
-    
-    timerInterval = setInterval(() => {
-      const rem = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
-      
-      if (rem <= 0) {
-        clearInterval(timerInterval);
-        localStorage.removeItem("sessionEnd");
-        document.getElementById("timerDisplay").textContent = "00:00:00";
-        setTimeout(() => {
-          window.location.href = "free.html";
-        }, 1500);
-        return;
-      }
-      
-      const h = Math.floor(rem / 3600);
-      const m = Math.floor((rem % 3600) / 60);
-      const s = rem % 60;
-      document.getElementById("timerDisplay").textContent =
-        String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
-    }, 1000);
-  } else {
-    localStorage.removeItem("sessionEnd");
+    /* Active session exists — redirect straight to menu.html */
+    window.location.href = "menu.html";
+    return;
   }
+  /* Session expired or doesn't exist — clean up */
+  localStorage.removeItem("sessionEnd");
+  localStorage.removeItem("sessionAmount");
 };
 </script>
 </body>
