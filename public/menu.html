@@ -17,7 +17,6 @@
             overflow-x: hidden;
         }
 
-        /* ===== TOP BAR ===== */
         .top-bar {
             position: sticky;
             top: 0;
@@ -136,7 +135,6 @@
             background: rgba(239, 68, 68, 0.05);
         }
 
-        /* ===== GLOW ===== */
         .glow-orb {
             position: fixed;
             top: 35%;
@@ -149,7 +147,6 @@
             z-index: 0;
         }
 
-        /* ===== ADMIN UNLIMITED SECTION ===== */
         .admin-unlimited {
             display: none;
             position: relative;
@@ -197,7 +194,6 @@
             margin-bottom: 48px;
         }
 
-        /* ===== COUNTDOWN SECTION (03:00) ===== */
         .countdown-section {
             display: none;
             position: relative;
@@ -270,7 +266,6 @@
         .timer-bar-fill.warning { background: linear-gradient(90deg, #f97316, #ef4444); }
         .timer-bar-fill.danger { background: #ef4444; }
 
-        /* ===== BUTTONS ===== */
         .btn-business {
             display: inline-block;
             padding: 16px 56px;
@@ -329,7 +324,6 @@
             gap: 0;
         }
 
-        /* ===== WAIT SECTION (24:00:00) ===== */
         .wait-section {
             display: none;
             position: fixed;
@@ -408,7 +402,6 @@
             transition: width 1s linear;
         }
 
-        /* ===== UNCLICKABLE OVERLAY ===== */
         .unclickable-overlay {
             display: none;
             position: fixed;
@@ -417,11 +410,8 @@
             cursor: not-allowed;
         }
 
-        .unclickable-overlay.active {
-            display: block;
-        }
+        .unclickable-overlay.active { display: block; }
 
-        /* ===== FOOTER ===== */
         .footer-text {
             text-align: center;
             padding: 48px 24px 32px;
@@ -436,7 +426,6 @@
             letter-spacing: 0.03em;
         }
 
-        /* ===== ACCESS DENIED ===== */
         .not-logged-in {
             display: none;
             position: fixed;
@@ -480,16 +469,13 @@
 </head>
 <body>
 
-    <!-- Access Denied Overlay -->
     <div class="not-logged-in" id="notLoggedIn">
         <p>No active session found.</p>
         <a href="index.html">Go to Home</a>
     </div>
 
-    <!-- Background Glow -->
     <div class="glow-orb"></div>
 
-    <!-- Top Bar -->
     <div class="top-bar" id="topBar" style="display:none;">
         <div class="top-bar-left">
             <a href="index.html" class="back-link" id="backLink">
@@ -506,7 +492,6 @@
         </div>
     </div>
 
-    <!-- ADMIN: Unlimited Access -->
     <div class="admin-unlimited" id="adminUnlimited">
         <div class="crown-icon">
             <svg viewBox="0 0 24 24"><path d="M2 4l3 12h14l3-12-6 7-4-9-4 9-6-7zm3 16h14v2H5v-2z"/></svg>
@@ -516,7 +501,6 @@
         <a href="business.html" class="btn-business">Business</a>
     </div>
 
-    <!-- NON-ADMIN: 03:00 Countdown -->
     <div class="countdown-section" id="countdownSection">
         <h2>Session Timer</h2>
         <p class="timer-sub">Your access window is limited</p>
@@ -527,7 +511,6 @@
         <a href="business.html" class="btn-business">Business</a>
     </div>
 
-    <!-- WAIT: 24:00:00 Countdown (unclickable) -->
     <div class="wait-section" id="waitSection">
         <div class="lock-icon">
             <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -545,10 +528,8 @@
         </div>
     </div>
 
-    <!-- Unclickable overlay blocks everything during 24hr wait -->
     <div class="unclickable-overlay" id="unclickableOverlay"></div>
 
-    <!-- Footer -->
     <div class="footer-text" id="footerSection" style="display:none;">
         <p>Jamal Said Kazembe Multisystem Management</p>
     </div>
@@ -574,14 +555,13 @@
             var name = "User";
             var email = "";
             var photo = "";
-            
-            // State trackers
+
             var isLocked = false;
             var isPaid = false;
             var isValidFree = false;
             var lockStartTs = 0;
 
-            // 1. CHECK ADMIN STATE
+            // 1. CHECK ADMIN STATE FIRST
             var sAdmin = sessionStorage.getItem("isAdmin");
             var sEmail = sessionStorage.getItem("userEmail");
             if (sEmail && sAdmin === "true") {
@@ -591,7 +571,7 @@
                 photo = sessionStorage.getItem("userPhoto") || "";
             }
 
-            // 2. CHECK LOCK STATE (Priority for non-admins)
+            // 2. CHECK LOCK STATE — ONLY FOR NON-ADMINS
             if (!isSuperAdmin) {
                 lockStartTs = parseInt(localStorage.getItem("free_lock_start"));
                 if (lockStartTs) {
@@ -599,12 +579,12 @@
                     if (lockElapsedSec < 86400) {
                         isLocked = true;
                     } else {
-                        localStorage.removeItem("free_lock_start"); // Lock expired
+                        localStorage.removeItem("free_lock_start");
                     }
                 }
             }
 
-            // 3. CHECK PAID STATE (From pay.html success)
+            // 3. CHECK PAID STATE — ONLY FOR NON-ADMINS
             if (!isSuperAdmin && !isLocked) {
                 var paidEnd = parseInt(localStorage.getItem("sessionEnd"));
                 if (paidEnd && Date.now() < paidEnd) {
@@ -612,7 +592,7 @@
                 }
             }
 
-            // 4. CHECK FREE STATE (From free.html MENU click)
+            // 4. CHECK FREE STATE — ONLY FOR NON-ADMINS
             if (!isSuperAdmin && !isLocked && !isPaid) {
                 var freeStart = parseInt(localStorage.getItem("free_session_start"));
                 if (freeStart) {
@@ -629,9 +609,7 @@
                 return;
             }
 
-            // --- UI SETUP ---
-            var avatar = document.getElementById("userAvatar");
-
+            // === ROUTING: ADMIN ALWAYS GETS UNLIMITED ===
             if (isSuperAdmin) {
                 document.getElementById("topBar").style.display = "flex";
                 document.getElementById("footerSection").style.display = "block";
@@ -640,23 +618,35 @@
                 document.getElementById("backLinkText").textContent = "Dashboard";
                 document.getElementById("logoutBtn").style.display = "block";
                 document.getElementById("userName").textContent = name;
+                document.getElementById("adminUnlimited").style.display = "block";
+
+                var avatar = document.getElementById("userAvatar");
                 if (photo) {
                     avatar.innerHTML = '<img src="' + photo + '" alt="avatar">';
                 } else {
                     avatar.textContent = name.charAt(0).toUpperCase();
                 }
-            } else {
-                document.getElementById("userBadge").style.display = "block";
-                document.getElementById("backLink").href = "index.html";
-                document.getElementById("backLinkText").textContent = "Home";
-                avatar.textContent = "U";
-                avatar.classList.add("green-border");
-                document.getElementById("userName").textContent = isPaid ? "Paid User" : "Free User";
+
+                // Admin logout
+                document.getElementById("logoutBtn").addEventListener("click", function () {
+                    var btn = this;
+                    btn.disabled = true;
+                    btn.textContent = "Logging out...";
+                    signOut(auth).then(function () {
+                        sessionStorage.clear();
+                        localStorage.clear();
+                        window.location.replace("index.html");
+                    }).catch(function () {
+                        sessionStorage.clear();
+                        localStorage.clear();
+                        window.location.replace("index.html");
+                    });
+                });
+
+                return; // DONE — admin never reaches timer or lock
             }
 
-            // --- ROUTING LOGIC ---
-            
-            // A. USER IS LOCKED
+            // === ROUTING: NON-ADMIN LOCKED ===
             if (isLocked) {
                 document.getElementById("topBar").style.display = "none";
                 document.getElementById("footerSection").style.display = "none";
@@ -664,20 +654,21 @@
                 return;
             }
 
-            // B. SUPER ADMIN UNLIMITED
-            if (isSuperAdmin && email.toLowerCase() === "jmlsd75@gmail.com") {
-                document.getElementById("adminUnlimited").style.display = "block";
-                return;
-            }
-
-            // C. 3-MINUTE TIMER (Paid, Valid Free, or Standard Admin)
+            // === ROUTING: NON-ADMIN 3-MINUTE TIMER ===
             document.getElementById("topBar").style.display = "flex";
             document.getElementById("footerSection").style.display = "block";
             document.getElementById("countdownSection").style.display = "block";
+            document.getElementById("userBadge").style.display = "block";
+            document.getElementById("backLink").href = "index.html";
+            document.getElementById("backLinkText").textContent = "Home";
 
-            var initialSeconds = 180; // Default 3 minutes
-            
-            // Sync timer if coming from free.html so it doesn't reset
+            var avatar = document.getElementById("userAvatar");
+            avatar.textContent = "U";
+            avatar.classList.add("green-border");
+            document.getElementById("userName").textContent = isPaid ? "Paid User" : "Free User";
+
+            var initialSeconds = 180;
+
             if (isValidFree) {
                 var freeStartTs = parseInt(localStorage.getItem("free_session_start"));
                 var elapsed = Math.floor((Date.now() - freeStartTs) / 1000);
@@ -685,23 +676,6 @@
             }
 
             startThreeMinuteCountdown(initialSeconds);
-
-            // Firebase logout
-            document.getElementById("logoutBtn").addEventListener("click", function () {
-                var btn = this;
-                btn.disabled = true;
-                btn.textContent = "Logging out...";
-                signOut(auth).then(function () {
-                    sessionStorage.clear();
-                    localStorage.clear();
-                    window.location.replace("index.html");
-                }).catch(function (error) {
-                    console.error("Firebase sign out error:", error);
-                    sessionStorage.clear();
-                    localStorage.clear();
-                    window.location.replace("index.html");
-                });
-            });
 
             // === THREE MINUTE COUNTDOWN ===
             function startThreeMinuteCountdown(totalSeconds) {
@@ -721,13 +695,12 @@
                             document.getElementById("countdownSection").style.display = "none";
                             document.getElementById("footerSection").style.display = "none";
                             document.getElementById("topBar").style.display = "none";
-                            
-                            // Set lock state for both free and paid users
+
                             localStorage.removeItem("free_session_start");
                             localStorage.removeItem("sessionEnd");
                             var newLockTs = Date.now();
                             localStorage.setItem("free_lock_start", String(newLockTs));
-                            
+
                             startTwentyFourHourWait(newLockTs);
                         }, 800);
                         return;
