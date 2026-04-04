@@ -1,759 +1,823 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Free Access</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <style>
-    :root {
-      --bg: #0a0a0c;
-      --bg-elevated: #131318;
-      --card: #1a1a22;
-      --border: rgba(255,255,255,0.06);
-      --fg: #f0ece4;
-      --fg-muted: #7a7680;
-      --accent: #e8a849;
-      --accent-glow: rgba(232,168,73,0.25);
-      --accent-soft: rgba(232,168,73,0.08);
-      --danger: #e85454;
-      --pay-color: #4ade80;
-      --pay-glow: rgba(74,222,128,0.25);
-    }
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { height: 100%; overflow: hidden; }
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--fg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .bg-layer {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
-    }
-    .bg-layer .orb {
-      position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.4;
-      animation: orbFloat 18s ease-in-out infinite alternate;
-    }
-    .orb--1 {
-      width: 450px; height: 450px;
-      background: radial-gradient(circle, rgba(232,168,73,0.3), transparent 70%);
-      top: -15%; left: -10%;
-    }
-    .orb--2 {
-      width: 350px; height: 350px;
-      background: radial-gradient(circle, rgba(180,90,60,0.2), transparent 70%);
-      bottom: -10%; right: -8%;
-      animation-delay: -6s; animation-duration: 22s;
-    }
-    @keyframes orbFloat {
-      0%   { transform: translate(0, 0) scale(1); }
-      50%  { transform: translate(30px, -20px) scale(1.05); }
-      100% { transform: translate(-15px, 15px) scale(0.97); }
-    }
-    .grid-pattern {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
-      background-size: 60px 60px;
-      mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, black 20%, transparent 70%);
-      -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, black 20%, transparent 70%);
-    }
-    .loading-screen {
-      position: fixed; inset: 0; z-index: 500;
-      background: var(--bg);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 20px;
-      transition: opacity 0.4s ease;
-    }
-    .loading-screen.hidden { opacity: 0; pointer-events: none; }
-    .loading-spinner {
-      width: 36px; height: 36px;
-      border: 3px solid rgba(255,255,255,0.06);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
-    .loading-screen p { font-size: 14px; color: var(--fg-muted); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pay - Jamal Said Kazembe</title>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh;overflow-x:hidden}
 
-    .state { display: none; }
-    .state.active { display: flex; }
+#payOptionsPage{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:linear-gradient(160deg,#0a0a0f 0%,#111827 40%,#0c1524 100%);
+  display:flex;flex-direction:column;align-items:center;
+  padding:20px;padding-top:16px;overflow-y:auto
+}
 
-    #stateActive {
-      flex-direction: column; align-items: center; gap: 32px;
-      animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-    .user-bar {
-      position: fixed; top: 0; left: 0; right: 0;
-      display: flex; align-items: center; gap: 12px;
-      padding: 16px 24px;
-      background: rgba(10,10,12,0.7);
-      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border); z-index: 20;
-    }
-    .user-bar img {
-      width: 36px; height: 36px; border-radius: 50%;
-      object-fit: cover; border: 2px solid var(--border);
-    }
-    .user-bar .user-name {
-      font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 14px;
-    }
-    .user-bar .user-email { font-size: 12px; color: var(--fg-muted); }
+.instruct-box{
+  width:100%;max-width:400px;
+  background:rgba(40,167,69,0.08);
+  border:1.5px solid rgba(40,167,69,0.25);
+  border-radius:10px;padding:14px 16px;
+  margin-bottom:16px;flex-shrink:0
+}
+.instruct-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.instruct-icon{
+  width:28px;height:28px;border-radius:7px;
+  background:rgba(40,167,69,0.15);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0
+}
+.instruct-icon svg{width:16px;height:16px}
+.instruct-heading{color:#34d399;font-size:13px;font-weight:700;letter-spacing:.6px;text-transform:uppercase}
+.instruct-steps{display:flex;flex-direction:column;gap:7px;margin-bottom:10px}
+.instruct-step{display:flex;align-items:flex-start;gap:8px}
+.step-n{
+  width:20px;height:20px;border-radius:50%;
+  background:rgba(40,167,69,0.15);color:#34d399;
+  font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px
+}
+.step-t{color:#c9d1d9;font-size:12px;line-height:1.45}
+.step-t b{color:#fff;font-weight:600}
+.instruct-line{width:100%;height:1px;background:rgba(255,255,255,0.06);margin-bottom:9px}
+.instruct-dont{display:flex;align-items:center;gap:7px}
+.instruct-dont svg{width:15px;height:15px;color:#f87171;flex-shrink:0}
+.instruct-dont span{color:#f87171;font-size:11.5px;font-weight:600}
 
-    /* Tab Warning Banner */
-    .tab-warning {
-      display: none; align-items: center; gap: 10px;
-      padding: 10px 20px; border-radius: 10px;
-      background: rgba(232,84,84,0.1);
-      border: 1px solid rgba(232,84,84,0.2);
-      color: var(--danger); font-size: 13px; font-weight: 500;
-    }
-    .tab-warning.active { display: flex; }
-    .tab-warning i { font-size: 16px; }
+.pay-header{text-align:center;margin-bottom:14px;flex-shrink:0}
+.pay-title{color:#fff;font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:3px;margin-bottom:6px}
+.pay-subtitle{color:#6b7280;font-size:13px;letter-spacing:1px}
 
-    .countdown-wrap { position: relative; width: 220px; height: 220px; }
-    .countdown-ring { width: 100%; height: 100%; transform: rotate(-90deg); }
-    .countdown-ring .track { fill: none; stroke: rgba(255,255,255,0.04); stroke-width: 6; }
-    .countdown-ring .progress {
-      fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round;
-      transition: stroke-dashoffset 1s linear;
-      filter: drop-shadow(0 0 8px var(--accent-glow));
-    }
-    .countdown-text {
-      position: absolute; inset: 0;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-    }
-    .countdown-text .time {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 48px; font-weight: 700; letter-spacing: -1px; line-height: 1;
-    }
-    .countdown-text .label {
-      font-size: 12px; color: var(--fg-muted);
-      margin-top: 6px; text-transform: uppercase; letter-spacing: 2px;
-    }
-    .menu-btn {
-      display: flex; align-items: center; gap: 12px;
-      padding: 16px 40px;
-      border: 1px solid rgba(232,168,73,0.3); border-radius: 14px;
-      background: linear-gradient(135deg, var(--accent-soft), transparent);
-      color: var(--fg);
-      font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 600;
-      cursor: pointer; outline: none;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 8px 30px -10px var(--accent-glow);
-    }
-    .menu-btn:hover {
-      transform: translateY(-2px); border-color: rgba(232,168,73,0.5);
-      box-shadow: 0 12px 40px -8px var(--accent-glow);
-    }
-    .menu-btn:active { transform: translateY(0) scale(0.98); }
-    .menu-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-    .menu-btn i { font-size: 20px; color: var(--accent); }
+.payment-methods{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:400px;margin-bottom:20px;flex-shrink:0}
+.method-card{
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+  border-radius:10px;padding:14px 10px;text-align:center;color:#d1d5db;
+  font-size:12px;font-weight:600;transition:all .3s;cursor:default;
+  position:relative;overflow:hidden
+}
+.method-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;border-radius:3px 0 0 3px}
+.method-card:hover{background:rgba(255,255,255,0.08);transform:translateY(-1px)}
+.method-card.airtel::before{background:#ed1c24}
+.method-card.vodacom::before{background:#e60000}
+.method-card.halotel::before{background:#00a651}
+.method-card.mix::before{background:#ffd700}
+.method-card.ttcl::before{background:#007bff}
+.method-card.crdb::before{background:#003366}
+.method-card.nmb::before{background:#ff6600}
+.method-card.nbc::before{background:#dc3545}
+.method-card.intl{grid-column:span 2}
+.method-card.intl::before{background:linear-gradient(180deg,#6f42c1,#007bff)}
 
-    .expired-overlay {
-      position: fixed; inset: 0; background: rgba(10,10,12,0.95);
-      display: none; align-items: center; justify-content: center;
-      flex-direction: column; gap: 16px; z-index: 100;
-      animation: fadeIn 0.5s ease both;
-    }
-    .expired-overlay.active { display: flex; }
-    .expired-overlay i { font-size: 40px; color: var(--danger); }
-    .expired-overlay p { font-size: 18px; color: var(--fg-muted); }
+.brand-icon{
+  width:38px;height:38px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 6px auto;position:relative
+}
+.brand-icon svg{width:22px;height:22px}
 
-    #stateAwait {
-      flex-direction: column; align-items: center; gap: 32px;
-      width: 100%; max-width: 480px; padding: 0 20px;
-      animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-    .logout-btn {
-      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-      display: none; align-items: center; gap: 8px;
-      padding: 10px 24px;
-      border: 1px solid rgba(232,84,84,0.25); border-radius: 10px;
-      background: rgba(232,84,84,0.06); color: var(--danger);
-      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
-      cursor: pointer; transition: all 0.25s; outline: none; z-index: 30;
-    }
-    .logout-btn:hover { background: rgba(232,84,84,0.12); border-color: rgba(232,84,84,0.4); }
-    .logout-btn:focus-visible { outline: 2px solid var(--danger); outline-offset: 2px; }
-    .logout-btn i { font-size: 14px; }
-    .logout-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .await-title {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 20px; font-weight: 600; color: var(--fg-muted); text-align: center;
-    }
-    .btn-row {
-      display: flex; align-items: center; gap: 16px;
-      flex-wrap: wrap; justify-content: center;
-    }
-    .await-btn {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 4px; width: 200px; height: 100px;
-      border: 1px solid var(--border); border-radius: 14px;
-      background: var(--bg-elevated);
-      cursor: not-allowed; opacity: 0.5; user-select: none;
-      pointer-events: none; position: relative;
-    }
-    .await-btn .await-label {
-      font-size: 11px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 2px;
-    }
-    .await-btn .await-time {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 26px; font-weight: 700; color: var(--fg); letter-spacing: -0.5px;
-    }
-    .await-btn .lock-icon {
-      position: absolute; top: 10px; right: 12px;
-      font-size: 12px; color: var(--fg-muted); opacity: 0.4;
-    }
-    .pay-btn {
-      display: flex; align-items: center; gap: 10px;
-      padding: 16px 32px;
-      border: 1px solid rgba(74,222,128,0.3); border-radius: 14px;
-      background: linear-gradient(135deg, rgba(74,222,128,0.08), transparent);
-      color: var(--pay-color);
-      font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 600;
-      cursor: pointer; outline: none;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 8px 30px -10px var(--pay-glow);
-    }
-    .pay-btn:hover {
-      transform: translateY(-2px); border-color: rgba(74,222,128,0.5);
-      box-shadow: 0 12px 40px -8px var(--pay-glow);
-    }
-    .pay-btn:active { transform: translateY(0) scale(0.98); }
-    .pay-btn:focus-visible { outline: 2px solid var(--pay-color); outline-offset: 3px; }
-    .pay-btn i { font-size: 18px; }
-    .await-hint {
-      font-size: 12px; color: var(--fg-muted); opacity: 0.6;
-      text-align: center; line-height: 1.6;
-    }
-    .logout-toast {
-      position: fixed; bottom: 30px; left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-      padding: 12px 24px; font-size: 13px; color: var(--fg-muted);
-      display: flex; align-items: center; gap: 10px;
-      opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      z-index: 200; pointer-events: none;
-    }
-    .logout-toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
-    .logout-toast .spinner-sm {
-      display: inline-block; width: 14px; height: 14px;
-      border: 2px solid rgba(255,255,255,0.1); border-top-color: var(--danger);
-      border-radius: 50%; animation: spin 0.6s linear infinite;
-    }
-    .error-banner {
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: var(--card); border: 1px solid rgba(232,84,84,0.2);
-      border-radius: 14px; padding: 32px; text-align: center;
-      max-width: 360px; z-index: 300; display: none;
-      animation: fadeUp 0.5s ease both;
-    }
-    .error-banner.active { display: block; }
-    .error-banner i { font-size: 32px; color: var(--danger); margin-bottom: 12px; }
-    .error-banner p { font-size: 14px; color: var(--fg-muted); margin-bottom: 20px; line-height: 1.5; }
-    .error-banner button {
-      padding: 10px 24px; border: 1px solid var(--border); border-radius: 8px;
-      background: var(--bg-elevated); color: var(--fg); font-size: 13px;
-      cursor: pointer; transition: all 0.2s;
-    }
-    .error-banner button:hover { border-color: rgba(255,255,255,0.15); }
+.icon-airtel{background:linear-gradient(135deg,#ed1c24,#b8151b)}
+.icon-vodacom{background:linear-gradient(135deg,#e60000,#b30000)}
+.icon-halotel{background:linear-gradient(135deg,#00a651,#007a3d)}
+.icon-mix{background:linear-gradient(135deg,#ffd700,#e6b800)}
+.icon-mix svg path{fill:#0a0a0f}
+.icon-ttcl{background:linear-gradient(135deg,#007bff,#0056b3)}
+.icon-crdb{background:linear-gradient(135deg,#003366,#002244)}
+.icon-nmb{background:linear-gradient(135deg,#ff6600,#cc5200)}
+.icon-nbc{background:linear-gradient(135deg,#dc3545,#a71d2a)}
+.icon-intl{background:linear-gradient(135deg,#6f42c1,#007bff);width:auto;height:38px;padding:0 14px;border-radius:10px;gap:6px}
+.icon-intl svg{width:18px;height:18px}
 
-    @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .urgent .time { color: var(--danger) !important; }
-    .urgent .progress {
-      stroke: var(--danger) !important;
-      filter: drop-shadow(0 0 8px rgba(232,84,84,0.4)) !important;
-    }
-    .countdown-wrap.urgent { animation: urgentPulse 1s ease-in-out infinite; }
-    @keyframes urgentPulse {
-      0%, 100% { transform: scale(1); }
-      50%      { transform: scale(1.03); }
-    }
-    @media (max-width: 480px) {
-      .countdown-wrap { width: 180px; height: 180px; }
-      .countdown-text .time { font-size: 38px; }
-      .menu-btn { padding: 14px 28px; font-size: 15px; }
-      .await-btn { width: 160px; height: 90px; }
-      .await-btn .await-time { font-size: 22px; }
-      .pay-btn { padding: 14px 24px; font-size: 15px; }
-      .btn-row { gap: 12px; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-      }
-      .orb { display: none; }
-    }
-  </style>
+.method-card .method-label{display:block;font-size:11.5px;font-weight:600;letter-spacing:.3px;line-height:1.3}
+
+.upload-prompt{
+  color:#ffd700;font-size:14px;font-weight:700;margin:18px 0;
+  text-align:center;padding:14px;
+  background:rgba(255,215,0,0.06);border:2px dashed rgba(255,215,0,0.3);
+  border-radius:12px;width:100%;max-width:400px;
+  letter-spacing:1px;animation:borderPulse 2s infinite;flex-shrink:0
+}
+@keyframes borderPulse{0%,100%{border-color:rgba(255,215,0,0.3)}50%{border-color:rgba(255,215,0,0.7)}}
+.receipt-info{
+  background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.06);
+  border-radius:14px;padding:16px 20px;width:100%;max-width:400px;margin-bottom:22px;flex-shrink:0
+}
+.receipt-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.receipt-row:last-child{border-bottom:none}
+.row-label{color:#6b7280;font-size:12px;font-weight:500}
+.row-value{color:#fff;font-size:14px;font-weight:700;letter-spacing:.5px}
+.row-value.gold{color:#ffd700}
+.row-value.red{color:#ff4444}
+.row-value.blue{color:#4da6ff}
+.receipt-name{text-align:center;color:#d1d5db;font-size:13px;font-weight:600;letter-spacing:1px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.05);margin-top:4px}
+.page-buttons{display:flex;gap:12px;width:100%;max-width:400px;flex-shrink:0;margin-bottom:20px}
+.btn{flex:1;padding:14px;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all .3s;letter-spacing:1px}
+.btn:active{transform:scale(0.97)}
+.btn-back{background:rgba(255,255,255,0.08);color:#9ca3af;border:1px solid rgba(255,255,255,0.1)}
+.btn-back:hover{background:rgba(255,255,255,0.12)}
+.btn-next{background:linear-gradient(135deg,#ffd700,#f59e0b);color:#0a0a0f}
+.btn-next:hover{box-shadow:0 4px 20px rgba(255,215,0,0.3);transform:translateY(-1px)}
+
+#cameraSelectPage{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:linear-gradient(160deg,#0a0a0f 0%,#111827 40%,#0c1524 100%);
+  display:none;flex-direction:column;justify-content:center;align-items:center;gap:16px;padding:20px
+}
+.select-title{color:#fff;font-size:20px;font-weight:800;letter-spacing:2px}
+.select-subtitle{color:#6b7280;font-size:13px}
+.select-buttons{display:flex;flex-direction:column;gap:12px;width:100%;max-width:300px;margin-top:10px}
+.btn-sel{
+  padding:18px;color:#fff;border:none;border-radius:12px;
+  font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;letter-spacing:1px
+}
+.btn-sel:active{transform:scale(0.97)}
+.btn-cam{background:linear-gradient(135deg,#007bff,#0056b3)}
+.btn-cam:hover{box-shadow:0 4px 20px rgba(0,123,255,0.3)}
+.btn-gal{background:linear-gradient(135deg,#17a2b8,#117a8b)}
+.btn-gal:hover{box-shadow:0 4px 20px rgba(23,162,184,0.3)}
+.btn-sel-back{background:rgba(220,53,69,0.15);color:#ef4444;border:1px solid rgba(220,53,69,0.3)}
+.btn-sel-back:hover{background:rgba(220,53,69,0.25)}
+
+#previewPage{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:#0a0a0f;display:none;flex-direction:column;
+  justify-content:center;align-items:center;padding:20px
+}
+.preview-title{color:#fff;font-size:16px;font-weight:700;margin-bottom:14px;letter-spacing:1px}
+#previewImage{max-width:90%;max-height:50%;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.5);margin-bottom:18px;border:1px solid rgba(255,255,255,0.08)}
+.preview-buttons{display:flex;gap:12px}
+.btn-prev{padding:14px 28px;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all .3s;letter-spacing:1px}
+.btn-prev:active{transform:scale(0.97)}
+.btn-cancel{background:rgba(220,53,69,0.15);color:#ef4444;border:1px solid rgba(220,53,69,0.3)}
+.btn-cancel:hover{background:rgba(220,53,69,0.25)}
+.btn-submit{background:linear-gradient(135deg,#28a745,#1e7e34);color:#fff}
+.btn-submit:hover{box-shadow:0 4px 20px rgba(40,167,69,0.3)}
+
+#loadingOverlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(5,5,10,0.97);display:none;justify-content:center;
+  align-items:center;flex-direction:column;z-index:1000;padding:30px
+}
+.loader-wrap{margin-bottom:24px;position:relative;width:60px;height:60px}
+.loader{border:4px solid rgba(255,255,255,0.08);border-top:4px solid #ffd700;border-radius:50%;width:60px;height:60px;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loadingTitle{color:#fff;font-size:17px;font-weight:700;margin-bottom:20px;letter-spacing:1px}
+.check-list{width:100%;max-width:320px;display:flex;flex-direction:column;gap:6px}
+.check-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 12px;border-radius:8px;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.04);
+  font-size:13px;color:#6b7280;transition:all .3s
+}
+.check-item.active{color:#d1d5db;border-color:rgba(255,215,0,0.2);background:rgba(255,215,0,0.04)}
+.check-item.pass{color:#34d399;border-color:rgba(52,211,153,0.3);background:rgba(52,211,153,0.06)}
+.check-item.fail{color:#f87171;border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.06)}
+.check-icon{width:20px;text-align:center;font-size:14px;flex-shrink:0}
+
+#successOverlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(5,5,10,0.97);display:none;justify-content:center;
+  align-items:center;flex-direction:column;z-index:1500
+}
+.success-icon{
+  width:90px;height:90px;border-radius:50%;
+  background:linear-gradient(135deg,#28a745,#1e7e34);
+  display:flex;align-items:center;justify-content:center;
+  font-size:42px;margin-bottom:20px;
+  animation:successPop .5s cubic-bezier(.175,.885,.32,1.275)
+}
+@keyframes successPop{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+.success-title{color:#34d399;font-size:22px;font-weight:800;letter-spacing:2px;margin-bottom:6px}
+.success-sub{color:#6b7280;font-size:13px;margin-bottom:20px}
+.success-amount{color:#ffd700;font-size:16px;font-weight:700;margin-bottom:6px}
+.success-redirect{color:#4b5563;font-size:12px;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.success-bar{width:200px;height:3px;background:rgba(255,255,255,0.08);border-radius:3px;margin-top:20px;overflow:hidden}
+.success-bar-fill{height:100%;background:#28a745;border-radius:3px;animation:barFill 2.5s linear forwards}
+@keyframes barFill{0%{width:0}100%{width:100%}}
+
+#failOverlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(5,5,10,0.97);display:none;justify-content:center;
+  align-items:center;flex-direction:column;z-index:2000;padding:30px;overflow-y:auto
+}
+.fail-icon{
+  width:90px;height:90px;border-radius:50%;
+  background:linear-gradient(135deg,#dc3545,#a71d2a);
+  display:flex;align-items:center;justify-content:center;
+  font-size:42px;margin-bottom:20px;
+  animation:failShake .5s ease
+}
+@keyframes failShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.fail-title{color:#f87171;font-size:22px;font-weight:800;letter-spacing:2px;margin-bottom:6px}
+.fail-reason{color:#6b7280;font-size:13px;margin-bottom:16px}
+.fail-checks{width:100%;max-width:320px;margin-bottom:20px;display:flex;flex-direction:column;gap:5px}
+.fail-check-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:500}
+.fail-check-item.pass{color:#34d399;background:rgba(52,211,153,0.06)}
+.fail-check-item.fail{color:#f87171;background:rgba(248,113,113,0.06)}
+.fail-redirect{color:#4b5563;font-size:12px;animation:blink 1.2s infinite}
+
+.hidden-input{display:none}
+</style>
 </head>
 <body>
 
-  <div class="bg-layer" aria-hidden="true">
-    <div class="orb orb--1"></div>
-    <div class="orb orb--2"></div>
-  </div>
-  <div class="grid-pattern" aria-hidden="true"></div>
+<input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden-input">
+<input type="file" id="photosInput" accept="image/*" class="hidden-input">
 
-  <!-- Loading screen -->
-  <div class="loading-screen" id="loadingScreen">
-    <div class="loading-spinner"></div>
-    <p>Loading your session...</p>
-  </div>
-
-  <!-- Error banner -->
-  <div class="error-banner" id="errorBanner">
-    <i class="fa-solid fa-triangle-exclamation"></i>
-    <p id="errorMsg">Something went wrong.</p>
-    <button onclick="window.location.replace('index.html')">Back to Login</button>
-  </div>
-
-  <!-- STATE 1: Active 3:00 -->
-  <div id="stateActive" class="state">
-    <div class="user-bar" id="userBar">
-      <img id="userPhoto" src="" alt="Profile" />
-      <div>
-        <div class="user-name" id="userName">User</div>
-        <div class="user-email" id="userEmail">user@email.com</div>
+<div id="payOptionsPage">
+  <div class="instruct-box">
+    <div class="instruct-top">
+      <div class="instruct-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div class="instruct-heading">How to Pay</div>
+    </div>
+    <div class="instruct-steps">
+      <div class="instruct-step">
+        <div class="step-n">1</div>
+        <div class="step-t">Open <b>any mobile money or bank app</b> on your phone</div>
+      </div>
+      <div class="instruct-step">
+        <div class="step-n">2</div>
+        <div class="step-t">Go to <b>Send Money</b> or <b>Lipa Pesa</b></div>
+      </div>
+      <div class="instruct-step">
+        <div class="step-n">3</div>
+        <div class="step-t">Enter the <b>phone number or account</b> shown below</div>
+      </div>
+      <div class="instruct-step">
+        <div class="step-n">4</div>
+        <div class="step-t">Send the amount, then <b>screenshot the receipt</b></div>
       </div>
     </div>
-
-    <!-- Warning when multiple tabs detected -->
-    <div class="tab-warning" id="tabWarning">
-      <i class="fa-solid fa-triangle-exclamation"></i>
-      <span id="tabWarningText">Multiple tabs detected: timer is 2x faster</span>
-    </div>
-
-    <div class="countdown-wrap" id="countdownWrap">
-      <svg class="countdown-ring" viewBox="0 0 220 220">
-        <circle class="track" cx="110" cy="110" r="100" />
-        <circle class="progress" id="ringProgress" cx="110" cy="110" r="100"
-          stroke-dasharray="628.318" stroke-dashoffset="0" />
+    <div class="instruct-line"></div>
+    <div class="instruct-dont">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="15" y1="9" x2="9" y2="15"/>
+        <line x1="9" y1="9" x2="15" y2="15"/>
       </svg>
-      <div class="countdown-text">
-        <span class="time" id="countdownTime">3:00</span>
-        <span class="label">Remaining</span>
+      <span>Do NOT use USSD codes like *150#, *111#, *100#</span>
+    </div>
+  </div>
+
+  <div class="pay-header">
+    <div class="pay-title">Pay Through</div>
+    <div class="pay-subtitle">Mobile Money & Banking Apps</div>
+  </div>
+
+  <div class="payment-methods">
+    <div class="method-card airtel">
+      <div class="brand-icon icon-airtel">
+        <svg viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="16" r="7" stroke="#fff" stroke-width="2.5"/>
+          <path d="M14 26c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+          <text x="20" y="19.5" text-anchor="middle" fill="#fff" font-size="8" font-weight="800" font-family="Arial">AM</text>
+        </svg>
+      </div>
+      <span class="method-label">Airtel Money</span>
+    </div>
+    <div class="method-card vodacom">
+      <div class="brand-icon icon-vodacom">
+        <svg viewBox="0 0 40 40" fill="none">
+          <rect x="10" y="8" width="20" height="24" rx="4" stroke="#fff" stroke-width="2.2"/>
+          <circle cx="20" cy="22" r="5" stroke="#fff" stroke-width="2"/>
+          <text x="20" y="24.5" text-anchor="middle" fill="#fff" font-size="6.5" font-weight="800" font-family="Arial">M</text>
+          <line x1="16" y1="13" x2="24" y2="13" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="method-label">Vodacom M-Pesa</span>
+    </div>
+    <div class="method-card halotel">
+      <div class="brand-icon icon-halotel">
+        <svg viewBox="0 0 40 40" fill="none">
+          <rect x="10" y="8" width="20" height="24" rx="4" stroke="#fff" stroke-width="2.2"/>
+          <circle cx="20" cy="22" r="5" stroke="#fff" stroke-width="2"/>
+          <text x="20" y="24.5" text-anchor="middle" fill="#fff" font-size="6.5" font-weight="800" font-family="Arial">H</text>
+          <line x1="16" y1="13" x2="24" y2="13" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="method-label">Halotel Halopesa</span>
+    </div>
+    <div class="method-card mix">
+      <div class="brand-icon icon-mix">
+        <svg viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="12" stroke="#0a0a0f" stroke-width="2.2"/>
+          <text x="20" y="22.5" text-anchor="middle" fill="#0a0a0f" font-size="9" font-weight="900" font-family="Arial">Mx</text>
+          <circle cx="20" cy="20" r="14.5" stroke="#0a0a0f" stroke-width="1" opacity=".3"/>
+        </svg>
+      </div>
+      <span class="method-label">Mix by Yas</span>
+    </div>
+    <div class="method-card ttcl">
+      <div class="brand-icon icon-ttcl">
+        <svg viewBox="0 0 40 40" fill="none">
+          <rect x="8" y="10" width="24" height="20" rx="3" stroke="#fff" stroke-width="2.2"/>
+          <line x1="8" y1="16" x2="32" y2="16" stroke="#fff" stroke-width="1.5"/>
+          <circle cx="20" cy="24" r="3.5" stroke="#fff" stroke-width="1.8"/>
+          <text x="20" y="15" text-anchor="middle" fill="#fff" font-size="5.5" font-weight="800" font-family="Arial" opacity=".9">TTCL</text>
+        </svg>
+      </div>
+      <span class="method-label">TTCL</span>
+    </div>
+    <div class="method-card crdb">
+      <div class="brand-icon icon-crdb">
+        <svg viewBox="0 0 40 40" fill="none">
+          <rect x="6" y="10" width="28" height="20" rx="3" stroke="#fff" stroke-width="2"/>
+          <line x1="6" y1="16" x2="34" y2="16" stroke="#fff" stroke-width="1.3"/>
+          <rect x="10" y="20" width="8" height="2.5" rx="1" fill="#fff" opacity=".7"/>
+          <rect x="10" y="24.5" width="12" height="2" rx="1" fill="#fff" opacity=".4"/>
+          <text x="15" y="15" text-anchor="middle" fill="#fff" font-size="5" font-weight="800" font-family="Arial">CRDB</text>
+        </svg>
+      </div>
+      <span class="method-label">CRDB Bank App</span>
+    </div>
+    <div class="method-card nmb">
+      <div class="brand-icon icon-nmb">
+        <svg viewBox="0 0 40 40" fill="none">
+          <rect x="6" y="10" width="28" height="20" rx="3" stroke="#fff" stroke-width="2"/>
+          <line x1="6" y1="16" x2="34" y2="16" stroke="#fff" stroke-width="1.3"/>
+          <rect x="10" y="20" width="8" height="2.5" rx="1" fill="#fff" opacity=".7"/>
+          <rect x="10" y="24.5" width="12" height="2" rx="1" fill="#fff" opacity=".4"/>
+          <text x="14" y="15" text-anchor="middle" fill="#fff" font-size="5" font-weight="800" font-family="Arial">NMB</text>
+        </svg>
+      </div>
+      <span class="method-label">NMB Bank App</span>
+    </div>
+    <div class="method-card nbc">
+      <div class="brand-icon icon-nbc">
+        <svg viewBox="0 0 40 40" fill="none">
+          <rect x="6" y="10" width="28" height="20" rx="3" stroke="#fff" stroke-width="2"/>
+          <line x1="6" y1="16" x2="34" y2="16" stroke="#fff" stroke-width="1.3"/>
+          <rect x="10" y="20" width="8" height="2.5" rx="1" fill="#fff" opacity=".7"/>
+          <rect x="10" y="24.5" width="12" height="2" rx="1" fill="#fff" opacity=".4"/>
+          <text x="14" y="15" text-anchor="middle" fill="#fff" font-size="5.5" font-weight="800" font-family="Arial">NBC</text>
+        </svg>
+      </div>
+      <span class="method-label">NBC Bank App</span>
+    </div>
+    <div class="method-card intl">
+      <div class="brand-icon icon-intl">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10A15.3 15.3 0 0112 2z"/>
+        </svg>
+        <span style="color:#fff;font-size:12px;font-weight:700;letter-spacing:.5px">Other International Bank Apps</span>
       </div>
     </div>
-    <button class="menu-btn" id="menuBtn" aria-label="Open menu">
-      <i class="fa-solid fa-bars"></i>
-      Menu
-    </button>
   </div>
 
-  <div class="expired-overlay" id="expiredOverlay">
-    <i class="fa-solid fa-clock"></i>
-    <p>Session expired</p>
-  </div>
+  <div class="upload-prompt">UPLOAD RECEIPT AFTER PAYMENT</div>
 
-  <!-- STATE 2: Await 24:00:00 -->
-  <div id="stateAwait" class="state">
-    <button class="logout-btn" id="logoutBtn" aria-label="Log out">
-      <i class="fa-solid fa-right-from-bracket"></i>
-      Log out
-    </button>
-    <p class="await-title">Your free session has ended</p>
-    <div class="btn-row">
-      <div class="await-btn" aria-disabled="true" role="button" tabindex="-1">
-        <i class="fa-solid fa-lock lock-icon"></i>
-        <span class="await-label">Next free in</span>
-        <span class="await-time" id="awaitTime">24:00:00</span>
-      </div>
-      <button class="pay-btn" id="payBtn" aria-label="Upgrade to paid access">
-        <i class="fa-solid fa-arrow-up-right-dots"></i>
-        Upgrade
-      </button>
+  <div class="receipt-info">
+    <div class="receipt-row">
+      <span class="row-label">Mix by Yas</span>
+      <span class="row-value gold">+255 655 510 714</span>
     </div>
-    <p class="await-hint">Upgrade now to get instant unlimited access<br/>or wait for the timer to reset your free session.</p>
+    <div class="receipt-row">
+      <span class="row-label">Airtel Money</span>
+      <span class="row-value red">+255 780 526 437</span>
+    </div>
+    <div class="receipt-row">
+      <span class="row-label">CRDB</span>
+      <span class="row-value blue">0152001GN6K00</span>
+    </div>
+    <div class="receipt-name">Jamali Saidi Kazemb</div>
   </div>
 
-  <div class="logout-toast" id="logoutToast">
-    <span class="spinner-sm"></span>
-    Signing out...
+  <div class="page-buttons">
+    <button class="btn btn-back" onclick="goBack()">BACK</button>
+    <button class="btn btn-next" onclick="goNext()">NEXT</button>
   </div>
+</div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, query, deleteField } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<div id="cameraSelectPage">
+  <div class="select-title">Upload Receipt</div>
+  <div class="select-subtitle">Choose how to upload your payment receipt</div>
+  <div class="select-buttons">
+    <button class="btn-sel btn-cam" onclick="openCamera()">CAMERA</button>
+    <button class="btn-sel btn-gal" onclick="openPhotos()">PHOTOS</button>
+    <button class="btn-sel btn-sel-back" onclick="goBackToPayOptions()">BACK</button>
+  </div>
+</div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-      authDomain: "my-project-66803-95cb3.firebaseapp.com",
-      projectId: "my-project-66803-95cb3",
-      storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-      messagingSenderId: "167159607898",
-      appId: "1:167159607898:web:23ca11366b88868b085e63"
-    };
+<div id="previewPage">
+  <div class="preview-title">Receipt Preview</div>
+  <img id="previewImage" src="" alt="Receipt Preview">
+  <div class="preview-buttons">
+    <button class="btn-prev btn-cancel" onclick="cancelPreview()">CANCEL</button>
+    <button class="btn-prev btn-submit" onclick="submitReceipt()">SUBMIT</button>
+  </div>
+</div>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+<div id="loadingOverlay">
+  <div class="loader-wrap"><div class="loader"></div></div>
+  <div id="loadingTitle">Scanning Image...</div>
+  <div class="check-list">
+    <div class="check-item" id="ck-photoType"><span class="check-icon">⏳</span>Photo Type (Receipt/QR)</div>
+    <div class="check-item" id="ck-textExtract"><span class="check-icon">⏳</span>Text Extraction</div>
+    <div class="check-item" id="ck-nameMatch"><span class="check-icon">⏳</span>Name Validation</div>
+    <div class="check-item" id="ck-phoneMatch"><span class="check-icon">⏳</span>Phone Number Match</div>
+    <div class="check-item" id="ck-timeDelay"><span class="check-icon">⏳</span>Time Delay (&lt;10 min)</div>
+    <div class="check-item" id="ck-currency"><span class="check-icon">⏳</span>Currency (TZS)</div>
+  </div>
+</div>
 
-    const FREE_DURATION = 3 * 60;
-    const AWAIT_DURATION = 24 * 60 * 60;
-    const RING_CIRCUMFERENCE = 2 * Math.PI * 100;
+<div id="successOverlay">
+  <div class="success-icon">✓</div>
+  <div class="success-title">PAYMENT VERIFIED</div>
+  <div class="success-sub">All 6 checks passed successfully</div>
+  <div class="success-amount" id="successAmount"></div>
+  <div class="success-redirect">Redirecting to menu.html ...</div>
+  <div class="success-bar"><div class="success-bar-fill"></div></div>
+</div>
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const userName = urlParams.get('name') || 'User';
-    const userEmail = (urlParams.get('email') || '').trim().toLowerCase();
-    const userPhoto = urlParams.get('photo') || '';
+<div id="failOverlay">
+  <div class="fail-icon">✕</div>
+  <div class="fail-title">PAYMENT INVALID</div>
+  <div class="fail-reason" id="failReason"></div>
+  <div class="fail-checks" id="failChecks"></div>
+  <div class="fail-redirect">Redirecting to free.html ...</div>
+</div>
 
-    if (!userEmail) {
-      window.location.replace('index.html');
-      throw new Error('No email in URL');
+<script>
+let selectedFile = null;
+
+const VALID_NAMES = [
+  "JAMAL KAZEMBE",
+  "JAMAL SAID",
+  "JAMAL SAID KAZEMBE"
+];
+
+const PHONE_PATTERNS = [
+  /(?:\+?255\s?)?780\s?526\s?437/,
+  /(?:\+?255\s?)?655\s?510\s?714/
+];
+
+const FOREIGN_CURRENCIES = [
+  "USD","EUR","GBP","KES","UGX","RWF","BIF","ZAR","CNY","JPY",
+  "INR","AED","SAR","QAR","OMR","BHD","KWD","MAD","EGP","CDF"
+];
+
+const results = {
+  photoType:    { pass: false, label: "Photo Type (Receipt/QR)" },
+  textExtract:  { pass: false, label: "Text Extraction" },
+  nameMatch:    { pass: false, label: "Name Validation" },
+  phoneMatch:   { pass: false, label: "Phone Number Match" },
+  timeDelay:    { pass: false, label: "Time Delay (<10 min)" },
+  currency:     { pass: false, label: "Currency (TZS)" }
+};
+
+const ckEls = {
+  photoType:   document.getElementById("ck-photoType"),
+  textExtract: document.getElementById("ck-textExtract"),
+  nameMatch:   document.getElementById("ck-nameMatch"),
+  phoneMatch:  document.getElementById("ck-phoneMatch"),
+  timeDelay:   document.getElementById("ck-timeDelay"),
+  currency:    document.getElementById("ck-currency")
+};
+
+function setCk(key, status) {
+  const el = ckEls[key];
+  el.className = "check-item " + status;
+  const icon = el.querySelector(".check-icon");
+  if (status === "active") icon.textContent = "⏳";
+  if (status === "pass")   icon.textContent = "✅";
+  if (status === "fail")   icon.textContent = "❌";
+}
+
+function failAllInstant() {
+  Object.keys(ckEls).forEach(k => {
+    ckEls[k].className = "check-item fail";
+    ckEls[k].querySelector(".check-icon").textContent = "❌";
+    results[k].pass = false;
+  });
+}
+
+function resetAllCk() {
+  Object.keys(ckEls).forEach(k => {
+    ckEls[k].className = "check-item";
+    ckEls[k].querySelector(".check-icon").textContent = "⏳";
+    results[k].pass = false;
+  });
+}
+
+function showPage(id) {
+  ["payOptionsPage","cameraSelectPage","previewPage"].forEach(p => {
+    document.getElementById(p).style.display = "none";
+  });
+  document.getElementById(id).style.display = "flex";
+}
+
+function goBack()  { window.location.href = "free.html"; }
+function goNext()  { showPage("cameraSelectPage"); }
+function goBackToPayOptions() { showPage("payOptionsPage"); }
+
+function openCamera() { document.getElementById("cameraInput").click(); }
+function openPhotos() { document.getElementById("photosInput").click(); }
+
+function handleFile(file) {
+  if (!file) return;
+  selectedFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById("previewImage").src = e.target.result;
+    showPage("previewPage");
+  };
+  reader.readAsDataURL(file);
+  document.getElementById("cameraInput").value = "";
+  document.getElementById("photosInput").value = "";
+}
+
+document.getElementById("cameraInput").addEventListener("change", e => handleFile(e.target.files[0]));
+document.getElementById("photosInput").addEventListener("change", e => handleFile(e.target.files[0]));
+
+function cancelPreview() {
+  selectedFile = null;
+  document.getElementById("previewImage").src = "";
+  showPage("cameraSelectPage");
+}
+
+function hasTextPixels(imageData) {
+  const d = imageData.data;
+  const w = imageData.width;
+  const h = imageData.height;
+  let edges = 0;
+  let checked = 0;
+  const step = 3;
+  for (let y = 1; y < h - 1; y += step) {
+    for (let x = 1; x < w - 1; x += step) {
+      const i = (y * w + x) * 4;
+      const iR = (y * w + x + step) * 4;
+      const iD = ((y + step) * w + x) * 4;
+      const g  = d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114;
+      const gR = d[iR] * 0.299 + d[iR+1] * 0.587 + d[iR+2] * 0.114;
+      const gD = d[iD] * 0.299 + d[iD+1] * 0.587 + d[iD+2] * 0.114;
+      if (Math.abs(g - gR) > 40 || Math.abs(g - gD) > 40) edges++;
+      checked++;
     }
+  }
+  return (edges / checked) > 0.04;
+}
 
-    document.getElementById('userName').textContent = decodeURIComponent(userName);
-    document.getElementById('userEmail').textContent = userEmail;
-    document.getElementById('userPhoto').src = userPhoto
-      ? decodeURIComponent(userPhoto)
-      : 'https://picsum.photos/seed/user/72/72.jpg';
+function preprocessImage(canvas) {
+  const ctx = canvas.getContext("2d");
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const d = imgData.data;
+  let totalB = 0;
+  for (let i = 0; i < d.length; i += 4) {
+    const avg = d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114;
+    d[i] = d[i+1] = d[i+2] = avg;
+    totalB += avg;
+  }
+  const avgB = totalB / (d.length / 4);
+  const inv = avgB < 128;
+  for (let i = 0; i < d.length; i += 4) {
+    let v = d[i];
+    if (inv) v = 255 - v;
+    v = v > 140 ? 255 : (v < 110 ? 0 : v);
+    d[i] = d[i+1] = d[i+2] = v;
+  }
+  ctx.putImageData(imgData, 0, 0);
+  return canvas;
+}
 
-    const safeEmail = userEmail.replace(/\./g, '_');
-    const timerDocRef = doc(db, "userTimers", safeEmail);
-    
-    // Generate unique ID for THIS specific tab
-    const thisTabId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-    const tabDocRef = doc(db, "userTabs", safeEmail, "active", thisTabId);
+function isTimeValidFromText(text) {
+  const clean = text.toUpperCase().replace(/\s+/g, " ");
+  const match = clean.match(/\b(\d{1,2})[:.](\d{2})([:.](\d{2}))?\s?(AM|PM)?\b/);
+  if (!match) return false;
+  let hours = parseInt(match[1]);
+  const minutes = parseInt(match[2]);
+  const ampm = match[5];
+  if (ampm) {
+    if (ampm === "PM" && hours < 12) hours += 12;
+    if (ampm === "AM" && hours === 12) hours = 0;
+  }
+  if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return false;
+  const now = new Date();
+  const receipt = new Date();
+  receipt.setHours(hours, minutes, 0, 0);
+  if (receipt > now) receipt.setDate(receipt.getDate() - 1);
+  return Math.abs((now - receipt) / 60000) <= 10;
+}
 
-    const loadingScreen = document.getElementById('loadingScreen');
-    const errorBanner = document.getElementById('errorBanner');
-    const errorMsg = document.getElementById('errorMsg');
-    const stateActive = document.getElementById('stateActive');
-    const stateAwait = document.getElementById('stateAwait');
-    const expiredOverlay = document.getElementById('expiredOverlay');
-    const countdownTime = document.getElementById('countdownTime');
-    const ringProgress = document.getElementById('ringProgress');
-    const countdownWrap = document.getElementById('countdownWrap');
-    const menuBtn = document.getElementById('menuBtn');
-    const awaitTimeEl = document.getElementById('awaitTime');
-    const payBtn = document.getElementById('payBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const userBar = document.getElementById('userBar');
-    const logoutToast = document.getElementById('logoutToast');
-    const tabWarning = document.getElementById('tabWarning');
-    const tabWarningText = document.getElementById('tabWarningText');
+function isCurrencyValid(text) {
+  for (const fc of FOREIGN_CURRENCIES) {
+    if (text.includes(fc)) return false;
+  }
+  return true;
+}
 
-    let activeTimer = null;
-    let awaitTimer = null;
-    let tabHeartbeatTimer = null;
-    let openTabCount = 1;
+function extractAmount(text) {
+  const patterns = [
+    /(?:TSH|TZS|T\.?\s*S\.?\s*H?)\s*[:.\s]*([\d,]+(?:\.\d+)?)/i,
+    /([\d,]+(?:\.\d+)?)\s*(?:TSH|TZS|T\.?\s*S\.?\s*H?)/i,
+    /(?:AMOUNT|AMNT|TOTAL|SUM|PAID)\s*[:.\s]*([\d,]+(?:\.\d+)?)/i
+  ];
+  for (const p of patterns) {
+    const m = text.match(p);
+    if (m) return parseFloat(m[1].replace(/,/g, ""));
+  }
+  const nums = text.match(/\b[\d,]{3,}\b/g);
+  if (nums) {
+    const parsed = nums.map(n => parseInt(n.replace(/,/g, ""))).filter(n => n > 0);
+    if (parsed.length) return Math.max(...parsed);
+  }
+  return 0;
+}
 
-    function formatMmSs(sec) {
-      const m = Math.floor(sec / 60);
-      const s = sec % 60;
-      return m + ':' + (s < 10 ? '0' : '') + s;
-    }
-    function formatHhMmSs(sec) {
-      const h = Math.floor(sec / 3600);
-      const m = Math.floor((sec % 3600) / 60);
-      const s = sec % 60;
-      return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
-    }
-    function showState(id) {
-      document.querySelectorAll('.state').forEach(el => el.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    }
-    function showError(msg) {
-      loadingScreen.classList.add('hidden');
-      errorMsg.textContent = msg;
-      errorBanner.classList.add('active');
-    }
-    function hideLoading() {
-      loadingScreen.classList.add('hidden');
-    }
+function calcSeconds(amount) {
+  return Math.floor((amount / 500) * 3600);
+}
 
-    // ══════════════════════════════════
-    //  TAB TRACKING SYSTEM
-    // ══════════════════════════════════
+function showSuccess(amount, seconds) {
+  const tzsDisplay = amount.toLocaleString() + " TZS";
+  const hrs = Math.floor(seconds / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
+  const timeStr = hrs > 0 ? hrs + "h " + mins + "m" : mins + "m";
+  document.getElementById("successAmount").textContent =
+    "Paid: " + tzsDisplay + "  •  Session: " + timeStr;
+  document.getElementById("successOverlay").style.display = "flex";
+  localStorage.setItem("sessionEnd", String(Date.now() + seconds * 1000));
+  localStorage.setItem("sessionAmount", tzsDisplay);
+  setTimeout(() => { window.location.href = "menu.html"; }, 2800);
+}
 
-    // Register this tab in Firestore
-    async function registerTab() {
-      try {
-        await setDoc(tabDocRef, { 
-          lastSeen: Date.now() 
-        });
-      } catch(e) {
-        console.error("Tab register error:", e);
-      }
-    }
+function showFail(reason, redirectMs) {
+  const ms = redirectMs || 2000;
+  document.getElementById("failReason").textContent = reason || "";
+  const container = document.getElementById("failChecks");
+  container.innerHTML = "";
+  Object.keys(results).forEach(key => {
+    const r = results[key];
+    const div = document.createElement("div");
+    div.className = "fail-check-item " + (r.pass ? "pass" : "fail");
+    div.innerHTML = (r.pass ? "✅ " : "❌ ") + r.label;
+    container.appendChild(div);
+  });
+  document.getElementById("failOverlay").style.display = "flex";
+  setTimeout(() => { window.location.href = "free.html"; }, ms);
+}
 
-    // Keep this tab alive (called every 5 seconds)
-    async function heartbeat() {
-      try {
-        await setDoc(tabDocRef, { 
-          lastSeen: Date.now() 
-        });
-        
-        // Count how many tabs are alive (seen in last 15 seconds)
-        const tabsCol = collection(db, "userTabs", safeEmail, "active");
-        const q = query(tabsCol);
-        const snap = await getDocs(q);
-        
-        const now = Date.now();
-        let count = 0;
-        snap.forEach(tabDoc => {
-          // Clean up dead tabs automatically
-          if (now - tabDoc.data().lastSeen > 15000) {
-            deleteDoc(tabDoc.ref).catch(()=>{});
-          } else {
-            count++;
-          }
-        });
+async function submitReceipt() {
+  if (!selectedFile) { alert("No receipt selected!"); return; }
 
-        openTabCount = count;
+  const loadingOverlay = document.getElementById("loadingOverlay");
+  const loadingTitle   = document.getElementById("loadingTitle");
+  resetAllCk();
+  loadingOverlay.style.display = "flex";
+  loadingTitle.textContent = "Scanning Image...";
 
-        // Show warning if more than 1 tab
-        if (count > 1) {
-          tabWarning.classList.add('active');
-          tabWarningText.textContent = `Multiple tabs detected: timer is ${count}x faster`;
-        } else {
-          tabWarning.classList.remove('active');
-        }
-
-      } catch(e) {
-        console.error("Heartbeat error:", e);
-      }
-    }
-
-    // Remove this tab when it closes
-    async function unregisterTab() {
-      clearInterval(tabHeartbeatTimer);
-      try {
-        await deleteDoc(tabDocRef);
-      } catch(e) {}
-    }
-
-    // Clean up on tab close
-    window.addEventListener('beforeunload', unregisterTab);
-
-    // ══════════════════════════════════
-    //  FIRESTORE — read this email's timer
-    // ══════════════════════════════════
-    async function loadTimerFromFirestore() {
-      try {
-        const snap = await getDoc(timerDocRef);
-
-        if (!snap.exists()) {
-          await setDoc(timerDocRef, {
-            email: userEmail,
-            freeStart: Date.now(),
-            awaitStart: null
-          });
-          hideLoading();
-          registerTab();
-          tabHeartbeatTimer = setInterval(heartbeat, 5000);
-          startActiveCountdown(FREE_DURATION);
-          return;
-        }
-
-        const data = snap.data();
-
-        if (data.awaitStart) {
-          const elapsed = Math.floor((Date.now() - data.awaitStart) / 1000);
-          const remaining = AWAIT_DURATION - elapsed;
-
-          if (remaining <= 0) {
-            await setDoc(timerDocRef, {
-              email: userEmail,
-              freeStart: Date.now(),
-              awaitStart: null
-            });
-            hideLoading();
-            registerTab();
-            tabHeartbeatTimer = setInterval(heartbeat, 5000);
-            startActiveCountdown(FREE_DURATION);
-            return;
-          }
-          hideLoading();
-          startAwaitState(data.awaitStart, remaining);
-          return;
-        }
-
-        if (data.freeStart) {
-          const elapsed = Math.floor((Date.now() - data.freeStart) / 1000);
-          const remaining = FREE_DURATION - elapsed;
-
-          if (remaining <= 0) {
-            await setDoc(timerDocRef, {
-              email: userEmail,
-              freeStart: null,
-              awaitStart: Date.now()
-            });
-            hideLoading();
-            startAwaitState(Date.now(), AWAIT_DURATION);
-            return;
-          }
-          hideLoading();
-          registerTab();
-          tabHeartbeatTimer = setInterval(heartbeat, 5000);
-          startActiveCountdown(remaining);
-          return;
-        }
-
-        await setDoc(timerDocRef, {
-          email: userEmail,
-          freeStart: Date.now(),
-          awaitStart: null
-        });
-        hideLoading();
-        registerTab();
-        tabHeartbeatTimer = setInterval(heartbeat, 5000);
-        startActiveCountdown(FREE_DURATION);
-
-      } catch (err) {
-        console.error("Firestore read error:", err);
-        if (err.code === 'permission-denied') {
-          showError("Permission denied. Ask admin to update Firestore rules.");
-        } else {
-          showError("Failed to load session. Check connection.");
-        }
-      }
-    }
-
-    // ══════════════════════════════════
-    //  STATE 1 — 3:00 active (SPEEDS UP BY TAB COUNT)
-    // ══════════════════════════════════
-    function startActiveCountdown(remaining) {
-      showState('stateActive');
-      userBar.style.display = 'flex';
-      logoutBtn.style.display = 'none';
-      updateActiveDisplay(remaining);
-
-      activeTimer = setInterval(() => {
-        // Subtract 'openTabCount' seconds every tick
-        remaining -= openTabCount;
-        
-        if (remaining <= 0) {
-          remaining = 0;
-          clearInterval(activeTimer);
-          updateActiveDisplay(0);
-          onCountdownExpired();
-          return;
-        }
-        updateActiveDisplay(remaining);
-      }, 1000);
-    }
-
-    function updateActiveDisplay(remaining) {
-      countdownTime.textContent = formatMmSs(remaining);
-      const offset = RING_CIRCUMFERENCE * (1 - remaining / FREE_DURATION);
-      ringProgress.setAttribute('stroke-dashoffset', offset.toString());
-      if (remaining <= 30 && remaining > 0) {
-        countdownWrap.classList.add('urgent');
-      } else {
-        countdownWrap.classList.remove('urgent');
-      }
-    }
-
-    async function onCountdownExpired() {
-      expiredOverlay.classList.add('active');
-      unregisterTab(); // Stop tracking tabs for this user
-
-      try {
-        await setDoc(timerDocRef, {
-          email: userEmail,
-          freeStart: null,
-          awaitStart: Date.now()
-        });
-      } catch (err) {
-        console.error("Failed to write await start:", err);
-      }
-
-      setTimeout(() => {
-        startAwaitState(Date.now(), AWAIT_DURATION);
-        try { window.close(); } catch(e) {}
-        setTimeout(() => {
-          if (!window.closed) expiredOverlay.classList.remove('active');
-        }, 500);
-      }, 1500);
-    }
-
-    // ══════════════════════════════════
-    //  STATE 2 — 24:00:00 await (NORMAL 1 SEC SPEED)
-    // ══════════════════════════════════
-    function startAwaitState(awaitStartMs, remaining) {
-      userBar.style.display = 'none';
-      logoutBtn.style.display = 'flex';
-      expiredOverlay.classList.remove('active');
-      showState('stateAwait');
-
-      updateAwaitDisplay(remaining);
-
-      awaitTimer = setInterval(() => {
-        remaining--; // Always subtract 1, no matter how many tabs
-        if (remaining <= 0) {
-          remaining = 0;
-          clearInterval(awaitTimer);
-          updateAwaitDisplay(0);
-
-          setTimeout(async () => {
-            try {
-              await setDoc(timerDocRef, {
-                email: userEmail,
-                freeStart: Date.now(),
-                awaitStart: null
-              });
-            } catch (err) {
-              console.error("Failed to reset timer:", err);
-            }
-            registerTab();
-            tabHeartbeatTimer = setInterval(heartbeat, 5000);
-            startActiveCountdown(FREE_DURATION);
-          }, 1000);
-          return;
-        }
-        updateAwaitDisplay(remaining);
-      }, 1000);
-    }
-
-    function updateAwaitDisplay(remaining) {
-      awaitTimeEl.textContent = formatHhMmSs(remaining);
-    }
-
-    // ══════════════════════════════════
-    //  LOGOUT
-    // ══════════════════════════════════
-    logoutBtn.addEventListener('click', async () => {
-      logoutBtn.disabled = true;
-      logoutToast.classList.add('visible');
-
-      try { unregisterTab(); } catch(e) {}
-
-      try {
-        await deleteDoc(timerDocRef);
-        // Clean up leftover tab docs
-        const tabsCol = collection(db, "userTabs", safeEmail, "active");
-        const q = query(tabsCol);
-        const snap = await getDocs(q);
-        snap.forEach(tabDoc => deleteDoc(tabDoc.ref).catch(()=>{}));
-      } catch (err) {
-        console.error("Failed to delete docs:", err);
-      }
-
-      try {
-        await signOut(auth);
-        window.location.replace('index.html');
-      } catch (err) {
-        window.location.replace('index.html');
-      }
+  let objectUrl = null;
+  try {
+    /* Load image */
+    const img = new Image();
+    objectUrl = URL.createObjectURL(selectedFile);
+    img.src = objectUrl;
+    await new Promise((resolve, reject) => {
+      const t = setTimeout(() => reject(new Error("Timeout")), 8000);
+      img.onload  = () => { clearTimeout(t); resolve(); };
+      img.onerror = () => { clearTimeout(t); reject(new Error("Bad image")); };
     });
 
-    menuBtn.addEventListener('click', () => { window.location.href = 'menu.html'; });
-    payBtn.addEventListener('click', () => { window.location.href = 'pay.html'; });
+    const MAX_W = 1500;
+    const scale = Math.min(1, MAX_W / img.width);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width  = Math.floor(img.width * scale);
+    canvas.height = Math.floor(img.height * scale);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-    loadTimerFromFirestore();
-  </script>
+    /* Step 1: QR check (instant) */
+    let extractedText = "";
+    let isQR = false;
+    const qr = jsQR(imageData.data, canvas.width, canvas.height);
+    if (qr && qr.data && qr.data.trim().length > 0) {
+      isQR = true;
+      extractedText = qr.data.trim();
+    }
+
+    /* Step 2: No QR — fast pixel text check (~50ms) */
+    if (!isQR) {
+      const hasText = hasTextPixels(imageData);
+
+      if (!hasText) {
+        /* INSTANT REJECT — no receipt, no QR, no text.
+           Total from submit to redirect: ~2.5 seconds */
+        loadingTitle.textContent = "No receipt or QR code detected";
+        failAllInstant();
+        await delay(800);
+        loadingOverlay.style.display = "none";
+        showFail("Uploaded image is not a valid receipt or QR code", 1500);
+        return;
+      }
+
+      /* Has text pixels — run full OCR */
+      loadingTitle.textContent = "Reading Receipt...";
+      const preCanvas = preprocessImage(canvas);
+      const { data } = await Tesseract.recognize(preCanvas, "eng", {
+        tessedit_pageseg_mode: 6
+      });
+      extractedText = (data.text || "").replace(/\s+/g, " ").trim();
+    }
+
+    /* Check if any text was extracted */
+    results.photoType.pass = isQR || extractedText.length > 0;
+    setCk("photoType", results.photoType.pass ? "pass" : "fail");
+    await delay(150);
+
+    results.textExtract.pass = extractedText.length > 0;
+    setCk("textExtract", results.textExtract.pass ? "pass" : "fail");
+    await delay(150);
+
+    if (!results.photoType.pass || !results.textExtract.pass) {
+      loadingOverlay.style.display = "none";
+      showFail("No readable receipt or QR code found in image", 1800);
+      return;
+    }
+
+    /* Remaining checks */
+    const upperText = extractedText.toUpperCase();
+    const compactText = upperText.replace(/\s+/g, " ");
+
+    setCk("nameMatch", "active");
+    loadingTitle.textContent = "Validating Name...";
+    await delay(200);
+    results.nameMatch.pass = VALID_NAMES.some(n => compactText.includes(n));
+    setCk("nameMatch", results.nameMatch.pass ? "pass" : "fail");
+    await delay(150);
+
+    setCk("phoneMatch", "active");
+    loadingTitle.textContent = "Checking Phone Number...";
+    await delay(200);
+    results.phoneMatch.pass = PHONE_PATTERNS.some(p => p.test(upperText));
+    setCk("phoneMatch", results.phoneMatch.pass ? "pass" : "fail");
+    await delay(150);
+
+    setCk("timeDelay", "active");
+    loadingTitle.textContent = "Validating Timestamp...";
+    await delay(200);
+    results.timeDelay.pass = isTimeValidFromText(compactText);
+    setCk("timeDelay", results.timeDelay.pass ? "pass" : "fail");
+    await delay(150);
+
+    setCk("currency", "active");
+    loadingTitle.textContent = "Checking Currency...";
+    await delay(200);
+    results.currency.pass = isCurrencyValid(upperText);
+    setCk("currency", results.currency.pass ? "pass" : "fail");
+    await delay(150);
+
+    loadingTitle.textContent = "Finalizing...";
+    await delay(300);
+
+    if (Object.values(results).every(r => r.pass)) {
+      const amount = extractAmount(upperText);
+      const seconds = calcSeconds(amount);
+      if (seconds > 0) {
+        loadingOverlay.style.display = "none";
+        showSuccess(amount, seconds);
+      } else {
+        results.currency.pass = false;
+        results.currency.label = "Currency / Amount (TZS)";
+        loadingOverlay.style.display = "none";
+        showFail("Could not extract valid TZS amount", 1800);
+      }
+    } else {
+      loadingOverlay.style.display = "none";
+      showFail("Some checks did not pass", 1800);
+    }
+  } catch (error) {
+    console.error("Verification error:", error);
+    loadingOverlay.style.display = "none";
+    showFail("Error processing image", 1800);
+  } finally {
+    if (objectUrl) URL.revokeObjectURL(objectUrl);
+    selectedFile = null;
+  }
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+window.onload = () => {
+  const endTime = parseInt(localStorage.getItem("sessionEnd"));
+  if (endTime && Date.now() < endTime) {
+    window.location.href = "menu.html";
+    return;
+  }
+  localStorage.removeItem("sessionEnd");
+  localStorage.removeItem("sessionAmount");
+};
+</script>
 </body>
 </html>
