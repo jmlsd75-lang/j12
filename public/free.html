@@ -23,7 +23,6 @@
     }
 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
     html, body { height: 100%; overflow: hidden; }
 
     body {
@@ -35,7 +34,6 @@
       justify-content: center;
     }
 
-    /* ── Background ── */
     .bg-layer {
       position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
     }
@@ -70,13 +68,10 @@
       -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, black 20%, transparent 70%);
     }
 
-    /* ── States ── */
     .state { display: none; }
     .state.active { display: flex; }
 
-    /* ══════════════════════════════════
-       STATE 1 — Active session (3:00)
-    ══════════════════════════════════ */
+    /* ══ STATE 1 — Active 3:00 ══ */
     #stateActive {
       flex-direction: column;
       align-items: center;
@@ -84,7 +79,6 @@
       animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
-    /* User bar */
     .user-bar {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -114,7 +108,6 @@
       color: var(--fg-muted);
     }
 
-    /* Countdown ring */
     .countdown-wrap {
       position: relative;
       width: 220px; height: 220px;
@@ -159,7 +152,6 @@
       letter-spacing: 2px;
     }
 
-    /* Menu button */
     .menu-btn {
       display: flex;
       align-items: center;
@@ -186,7 +178,6 @@
     .menu-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
     .menu-btn i { font-size: 20px; color: var(--accent); }
 
-    /* Expired overlay */
     .expired-overlay {
       position: fixed; inset: 0;
       background: rgba(10,10,12,0.95);
@@ -202,9 +193,7 @@
     .expired-overlay i { font-size: 40px; color: var(--danger); }
     .expired-overlay p { font-size: 18px; color: var(--fg-muted); }
 
-    /* ══════════════════════════════════
-       STATE 2 — Await (24:00:00)
-    ══════════════════════════════════ */
+    /* ══ STATE 2 — Await 24:00:00 ══ */
     #stateAwait {
       flex-direction: column;
       align-items: center;
@@ -215,13 +204,12 @@
       animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
 
-    /* Logout button — top center */
     .logout-btn {
       position: fixed;
       top: 20px;
       left: 50%;
       transform: translateX(-50%);
-      display: flex;
+      display: none;
       align-items: center;
       gap: 8px;
       padding: 10px 24px;
@@ -243,6 +231,10 @@
     }
     .logout-btn:focus-visible { outline: 2px solid var(--danger); outline-offset: 2px; }
     .logout-btn i { font-size: 14px; }
+    .logout-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
 
     .await-title {
       font-family: 'Space Grotesk', sans-serif;
@@ -252,7 +244,6 @@
       text-align: center;
     }
 
-    /* Await + Pay buttons row */
     .btn-row {
       display: flex;
       align-items: center;
@@ -333,7 +324,40 @@
       line-height: 1.6;
     }
 
-    /* ── Animations ── */
+    /* Logout toast */
+    .logout-toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-size: 13px;
+      color: var(--fg-muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 200;
+      pointer-events: none;
+    }
+    .logout-toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .logout-toast .spinner-sm {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.1);
+      border-top-color: var(--danger);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(20px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -343,7 +367,6 @@
       to   { opacity: 1; }
     }
 
-    /* ── Urgency pulse when < 30s ── */
     .urgent .time { color: var(--danger) !important; }
     .urgent .progress { stroke: var(--danger) !important; filter: drop-shadow(0 0 8px rgba(232,84,84,0.4)) !important; }
     .countdown-wrap.urgent { animation: urgentPulse 1s ease-in-out infinite; }
@@ -352,7 +375,6 @@
       50%      { transform: scale(1.03); }
     }
 
-    /* ── Responsive ── */
     @media (max-width: 480px) {
       .countdown-wrap { width: 180px; height: 180px; }
       .countdown-text .time { font-size: 38px; }
@@ -374,17 +396,14 @@
 </head>
 <body>
 
-  <!-- Background -->
   <div class="bg-layer" aria-hidden="true">
     <div class="orb orb--1"></div>
     <div class="orb orb--2"></div>
   </div>
   <div class="grid-pattern" aria-hidden="true"></div>
 
-  <!-- ═══ STATE 1: Active 3-minute session ═══ -->
+  <!-- ═══ STATE 1: Active 3:00 ═══ -->
   <div id="stateActive" class="state">
-
-    <!-- User bar at top -->
     <div class="user-bar" id="userBar">
       <img id="userPhoto" src="" alt="Profile" />
       <div>
@@ -393,7 +412,6 @@
       </div>
     </div>
 
-    <!-- Countdown circle -->
     <div class="countdown-wrap" id="countdownWrap">
       <svg class="countdown-ring" viewBox="0 0 220 220">
         <circle class="track" cx="110" cy="110" r="100" />
@@ -407,23 +425,19 @@
       </div>
     </div>
 
-    <!-- Menu button — center -->
     <button class="menu-btn" id="menuBtn" aria-label="Open menu">
       <i class="fa-solid fa-bars"></i>
       Menu
     </button>
   </div>
 
-  <!-- Expired overlay (shown at 00:00 before close) -->
   <div class="expired-overlay" id="expiredOverlay">
     <i class="fa-solid fa-clock"></i>
     <p>Session expired</p>
   </div>
 
-  <!-- ═══ STATE 2: Await 24-hour cooldown ═══ -->
+  <!-- ═══ STATE 2: Await 24:00:00 ═══ -->
   <div id="stateAwait" class="state">
-
-    <!-- Logout — top center -->
     <button class="logout-btn" id="logoutBtn" aria-label="Log out">
       <i class="fa-solid fa-right-from-bracket"></i>
       Log out
@@ -432,14 +446,12 @@
     <p class="await-title">Your free session has ended</p>
 
     <div class="btn-row">
-      <!-- Unclickable await button with 24h countdown -->
       <div class="await-btn" aria-disabled="true" role="button" tabindex="-1">
         <i class="fa-solid fa-lock lock-icon"></i>
         <span class="await-label">Next free in</span>
         <span class="await-time" id="awaitTime">24:00:00</span>
       </div>
 
-      <!-- Pay button -->
       <button class="pay-btn" id="payBtn" aria-label="Upgrade to paid access">
         <i class="fa-solid fa-arrow-up-right-dots"></i>
         Upgrade
@@ -449,93 +461,106 @@
     <p class="await-hint">Upgrade now to get instant unlimited access<br/>or wait for the timer to reset your free session.</p>
   </div>
 
-  <script>
-    // ── Config ──
-    var FREE_DURATION = 3 * 60;       // 3 minutes in seconds
-    var AWAIT_DURATION = 24 * 60 * 60; // 24 hours in seconds
-    var RING_CIRCUMFERENCE = 2 * Math.PI * 100; // ~628.318
+  <!-- Logout feedback toast -->
+  <div class="logout-toast" id="logoutToast">
+    <span class="spinner-sm"></span>
+    Signing out...
+  </div>
 
-    var LS_START_KEY = 'freeSessionStart';
-    var LS_AWAIT_KEY = 'freeAwaitStart';
+  <!-- ═══ ALL LOGIC IN ONE MODULE — Firebase + UI ═══ -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    // ── Read user from URL params ──
-    var params = new URLSearchParams(window.location.search);
-    var userName = params.get('name') || 'User';
-    var userEmail = params.get('email') || '';
-    var userPhoto = params.get('photo') || '';
+    // ── Firebase init (same config from your login page) ──
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+      authDomain: "my-project-66803-95cb3.firebaseapp.com",
+      projectId: "my-project-66803-95cb3",
+      storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+      messagingSenderId: "167159607898",
+      appId: "1:167159607898:web:23ca11366b88868b085e63"
+    };
 
-    // Set user info in the bar
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // ── Timer config ──
+    const FREE_DURATION = 3 * 60;
+    const AWAIT_DURATION = 24 * 60 * 60;
+    const RING_CIRCUMFERENCE = 2 * Math.PI * 100;
+    const LS_START_KEY = 'freeSessionStart';
+    const LS_AWAIT_KEY = 'freeAwaitStart';
+
+    // ── Read user from URL params (passed from login page) ──
+    const params = new URLSearchParams(window.location.search);
+    const userName = params.get('name') || 'User';
+    const userEmail = params.get('email') || '';
+    const userPhoto = params.get('photo') || '';
+
     document.getElementById('userName').textContent = decodeURIComponent(userName);
     document.getElementById('userEmail').textContent = decodeURIComponent(userEmail);
-    if (userPhoto) {
-      document.getElementById('userPhoto').src = decodeURIComponent(userPhoto);
-    } else {
-      document.getElementById('userPhoto').src = 'https://picsum.photos/seed/user/72/72.jpg';
-    }
+    document.getElementById('userPhoto').src = userPhoto
+      ? decodeURIComponent(userPhoto)
+      : 'https://picsum.photos/seed/user/72/72.jpg';
 
     // ── DOM refs ──
-    var stateActive = document.getElementById('stateActive');
-    var stateAwait = document.getElementById('stateAwait');
-    var expiredOverlay = document.getElementById('expiredOverlay');
-    var countdownTime = document.getElementById('countdownTime');
-    var ringProgress = document.getElementById('ringProgress');
-    var countdownWrap = document.getElementById('countdownWrap');
-    var menuBtn = document.getElementById('menuBtn');
-    var awaitTime = document.getElementById('awaitTime');
-    var payBtn = document.getElementById('payBtn');
-    var logoutBtn = document.getElementById('logoutBtn');
-    var userBar = document.getElementById('userBar');
+    const stateActive = document.getElementById('stateActive');
+    const stateAwait = document.getElementById('stateAwait');
+    const expiredOverlay = document.getElementById('expiredOverlay');
+    const countdownTime = document.getElementById('countdownTime');
+    const ringProgress = document.getElementById('ringProgress');
+    const countdownWrap = document.getElementById('countdownWrap');
+    const menuBtn = document.getElementById('menuBtn');
+    const awaitTime = document.getElementById('awaitTime');
+    const payBtn = document.getElementById('payBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const userBar = document.getElementById('userBar');
+    const logoutToast = document.getElementById('logoutToast');
 
-    var activeTimer = null;
-    var awaitTimer = null;
+    let activeTimer = null;
+    let awaitTimer = null;
 
     // ── Format helpers ──
-    function formatMmSs(totalSec) {
-      var m = Math.floor(totalSec / 60);
-      var s = totalSec % 60;
+    function formatMmSs(sec) {
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
       return m + ':' + (s < 10 ? '0' : '') + s;
     }
 
-    function formatHhMmSs(totalSec) {
-      var h = Math.floor(totalSec / 3600);
-      var m = Math.floor((totalSec % 3600) / 60);
-      var s = totalSec % 60;
+    function formatHhMmSs(sec) {
+      const h = Math.floor(sec / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = sec % 60;
       return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
     }
 
-    // ── Show a state ──
-    function showState(stateId) {
-      document.querySelectorAll('.state').forEach(function(el) {
-        el.classList.remove('active');
-      });
-      document.getElementById(stateId).classList.add('active');
+    function showState(id) {
+      document.querySelectorAll('.state').forEach(el => el.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
     }
 
-    // ══════════════════════════════════════
-    //  DETERMINE WHICH STATE TO SHOW
-    // ══════════════════════════════════════
-
+    // ══════════════════════════════════
+    //  INIT — decide which state
+    // ══════════════════════════════════
     function init() {
-      var startTime = localStorage.getItem(LS_START_KEY);
-      var awaitStart = localStorage.getItem(LS_AWAIT_KEY);
+      const awaitStart = localStorage.getItem(LS_AWAIT_KEY);
 
       if (awaitStart) {
-        // Await phase was already recorded — go straight to State 2
         startAwaitState(parseInt(awaitStart, 10));
         return;
       }
 
+      const startTime = localStorage.getItem(LS_START_KEY);
+
       if (startTime) {
-        var elapsed = Math.floor((Date.now() - parseInt(startTime, 10)) / 1000);
-        var remaining = FREE_DURATION - elapsed;
+        const elapsed = Math.floor((Date.now() - parseInt(startTime, 10)) / 1000);
+        const remaining = FREE_DURATION - elapsed;
 
         if (remaining <= 0) {
-          // 3 minutes already passed — enter await
           enterAwait();
           return;
         }
-
-        // Resume countdown
         startActiveCountdown(remaining);
         return;
       }
@@ -545,18 +570,16 @@
       startActiveCountdown(FREE_DURATION);
     }
 
-    // ══════════════════════════════════════
-    //  STATE 1 — Active 3:00 countdown
-    // ══════════════════════════════════════
-
+    // ══════════════════════════════════
+    //  STATE 1 — 3:00 active
+    // ══════════════════════════════════
     function startActiveCountdown(remaining) {
       showState('stateActive');
       userBar.style.display = 'flex';
       logoutBtn.style.display = 'none';
-
       updateActiveDisplay(remaining);
 
-      activeTimer = setInterval(function() {
+      activeTimer = setInterval(() => {
         remaining--;
         if (remaining <= 0) {
           remaining = 0;
@@ -571,13 +594,9 @@
 
     function updateActiveDisplay(remaining) {
       countdownTime.textContent = formatMmSs(remaining);
-
-      // Update ring
-      var fraction = remaining / FREE_DURATION;
-      var offset = RING_CIRCUMFERENCE * (1 - fraction);
+      const offset = RING_CIRCUMFERENCE * (1 - remaining / FREE_DURATION);
       ringProgress.setAttribute('stroke-dashoffset', offset.toString());
 
-      // Urgency mode when < 30 seconds
       if (remaining <= 30 && remaining > 0) {
         countdownWrap.classList.add('urgent');
       } else {
@@ -586,49 +605,35 @@
     }
 
     function onCountdownExpired() {
-      // Show expired overlay briefly
       expiredOverlay.classList.add('active');
-
-      setTimeout(function() {
-        // Close the page
+      setTimeout(() => {
         enterAwait();
-        try {
-          window.close();
-        } catch(e) {
-          // If window.close() fails (not opened by script), go to await state
-        }
-        // Fallback: if page didn't close, show await after a moment
-        setTimeout(function() {
-          if (!window.closed) {
-            expiredOverlay.classList.remove('active');
-          }
+        try { window.close(); } catch(e) {}
+        setTimeout(() => {
+          if (!window.closed) expiredOverlay.classList.remove('active');
         }, 500);
       }, 1500);
     }
 
-    // ══════════════════════════════════════
-    //  STATE 2 — Await 24:00:00
-    // ══════════════════════════════════════
-
+    // ══════════════════════════════════
+    //  STATE 2 — 24:00:00 await
+    // ══════════════════════════════════
     function enterAwait() {
-      var awaitStart = Date.now();
+      const awaitStart = Date.now();
       localStorage.setItem(LS_AWAIT_KEY, awaitStart.toString());
-      // Clear the free session start since it's done
       localStorage.removeItem(LS_START_KEY);
       startAwaitState(awaitStart);
     }
 
     function startAwaitState(awaitStart) {
-      // Hide user bar, show logout
       userBar.style.display = 'none';
       logoutBtn.style.display = 'flex';
       expiredOverlay.classList.remove('active');
-
       showState('stateAwait');
 
-      var remaining = AWAIT_DURATION - Math.floor((Date.now() - awaitStart) / 1000);
+      let remaining = AWAIT_DURATION - Math.floor((Date.now() - awaitStart) / 1000);
+
       if (remaining <= 0) {
-        // 24 hours passed — reset for new free session
         localStorage.removeItem(LS_AWAIT_KEY);
         localStorage.removeItem(LS_START_KEY);
         init();
@@ -637,15 +642,13 @@
 
       updateAwaitDisplay(remaining);
 
-      awaitTimer = setInterval(function() {
+      awaitTimer = setInterval(() => {
         remaining--;
         if (remaining <= 0) {
           remaining = 0;
           clearInterval(awaitTimer);
           updateAwaitDisplay(0);
-
-          // Reset — allow new free session
-          setTimeout(function() {
+          setTimeout(() => {
             localStorage.removeItem(LS_AWAIT_KEY);
             localStorage.removeItem(LS_START_KEY);
             init();
@@ -660,63 +663,44 @@
       awaitTime.textContent = formatHhMmSs(remaining);
     }
 
-    // ══════════════════════════════════════
-    //  BUTTON ACTIONS
-    // ══════════════════════════════════════
+    // ══════════════════════════════════
+    //  LOGOUT — real Firebase signOut
+    // ══════════════════════════════════
+    logoutBtn.addEventListener('click', async () => {
+      // Prevent double-click
+      logoutBtn.disabled = true;
+      logoutToast.classList.add('visible');
 
-    // Menu button → menu.html
-    menuBtn.addEventListener('click', function() {
-      window.location.href = 'menu.html';
-    });
+      try {
+        // Clear local timer state
+        localStorage.removeItem(LS_START_KEY);
+        localStorage.removeItem(LS_AWAIT_KEY);
 
-    // Pay button → pay.html
-    payBtn.addEventListener('click', function() {
-      window.location.href = 'pay.html';
-    });
+        // Actual Firebase sign-out — kills the session server-side
+        await signOut(auth);
 
-    // Logout → back to login (index.html)
-    logoutBtn.addEventListener('click', function() {
-      // Clear all session data
-      localStorage.removeItem(LS_START_KEY);
-      localStorage.removeItem(LS_AWAIT_KEY);
-
-      // Sign out from Firebase
-      if (typeof firebase !== 'undefined' && firebase.auth) {
-        firebase.auth().signOut().then(function() {
-          window.location.href = 'index.html';
-        }).catch(function() {
-          window.location.href = 'index.html';
-        });
-      } else {
-        // Fallback — just go back
-        window.location.href = 'index.html';
+        // After signOut resolves, redirect to login page
+        window.location.replace('index.html');
+      } catch (error) {
+        console.error('Logout error:', error);
+        // Even if signOut fails, still redirect so user isn't stuck
+        window.location.replace('index.html');
       }
     });
 
-    // ── Start ──
+    // ══════════════════════════════════
+    //  OTHER BUTTONS
+    // ══════════════════════════════════
+    menuBtn.addEventListener('click', () => {
+      window.location.href = 'menu.html';
+    });
+
+    payBtn.addEventListener('click', () => {
+      window.location.href = 'pay.html';
+    });
+
+    // ── Start everything ──
     init();
-  </script>
-
-  <!-- Firebase (for logout only) -->
-  <script type="module">
-    // Make firebase available globally for the logout function
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-      authDomain: "my-project-66803-95cb3.firebaseapp.com",
-      projectId: "my-project-66803-95cb3",
-      storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-      messagingSenderId: "167159607898",
-      appId: "1:167159607898:web:23ca11366b88868b085e63"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    // Expose auth for the logout button
-    window.firebase = { auth: auth };
   </script>
 </body>
 </html>
