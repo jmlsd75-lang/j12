@@ -21,7 +21,6 @@
                 <img id="userPhoto" class="w-8 h-8 rounded-full" src="" alt="Profile">
                 <span id="userName" class="font-medium text-sm text-neutral-300"></span>
             </div>
-            <!-- Logout Button (Hidden during Free countdown, shown during Await) -->
             <button id="logoutBtn" onclick="handleLogout()" class="hidden text-sm font-medium text-neutral-400 hover:text-red-400 transition px-4 py-2 rounded-lg border border-transparent hover:border-red-500/30">
                 Logout
             </button>
@@ -44,21 +43,15 @@
 
         <!-- STATE 2: AWAIT COUNTDOWN VIEW -->
         <div id="awaitView" class="hidden flex-col items-center text-center max-w-lg">
-            <!-- Warning Script Message -->
             <div class="mb-10 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
                 <p class="text-red-400 font-semibold text-lg">Pay to continue using the system.</p>
                 <p class="text-red-400/70 text-sm mt-1">Your free time has expired.</p>
             </div>
-
-            <!-- Await & Pay Buttons -->
             <div class="flex flex-col sm:flex-row gap-6 items-center w-full">
-                <!-- Await Button (Unclickable) -->
                 <button disabled class="flex-1 w-full py-6 px-8 bg-[#111] border border-white/10 rounded-xl text-left opacity-60 cursor-not-allowed">
                     <span class="text-neutral-500 text-sm font-medium block mb-2">AWAIT</span>
                     <span id="awaitTimer" class="timer-text text-3xl md:text-4xl font-bold text-white">24:00:00</span>
                 </button>
-
-                <!-- Pay Button -->
                 <a href="pay.html" class="flex-1 w-full py-6 px-8 bg-green-500 hover:bg-green-600 text-center rounded-xl font-bold text-lg transition transform hover:scale-105 shadow-lg shadow-green-500/20">
                     Pay Now
                 </a>
@@ -77,7 +70,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, updateDoc, onSnapshot, increment, FieldValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, runTransaction, FieldValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
@@ -92,12 +85,10 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Generate a unique ID for THIS specific tab/session
         const sessionId = crypto.randomUUID();
         let currentEmail = null;
         let intervalId = null;
 
-        // UI Elements
         const freeView = document.getElementById("freeView");
         const awaitView = document.getElementById("awaitView");
         const loadingView = document.getElementById("loadingView");
@@ -105,35 +96,24 @@
         const freeTimerEl = document.getElementById("freeTimer");
         const awaitTimerEl = document.getElementById("awaitTimer");
 
-        // Make logout function global for onclick
         window.handleLogout = async () => {
-            // 1. Remove this tab's session from Firestore
             if (currentEmail) {
                 const userRef = doc(db, "users", currentEmail);
                 await updateDoc(userRef, { [`sessions.${sessionId}`]: FieldValue.delete() }).catch(() => {});
             }
-            // 2. Perform actual Firebase Logout
             await signOut(auth);
-            // 3. Redirect to login
             window.location.href = "index.html";
         };
 
-        // Clean up session when tab is closed
         window.addEventListener("beforeunload", () => {
             if (currentEmail) {
                 const userRef = doc(db, "users", currentEmail);
-                // Use sendBeacon or synchronous-ish fetch for reliability on tab close
-                navigator.sendBeacon 
-                    ? fetch(`https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents/users/${currentEmail}`, { method: 'PATCH', body: '', keepalive: true }).catch(()=>{}) // Fallback
-                    : updateDoc(userRef, { [`sessions.${sessionId}`]: FieldValue.delete() }).catch(() => {});
-                
-                // Standard SDK attempt (works in most modern browsers on beforeunload)
                 try { updateDoc(userRef, { [`sessions.${sessionId}`]: FieldValue.delete() }); } catch(e) {}
             }
         });
 
         function formatTime(totalSeconds) {
-            const sec = Math.max(0, totalSeconds);
+            const sec = Math.max(0, Math.floor(totalSeconds));
             const h = Math.floor(sec / 3600);
             const m = Math.floor((sec % 3600) / 60);
             const s = sec % 60;
@@ -158,7 +138,6 @@
             }
         }
 
-        // Verify Authentication strictly
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = "index.html";
@@ -167,30 +146,34 @@
 
             currentEmail = user.email.toLowerCase();
             
-            // Set UI profile details
             document.getElementById("userName").textContent = user.displayName || "User";
             document.getElementById("userPhoto").src = user.photoURL || "https://ui-avatars.com/api/?name=User&background=111&color=fff";
 
             const userRef = doc(db, "users", currentEmail);
 
-            // Initialize Document if it doesn't exist, add current session
-            try {
+            // CRITICAL FIX: Only write initial timer values if the doc does NOT exist.
+            // Previously, setDoc with merge:true was silently overwriting freeTimeRemaining
+            // back to 180 on every page refresh.
+            const existingDoc = await getDoc(userRef);
+            if (!existingDoc.exists()) {
                 await setDoc(userRef, {
-                    freeTimeRemaining: 180, // 3 minutes
-                    awaitTimeRemaining: 86400, // 24 hours
+                    freeTimeRemaining: 180,
+                    awaitTimeRemaining: 86400,
+                    lastTick: Date.now(),
                     sessions: { [sessionId]: true }
-                }, { merge: true });
-            } catch (error) {
-                console.error("Firestore init error:", error);
+                });
+            } else {
+                // Doc exists — just register this tab and reset the tick anchor.
+                // Timer values are NEVER touched here, so they cannot be restored.
+                await updateDoc(userRef, {
+                    lastTick: Date.now(),
+                    [`sessions.${sessionId}`]: true
+                });
             }
 
-            // Register this specific tab as an active session
-            await updateDoc(userRef, { [`sessions.${sessionId}`]: true });
-
-            // Real-time listener for Firestore data
+            // Real-time UI listener
             onSnapshot(userRef, (docSnap) => {
                 if (!docSnap.exists()) return;
-
                 const data = docSnap.data();
                 const freeTime = data.freeTimeRemaining || 0;
                 const awaitTime = data.awaitTimeRemaining || 0;
@@ -204,37 +187,51 @@
                 }
             });
 
-            // Interval to decrement time every second
-            // MAGIC LOGIC: Because EVERY open tab runs this interval and calls increment(-1),
-            // if a user opens 3 tabs, the database drops by 3 seconds every real second!
+            // Timestamp-based countdown using Firestore transactions.
+            // This solves the multi-tab bug where N open tabs caused the timer to
+            // drop by N seconds per real second. Now, elapsed time is calculated
+            // from lastTick, so even 10 tabs produce exactly 1 second of drain.
             intervalId = setInterval(async () => {
                 try {
-                    const docSnap = await getDocAsync(userRef); // Avoid extra reads, just use dynamic increment
-                    // We blindly decrement the active phase. Firestore atomic increments prevent race conditions.
-                    await updateDoc(userRef, {
-                        // If free time > 0, decrement free. Else decrement await.
-                        // Note: Firestore doesn't allow conditional increments in one call without transactions,
-                        // so we decrement both safely and rely on the UI to show the correct one.
-                        // To be perfectly efficient, we track state locally:
-                    });
+                    await runTransaction(db, async (transaction) => {
+                        const snap = await transaction.get(userRef);
+                        if (!snap.exists()) return;
 
-                    // Better approach for decrement:
-                    if (freeTimerEl.textContent !== "00:00:00") {
-                        await updateDoc(userRef, { freeTimeRemaining: increment(-1) });
-                    } else {
-                        await updateDoc(userRef, { awaitTimeRemaining: increment(-1) });
-                    }
+                        const data = snap.data();
+                        const lastTick = data.lastTick || Date.now();
+                        const now = Date.now();
+                        // Cap elapsed to 60s to prevent catastrophic drain from clock skew
+                        const elapsed = Math.min(Math.floor((now - lastTick) / 1000), 60);
+
+                        if (elapsed <= 0) return;
+
+                        const freeTime = data.freeTimeRemaining || 0;
+                        const awaitTime = data.awaitTimeRemaining || 0;
+
+                        const updates = { lastTick: now };
+
+                        if (freeTime > 0) {
+                            // Decrement free time
+                            updates.freeTimeRemaining = Math.max(0, freeTime - elapsed);
+                        } else if (awaitTime > 0) {
+                            // Decrement await time
+                            const newAwait = Math.max(0, awaitTime - elapsed);
+                            updates.awaitTimeRemaining = newAwait;
+
+                            // IF AND ONLY IF await hits zero → restore the free cycle
+                            if (newAwait <= 0) {
+                                updates.freeTimeRemaining = 180;
+                                updates.awaitTimeRemaining = 86400;
+                            }
+                        }
+
+                        transaction.update(userRef, updates);
+                    });
                 } catch (e) {
-                    console.error("Timer update error", e);
+                    console.error("Timer transaction error", e);
                 }
             }, 1000);
         });
-
-        // Small helper to avoid import issues if not needed
-        async function getDocAsync(ref) {
-            const { getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-            return getDoc(ref);
-        }
     </script>
 </body>
 </html>
