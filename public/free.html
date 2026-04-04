@@ -72,7 +72,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, runTransaction, FieldValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot, runTransaction, FieldValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
@@ -100,74 +100,64 @@
         const awaitTimerEl = document.getElementById("awaitTimer");
 
         // ─────────────────────────────────────────────
-        // LOGOUT — fully clears Firebase Auth session
-        // so browserLocalPersistence is wiped and the
-        // user MUST sign in again on index.html
+        // LOGOUT — delete user doc from Firestore,
+        // sign out of Firebase Auth, redirect to login
         // ─────────────────────────────────────────────
         async function handleLogout() {
             if (isLoggingOut) return;
             isLoggingOut = true;
 
-            // 1. Stop the timer interval immediately
+            // Stop timer immediately
             if (intervalId) {
                 clearInterval(intervalId);
                 intervalId = null;
             }
 
-            // 2. Remove the beforeunload listener so cleanup
-            //    doesn't race with the redirect
+            // Remove beforeunload so it doesn't fire during logout
             window.removeEventListener("beforeunload", cleanupOnUnload);
 
-            // 3. Show visual feedback on the button
+            // Visual feedback
             logoutBtn.textContent = "Signing out…";
             logoutBtn.disabled = true;
             logoutBtn.classList.add("opacity-50", "pointer-events-none");
 
             try {
-                // 4. Clean up this session's entry in Firestore
+                // 1. DELETE the user's entire document from Firestore
                 if (currentEmail) {
                     const userRef = doc(db, "users", currentEmail);
-                    await updateDoc(userRef, {
-                        [`sessions.${sessionId}`]: FieldValue.delete()
-                    }).catch(() => {});
+                    await deleteDoc(userRef);
+                    console.log("Firestore user doc deleted for:", currentEmail);
                 }
 
-                // 5. Sign out from Firebase Auth — this clears
-                //    browserLocalPersistence so the user is fully logged out
+                // 2. Sign out of Firebase Auth (clears browserLocalPersistence)
                 await signOut(auth);
+                console.log("Firebase Auth sign-out complete");
 
-                // 6. Small delay to let the sign-out propagate to
-                //    IndexedDB / localStorage before we navigate away
+                // 3. Wait a moment for persistence wipe to finish
                 await new Promise(r => setTimeout(r, 400));
 
-                // 7. Hard redirect (replace, not href) so the user
-                //    cannot press Back to return here while logged out
+                // 4. Redirect to login page (replace so Back won't return here)
                 window.location.replace("index.html");
 
             } catch (error) {
-                console.error("Logout failed:", error);
-                // Even if something fails, still try to redirect
+                console.error("Logout error:", error);
+                // Even if something fails, still redirect
                 window.location.replace("index.html");
             }
         }
 
-        // Wire up the logout button
         logoutBtn.addEventListener("click", handleLogout);
 
         // ─────────────────────────────────────────────
-        // BEFOREUNLOAD — clean up session on tab close
+        // BEFOREUNLOAD — clean session entry on tab close
         // ─────────────────────────────────────────────
         function cleanupOnUnload() {
-            if (isLoggingOut) return;
-            if (currentEmail) {
-                const userRef = doc(db, "users", currentEmail);
-                // Use sendBeacon-style fire-and-forget
-                try {
-                    updateDoc(userRef, {
-                        [`sessions.${sessionId}`]: FieldValue.delete()
-                    });
-                } catch (e) {}
-            }
+            if (isLoggingOut || !currentEmail) return;
+            try {
+                updateDoc(doc(db, "users", currentEmail), {
+                    [`sessions.${sessionId}`]: FieldValue.delete()
+                });
+            } catch (e) {}
         }
         window.addEventListener("beforeunload", cleanupOnUnload);
 
@@ -191,7 +181,7 @@
             awaitView.classList.add("hidden");
             awaitView.classList.remove("flex");
             loadingView.classList.add("hidden");
-            
+
             if (view === "free") {
                 freeView.classList.remove("hidden");
                 freeView.classList.add("flex");
@@ -204,23 +194,22 @@
         }
 
         // ─────────────────────────────────────────────
-        // AUTH STATE — main entry point
+        // AUTH STATE
         // ─────────────────────────────────────────────
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
-                // Not logged in → send to login page
                 window.location.replace("index.html");
                 return;
             }
 
             currentEmail = user.email.toLowerCase();
-            
+
             document.getElementById("userName").textContent = user.displayName || "User";
             document.getElementById("userPhoto").src = user.photoURL || "https://ui-avatars.com/api/?name=User&background=111&color=fff";
 
             const userRef = doc(db, "users", currentEmail);
 
-            // Only write initial timer values if doc does NOT exist
+            // Only create doc if it doesn't exist
             const existingDoc = await getDoc(userRef);
             if (!existingDoc.exists()) {
                 await setDoc(userRef, {
@@ -230,14 +219,13 @@
                     sessions: { [sessionId]: true }
                 });
             } else {
-                // Doc exists — register this tab & reset tick anchor
                 await updateDoc(userRef, {
                     lastTick: Date.now(),
                     [`sessions.${sessionId}`]: true
                 });
             }
 
-            // Real-time UI listener
+            // Real-time UI
             onSnapshot(userRef, (docSnap) => {
                 if (!docSnap.exists()) return;
                 const data = docSnap.data();
@@ -253,7 +241,7 @@
                 }
             });
 
-            // Timestamp-based countdown (transaction-based, multi-tab safe)
+            // Countdown
             intervalId = setInterval(async () => {
                 if (isLoggingOut) return;
                 try {
