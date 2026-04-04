@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu — System Dashboard</title>
+    <title>Menu — Free Access</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
@@ -60,81 +60,33 @@
             transform: rotate(45deg);
         }
 
-        .badge {
+        .free-badge {
             font-size: 0.7rem;
             font-weight: 700;
             letter-spacing: 0.15em;
             text-transform: uppercase;
-            padding: 5px 12px;
-            border-radius: 8px;
-            display: none;
-        }
-
-        .admin-badge {
-            color: #f97316;
-            background: rgba(249, 115, 22, 0.1);
-            border: 1px solid rgba(249, 115, 22, 0.2);
-        }
-
-        .user-badge {
             color: rgb(168, 162, 158);
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 5px 12px;
+            border-radius: 8px;
         }
 
-        .user-info {
+        .top-bar-right {
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        .user-name {
-            font-size: 0.85rem;
+        .top-bar-right a {
+            color: rgb(120, 113, 108);
+            text-decoration: none;
+            font-size: 0.78rem;
             font-weight: 500;
-            color: rgb(168, 162, 158);
+            transition: color 0.3s;
         }
 
-        .user-avatar {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #f97316, #ea580c);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: #fff;
-            overflow: hidden;
-            border: 2px solid rgba(249, 115, 22, 0.3);
-        }
-
-        .user-avatar.green-border {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            border: 2px solid rgba(34, 197, 94, 0.3);
-        }
-
-        .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-        .logout-btn {
-            display: none;
-            background: none;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: rgb(168, 162, 158);
-            font-family: 'Inter', sans-serif;
-            font-size: 0.75rem;
-            padding: 5px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-left: 4px;
-        }
-
-        .logout-btn:hover {
-            border-color: rgba(239, 68, 68, 0.3);
-            color: #f87171;
-            background: rgba(239, 68, 68, 0.05);
-        }
+        .top-bar-right a:hover { color: #f97316; }
 
         /* ===== GLOW ===== */
         .glow-orb {
@@ -149,56 +101,8 @@
             z-index: 0;
         }
 
-        /* ===== ADMIN UNLIMITED SECTION ===== */
-        .admin-unlimited {
-            display: none;
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            padding: 100px 24px 0;
-        }
-
-        .admin-unlimited .crown-icon {
-            width: 60px;
-            height: 60px;
-            margin: 0 auto 24px;
-            background: rgba(249, 115, 22, 0.1);
-            border: 1px solid rgba(249, 115, 22, 0.2);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .admin-unlimited .crown-icon svg {
-            width: 28px;
-            height: 28px;
-            fill: #f97316;
-        }
-
-        .admin-unlimited h1 {
-            font-size: 2.4rem;
-            font-weight: 800;
-            letter-spacing: -0.03em;
-            line-height: 1.1;
-            margin-bottom: 12px;
-        }
-
-        .admin-unlimited h1 span {
-            background: linear-gradient(135deg, #f97316, #fb923c);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .admin-unlimited .sub-text {
-            font-size: 0.95rem;
-            color: rgb(120, 113, 108);
-            margin-bottom: 48px;
-        }
-
-        /* ===== COUNTDOWN SECTION (03:00) ===== */
-        .countdown-section {
+        /* ===== PERSISTENT COUNTDOWN ===== */
+        .countdown-persistent {
             display: none;
             position: relative;
             z-index: 2;
@@ -206,37 +110,31 @@
             padding: 80px 24px 0;
         }
 
-        .countdown-section h2 {
-            font-size: 1.4rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            margin-bottom: 8px;
-            color: rgb(168, 162, 158);
-        }
-
-        .countdown-section .timer-sub {
-            font-size: 0.8rem;
+        .countdown-persistent .timer-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
             color: rgb(87, 83, 78);
-            margin-bottom: 40px;
+            margin-bottom: 12px;
         }
 
-        .timer-display {
-            font-size: 4.5rem;
+        .countdown-persistent .timer-display {
+            font-size: 4rem;
             font-weight: 800;
             letter-spacing: 0.05em;
             color: #f5f5f4;
             font-variant-numeric: tabular-nums;
             line-height: 1;
-            margin-bottom: 48px;
-            position: relative;
+            margin-bottom: 20px;
         }
 
-        .timer-display.warning {
+        .countdown-persistent .timer-display.warning {
             color: #f97316;
             animation: pulse-glow 1s ease-in-out infinite;
         }
 
-        .timer-display.danger {
+        .countdown-persistent .timer-display.danger {
             color: #ef4444;
             animation: pulse-glow-red 0.6s ease-in-out infinite;
         }
@@ -251,30 +149,50 @@
             50% { text-shadow: 0 0 40px rgba(239, 68, 68, 0.6); }
         }
 
-        .timer-bar {
-            max-width: 400px;
+        .countdown-persistent .timer-bar {
+            max-width: 360px;
             height: 4px;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 4px;
-            margin: 0 auto 48px;
+            margin: 0 auto;
             overflow: hidden;
         }
 
-        .timer-bar-fill {
+        .countdown-persistent .timer-bar-fill {
             height: 100%;
             background: linear-gradient(90deg, #f97316, #fb923c);
             border-radius: 4px;
             transition: width 1s linear;
         }
 
-        .timer-bar-fill.warning { background: linear-gradient(90deg, #f97316, #ef4444); }
-        .timer-bar-fill.danger { background: #ef4444; }
+        .countdown-persistent .timer-bar-fill.warning {
+            background: linear-gradient(90deg, #f97316, #ef4444);
+        }
 
-        /* ===== BUTTONS ===== */
-        .btn-business {
+        .countdown-persistent .timer-bar-fill.danger {
+            background: #ef4444;
+        }
+
+        /* ===== MENU BUTTON SECTION ===== */
+        .intermediate-section {
+            display: none;
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 48px 24px 0;
+        }
+
+        .intermediate-section h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: rgb(168, 162, 158);
+            margin-bottom: 36px;
+        }
+
+        .btn-menu {
             display: inline-block;
-            padding: 16px 56px;
-            font-size: 1rem;
+            padding: 16px 64px;
+            font-size: 1.05rem;
             font-weight: 700;
             letter-spacing: 0.1em;
             text-transform: uppercase;
@@ -289,48 +207,197 @@
             font-family: 'Inter', sans-serif;
         }
 
-        .btn-business:hover {
+        .btn-menu:hover {
             transform: translateY(-2px);
             box-shadow: 0 0 40px rgba(249, 115, 22, 0.35), 0 0 80px rgba(249, 115, 22, 0.1);
         }
 
-        .btn-business:active { transform: translateY(0); }
+        .btn-menu:active { transform: translateY(0); }
 
-        .btn-pay {
+        /* ===== MENU GRID ===== */
+        .menu-grid {
             display: none;
-            padding: 16px 56px;
-            font-size: 1rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: #050505;
-            background: linear-gradient(135deg, #22c55e, #4ade80);
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 0 30px rgba(34, 197, 94, 0.2), 0 0 60px rgba(34, 197, 94, 0.05);
-            text-decoration: none;
-            font-family: 'Inter', sans-serif;
-            margin-top: 16px;
+            position: relative;
+            z-index: 2;
+            max-width: 720px;
+            margin: 36px auto 0;
+            padding: 0 24px;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
         }
 
-        .btn-pay:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 40px rgba(34, 197, 94, 0.35), 0 0 80px rgba(34, 197, 94, 0.1);
+        .menu-grid.visible {
+            display: grid;
+            animation: fadeUp 0.5s ease-out both;
         }
 
-        .btn-pay:active { transform: translateY(0); }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-        .btn-group {
+        .menu-card {
+            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0;
+            justify-content: center;
+            gap: 14px;
+            padding: 36px 20px;
+            background: rgba(15, 15, 15, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            text-decoration: none;
+            color: #f5f5f4;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+            cursor: pointer;
         }
 
-        /* ===== WAIT SECTION (24:00:00) ===== */
-        .wait-section {
+        .menu-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(249, 115, 22, 0.06) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .menu-card:hover {
+            border-color: rgba(249, 115, 22, 0.2);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px -8px rgba(0, 0, 0, 0.5), 0 0 30px rgba(249, 115, 22, 0.05);
+        }
+
+        .menu-card:hover::before { opacity: 1; }
+        .menu-card:active { transform: translateY(-1px); }
+
+        .card-icon {
+            position: relative;
+            z-index: 1;
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            background: rgba(249, 115, 22, 0.08);
+            border: 1px solid rgba(249, 115, 22, 0.12);
+            transition: all 0.4s;
+        }
+
+        .menu-card:hover .card-icon {
+            background: rgba(249, 115, 22, 0.14);
+            border-color: rgba(249, 115, 22, 0.25);
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.1);
+        }
+
+        .card-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: #f97316;
+            stroke-width: 1.8;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .card-label {
+            position: relative;
+            z-index: 1;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .card-sub {
+            position: relative;
+            z-index: 1;
+            font-size: 0.7rem;
+            color: rgb(120, 113, 108);
+            text-align: center;
+        }
+
+        .menu-card.full-width {
+            grid-column: 1 / -1;
+            flex-direction: row;
+            gap: 20px;
+            padding: 28px 32px;
+            text-align: left;
+        }
+
+        .menu-card.full-width .card-label { text-align: left; }
+        .menu-card.full-width .card-sub { text-align: left; }
+
+        .card-text-group {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .card-arrow {
+            position: relative;
+            z-index: 1;
+            margin-left: auto;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .card-arrow svg {
+            width: 14px;
+            height: 14px;
+            stroke: rgb(120, 113, 108);
+            stroke-width: 2;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: stroke 0.3s;
+        }
+
+        .menu-card:hover .card-arrow {
+            background: rgba(249, 115, 22, 0.1);
+            border-color: rgba(249, 115, 22, 0.2);
+        }
+
+        .menu-card:hover .card-arrow svg { stroke: #f97316; }
+
+        .section-divider {
+            max-width: 720px;
+            margin: 8px auto 0;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-divider span {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgb(120, 113, 108);
+            white-space: nowrap;
+        }
+
+        .section-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* ===== LOCK SECTION (24hr wait) ===== */
+        .lock-section {
             display: none;
             position: fixed;
             inset: 0;
@@ -343,43 +410,11 @@
             padding: 24px;
         }
 
-        .wait-section h2 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: rgb(120, 113, 108);
-            margin-bottom: 8px;
-        }
-
-        .wait-section .wait-sub {
-            font-size: 0.78rem;
-            color: rgb(87, 83, 78);
-            margin-bottom: 40px;
-        }
-
-        .wait-timer {
-            font-size: 3.5rem;
-            font-weight: 800;
-            letter-spacing: 0.03em;
-            color: rgb(87, 83, 78);
-            font-variant-numeric: tabular-nums;
-            line-height: 1;
-            margin-bottom: 16px;
-        }
-
-        .wait-label {
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: rgb(68, 64, 60);
-            margin-bottom: 48px;
-        }
-
         .lock-icon {
             width: 48px;
             height: 48px;
-            margin-bottom: 32px;
-            opacity: 0.3;
+            margin-bottom: 28px;
+            opacity: 0.25;
         }
 
         .lock-icon svg {
@@ -390,14 +425,69 @@
             fill: none;
         }
 
+        .lock-section h2 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: rgb(120, 113, 108);
+            margin-bottom: 6px;
+        }
+
+        .lock-section .lock-sub {
+            font-size: 0.78rem;
+            color: rgb(87, 83, 78);
+            margin-bottom: 40px;
+        }
+
+        .lock-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .wait-timer {
+            font-size: 2.8rem;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            color: rgb(87, 83, 78);
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+        }
+
+        .btn-pay {
+            display: inline-block;
+            padding: 14px 40px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #050505;
+            background: linear-gradient(135deg, #22c55e, #4ade80);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.2), 0 0 60px rgba(34, 197, 94, 0.05);
+            text-decoration: none;
+            font-family: 'Inter', sans-serif;
+            flex-shrink: 0;
+        }
+
+        .btn-pay:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(34, 197, 94, 0.35), 0 0 80px rgba(34, 197, 94, 0.1);
+        }
+
+        .btn-pay:active { transform: translateY(0); }
+
         .wait-bar {
-            max-width: 320px;
+            max-width: 360px;
             width: 100%;
             height: 3px;
             background: rgba(255, 255, 255, 0.03);
             border-radius: 3px;
             overflow: hidden;
-            margin-bottom: 40px;
+            margin-bottom: 12px;
         }
 
         .wait-bar-fill {
@@ -406,6 +496,14 @@
             background: rgba(255, 255, 255, 0.08);
             border-radius: 3px;
             transition: width 1s linear;
+        }
+
+        .wait-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgb(68, 64, 60);
         }
 
         /* ===== UNCLICKABLE OVERLAY ===== */
@@ -417,9 +515,9 @@
             cursor: not-allowed;
         }
 
-        .unclickable-overlay.active {
-            display: block;
-        }
+        .unclickable-overlay.active { display: block; }
+
+        .btn-pay.z-top { position: relative; z-index: 52; }
 
         /* ===== FOOTER ===== */
         .footer-text {
@@ -427,7 +525,6 @@
             padding: 48px 24px 32px;
             position: relative;
             z-index: 2;
-            display: none;
         }
 
         .footer-text p {
@@ -436,367 +533,258 @@
             letter-spacing: 0.03em;
         }
 
-        /* ===== ACCESS DENIED ===== */
-        .not-logged-in {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 100;
-            background: rgba(5, 5, 5, 0.97);
-            backdrop-filter: blur(12px);
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 16px;
-            text-align: center;
-            padding: 24px;
-        }
-
-        .not-logged-in p { color: rgb(168, 162, 158); font-size: 0.9rem; }
-
-        .not-logged-in a {
-            color: #f97316;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            border-bottom: 1px solid rgba(249, 115, 22, 0.3);
-            transition: all 0.3s;
-        }
-
-        .not-logged-in a:hover { color: #fb923c; border-color: #fb923c; }
-
         @media (max-width: 640px) {
             .top-bar { padding: 16px 20px; }
             .back-link span { display: none; }
-            .user-name { display: none; }
-            .admin-unlimited { padding: 70px 20px 0; }
-            .admin-unlimited h1 { font-size: 1.8rem; }
-            .countdown-section { padding: 60px 20px 0; }
-            .timer-display { font-size: 3rem; }
-            .wait-timer { font-size: 2.5rem; }
-            .btn-business, .btn-pay { padding: 14px 40px; font-size: 0.9rem; }
+            .countdown-persistent { padding: 60px 20px 0; }
+            .countdown-persistent .timer-display { font-size: 3rem; }
+            .intermediate-section { padding: 36px 20px 0; }
+            .menu-grid { padding: 0 16px; gap: 12px; }
+            .menu-card { padding: 28px 16px; }
+            .menu-card.full-width { padding: 22px 20px; }
+            .wait-timer { font-size: 2rem; }
+            .lock-row { flex-direction: column; gap: 16px; }
+            .btn-menu, .btn-pay { padding: 14px 40px; font-size: 0.9rem; }
+        }
+
+        @media (max-width: 400px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .menu-card.full-width { grid-column: 1; }
+            .section-divider { grid-column: 1; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Access Denied Overlay -->
-    <div class="not-logged-in" id="notLoggedIn">
-        <p>No active session found.</p>
-        <a href="index.html">Go to Home</a>
-    </div>
-
     <!-- Background Glow -->
     <div class="glow-orb"></div>
 
     <!-- Top Bar -->
-    <div class="top-bar" id="topBar" style="display:none;">
+    <div class="top-bar" id="topBar">
         <div class="top-bar-left">
-            <a href="index.html" class="back-link" id="backLink">
+            <a href="index.html" class="back-link">
                 <span class="back-arrow"></span>
-                <span id="backLinkText">Home</span>
+                <span>Home</span>
             </a>
-            <div class="badge admin-badge" id="adminBadge">Admin</div>
-            <div class="badge user-badge" id="userBadge">User</div>
+            <div class="free-badge">Free</div>
         </div>
-        <div class="user-info">
-            <span class="user-name" id="userName">User</span>
-            <div class="user-avatar" id="userAvatar">U</div>
-            <button class="logout-btn" id="logoutBtn">Logout</button>
+        <div class="top-bar-right">
+            <a href="index.html">Back to site</a>
         </div>
     </div>
 
-    <!-- ADMIN: Unlimited Access -->
-    <div class="admin-unlimited" id="adminUnlimited">
-        <div class="crown-icon">
-            <svg viewBox="0 0 24 24"><path d="M2 4l3 12h14l3-12-6 7-4-9-4 9-6-7zm3 16h14v2H5v-2z"/></svg>
-        </div>
-        <h1>Admin <span>Unlimited Access</span></h1>
-        <p class="sub-text">Full privileges granted — no restrictions</p>
-        <a href="business.html" class="btn-business">Business</a>
-    </div>
-
-    <!-- NON-ADMIN: 03:00 Countdown -->
-    <div class="countdown-section" id="countdownSection">
-        <h2>Session Timer</h2>
-        <p class="timer-sub">Your access window is limited</p>
+    <!-- Countdown (always visible until expired) -->
+    <div class="countdown-persistent" id="countdownPersistent">
+        <div class="timer-label">Session Time Remaining</div>
         <div class="timer-display" id="timerDisplay">03:00</div>
         <div class="timer-bar">
             <div class="timer-bar-fill" id="timerBarFill" style="width: 100%;"></div>
         </div>
-        <a href="business.html" class="btn-business">Business</a>
     </div>
 
-    <!-- WAIT: 24:00:00 Countdown (unclickable) -->
-    <div class="wait-section" id="waitSection">
+    <!-- MENU button (hidden after click) -->
+    <div class="intermediate-section" id="intermediateSection">
+        <h2>Select an option below</h2>
+        <button class="btn-menu" id="revealMenuBtn">MENU</button>
+    </div>
+
+    <!-- Menu Grid (hidden until MENU clicked) -->
+    <div class="menu-grid" id="menuGrid">
+        <a href="users.html" class="menu-card">
+            <div class="card-icon">
+                <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="card-label">Users</div>
+            <div class="card-sub">Manage accounts</div>
+        </a>
+
+        <a href="products.html" class="menu-card">
+            <div class="card-icon">
+                <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+            </div>
+            <div class="card-label">Products</div>
+            <div class="card-sub">Inventory & catalog</div>
+        </a>
+
+        <a href="orders.html" class="menu-card">
+            <div class="card-icon">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            </div>
+            <div class="card-label">Orders</div>
+            <div class="card-sub">Track & fulfill</div>
+        </a>
+
+        <a href="analytics.html" class="menu-card">
+            <div class="card-icon">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            </div>
+            <div class="card-label">Analytics</div>
+            <div class="card-sub">Stats & insights</div>
+        </a>
+
+        <a href="messages.html" class="menu-card">
+            <div class="card-icon">
+                <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div class="card-label">Messages</div>
+            <div class="card-sub">Inbox & replies</div>
+        </a>
+
+        <a href="settings.html" class="menu-card">
+            <div class="card-icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </div>
+            <div class="card-label">Settings</div>
+            <div class="card-sub">System config</div>
+        </a>
+
+        <div class="section-divider" style="grid-column: 1 / -1;">
+            <span>Advanced</span>
+        </div>
+
+        <a href="reports.html" class="menu-card full-width">
+            <div class="card-icon">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+            </div>
+            <div class="card-text-group">
+                <div class="card-label">Reports</div>
+                <div class="card-sub">Generate & export detailed reports</div>
+            </div>
+            <div class="card-arrow">
+                <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </div>
+        </a>
+
+        <a href="logs.html" class="menu-card full-width">
+            <div class="card-icon">
+                <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            </div>
+            <div class="card-text-group">
+                <div class="card-label">System Logs</div>
+                <div class="card-sub">Activity logs, errors & audit trails</div>
+            </div>
+            <div class="card-arrow">
+                <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </div>
+        </a>
+    </div>
+
+    <!-- 24hr Lock Screen -->
+    <div class="lock-section" id="lockSection">
         <div class="lock-icon">
             <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         </div>
-        <h2>Access Locked</h2>
-        <p class="wait-sub">Your session has expired. Waiting period in effect.</p>
-        <div class="wait-timer" id="waitTimerDisplay">24:00:00</div>
-        <div class="wait-label">Remaining</div>
+        <h2>Pay to continue use system</h2>
+        <p class="lock-sub">Your session has expired</p>
+        <div class="lock-row">
+            <div class="wait-timer" id="waitTimerDisplay">24:00:00</div>
+            <a href="pay.html" class="btn-pay z-top">Pay</a>
+        </div>
         <div class="wait-bar">
             <div class="wait-bar-fill" id="waitBarFill" style="width: 100%;"></div>
         </div>
-        <div class="btn-group" id="waitBtnGroup">
-            <a href="business.html" class="btn-business" id="waitBusinessBtn" style="display:none;">Business</a>
-            <a href="pay.html" class="btn-pay" id="waitPayBtn">Pay</a>
-        </div>
+        <div class="wait-label">Waiting period</div>
     </div>
 
-    <!-- Unclickable overlay blocks everything during 24hr wait -->
+    <!-- Unclickable overlay -->
     <div class="unclickable-overlay" id="unclickableOverlay"></div>
 
     <!-- Footer -->
-    <div class="footer-text" id="footerSection" style="display:none;">
+    <div class="footer-text" id="footerSection">
         <p>Jamal Said Kazembe Multisystem Management</p>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-            authDomain: "my-project-66803-95cb3.firebaseapp.com",
-            projectId: "my-project-66803-95cb3",
-            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-            messagingSenderId: "167159607898",
-            appId: "1:167159607898:web:23ca11366b88868b085e63"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-
+    <script>
         (function () {
-            var isSuperAdmin = false;
-            var name = "User";
-            var email = "";
-            var photo = "";
-            
-            // State trackers
-            var isLocked = false;
-            var isPaid = false;
-            var isValidFree = false;
-            var lockStartTs = 0;
+            // Show countdown + menu button immediately
+            document.getElementById("countdownPersistent").style.display = "block";
+            document.getElementById("intermediateSection").style.display = "block";
 
-            // 1. CHECK ADMIN STATE
-            var sAdmin = sessionStorage.getItem("isAdmin");
-            var sEmail = sessionStorage.getItem("userEmail");
-            if (sEmail && sAdmin === "true") {
-                isSuperAdmin = true;
-                name = sessionStorage.getItem("userName") || "Admin";
-                email = sEmail;
-                photo = sessionStorage.getItem("userPhoto") || "";
-            }
-
-            // 2. CHECK LOCK STATE (Priority for non-admins)
-            if (!isSuperAdmin) {
-                lockStartTs = parseInt(localStorage.getItem("free_lock_start"));
-                if (lockStartTs) {
-                    var lockElapsedSec = Math.floor((Date.now() - lockStartTs) / 1000);
-                    if (lockElapsedSec < 86400) {
-                        isLocked = true;
-                    } else {
-                        localStorage.removeItem("free_lock_start"); // Lock expired
-                    }
-                }
-            }
-
-            // 3. CHECK PAID STATE (From pay.html success)
-            if (!isSuperAdmin && !isLocked) {
-                var paidEnd = parseInt(localStorage.getItem("sessionEnd"));
-                if (paidEnd && Date.now() < paidEnd) {
-                    isPaid = true;
-                }
-            }
-
-            // 4. CHECK FREE STATE (From free.html MENU click)
-            if (!isSuperAdmin && !isLocked && !isPaid) {
-                var freeStart = parseInt(localStorage.getItem("free_session_start"));
-                if (freeStart) {
-                    var freeElapsedSec = Math.floor((Date.now() - freeStart) / 1000);
-                    if (freeElapsedSec < 180) {
-                        isValidFree = true;
-                    }
-                }
-            }
-
-            // === FINAL GATE CHECK ===
-            if (!isSuperAdmin && !isPaid && !isValidFree && !isLocked) {
-                document.getElementById("notLoggedIn").style.display = "flex";
-                return;
-            }
-
-            // --- UI SETUP ---
-            var avatar = document.getElementById("userAvatar");
-
-            if (isSuperAdmin) {
-                document.getElementById("topBar").style.display = "flex";
-                document.getElementById("footerSection").style.display = "block";
-                document.getElementById("adminBadge").style.display = "block";
-                document.getElementById("backLink").href = "admin.html";
-                document.getElementById("backLinkText").textContent = "Dashboard";
-                document.getElementById("logoutBtn").style.display = "block";
-                document.getElementById("userName").textContent = name;
-                if (photo) {
-                    avatar.innerHTML = '<img src="' + photo + '" alt="avatar">';
-                } else {
-                    avatar.textContent = name.charAt(0).toUpperCase();
-                }
-            } else {
-                document.getElementById("userBadge").style.display = "block";
-                document.getElementById("backLink").href = "index.html";
-                document.getElementById("backLinkText").textContent = "Home";
-                avatar.textContent = "U";
-                avatar.classList.add("green-border");
-                document.getElementById("userName").textContent = isPaid ? "Paid User" : "Free User";
-            }
-
-            // --- ROUTING LOGIC ---
-            
-            // A. USER IS LOCKED
-            if (isLocked) {
-                document.getElementById("topBar").style.display = "none";
-                document.getElementById("footerSection").style.display = "none";
-                startTwentyFourHourWait(lockStartTs);
-                return;
-            }
-
-            // B. SUPER ADMIN UNLIMITED
-            if (isSuperAdmin && email.toLowerCase() === "jmlsd75@gmail.com") {
-                document.getElementById("adminUnlimited").style.display = "block";
-                return;
-            }
-
-            // C. 3-MINUTE TIMER (Paid, Valid Free, or Standard Admin)
-            document.getElementById("topBar").style.display = "flex";
-            document.getElementById("footerSection").style.display = "block";
-            document.getElementById("countdownSection").style.display = "block";
-
-            var initialSeconds = 180; // Default 3 minutes
-            
-            // Sync timer if coming from free.html so it doesn't reset
-            if (isValidFree) {
-                var freeStartTs = parseInt(localStorage.getItem("free_session_start"));
-                var elapsed = Math.floor((Date.now() - freeStartTs) / 1000);
-                initialSeconds = Math.max(0, 180 - elapsed);
-            }
-
-            startThreeMinuteCountdown(initialSeconds);
-
-            // Firebase logout
-            document.getElementById("logoutBtn").addEventListener("click", function () {
-                var btn = this;
-                btn.disabled = true;
-                btn.textContent = "Logging out...";
-                signOut(auth).then(function () {
-                    sessionStorage.clear();
-                    localStorage.clear();
-                    window.location.replace("index.html");
-                }).catch(function (error) {
-                    console.error("Firebase sign out error:", error);
-                    sessionStorage.clear();
-                    localStorage.clear();
-                    window.location.replace("index.html");
-                });
+            // Click MENU → hide button, show grid (countdown stays)
+            document.getElementById("revealMenuBtn").addEventListener("click", function () {
+                document.getElementById("intermediateSection").style.display = "none";
+                document.getElementById("menuGrid").classList.add("visible");
             });
 
-            // === THREE MINUTE COUNTDOWN ===
-            function startThreeMinuteCountdown(totalSeconds) {
-                var timerDisplay = document.getElementById("timerDisplay");
-                var timerBarFill = document.getElementById("timerBarFill");
+            // === 3 MINUTE COUNTDOWN ===
+            var totalSeconds = 180;
+            var timerDisplay = document.getElementById("timerDisplay");
+            var timerBarFill = document.getElementById("timerBarFill");
 
-                var interval = setInterval(function () {
-                    totalSeconds--;
+            var countdownInterval = setInterval(function () {
+                totalSeconds--;
 
-                    if (totalSeconds <= 0) {
-                        totalSeconds = 0;
-                        clearInterval(interval);
-                        timerDisplay.textContent = "00:00";
-                        timerBarFill.style.width = "0%";
+                if (totalSeconds <= 0) {
+                    totalSeconds = 0;
+                    clearInterval(countdownInterval);
+                    timerDisplay.textContent = "00:00";
+                    timerBarFill.style.width = "0%";
 
-                        setTimeout(function () {
-                            document.getElementById("countdownSection").style.display = "none";
-                            document.getElementById("footerSection").style.display = "none";
-                            document.getElementById("topBar").style.display = "none";
-                            
-                            // Set lock state for both free and paid users
-                            localStorage.removeItem("free_session_start");
-                            localStorage.removeItem("sessionEnd");
-                            var newLockTs = Date.now();
-                            localStorage.setItem("free_lock_start", String(newLockTs));
-                            
-                            startTwentyFourHourWait(newLockTs);
-                        }, 800);
-                        return;
-                    }
+                    setTimeout(function () {
+                        // Hide everything
+                        document.getElementById("countdownPersistent").style.display = "none";
+                        document.getElementById("intermediateSection").style.display = "none";
+                        document.getElementById("menuGrid").style.display = "none";
+                        document.getElementById("menuGrid").classList.remove("visible");
+                        document.getElementById("footerSection").style.display = "none";
+                        document.getElementById("topBar").style.display = "none";
 
-                    var m = Math.floor(totalSeconds / 60);
-                    var s = totalSeconds % 60;
-                    timerDisplay.textContent = String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+                        // Start 24hr lock
+                        startTwentyFourHourWait();
+                    }, 800);
+                    return;
+                }
 
-                    var pct = (totalSeconds / 180) * 100;
-                    timerBarFill.style.width = pct + "%";
+                var m = Math.floor(totalSeconds / 60);
+                var s = totalSeconds % 60;
+                timerDisplay.textContent = String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
 
-                    timerDisplay.classList.remove("warning", "danger");
-                    timerBarFill.classList.remove("warning", "danger");
+                var pct = (totalSeconds / 180) * 100;
+                timerBarFill.style.width = pct + "%";
 
-                    if (totalSeconds <= 10) {
-                        timerDisplay.classList.add("danger");
-                        timerBarFill.classList.add("danger");
-                    } else if (totalSeconds <= 30) {
-                        timerDisplay.classList.add("warning");
-                        timerBarFill.classList.add("warning");
-                    }
-                }, 1000);
-            }
+                timerDisplay.classList.remove("warning", "danger");
+                timerBarFill.classList.remove("warning", "danger");
 
-            // === TWENTY FOUR HOUR WAIT ===
-            function startTwentyFourHourWait(lockTs) {
-                var LOCK_TOTAL_SEC = 86400;
-                var elapsedSec = Math.floor((Date.now() - lockTs) / 1000);
-                var totalSeconds = Math.max(0, LOCK_TOTAL_SEC - elapsedSec);
+                if (totalSeconds <= 10) {
+                    timerDisplay.classList.add("danger");
+                    timerBarFill.classList.add("danger");
+                } else if (totalSeconds <= 30) {
+                    timerDisplay.classList.add("warning");
+                    timerBarFill.classList.add("warning");
+                }
+            }, 1000);
 
-                var waitSection = document.getElementById("waitSection");
+            // === 24 HOUR WAIT ===
+            function startTwentyFourHourWait() {
+                var waitSeconds = 86400;
+                var lockSection = document.getElementById("lockSection");
                 var waitTimerDisplay = document.getElementById("waitTimerDisplay");
                 var waitBarFill = document.getElementById("waitBarFill");
-                var waitPayBtn = document.getElementById("waitPayBtn");
-                var waitBusinessBtn = document.getElementById("waitBusinessBtn");
                 var overlay = document.getElementById("unclickableOverlay");
 
-                waitSection.style.display = "flex";
+                lockSection.style.display = "flex";
                 overlay.classList.add("active");
 
-                waitPayBtn.style.display = "none";
-                waitBusinessBtn.style.display = "none";
+                var waitInterval = setInterval(function () {
+                    waitSeconds--;
 
-                var interval = setInterval(function () {
-                    totalSeconds--;
-
-                    if (totalSeconds <= 0) {
-                        totalSeconds = 0;
-                        clearInterval(interval);
+                    if (waitSeconds <= 0) {
+                        waitSeconds = 0;
+                        clearInterval(waitInterval);
                         waitTimerDisplay.textContent = "00:00:00";
                         waitBarFill.style.width = "0%";
-
-                        overlay.classList.remove("active");
-                        waitPayBtn.style.display = "inline-block";
-                        waitBusinessBtn.style.display = "inline-block";
-                        localStorage.removeItem("free_lock_start");
                         return;
                     }
 
-                    var h = Math.floor(totalSeconds / 3600);
-                    var m = Math.floor((totalSeconds % 3600) / 60);
-                    var s = totalSeconds % 60;
+                    var h = Math.floor(waitSeconds / 3600);
+                    var m = Math.floor((waitSeconds % 3600) / 60);
+                    var s = waitSeconds % 60;
                     waitTimerDisplay.textContent =
                         String(h).padStart(2, "0") + ":" +
                         String(m).padStart(2, "0") + ":" +
                         String(s).padStart(2, "0");
 
-                    var pct = (totalSeconds / LOCK_TOTAL_SEC) * 100;
+                    var pct = (waitSeconds / 86400) * 100;
                     waitBarFill.style.width = pct + "%";
                 }, 1000);
             }
