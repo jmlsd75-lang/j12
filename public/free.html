@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free Access</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <style>
+    :root {
+      --bg: #0a0a0c;
+      --bg-elevated: #131318;
+      --card: #1a1a22;
+      --border: rgba(255,255,255,0.06);
+      --fg: #f0ece4;
+      --fg-muted: #7a7680;
+      --accent: #e8a849;
+      --accent-glow: rgba(232,168,73,0.25);
+      --accent-soft: rgba(232,168,73,0.08);
+      --danger: #e85454;
+      --pay-color: #4ade80;
+      --pay-glow: rgba(74,222,128,0.25);
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Background ── */
+    .bg-layer {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+    }
+    .bg-layer .orb {
+      position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.4;
+      animation: orbFloat 18s ease-in-out infinite alternate;
+    }
+    .orb--1 {
+      width: 450px; height: 450px;
+      background: radial-gradient(circle, rgba(232,168,73,0.3), transparent 70%);
+      top: -15%; left: -10%;
+    }
+    .orb--2 {
+      width: 350px; height: 350px;
+      background: radial-gradient(circle, rgba(180,90,60,0.2), transparent 70%);
+      bottom: -10%; right: -8%;
+      animation-delay: -6s; animation-duration: 22s;
+    }
+    @keyframes orbFloat {
+      0%   { transform: translate(0, 0) scale(1); }
+      50%  { transform: translate(30px, -20px) scale(1.05); }
+      100% { transform: translate(-15px, 15px) scale(0.97); }
+    }
+
+    .grid-pattern {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, black 20%, transparent 70%);
+      -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, black 20%, transparent 70%);
+    }
+
+    /* ── States ── */
+    .state { display: none; }
+    .state.active { display: flex; }
+
+    /* ══════════════════════════════════
+       STATE 1 — Active session (3:00)
+    ══════════════════════════════════ */
+    #stateActive {
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+      animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    /* User bar */
+    .user-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 24px;
+      background: rgba(10,10,12,0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      z-index: 20;
+    }
+    .user-bar img {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--border);
+    }
+    .user-bar .user-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .user-bar .user-email {
+      font-size: 12px;
+      color: var(--fg-muted);
+    }
+
+    /* Countdown ring */
+    .countdown-wrap {
+      position: relative;
+      width: 220px; height: 220px;
+    }
+    .countdown-ring {
+      width: 100%; height: 100%;
+      transform: rotate(-90deg);
+    }
+    .countdown-ring .track {
+      fill: none;
+      stroke: rgba(255,255,255,0.04);
+      stroke-width: 6;
+    }
+    .countdown-ring .progress {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 6;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1s linear;
+      filter: drop-shadow(0 0 8px var(--accent-glow));
+    }
+    .countdown-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .countdown-text .time {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+    .countdown-text .label {
+      font-size: 12px;
+      color: var(--fg-muted);
+      margin-top: 6px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    /* Menu button */
+    .menu-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 40px;
+      border: 1px solid rgba(232,168,73,0.3);
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent-soft), transparent);
+      color: var(--fg);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      outline: none;
+      box-shadow: 0 8px 30px -10px var(--accent-glow);
+    }
+    .menu-btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(232,168,73,0.5);
+      box-shadow: 0 12px 40px -8px var(--accent-glow);
+    }
+    .menu-btn:active { transform: translateY(0) scale(0.98); }
+    .menu-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    .menu-btn i { font-size: 20px; color: var(--accent); }
+
+    /* Expired overlay */
+    .expired-overlay {
+      position: fixed; inset: 0;
+      background: rgba(10,10,12,0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+      z-index: 100;
+      animation: fadeIn 0.5s ease both;
+    }
+    .expired-overlay.active { display: flex; }
+    .expired-overlay i { font-size: 40px; color: var(--danger); }
+    .expired-overlay p { font-size: 18px; color: var(--fg-muted); }
+
+    /* ══════════════════════════════════
+       STATE 2 — Await (24:00:00)
+    ══════════════════════════════════ */
+    #stateAwait {
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      width: 100%;
+      max-width: 480px;
+      padding: 0 20px;
+      animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    /* Logout button — top center */
+    .logout-btn {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border: 1px solid rgba(232,84,84,0.25);
+      border-radius: 10px;
+      background: rgba(232,84,84,0.06);
+      color: var(--danger);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.25s;
+      outline: none;
+      z-index: 30;
+    }
+    .logout-btn:hover {
+      background: rgba(232,84,84,0.12);
+      border-color: rgba(232,84,84,0.4);
+    }
+    .logout-btn:focus-visible { outline: 2px solid var(--danger); outline-offset: 2px; }
+    .logout-btn i { font-size: 14px; }
+
+    .await-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--fg-muted);
+      text-align: center;
+    }
+
+    /* Await + Pay buttons row */
+    .btn-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .await-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      width: 200px;
+      height: 100px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--bg-elevated);
+      cursor: not-allowed;
+      opacity: 0.5;
+      user-select: none;
+      pointer-events: none;
+      position: relative;
+    }
+    .await-btn .await-label {
+      font-size: 11px;
+      color: var(--fg-muted);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .await-btn .await-time {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--fg);
+      letter-spacing: -0.5px;
+    }
+    .await-btn .lock-icon {
+      position: absolute;
+      top: 10px; right: 12px;
+      font-size: 12px;
+      color: var(--fg-muted);
+      opacity: 0.4;
+    }
+
+    .pay-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 32px;
+      border: 1px solid rgba(74,222,128,0.3);
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(74,222,128,0.08), transparent);
+      color: var(--pay-color);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      outline: none;
+      box-shadow: 0 8px 30px -10px var(--pay-glow);
+    }
+    .pay-btn:hover {
+      transform: translateY(-2px);
+      border-color: rgba(74,222,128,0.5);
+      box-shadow: 0 12px 40px -8px var(--pay-glow);
+    }
+    .pay-btn:active { transform: translateY(0) scale(0.98); }
+    .pay-btn:focus-visible { outline: 2px solid var(--pay-color); outline-offset: 3px; }
+    .pay-btn i { font-size: 18px; }
+
+    .await-hint {
+      font-size: 12px;
+      color: var(--fg-muted);
+      opacity: 0.6;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* ── Urgency pulse when < 30s ── */
+    .urgent .time { color: var(--danger) !important; }
+    .urgent .progress { stroke: var(--danger) !important; filter: drop-shadow(0 0 8px rgba(232,84,84,0.4)) !important; }
+    .countdown-wrap.urgent { animation: urgentPulse 1s ease-in-out infinite; }
+    @keyframes urgentPulse {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.03); }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      .countdown-wrap { width: 180px; height: 180px; }
+      .countdown-text .time { font-size: 38px; }
+      .menu-btn { padding: 14px 28px; font-size: 15px; }
+      .await-btn { width: 160px; height: 90px; }
+      .await-btn .await-time { font-size: 22px; }
+      .pay-btn { padding: 14px 24px; font-size: 15px; }
+      .btn-row { gap: 12px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+      .orb { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background -->
+  <div class="bg-layer" aria-hidden="true">
+    <div class="orb orb--1"></div>
+    <div class="orb orb--2"></div>
+  </div>
+  <div class="grid-pattern" aria-hidden="true"></div>
+
+  <!-- ═══ STATE 1: Active 3-minute session ═══ -->
+  <div id="stateActive" class="state">
+
+    <!-- User bar at top -->
+    <div class="user-bar" id="userBar">
+      <img id="userPhoto" src="" alt="Profile" />
+      <div>
+        <div class="user-name" id="userName">User</div>
+        <div class="user-email" id="userEmail">user@email.com</div>
+      </div>
+    </div>
+
+    <!-- Countdown circle -->
+    <div class="countdown-wrap" id="countdownWrap">
+      <svg class="countdown-ring" viewBox="0 0 220 220">
+        <circle class="track" cx="110" cy="110" r="100" />
+        <circle class="progress" id="ringProgress" cx="110" cy="110" r="100"
+          stroke-dasharray="628.318"
+          stroke-dashoffset="0" />
+      </svg>
+      <div class="countdown-text">
+        <span class="time" id="countdownTime">3:00</span>
+        <span class="label">Remaining</span>
+      </div>
+    </div>
+
+    <!-- Menu button — center -->
+    <button class="menu-btn" id="menuBtn" aria-label="Open menu">
+      <i class="fa-solid fa-bars"></i>
+      Menu
+    </button>
+  </div>
+
+  <!-- Expired overlay (shown at 00:00 before close) -->
+  <div class="expired-overlay" id="expiredOverlay">
+    <i class="fa-solid fa-clock"></i>
+    <p>Session expired</p>
+  </div>
+
+  <!-- ═══ STATE 2: Await 24-hour cooldown ═══ -->
+  <div id="stateAwait" class="state">
+
+    <!-- Logout — top center -->
+    <button class="logout-btn" id="logoutBtn" aria-label="Log out">
+      <i class="fa-solid fa-right-from-bracket"></i>
+      Log out
+    </button>
+
+    <p class="await-title">Your free session has ended</p>
+
+    <div class="btn-row">
+      <!-- Unclickable await button with 24h countdown -->
+      <div class="await-btn" aria-disabled="true" role="button" tabindex="-1">
+        <i class="fa-solid fa-lock lock-icon"></i>
+        <span class="await-label">Next free in</span>
+        <span class="await-time" id="awaitTime">24:00:00</span>
+      </div>
+
+      <!-- Pay button -->
+      <button class="pay-btn" id="payBtn" aria-label="Upgrade to paid access">
+        <i class="fa-solid fa-arrow-up-right-dots"></i>
+        Upgrade
+      </button>
+    </div>
+
+    <p class="await-hint">Upgrade now to get instant unlimited access<br/>or wait for the timer to reset your free session.</p>
+  </div>
+
+  <script>
+    // ── Config ──
+    var FREE_DURATION = 3 * 60;       // 3 minutes in seconds
+    var AWAIT_DURATION = 24 * 60 * 60; // 24 hours in seconds
+    var RING_CIRCUMFERENCE = 2 * Math.PI * 100; // ~628.318
+
+    var LS_START_KEY = 'freeSessionStart';
+    var LS_AWAIT_KEY = 'freeAwaitStart';
+
+    // ── Read user from URL params ──
+    var params = new URLSearchParams(window.location.search);
+    var userName = params.get('name') || 'User';
+    var userEmail = params.get('email') || '';
+    var userPhoto = params.get('photo') || '';
+
+    // Set user info in the bar
+    document.getElementById('userName').textContent = decodeURIComponent(userName);
+    document.getElementById('userEmail').textContent = decodeURIComponent(userEmail);
+    if (userPhoto) {
+      document.getElementById('userPhoto').src = decodeURIComponent(userPhoto);
+    } else {
+      document.getElementById('userPhoto').src = 'https://picsum.photos/seed/user/72/72.jpg';
+    }
+
+    // ── DOM refs ──
+    var stateActive = document.getElementById('stateActive');
+    var stateAwait = document.getElementById('stateAwait');
+    var expiredOverlay = document.getElementById('expiredOverlay');
+    var countdownTime = document.getElementById('countdownTime');
+    var ringProgress = document.getElementById('ringProgress');
+    var countdownWrap = document.getElementById('countdownWrap');
+    var menuBtn = document.getElementById('menuBtn');
+    var awaitTime = document.getElementById('awaitTime');
+    var payBtn = document.getElementById('payBtn');
+    var logoutBtn = document.getElementById('logoutBtn');
+    var userBar = document.getElementById('userBar');
+
+    var activeTimer = null;
+    var awaitTimer = null;
+
+    // ── Format helpers ──
+    function formatMmSs(totalSec) {
+      var m = Math.floor(totalSec / 60);
+      var s = totalSec % 60;
+      return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function formatHhMmSs(totalSec) {
+      var h = Math.floor(totalSec / 3600);
+      var m = Math.floor((totalSec % 3600) / 60);
+      var s = totalSec % 60;
+      return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    // ── Show a state ──
+    function showState(stateId) {
+      document.querySelectorAll('.state').forEach(function(el) {
+        el.classList.remove('active');
+      });
+      document.getElementById(stateId).classList.add('active');
+    }
+
+    // ══════════════════════════════════════
+    //  DETERMINE WHICH STATE TO SHOW
+    // ══════════════════════════════════════
+
+    function init() {
+      var startTime = localStorage.getItem(LS_START_KEY);
+      var awaitStart = localStorage.getItem(LS_AWAIT_KEY);
+
+      if (awaitStart) {
+        // Await phase was already recorded — go straight to State 2
+        startAwaitState(parseInt(awaitStart, 10));
+        return;
+      }
+
+      if (startTime) {
+        var elapsed = Math.floor((Date.now() - parseInt(startTime, 10)) / 1000);
+        var remaining = FREE_DURATION - elapsed;
+
+        if (remaining <= 0) {
+          // 3 minutes already passed — enter await
+          enterAwait();
+          return;
+        }
+
+        // Resume countdown
+        startActiveCountdown(remaining);
+        return;
+      }
+
+      // Fresh session
+      localStorage.setItem(LS_START_KEY, Date.now().toString());
+      startActiveCountdown(FREE_DURATION);
+    }
+
+    // ══════════════════════════════════════
+    //  STATE 1 — Active 3:00 countdown
+    // ══════════════════════════════════════
+
+    function startActiveCountdown(remaining) {
+      showState('stateActive');
+      userBar.style.display = 'flex';
+      logoutBtn.style.display = 'none';
+
+      updateActiveDisplay(remaining);
+
+      activeTimer = setInterval(function() {
+        remaining--;
+        if (remaining <= 0) {
+          remaining = 0;
+          clearInterval(activeTimer);
+          updateActiveDisplay(0);
+          onCountdownExpired();
+          return;
+        }
+        updateActiveDisplay(remaining);
+      }, 1000);
+    }
+
+    function updateActiveDisplay(remaining) {
+      countdownTime.textContent = formatMmSs(remaining);
+
+      // Update ring
+      var fraction = remaining / FREE_DURATION;
+      var offset = RING_CIRCUMFERENCE * (1 - fraction);
+      ringProgress.setAttribute('stroke-dashoffset', offset.toString());
+
+      // Urgency mode when < 30 seconds
+      if (remaining <= 30 && remaining > 0) {
+        countdownWrap.classList.add('urgent');
+      } else {
+        countdownWrap.classList.remove('urgent');
+      }
+    }
+
+    function onCountdownExpired() {
+      // Show expired overlay briefly
+      expiredOverlay.classList.add('active');
+
+      setTimeout(function() {
+        // Close the page
+        enterAwait();
+        try {
+          window.close();
+        } catch(e) {
+          // If window.close() fails (not opened by script), go to await state
+        }
+        // Fallback: if page didn't close, show await after a moment
+        setTimeout(function() {
+          if (!window.closed) {
+            expiredOverlay.classList.remove('active');
+          }
+        }, 500);
+      }, 1500);
+    }
+
+    // ══════════════════════════════════════
+    //  STATE 2 — Await 24:00:00
+    // ══════════════════════════════════════
+
+    function enterAwait() {
+      var awaitStart = Date.now();
+      localStorage.setItem(LS_AWAIT_KEY, awaitStart.toString());
+      // Clear the free session start since it's done
+      localStorage.removeItem(LS_START_KEY);
+      startAwaitState(awaitStart);
+    }
+
+    function startAwaitState(awaitStart) {
+      // Hide user bar, show logout
+      userBar.style.display = 'none';
+      logoutBtn.style.display = 'flex';
+      expiredOverlay.classList.remove('active');
+
+      showState('stateAwait');
+
+      var remaining = AWAIT_DURATION - Math.floor((Date.now() - awaitStart) / 1000);
+      if (remaining <= 0) {
+        // 24 hours passed — reset for new free session
+        localStorage.removeItem(LS_AWAIT_KEY);
+        localStorage.removeItem(LS_START_KEY);
+        init();
+        return;
+      }
+
+      updateAwaitDisplay(remaining);
+
+      awaitTimer = setInterval(function() {
+        remaining--;
+        if (remaining <= 0) {
+          remaining = 0;
+          clearInterval(awaitTimer);
+          updateAwaitDisplay(0);
+
+          // Reset — allow new free session
+          setTimeout(function() {
+            localStorage.removeItem(LS_AWAIT_KEY);
+            localStorage.removeItem(LS_START_KEY);
+            init();
+          }, 1000);
+          return;
+        }
+        updateAwaitDisplay(remaining);
+      }, 1000);
+    }
+
+    function updateAwaitDisplay(remaining) {
+      awaitTime.textContent = formatHhMmSs(remaining);
+    }
+
+    // ══════════════════════════════════════
+    //  BUTTON ACTIONS
+    // ══════════════════════════════════════
+
+    // Menu button → menu.html
+    menuBtn.addEventListener('click', function() {
+      window.location.href = 'menu.html';
+    });
+
+    // Pay button → pay.html
+    payBtn.addEventListener('click', function() {
+      window.location.href = 'pay.html';
+    });
+
+    // Logout → back to login (index.html)
+    logoutBtn.addEventListener('click', function() {
+      // Clear all session data
+      localStorage.removeItem(LS_START_KEY);
+      localStorage.removeItem(LS_AWAIT_KEY);
+
+      // Sign out from Firebase
+      if (typeof firebase !== 'undefined' && firebase.auth) {
+        firebase.auth().signOut().then(function() {
+          window.location.href = 'index.html';
+        }).catch(function() {
+          window.location.href = 'index.html';
+        });
+      } else {
+        // Fallback — just go back
+        window.location.href = 'index.html';
+      }
+    });
+
+    // ── Start ──
+    init();
+  </script>
+
+  <!-- Firebase (for logout only) -->
+  <script type="module">
+    // Make firebase available globally for the logout function
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+      authDomain: "my-project-66803-95cb3.firebaseapp.com",
+      projectId: "my-project-66803-95cb3",
+      storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+      messagingSenderId: "167159607898",
+      appId: "1:167159607898:web:23ca11366b88868b085e63"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Expose auth for the logout button
+    window.firebase = { auth: auth };
+  </script>
+</body>
+</html>
