@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Table</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --forest-900: #0B1F0E;
+            --forest-800: #143319;
+            --forest-700: #1E4D27;
+            --forest-600: #266B32;
+            --forest-500: #2E8B3E;
+            --forest-400: #3DA854;
+            --forest-300: #6BC47E;
+            --forest-200: #A3DBA9;
+            --forest-100: #D4EDD6;
+            --forest-50:  #EDF7EE;
+            --bark-900: #2C1810;
+            --bark-700: #5C3A28;
+            --bark-500: #8B6544;
+            --bark-300: #C4A67D;
+            --bark-100: #EDE0CC;
+            --moss-500: #5B7553;
+            --moss-300: #8FA888;
+            --moss-100: #D5E4D2;
+            --cream: #FAFDF5;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--cream);
+            color: var(--forest-900);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            max-width: 1100px;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow:
+                0 1px 3px rgba(11,31,14,0.06),
+                0 8px 24px rgba(11,31,14,0.08),
+                0 24px 48px rgba(11,31,14,0.04);
+            border: 1px solid var(--forest-100);
+        }
+
+        .table-header {
+            background: var(--forest-800);
+            padding: 1.25rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .table-header-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--forest-600);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .table-header-icon svg {
+            width: 18px;
+            height: 18px;
+            stroke: white;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .table-header h1 {
+            color: var(--forest-100);
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .table-header .badge {
+            margin-left: auto;
+            background: var(--forest-600);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+        }
+
+        .table-header .refresh-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--forest-700);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 150ms;
+        }
+
+        .table-header .refresh-btn:hover {
+            background: var(--forest-500);
+        }
+
+        .table-header .refresh-btn svg {
+            width: 14px;
+            height: 14px;
+            stroke: white;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .table-header .refresh-btn.spinning svg {
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
+        }
+
+        thead th {
+            background: var(--forest-50);
+            color: var(--forest-700);
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.85rem 1.5rem;
+            text-align: left;
+            border-bottom: 2px solid var(--forest-200);
+            white-space: nowrap;
+        }
+
+        thead th:last-child {
+            text-align: right;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--moss-100);
+            transition: background 150ms ease;
+        }
+
+        tbody tr:hover {
+            background: var(--forest-50);
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody td {
+            padding: 0.9rem 1.5rem;
+            font-size: 0.875rem;
+            color: var(--forest-900);
+            vertical-align: middle;
+        }
+
+        tbody td:last-child {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        td .email { color: var(--forest-800); font-weight: 500; }
+        td .username { color: var(--forest-600); font-weight: 500; }
+        td .visit { color: var(--moss-500); font-size: 0.82rem; }
+        td .visit-time { color: var(--moss-300); font-size: 0.75rem; }
+        td .payment-date { color: var(--forest-800); font-weight: 500; }
+        td .payment-amount { color: var(--forest-500); font-size: 0.78rem; font-weight: 600; }
+        td .no-payment { color: var(--bark-300); font-style: italic; font-size: 0.82rem; }
+
+        tfoot tr {
+            background: var(--forest-800);
+        }
+
+        tfoot td {
+            padding: 1rem 1.5rem;
+            font-size: 0.875rem;
+            color: var(--forest-200);
+            font-weight: 500;
+            border: none;
+        }
+
+        tfoot td:last-child {
+            text-align: right;
+            color: #FFFFFF;
+            font-size: 1rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        tfoot td.total-label {
+            color: var(--forest-300);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 600;
+        }
+
+        .space-cell {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .space-num {
+            min-width: 52px;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+            font-weight: 600;
+            color: var(--forest-800);
+        }
+
+        .space-bar-wrap {
+            flex: 1;
+            height: 6px;
+            background: var(--moss-100);
+            border-radius: 3px;
+            overflow: hidden;
+            min-width: 60px;
+        }
+
+        .space-bar {
+            height: 100%;
+            border-radius: 3px;
+            background: var(--forest-400);
+            transition: width 600ms cubic-bezier(0.4,0,0.2,1);
+        }
+
+        .space-bar.high { background: var(--bark-500); }
+        .space-bar.warn { background: var(--bark-300); }
+
+        .row-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            background: var(--forest-50);
+            color: var(--forest-500);
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Loading state */
+        .loading-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            gap: 1rem;
+        }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--forest-100);
+            border-top-color: var(--forest-500);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .loading-text {
+            font-size: 0.85rem;
+            color: var(--moss-500);
+        }
+
+        /* Error state */
+        .error-wrap {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 2rem;
+            gap: 0.75rem;
+            text-align: center;
+        }
+
+        .error-wrap.visible { display: flex; }
+
+        .error-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #FEE2E2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .error-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke: #EF4444;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .error-title { font-size: 0.9rem; font-weight: 600; color: var(--forest-900); }
+        .error-msg { font-size: 0.8rem; color: var(--moss-500); max-width: 360px; line-height: 1.5; }
+
+        .retry-btn {
+            margin-top: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            background: var(--forest-700);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 150ms;
+        }
+
+        .retry-btn:hover { background: var(--forest-600); }
+
+        /* Empty state */
+        .empty-wrap {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            gap: 0.75rem;
+        }
+
+        .empty-wrap.visible { display: flex; }
+
+        .empty-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--forest-50);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-icon svg {
+            width: 22px;
+            height: 22px;
+            stroke: var(--moss-300);
+            fill: none;
+            stroke-width: 1.5;
+        }
+
+        .empty-text { font-size: 0.85rem; color: var(--moss-500); }
+
+        @media (max-width: 640px) {
+            body { padding: 1rem; }
+            .table-header { padding: 1rem 1.25rem; }
+            thead th, tbody td, tfoot td { padding: 0.75rem 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="table-wrapper">
+        <div class="table-header">
+            <div class="table-header-icon">
+                <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <h1>User Records</h1>
+            <button class="refresh-btn" id="refreshBtn" title="Refresh data">
+                <svg viewBox="0 0 24 24"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+            </button>
+            <span class="badge" id="userCount">—</span>
+        </div>
+
+        <div class="table-scroll">
+            <!-- Loading -->
+            <div class="loading-wrap" id="loadingState">
+                <div class="spinner"></div>
+                <span class="loading-text">Fetching users from Firestore...</span>
+            </div>
+
+            <!-- Error -->
+            <div class="error-wrap" id="errorState">
+                <div class="error-icon">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                </div>
+                <span class="error-title">Failed to load users</span>
+                <span class="error-msg" id="errorMsg">Check your Firestore rules and collection name.</span>
+                <button class="retry-btn" id="retryBtn">Retry</button>
+            </div>
+
+            <!-- Empty -->
+            <div class="empty-wrap" id="emptyState">
+                <div class="empty-icon">
+                    <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                </div>
+                <span class="empty-text">No users found in Firestore</span>
+            </div>
+
+            <!-- Table (hidden until data loads) -->
+            <table id="userTable" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Email</th>
+                        <th>Username</th>
+                        <th>Space Used (MB)</th>
+                        <th>Last Visit (menu.html)</th>
+                        <th>Last Payment</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="total-label">Totals</td>
+                        <td class="total-label" id="totalSpace"></td>
+                        <td class="total-label" id="totalVisits"></td>
+                        <td id="totalPayments"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import {
+            getFirestore,
+            collection,
+            getDocs,
+            query,
+            orderBy
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // ── Your Firebase Config ──
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // ── CHANGE THIS to match your Firestore collection name ──
+        const COLLECTION_NAME = "users";
+
+        // ── DOM refs ──
+        const loadingState = document.getElementById("loadingState");
+        const errorState   = document.getElementById("errorState");
+        const emptyState   = document.getElementById("emptyState");
+        const userTable    = document.getElementById("userTable");
+        const tbody        = document.getElementById("tbody");
+        const userCount    = document.getElementById("userCount");
+        const totalSpaceEl = document.getElementById("totalSpace");
+        const totalVisitsEl= document.getElementById("totalVisits");
+        const totalPayEl   = document.getElementById("totalPayments");
+        const errorMsg     = document.getElementById("errorMsg");
+        const refreshBtn   = document.getElementById("refreshBtn");
+        const retryBtn     = document.getElementById("retryBtn");
+
+        const MAX_SPACE = 1024;
+
+        // ── Helpers ──
+        function showState(state) {
+            loadingState.style.display = "none";
+            errorState.classList.remove("visible");
+            emptyState.classList.remove("visible");
+            userTable.style.display = "none";
+
+            if (state === "loading") loadingState.style.display = "flex";
+            if (state === "error")   errorState.classList.add("visible");
+            if (state === "empty")   emptyState.classList.add("visible");
+            if (state === "table")   userTable.style.display = "table";
+        }
+
+        function formatDate(str) {
+            if (!str) return "—";
+            try {
+                const d = new Date(str);
+                if (isNaN(d)) return str;
+                const m = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+                return m[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
+            } catch {
+                return str;
+            }
+        }
+
+        function parseAmount(val) {
+            if (val == null) return 0;
+            if (typeof val === "number") return val;
+            return parseFloat(String(val).replace(/[^0-9.]/g, "")) || 0;
+        }
+
+        // ── Render ──
+        function renderTable(users) {
+            tbody.innerHTML = "";
+
+            let totalSpace = 0;
+            let paidCount = 0;
+            let totalPaid = 0;
+
+            users.forEach((u, i) => {
+                const space = Number(u.spaceUsed ?? u.space ?? u.storage ?? 0);
+                totalSpace += space;
+
+                const amount = parseAmount(u.lastPaymentAmount ?? u.amount ?? u.paymentAmount);
+                const hasPayment = !!(u.lastPayment ?? u.paymentDate ?? u.paidAt);
+
+                if (hasPayment && amount > 0) {
+                    paidCount++;
+                    totalPaid += amount;
+                }
+
+                const pct = Math.min(Math.round((space / MAX_SPACE) * 100), 100);
+                let barClass = "";
+                if (pct >= 85) barClass = "high";
+                else if (pct >= 60) barClass = "warn";
+
+                const visitRaw = u.lastVisit ?? u.lastVisitMenu ?? "";
+                let visitDate = "—";
+                let visitTime = "";
+                if (visitRaw) {
+                    const parts = String(visitRaw).split(" ");
+                    visitDate = formatDate(parts[0]);
+                    visitTime = parts[1] || "";
+                }
+
+                const paymentDate = u.lastPayment ?? u.paymentDate ?? u.paidAt ?? null;
+                const amountDisplay = (u.lastPaymentAmount ?? u.amount ?? u.paymentAmount);
+
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><span class="row-num">${i + 1}</span></td>
+                    <td><span class="email">${u.email ?? "—"}</span></td>
+                    <td><span class="username">${u.username ?? "—"}</span></td>
+                    <td>
+                        <div class="space-cell">
+                            <span class="space-num">${space}</span>
+                            <div class="space-bar-wrap">
+                                <div class="space-bar ${barClass}" style="width:${pct}%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="visit">${visitDate}</div>
+                        ${visitTime ? `<div class="visit-time">${visitTime}</div>` : ""}
+                    </td>
+                    <td>
+                        ${hasPayment
+                            ? `<div class="payment-date">${formatDate(paymentDate)}</div><div class="payment-amount">$${amount.toFixed(2)}</div>`
+                            : `<span class="no-payment">No payment</span>`
+                        }
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Totals
+            totalSpaceEl.textContent = totalSpace.toLocaleString() + " MB";
+            totalVisitsEl.textContent = users.length + " users";
+            totalPayEl.textContent = "$" + totalPaid.toFixed(2) + " (" + paidCount + "/" + users.length + ")";
+            userCount.textContent = users.length + " user" + (users.length !== 1 ? "s" : "");
+        }
+
+        // ── Fetch from Firestore ──
+        async function fetchUsers() {
+            showState("loading");
+            refreshBtn.classList.add("spinning");
+
+            try {
+                const colRef = collection(db, COLLECTION_NAME);
+                const q = query(colRef, orderBy("email", "asc"));
+                const snapshot = await getDocs(q);
+
+                if (snapshot.empty) {
+                    showState("empty");
+                    userCount.textContent = "0 users";
+                    return;
+                }
+
+                const users = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                renderTable(users);
+                showState("table");
+
+            } catch (err) {
+                console.error("Firestore error:", err);
+                errorMsg.textContent = err.message || "Check your Firestore rules and collection name.";
+                showState("error");
+                userCount.textContent = "Error";
+            } finally {
+                refreshBtn.classList.remove("spinning");
+            }
+        }
+
+        // ── Events ──
+        refreshBtn.addEventListener("click", fetchUsers);
+        retryBtn.addEventListener("click", fetchUsers);
+
+        // ── Initial load ──
+        fetchUsers();
+    </script>
+</body>
+</html>
