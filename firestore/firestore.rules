@@ -1,1 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
 
+    // RULE 1: userTimers collection — per email timer docs
+    match /userTimers/{docId} {
+
+      // RULE 2: Read own timer — user can read their own doc
+      allow read: if request.auth != null
+                  && request.auth.token.email.replace('.', '_') == docId;
+
+      // RULE 3: Create own timer — user can create their own doc
+      allow create: if request.auth != null
+                    && request.auth.token.email.replace('.', '_') == docId;
+
+      // RULE 4: Update own timer — user can update their own doc
+      allow update: if request.auth != null
+                    && request.auth.token.email.replace('.', '_') == docId;
+
+      // RULE 5: Delete own timer — user can delete their own doc (logout)
+      allow delete: if request.auth != null
+                    && request.auth.token.email.replace('.', '_') == docId;
+    }
+
+    // RULE 6: Block everything else — deny all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
