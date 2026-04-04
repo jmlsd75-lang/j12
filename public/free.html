@@ -10,6 +10,8 @@
         * { font-family: 'Inter', sans-serif; }
         body { background: #000; }
         .timer-text { font-variant-numeric: tabular-nums; }
+        .logout-btn { display: none; }
+        .logout-btn.visible { display: inline-flex; }
     </style>
 </head>
 <body class="min-h-screen text-white flex flex-col">
@@ -21,7 +23,7 @@
                 <img id="userPhoto" class="w-8 h-8 rounded-full" src="" alt="Profile">
                 <span id="userName" class="font-medium text-sm text-neutral-300"></span>
             </div>
-            <button id="logoutBtn" onclick="handleLogout()" class="hidden text-sm font-medium text-neutral-400 hover:text-red-400 transition px-4 py-2 rounded-lg border border-transparent hover:border-red-500/30">
+            <button id="logoutBtn" class="logout-btn text-sm font-medium text-neutral-400 hover:text-red-400 transition px-4 py-2 rounded-lg border border-transparent hover:border-red-500/30 cursor-pointer">
                 Logout
             </button>
         </div>
@@ -88,6 +90,7 @@
         const sessionId = crypto.randomUUID();
         let currentEmail = null;
         let intervalId = null;
+        let isLoggingOut = false;
 
         const freeView = document.getElementById("freeView");
         const awaitView = document.getElementById("awaitView");
@@ -96,22 +99,81 @@
         const freeTimerEl = document.getElementById("freeTimer");
         const awaitTimerEl = document.getElementById("awaitTimer");
 
-        window.handleLogout = async () => {
+        // ─────────────────────────────────────────────
+        // LOGOUT — fully clears Firebase Auth session
+        // so browserLocalPersistence is wiped and the
+        // user MUST sign in again on index.html
+        // ─────────────────────────────────────────────
+        async function handleLogout() {
+            if (isLoggingOut) return;
+            isLoggingOut = true;
+
+            // 1. Stop the timer interval immediately
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+
+            // 2. Remove the beforeunload listener so cleanup
+            //    doesn't race with the redirect
+            window.removeEventListener("beforeunload", cleanupOnUnload);
+
+            // 3. Show visual feedback on the button
+            logoutBtn.textContent = "Signing out…";
+            logoutBtn.disabled = true;
+            logoutBtn.classList.add("opacity-50", "pointer-events-none");
+
+            try {
+                // 4. Clean up this session's entry in Firestore
+                if (currentEmail) {
+                    const userRef = doc(db, "users", currentEmail);
+                    await updateDoc(userRef, {
+                        [`sessions.${sessionId}`]: FieldValue.delete()
+                    }).catch(() => {});
+                }
+
+                // 5. Sign out from Firebase Auth — this clears
+                //    browserLocalPersistence so the user is fully logged out
+                await signOut(auth);
+
+                // 6. Small delay to let the sign-out propagate to
+                //    IndexedDB / localStorage before we navigate away
+                await new Promise(r => setTimeout(r, 400));
+
+                // 7. Hard redirect (replace, not href) so the user
+                //    cannot press Back to return here while logged out
+                window.location.replace("index.html");
+
+            } catch (error) {
+                console.error("Logout failed:", error);
+                // Even if something fails, still try to redirect
+                window.location.replace("index.html");
+            }
+        }
+
+        // Wire up the logout button
+        logoutBtn.addEventListener("click", handleLogout);
+
+        // ─────────────────────────────────────────────
+        // BEFOREUNLOAD — clean up session on tab close
+        // ─────────────────────────────────────────────
+        function cleanupOnUnload() {
+            if (isLoggingOut) return;
             if (currentEmail) {
                 const userRef = doc(db, "users", currentEmail);
-                await updateDoc(userRef, { [`sessions.${sessionId}`]: FieldValue.delete() }).catch(() => {});
+                // Use sendBeacon-style fire-and-forget
+                try {
+                    updateDoc(userRef, {
+                        [`sessions.${sessionId}`]: FieldValue.delete()
+                    });
+                } catch (e) {}
             }
-            await signOut(auth);
-            window.location.href = "index.html";
-        };
+        }
+        window.addEventListener("beforeunload", cleanupOnUnload);
 
-        window.addEventListener("beforeunload", () => {
-            if (currentEmail) {
-                const userRef = doc(db, "users", currentEmail);
-                try { updateDoc(userRef, { [`sessions.${sessionId}`]: FieldValue.delete() }); } catch(e) {}
-            }
-        });
-
+        // ─────────────────────────────────────────────
+        // TIMER FORMATTING
+        // ─────────────────────────────────────────────
         function formatTime(totalSeconds) {
             const sec = Math.max(0, Math.floor(totalSeconds));
             const h = Math.floor(sec / 3600);
@@ -120,6 +182,9 @@
             return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
 
+        // ─────────────────────────────────────────────
+        // VIEW SWITCHING
+        // ─────────────────────────────────────────────
         function showView(view) {
             freeView.classList.add("hidden");
             freeView.classList.remove("flex");
@@ -130,17 +195,21 @@
             if (view === "free") {
                 freeView.classList.remove("hidden");
                 freeView.classList.add("flex");
-                logoutBtn.classList.add("hidden");
+                logoutBtn.classList.remove("visible");
             } else if (view === "await") {
                 awaitView.classList.remove("hidden");
                 awaitView.classList.add("flex");
-                logoutBtn.classList.remove("hidden");
+                logoutBtn.classList.add("visible");
             }
         }
 
+        // ─────────────────────────────────────────────
+        // AUTH STATE — main entry point
+        // ─────────────────────────────────────────────
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
-                window.location.href = "index.html";
+                // Not logged in → send to login page
+                window.location.replace("index.html");
                 return;
             }
 
@@ -151,9 +220,7 @@
 
             const userRef = doc(db, "users", currentEmail);
 
-            // CRITICAL FIX: Only write initial timer values if the doc does NOT exist.
-            // Previously, setDoc with merge:true was silently overwriting freeTimeRemaining
-            // back to 180 on every page refresh.
+            // Only write initial timer values if doc does NOT exist
             const existingDoc = await getDoc(userRef);
             if (!existingDoc.exists()) {
                 await setDoc(userRef, {
@@ -163,8 +230,7 @@
                     sessions: { [sessionId]: true }
                 });
             } else {
-                // Doc exists — just register this tab and reset the tick anchor.
-                // Timer values are NEVER touched here, so they cannot be restored.
+                // Doc exists — register this tab & reset tick anchor
                 await updateDoc(userRef, {
                     lastTick: Date.now(),
                     [`sessions.${sessionId}`]: true
@@ -187,11 +253,9 @@
                 }
             });
 
-            // Timestamp-based countdown using Firestore transactions.
-            // This solves the multi-tab bug where N open tabs caused the timer to
-            // drop by N seconds per real second. Now, elapsed time is calculated
-            // from lastTick, so even 10 tabs produce exactly 1 second of drain.
+            // Timestamp-based countdown (transaction-based, multi-tab safe)
             intervalId = setInterval(async () => {
+                if (isLoggingOut) return;
                 try {
                     await runTransaction(db, async (transaction) => {
                         const snap = await transaction.get(userRef);
@@ -200,7 +264,6 @@
                         const data = snap.data();
                         const lastTick = data.lastTick || Date.now();
                         const now = Date.now();
-                        // Cap elapsed to 60s to prevent catastrophic drain from clock skew
                         const elapsed = Math.min(Math.floor((now - lastTick) / 1000), 60);
 
                         if (elapsed <= 0) return;
@@ -211,14 +274,10 @@
                         const updates = { lastTick: now };
 
                         if (freeTime > 0) {
-                            // Decrement free time
                             updates.freeTimeRemaining = Math.max(0, freeTime - elapsed);
                         } else if (awaitTime > 0) {
-                            // Decrement await time
                             const newAwait = Math.max(0, awaitTime - elapsed);
                             updates.awaitTimeRemaining = newAwait;
-
-                            // IF AND ONLY IF await hits zero → restore the free cycle
                             if (newAwait <= 0) {
                                 updates.freeTimeRemaining = 180;
                                 updates.awaitTimeRemaining = 86400;
