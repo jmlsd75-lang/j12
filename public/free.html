@@ -63,71 +63,64 @@
       mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, black 20%, transparent 70%);
       -webkit-mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, black 20%, transparent 70%);
     }
+
+    /* Loading screen */
+    .loading-screen {
+      position: fixed; inset: 0; z-index: 500;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 20px;
+      transition: opacity 0.4s ease;
+    }
+    .loading-screen.hidden { opacity: 0; pointer-events: none; }
+    .loading-spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(255,255,255,0.06);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    .loading-screen p { font-size: 14px; color: var(--fg-muted); }
+
     .state { display: none; }
     .state.active { display: flex; }
 
     #stateActive {
-      flex-direction: column;
-      align-items: center;
-      gap: 40px;
+      flex-direction: column; align-items: center; gap: 40px;
       animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
     .user-bar {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      position: fixed; top: 0; left: 0; right: 0;
+      display: flex; align-items: center; gap: 12px;
       padding: 16px 24px;
       background: rgba(10,10,12,0.7);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      z-index: 20;
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border); z-index: 20;
     }
     .user-bar img {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid var(--border);
+      width: 36px; height: 36px; border-radius: 50%;
+      object-fit: cover; border: 2px solid var(--border);
     }
     .user-bar .user-name {
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 600; font-size: 14px;
+      font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 14px;
     }
-    .user-bar .user-email {
-      font-size: 12px; color: var(--fg-muted);
-    }
-    .countdown-wrap {
-      position: relative;
-      width: 220px; height: 220px;
-    }
-    .countdown-ring {
-      width: 100%; height: 100%;
-      transform: rotate(-90deg);
-    }
-    .countdown-ring .track {
-      fill: none;
-      stroke: rgba(255,255,255,0.04);
-      stroke-width: 6;
-    }
+    .user-bar .user-email { font-size: 12px; color: var(--fg-muted); }
+
+    .countdown-wrap { position: relative; width: 220px; height: 220px; }
+    .countdown-ring { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .countdown-ring .track { fill: none; stroke: rgba(255,255,255,0.04); stroke-width: 6; }
     .countdown-ring .progress {
-      fill: none;
-      stroke: var(--accent);
-      stroke-width: 6;
-      stroke-linecap: round;
+      fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round;
       transition: stroke-dashoffset 1s linear;
       filter: drop-shadow(0 0 8px var(--accent-glow));
     }
     .countdown-text {
       position: absolute; inset: 0;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
     .countdown-text .time {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 48px; font-weight: 700;
-      letter-spacing: -1px; line-height: 1;
+      font-size: 48px; font-weight: 700; letter-spacing: -1px; line-height: 1;
     }
     .countdown-text .label {
       font-size: 12px; color: var(--fg-muted);
@@ -136,20 +129,16 @@
     .menu-btn {
       display: flex; align-items: center; gap: 12px;
       padding: 16px 40px;
-      border: 1px solid rgba(232,168,73,0.3);
-      border-radius: 14px;
+      border: 1px solid rgba(232,168,73,0.3); border-radius: 14px;
       background: linear-gradient(135deg, var(--accent-soft), transparent);
       color: var(--fg);
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 16px; font-weight: 600;
-      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 600;
+      cursor: pointer; outline: none;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      outline: none;
       box-shadow: 0 8px 30px -10px var(--accent-glow);
     }
     .menu-btn:hover {
-      transform: translateY(-2px);
-      border-color: rgba(232,168,73,0.5);
+      transform: translateY(-2px); border-color: rgba(232,168,73,0.5);
       box-shadow: 0 12px 40px -8px var(--accent-glow);
     }
     .menu-btn:active { transform: translateY(0) scale(0.98); }
@@ -157,12 +146,9 @@
     .menu-btn i { font-size: 20px; color: var(--accent); }
 
     .expired-overlay {
-      position: fixed; inset: 0;
-      background: rgba(10,10,12,0.95);
-      display: none;
-      align-items: center; justify-content: center;
-      flex-direction: column; gap: 16px;
-      z-index: 100;
+      position: fixed; inset: 0; background: rgba(10,10,12,0.95);
+      display: none; align-items: center; justify-content: center;
+      flex-direction: column; gap: 16px; z-index: 100;
       animation: fadeIn 0.5s ease both;
     }
     .expired-overlay.active { display: flex; }
@@ -170,123 +156,106 @@
     .expired-overlay p { font-size: 18px; color: var(--fg-muted); }
 
     #stateAwait {
-      flex-direction: column;
-      align-items: center; gap: 32px;
-      width: 100%; max-width: 480px;
-      padding: 0 20px;
+      flex-direction: column; align-items: center; gap: 32px;
+      width: 100%; max-width: 480px; padding: 0 20px;
       animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
     .logout-btn {
-      position: fixed;
-      top: 20px; left: 50%;
-      transform: translateX(-50%);
-      display: none;
-      align-items: center; gap: 8px;
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      display: none; align-items: center; gap: 8px;
       padding: 10px 24px;
-      border: 1px solid rgba(232,84,84,0.25);
-      border-radius: 10px;
-      background: rgba(232,84,84,0.06);
-      color: var(--danger);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 13px; font-weight: 500;
-      cursor: pointer;
-      transition: all 0.25s;
-      outline: none; z-index: 30;
+      border: 1px solid rgba(232,84,84,0.25); border-radius: 10px;
+      background: rgba(232,84,84,0.06); color: var(--danger);
+      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: all 0.25s; outline: none; z-index: 30;
     }
-    .logout-btn:hover {
-      background: rgba(232,84,84,0.12);
-      border-color: rgba(232,84,84,0.4);
-    }
+    .logout-btn:hover { background: rgba(232,84,84,0.12); border-color: rgba(232,84,84,0.4); }
     .logout-btn:focus-visible { outline: 2px solid var(--danger); outline-offset: 2px; }
     .logout-btn i { font-size: 14px; }
     .logout-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .await-title {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 20px; font-weight: 600;
-      color: var(--fg-muted); text-align: center;
+      font-size: 20px; font-weight: 600; color: var(--fg-muted); text-align: center;
     }
     .btn-row {
-      display: flex; align-items: center;
-      gap: 16px; flex-wrap: wrap; justify-content: center;
+      display: flex; align-items: center; gap: 16px;
+      flex-wrap: wrap; justify-content: center;
     }
     .await-btn {
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 4px;
-      width: 200px; height: 100px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 4px; width: 200px; height: 100px;
+      border: 1px solid var(--border); border-radius: 14px;
       background: var(--bg-elevated);
-      cursor: not-allowed; opacity: 0.5;
-      user-select: none; pointer-events: none;
-      position: relative;
+      cursor: not-allowed; opacity: 0.5; user-select: none;
+      pointer-events: none; position: relative;
     }
     .await-btn .await-label {
-      font-size: 11px; color: var(--fg-muted);
-      text-transform: uppercase; letter-spacing: 2px;
+      font-size: 11px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 2px;
     }
     .await-btn .await-time {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 26px; font-weight: 700;
-      color: var(--fg); letter-spacing: -0.5px;
+      font-size: 26px; font-weight: 700; color: var(--fg); letter-spacing: -0.5px;
     }
     .await-btn .lock-icon {
-      position: absolute;
-      top: 10px; right: 12px;
+      position: absolute; top: 10px; right: 12px;
       font-size: 12px; color: var(--fg-muted); opacity: 0.4;
     }
     .pay-btn {
       display: flex; align-items: center; gap: 10px;
       padding: 16px 32px;
-      border: 1px solid rgba(74,222,128,0.3);
-      border-radius: 14px;
+      border: 1px solid rgba(74,222,128,0.3); border-radius: 14px;
       background: linear-gradient(135deg, rgba(74,222,128,0.08), transparent);
       color: var(--pay-color);
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 16px; font-weight: 600;
-      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 600;
+      cursor: pointer; outline: none;
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      outline: none;
       box-shadow: 0 8px 30px -10px var(--pay-glow);
     }
     .pay-btn:hover {
-      transform: translateY(-2px);
-      border-color: rgba(74,222,128,0.5);
+      transform: translateY(-2px); border-color: rgba(74,222,128,0.5);
       box-shadow: 0 12px 40px -8px var(--pay-glow);
     }
     .pay-btn:active { transform: translateY(0) scale(0.98); }
     .pay-btn:focus-visible { outline: 2px solid var(--pay-color); outline-offset: 3px; }
     .pay-btn i { font-size: 18px; }
     .await-hint {
-      font-size: 12px; color: var(--fg-muted);
-      opacity: 0.6; text-align: center; line-height: 1.6;
+      font-size: 12px; color: var(--fg-muted); opacity: 0.6;
+      text-align: center; line-height: 1.6;
     }
     .logout-toast {
-      position: fixed;
-      bottom: 30px; left: 50%;
+      position: fixed; bottom: 30px; left: 50%;
       transform: translateX(-50%) translateY(20px);
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 24px;
-      font-size: 13px; color: var(--fg-muted);
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 12px 24px; font-size: 13px; color: var(--fg-muted);
       display: flex; align-items: center; gap: 10px;
-      opacity: 0;
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
       z-index: 200; pointer-events: none;
     }
-    .logout-toast.visible {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
+    .logout-toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
     .logout-toast .spinner-sm {
-      display: inline-block;
-      width: 14px; height: 14px;
-      border: 2px solid rgba(255,255,255,0.1);
-      border-top-color: var(--danger);
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
+      display: inline-block; width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.1); border-top-color: var(--danger);
+      border-radius: 50%; animation: spin 0.6s linear infinite;
     }
+
+    /* Error banner */
+    .error-banner {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: var(--card); border: 1px solid rgba(232,84,84,0.2);
+      border-radius: 14px; padding: 32px; text-align: center;
+      max-width: 360px; z-index: 300; display: none;
+      animation: fadeUp 0.5s ease both;
+    }
+    .error-banner.active { display: block; }
+    .error-banner i { font-size: 32px; color: var(--danger); margin-bottom: 12px; }
+    .error-banner p { font-size: 14px; color: var(--fg-muted); margin-bottom: 20px; line-height: 1.5; }
+    .error-banner button {
+      padding: 10px 24px; border: 1px solid var(--border); border-radius: 8px;
+      background: var(--bg-elevated); color: var(--fg); font-size: 13px;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .error-banner button:hover { border-color: rgba(255,255,255,0.15); }
+
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(20px); }
@@ -328,6 +297,19 @@
     <div class="orb orb--2"></div>
   </div>
   <div class="grid-pattern" aria-hidden="true"></div>
+
+  <!-- Loading screen while Firestore reads -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-spinner"></div>
+    <p>Loading your session...</p>
+  </div>
+
+  <!-- Error banner -->
+  <div class="error-banner" id="errorBanner">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <p id="errorMsg">Something went wrong.</p>
+    <button onclick="window.location.replace('index.html')">Back to Login</button>
+  </div>
 
   <!-- STATE 1: Active 3:00 -->
   <div id="stateActive" class="state">
@@ -389,7 +371,9 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+    // ── Your exact Firebase config ──
     const firebaseConfig = {
       apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
       authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -401,94 +385,40 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    // ── Timer config ──
-    const FREE_DURATION = 3 * 60;
-    const AWAIT_DURATION = 24 * 60 * 60;
+    // ── Timer durations ──
+    const FREE_DURATION = 3 * 60;         // 3 minutes
+    const AWAIT_DURATION = 24 * 60 * 60;  // 24 hours
     const RING_CIRCUMFERENCE = 2 * Math.PI * 100;
 
-    // Secret salt for tamper verification — never exposed to user
-    const SALT = "xK9$mQ2#vL7!nR4@wP6&jF3%hD8^";
+    // ── Read user from URL params ──
+    const urlParams = new URLSearchParams(window.location.search);
+    const userName = urlParams.get('name') || 'User';
+    const userEmail = (urlParams.get('email') || '').trim().toLowerCase();
+    const userPhoto = urlParams.get('photo') || '';
 
-    // ── Read user from URL ──
-    const params = new URLSearchParams(window.location.search);
-    const userName = params.get('name') || 'User';
-    const userEmail = (params.get('email') || '').trim().toLowerCase();
+    // If no email, something wrong — back to login
+    if (!userEmail) {
+      window.location.replace('index.html');
+      throw new Error('No email in URL');
+    }
 
     document.getElementById('userName').textContent = decodeURIComponent(userName);
     document.getElementById('userEmail').textContent = userEmail;
-    const userPhoto = params.get('photo') || '';
     document.getElementById('userPhoto').src = userPhoto
       ? decodeURIComponent(userPhoto)
       : 'https://picsum.photos/seed/user/72/72.jpg';
 
-    // If no email in URL, something is wrong — go back to login
-    if (!userEmail) {
-      window.location.replace('index.html');
-      throw new Error('No email provided');
-    }
+    // ── Firestore doc reference — one doc per email ──
+    // Replace dots in email for safe doc ID (emails like first.last@gmail.com)
+    const safeEmail = userEmail.replace(/\./g, '_');
+    const timerDocRef = doc(db, "userTimers", safeEmail);
 
-    // ══════════════════════════════════════
-    //  EMAIL-SPECIFIC STORAGE WITH INTEGRITY
-    // ══════════════════════════════════════
-
-    // Simple hash function (djb2 variant) — fast, consistent
-    function hashStr(str) {
-      let h = 5381;
-      for (let i = 0; i < str.length; i++) {
-        h = ((h << 5) + h + str.charCodeAt(i)) & 0xFFFFFFFF;
-      }
-      return h.toString(36);
-    }
-
-    // Generate a signature for a timestamp — proves it wasn't tampered
-    function makeSig(timestamp, email) {
-      return hashStr(timestamp + '|' + email + '|' + SALT);
-    }
-
-    // Build email-specific storage keys
-    function keyFor(suffix) {
-      return 'u_' + hashStr(userEmail) + '_' + suffix;
-    }
-
-    // Save a timestamp with its signature
-    function saveTime(suffix, timestamp) {
-      localStorage.setItem(keyFor(suffix), timestamp.toString());
-      localStorage.setItem(keyFor(suffix + '_sig'), makeSig(timestamp, userEmail));
-    }
-
-    // Read a timestamp — returns null if missing or tampered
-    function readTime(suffix) {
-      const raw = localStorage.getItem(keyFor(suffix));
-      const sig = localStorage.getItem(keyFor(suffix + '_sig'));
-      if (!raw || !sig) return null;
-
-      const timestamp = parseInt(raw, 10);
-      // Verify the signature matches
-      if (makeSig(timestamp, userEmail) !== sig) {
-        // Tampered — delete corrupted data
-        clearTime(suffix);
-        console.warn('Timer data tampered — reset for', userEmail);
-        return null;
-      }
-      return timestamp;
-    }
-
-    // Clear a timestamp and its signature
-    function clearTime(suffix) {
-      localStorage.removeItem(keyFor(suffix));
-      localStorage.removeItem(keyFor(suffix + '_sig'));
-    }
-
-    // Clear ALL data for this email
-    function clearAll() {
-      clearTime('free');
-      clearTime('await');
-    }
-
-    // ══════════════════════════════════════
-    //  DOM
-    // ══════════════════════════════════════
+    // ── DOM refs ──
+    const loadingScreen = document.getElementById('loadingScreen');
+    const errorBanner = document.getElementById('errorBanner');
+    const errorMsg = document.getElementById('errorMsg');
     const stateActive = document.getElementById('stateActive');
     const stateAwait = document.getElementById('stateAwait');
     const expiredOverlay = document.getElementById('expiredOverlay');
@@ -505,6 +435,7 @@
     let activeTimer = null;
     let awaitTimer = null;
 
+    // ── Helpers ──
     function formatMmSs(sec) {
       const m = Math.floor(sec / 60);
       const s = sec % 60;
@@ -520,40 +451,106 @@
       document.querySelectorAll('.state').forEach(el => el.classList.remove('active'));
       document.getElementById(id).classList.add('active');
     }
-
-    // ══════════════════════════════════════
-    //  INIT
-    // ══════════════════════════════════════
-    function init() {
-      // Check await first
-      const awaitStart = readTime('await');
-      if (awaitStart !== null) {
-        startAwaitState(awaitStart);
-        return;
-      }
-
-      // Check free session
-      const freeStart = readTime('free');
-      if (freeStart !== null) {
-        const elapsed = Math.floor((Date.now() - freeStart) / 1000);
-        const remaining = FREE_DURATION - elapsed;
-
-        if (remaining <= 0) {
-          enterAwait();
-          return;
-        }
-        startActiveCountdown(remaining);
-        return;
-      }
-
-      // Fresh — start new free session for THIS email
-      saveTime('free', Date.now());
-      startActiveCountdown(FREE_DURATION);
+    function showError(msg) {
+      loadingScreen.classList.add('hidden');
+      errorMsg.textContent = msg;
+      errorBanner.classList.add('active');
+    }
+    function hideLoading() {
+      loadingScreen.classList.add('hidden');
     }
 
-    // ══════════════════════════════════════
-    //  STATE 1 — 3:00 active
-    // ══════════════════════════════════════
+    // ══════════════════════════════════
+    //  FIRESTORE — read this email's timer
+    // ══════════════════════════════════
+    async function loadTimerFromFirestore() {
+      try {
+        const snap = await getDoc(timerDocRef);
+
+        if (!snap.exists()) {
+          // No doc yet — fresh user, start free session
+          await setDoc(timerDocRef, {
+            email: userEmail,
+            freeStart: Date.now(),
+            awaitStart: null
+          });
+          hideLoading();
+          startActiveCountdown(FREE_DURATION);
+          return;
+        }
+
+        const data = snap.data();
+
+        // If there's an active await timer
+        if (data.awaitStart) {
+          const elapsed = Math.floor((Date.now() - data.awaitStart) / 1000);
+          const remaining = AWAIT_DURATION - elapsed;
+
+          if (remaining <= 0) {
+            // 24 hours done — reset to new free session
+            await setDoc(timerDocRef, {
+              email: userEmail,
+              freeStart: Date.now(),
+              awaitStart: null
+            });
+            hideLoading();
+            startActiveCountdown(FREE_DURATION);
+            return;
+          }
+
+          // Show await state
+          hideLoading();
+          startAwaitState(data.awaitStart, remaining);
+          return;
+        }
+
+        // If there's a free session timer
+        if (data.freeStart) {
+          const elapsed = Math.floor((Date.now() - data.freeStart) / 1000);
+          const remaining = FREE_DURATION - elapsed;
+
+          if (remaining <= 0) {
+            // Free session expired — switch to await
+            await setDoc(timerDocRef, {
+              email: userEmail,
+              freeStart: null,
+              awaitStart: Date.now()
+            });
+            hideLoading();
+            startAwaitState(Date.now(), AWAIT_DURATION);
+            return;
+          }
+
+          // Resume free session
+          hideLoading();
+          startActiveCountdown(remaining);
+          return;
+        }
+
+        // Doc exists but both null — shouldn't happen, reset
+        await setDoc(timerDocRef, {
+          email: userEmail,
+          freeStart: Date.now(),
+          awaitStart: null
+        });
+        hideLoading();
+        startActiveCountdown(FREE_DURATION);
+
+      } catch (err) {
+        console.error("Firestore read error:", err);
+
+        // If permission denied, user needs to set Firestore rules
+        if (err.code === 'permission-denied') {
+          showError("Permission denied. Ask the admin to update Firestore security rules.");
+        } else {
+          showError("Failed to load session. Check your connection and try again.");
+        }
+      }
+    }
+
+    // ══════════════════════════════════
+    //  STATE 1 — 3:00 active countdown
+    // ══════════════════════════════════
     function startActiveCountdown(remaining) {
       showState('stateActive');
       userBar.style.display = 'flex';
@@ -584,10 +581,22 @@
       }
     }
 
-    function onCountdownExpired() {
+    async function onCountdownExpired() {
       expiredOverlay.classList.add('active');
+
+      // Write await start to Firestore immediately
+      try {
+        await setDoc(timerDocRef, {
+          email: userEmail,
+          freeStart: null,
+          awaitStart: Date.now()
+        });
+      } catch (err) {
+        console.error("Failed to write await start:", err);
+      }
+
       setTimeout(() => {
-        enterAwait();
+        startAwaitState(Date.now(), AWAIT_DURATION);
         try { window.close(); } catch(e) {}
         setTimeout(() => {
           if (!window.closed) expiredOverlay.classList.remove('active');
@@ -595,28 +604,14 @@
       }, 1500);
     }
 
-    // ══════════════════════════════════════
+    // ══════════════════════════════════
     //  STATE 2 — 24:00:00 await
-    // ══════════════════════════════════════
-    function enterAwait() {
-      clearTime('free');
-      saveTime('await', Date.now());
-      startAwaitState(Date.now());
-    }
-
-    function startAwaitState(awaitStart) {
+    // ══════════════════════════════════
+    function startAwaitState(awaitStartMs, remaining) {
       userBar.style.display = 'none';
       logoutBtn.style.display = 'flex';
       expiredOverlay.classList.remove('active');
       showState('stateAwait');
-
-      let remaining = AWAIT_DURATION - Math.floor((Date.now() - awaitStart) / 1000);
-
-      if (remaining <= 0) {
-        clearAll();
-        init();
-        return;
-      }
 
       updateAwaitDisplay(remaining);
 
@@ -626,9 +621,19 @@
           remaining = 0;
           clearInterval(awaitTimer);
           updateAwaitDisplay(0);
-          setTimeout(() => {
-            clearAll();
-            init();
+
+          // Reset in Firestore — new free session
+          setTimeout(async () => {
+            try {
+              await setDoc(timerDocRef, {
+                email: userEmail,
+                freeStart: Date.now(),
+                awaitStart: null
+              });
+            } catch (err) {
+              console.error("Failed to reset timer:", err);
+            }
+            startActiveCountdown(FREE_DURATION);
           }, 1000);
           return;
         }
@@ -640,26 +645,33 @@
       awaitTimeEl.textContent = formatHhMmSs(remaining);
     }
 
-    // ══════════════════════════════════════
-    //  LOGOUT — real Firebase signOut
-    // ══════════════════════════════════════
+    // ══════════════════════════════════
+    //  LOGOUT — Firebase signOut + delete timer doc
+    // ══════════════════════════════════
     logoutBtn.addEventListener('click', async () => {
       logoutBtn.disabled = true;
       logoutToast.classList.add('visible');
 
       try {
-        clearAll();
+        // Delete this email's timer from Firestore
+        await deleteDoc(timerDocRef);
+        console.log("Timer doc deleted for", userEmail);
+      } catch (err) {
+        console.error("Failed to delete timer doc:", err);
+      }
+
+      try {
         await signOut(auth);
         window.location.replace('index.html');
-      } catch (error) {
-        console.error('Logout error:', error);
+      } catch (err) {
+        console.error("Sign out error:", err);
         window.location.replace('index.html');
       }
     });
 
-    // ══════════════════════════════════════
+    // ══════════════════════════════════
     //  OTHER BUTTONS
-    // ══════════════════════════════════════
+    // ══════════════════════════════════
     menuBtn.addEventListener('click', () => {
       window.location.href = 'menu.html';
     });
@@ -667,8 +679,8 @@
       window.location.href = 'pay.html';
     });
 
-    // ── Go ──
-    init();
+    // ── Start: read from Firestore, then show correct state ──
+    loadTimerFromFirestore();
   </script>
 </body>
 </html>
