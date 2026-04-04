@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu — System Dashboard</title>
+    <title>Menu — Admin Dashboard</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
@@ -60,26 +60,16 @@
             transform: rotate(45deg);
         }
 
-        .badge {
+        .admin-badge {
             font-size: 0.7rem;
             font-weight: 700;
             letter-spacing: 0.15em;
             text-transform: uppercase;
-            padding: 5px 12px;
-            border-radius: 8px;
-            display: none;
-        }
-
-        .admin-badge {
             color: #f97316;
             background: rgba(249, 115, 22, 0.1);
             border: 1px solid rgba(249, 115, 22, 0.2);
-        }
-
-        .user-badge {
-            color: rgb(168, 162, 158);
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 5px 12px;
+            border-radius: 8px;
         }
 
         .user-info {
@@ -109,15 +99,9 @@
             border: 2px solid rgba(249, 115, 22, 0.3);
         }
 
-        .user-avatar.green-border {
-            background: linear-gradient(135deg, #22c55e, #16a34a);
-            border: 2px solid rgba(34, 197, 94, 0.3);
-        }
-
         .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
         .logout-btn {
-            display: none;
             background: none;
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: rgb(168, 162, 158);
@@ -427,7 +411,6 @@
             padding: 48px 24px 32px;
             position: relative;
             z-index: 2;
-            display: none;
         }
 
         .footer-text p {
@@ -482,8 +465,8 @@
 
     <!-- Access Denied Overlay -->
     <div class="not-logged-in" id="notLoggedIn">
-        <p>No active session found.</p>
-        <a href="index.html">Go to Home</a>
+        <p>Access denied. You must be logged in as admin.</p>
+        <a href="index.html">Go to Login</a>
     </div>
 
     <!-- Background Glow -->
@@ -492,16 +475,15 @@
     <!-- Top Bar -->
     <div class="top-bar" id="topBar" style="display:none;">
         <div class="top-bar-left">
-            <a href="index.html" class="back-link" id="backLink">
+            <a href="admin.html" class="back-link">
                 <span class="back-arrow"></span>
-                <span id="backLinkText">Home</span>
+                <span>Dashboard</span>
             </a>
-            <div class="badge admin-badge" id="adminBadge">Admin</div>
-            <div class="badge user-badge" id="userBadge">User</div>
+            <div class="admin-badge">Admin</div>
         </div>
         <div class="user-info">
-            <span class="user-name" id="userName">User</span>
-            <div class="user-avatar" id="userAvatar">U</div>
+            <span class="user-name" id="userName">Admin</span>
+            <div class="user-avatar" id="userAvatar">A</div>
             <button class="logout-btn" id="logoutBtn">Logout</button>
         </div>
     </div>
@@ -569,122 +551,51 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
+        // Auth check
         (function () {
-            var isSuperAdmin = false;
-            var name = "User";
+            var isAdmin = false;
+            var name = "";
             var email = "";
             var photo = "";
-            
-            // State trackers
-            var isLocked = false;
-            var isPaid = false;
-            var isValidFree = false;
-            var lockStartTs = 0;
 
-            // 1. CHECK ADMIN STATE
             var sAdmin = sessionStorage.getItem("isAdmin");
+            var sName = sessionStorage.getItem("userName");
             var sEmail = sessionStorage.getItem("userEmail");
+            var sPhoto = sessionStorage.getItem("userPhoto");
+
             if (sEmail && sAdmin === "true") {
-                isSuperAdmin = true;
-                name = sessionStorage.getItem("userName") || "Admin";
+                isAdmin = true;
+                name = sName || "Admin";
                 email = sEmail;
-                photo = sessionStorage.getItem("userPhoto") || "";
+                photo = sPhoto || "";
             }
 
-            // 2. CHECK LOCK STATE (Priority for non-admins)
-            if (!isSuperAdmin) {
-                lockStartTs = parseInt(localStorage.getItem("free_lock_start"));
-                if (lockStartTs) {
-                    var lockElapsedSec = Math.floor((Date.now() - lockStartTs) / 1000);
-                    if (lockElapsedSec < 86400) {
-                        isLocked = true;
-                    } else {
-                        localStorage.removeItem("free_lock_start"); // Lock expired
-                    }
-                }
-            }
-
-            // 3. CHECK PAID STATE (From pay.html success)
-            if (!isSuperAdmin && !isLocked) {
-                var paidEnd = parseInt(localStorage.getItem("sessionEnd"));
-                if (paidEnd && Date.now() < paidEnd) {
-                    isPaid = true;
-                }
-            }
-
-            // 4. CHECK FREE STATE (From free.html MENU click)
-            if (!isSuperAdmin && !isLocked && !isPaid) {
-                var freeStart = parseInt(localStorage.getItem("free_session_start"));
-                if (freeStart) {
-                    var freeElapsedSec = Math.floor((Date.now() - freeStart) / 1000);
-                    if (freeElapsedSec < 180) {
-                        isValidFree = true;
-                    }
-                }
-            }
-
-            // === FINAL GATE CHECK ===
-            if (!isSuperAdmin && !isPaid && !isValidFree && !isLocked) {
+            if (!isAdmin || !email) {
                 document.getElementById("notLoggedIn").style.display = "flex";
                 return;
             }
 
-            // --- UI SETUP ---
-            var avatar = document.getElementById("userAvatar");
-
-            if (isSuperAdmin) {
-                document.getElementById("topBar").style.display = "flex";
-                document.getElementById("footerSection").style.display = "block";
-                document.getElementById("adminBadge").style.display = "block";
-                document.getElementById("backLink").href = "admin.html";
-                document.getElementById("backLinkText").textContent = "Dashboard";
-                document.getElementById("logoutBtn").style.display = "block";
-                document.getElementById("userName").textContent = name;
-                if (photo) {
-                    avatar.innerHTML = '<img src="' + photo + '" alt="avatar">';
-                } else {
-                    avatar.textContent = name.charAt(0).toUpperCase();
-                }
-            } else {
-                document.getElementById("userBadge").style.display = "block";
-                document.getElementById("backLink").href = "index.html";
-                document.getElementById("backLinkText").textContent = "Home";
-                avatar.textContent = "U";
-                avatar.classList.add("green-border");
-                document.getElementById("userName").textContent = isPaid ? "Paid User" : "Free User";
-            }
-
-            // --- ROUTING LOGIC ---
-            
-            // A. USER IS LOCKED
-            if (isLocked) {
-                document.getElementById("topBar").style.display = "none";
-                document.getElementById("footerSection").style.display = "none";
-                startTwentyFourHourWait(lockStartTs);
-                return;
-            }
-
-            // B. SUPER ADMIN UNLIMITED
-            if (isSuperAdmin && email.toLowerCase() === "jmlsd75@gmail.com") {
-                document.getElementById("adminUnlimited").style.display = "block";
-                return;
-            }
-
-            // C. 3-MINUTE TIMER (Paid, Valid Free, or Standard Admin)
+            // Show top bar + footer
             document.getElementById("topBar").style.display = "flex";
             document.getElementById("footerSection").style.display = "block";
-            document.getElementById("countdownSection").style.display = "block";
+            document.getElementById("userName").textContent = name;
 
-            var initialSeconds = 180; // Default 3 minutes
-            
-            // Sync timer if coming from free.html so it doesn't reset
-            if (isValidFree) {
-                var freeStartTs = parseInt(localStorage.getItem("free_session_start"));
-                var elapsed = Math.floor((Date.now() - freeStartTs) / 1000);
-                initialSeconds = Math.max(0, 180 - elapsed);
+            var avatar = document.getElementById("userAvatar");
+            if (photo) {
+                avatar.innerHTML = '<img src="' + photo + '" alt="avatar">';
+            } else {
+                avatar.textContent = name.charAt(0).toUpperCase();
             }
 
-            startThreeMinuteCountdown(initialSeconds);
+            // === CHECK IF SUPER ADMIN ===
+            if (email.toLowerCase() === "jmlsd75@gmail.com") {
+                // Show admin unlimited access
+                document.getElementById("adminUnlimited").style.display = "block";
+            } else {
+                // Show 03:00 countdown
+                document.getElementById("countdownSection").style.display = "block";
+                startThreeMinuteCountdown();
+            }
 
             // Firebase logout
             document.getElementById("logoutBtn").addEventListener("click", function () {
@@ -704,7 +615,8 @@
             });
 
             // === THREE MINUTE COUNTDOWN ===
-            function startThreeMinuteCountdown(totalSeconds) {
+            function startThreeMinuteCountdown() {
+                var totalSeconds = 180; // 3 minutes
                 var timerDisplay = document.getElementById("timerDisplay");
                 var timerBarFill = document.getElementById("timerBarFill");
 
@@ -717,18 +629,11 @@
                         timerDisplay.textContent = "00:00";
                         timerBarFill.style.width = "0%";
 
+                        // Hide countdown section after brief pause
                         setTimeout(function () {
                             document.getElementById("countdownSection").style.display = "none";
                             document.getElementById("footerSection").style.display = "none";
-                            document.getElementById("topBar").style.display = "none";
-                            
-                            // Set lock state for both free and paid users
-                            localStorage.removeItem("free_session_start");
-                            localStorage.removeItem("sessionEnd");
-                            var newLockTs = Date.now();
-                            localStorage.setItem("free_lock_start", String(newLockTs));
-                            
-                            startTwentyFourHourWait(newLockTs);
+                            startTwentyFourHourWait();
                         }, 800);
                         return;
                     }
@@ -740,6 +645,7 @@
                     var pct = (totalSeconds / 180) * 100;
                     timerBarFill.style.width = pct + "%";
 
+                    // Warning states
                     timerDisplay.classList.remove("warning", "danger");
                     timerBarFill.classList.remove("warning", "danger");
 
@@ -754,11 +660,8 @@
             }
 
             // === TWENTY FOUR HOUR WAIT ===
-            function startTwentyFourHourWait(lockTs) {
-                var LOCK_TOTAL_SEC = 86400;
-                var elapsedSec = Math.floor((Date.now() - lockTs) / 1000);
-                var totalSeconds = Math.max(0, LOCK_TOTAL_SEC - elapsedSec);
-
+            function startTwentyFourHourWait() {
+                var totalSeconds = 86400; // 24 hours
                 var waitSection = document.getElementById("waitSection");
                 var waitTimerDisplay = document.getElementById("waitTimerDisplay");
                 var waitBarFill = document.getElementById("waitBarFill");
@@ -766,9 +669,11 @@
                 var waitBusinessBtn = document.getElementById("waitBusinessBtn");
                 var overlay = document.getElementById("unclickableOverlay");
 
+                // Show wait section + unclickable overlay
                 waitSection.style.display = "flex";
                 overlay.classList.add("active");
 
+                // Hide pay + business buttons during countdown
                 waitPayBtn.style.display = "none";
                 waitBusinessBtn.style.display = "none";
 
@@ -781,10 +686,12 @@
                         waitTimerDisplay.textContent = "00:00:00";
                         waitBarFill.style.width = "0%";
 
+                        // Remove unclickable overlay
                         overlay.classList.remove("active");
+
+                        // Show pay + business buttons
                         waitPayBtn.style.display = "inline-block";
                         waitBusinessBtn.style.display = "inline-block";
-                        localStorage.removeItem("free_lock_start");
                         return;
                     }
 
@@ -796,7 +703,7 @@
                         String(m).padStart(2, "0") + ":" +
                         String(s).padStart(2, "0");
 
-                    var pct = (totalSeconds / LOCK_TOTAL_SEC) * 100;
+                    var pct = (totalSeconds / 86400) * 100;
                     waitBarFill.style.width = pct + "%";
                 }, 1000);
             }
