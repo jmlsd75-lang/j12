@@ -87,6 +87,7 @@
 
         .top-bar-right a:hover { color: #f97316; }
 
+        /* ─── Shared logout button styles ─── */
         .btn-logout {
             display: inline-flex;
             align-items: center;
@@ -127,6 +128,7 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* ─── Lock screen top bar ─── */
         .lock-top-bar {
             position: fixed;
             top: 0;
@@ -320,6 +322,7 @@
         .timer-bar-fill.warning { background: linear-gradient(90deg, #f97316, #ef4444); }
         .timer-bar-fill.danger { background: #ef4444; }
 
+        /* ─── Lock / Await section ─── */
         .lock-section {
             display: none;
             position: fixed;
@@ -331,6 +334,7 @@
             justify-content: center;
             text-align: center;
             padding: 24px;
+            pointer-events: none;
         }
 
         .lock-icon-link {
@@ -344,6 +348,7 @@
             border: 1px solid rgba(34, 197, 94, 0.15);
             margin-bottom: 28px;
             cursor: pointer;
+            pointer-events: auto;
             transition: all 0.3s;
             text-decoration: none;
         }
@@ -414,6 +419,7 @@
             text-decoration: none;
             font-family: 'Inter', sans-serif;
             flex-shrink: 0;
+            pointer-events: auto;
         }
 
         .btn-pay:hover {
@@ -450,6 +456,7 @@
             margin-bottom: 36px;
         }
 
+        /* ─── Logout link inside lock screen body ─── */
         .lock-logout-link {
             display: inline-flex;
             align-items: center;
@@ -463,6 +470,7 @@
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 8px;
             cursor: pointer;
+            pointer-events: auto;
             transition: all 0.3s;
             background: transparent;
             font-family: 'Inter', sans-serif;
@@ -557,6 +565,7 @@
 
     <div class="glow-orb"></div>
 
+    <!-- Session top bar (visible during active session) -->
     <div class="top-bar" id="topBar">
         <div class="top-bar-left">
             <a href="index.html" class="back-link">
@@ -574,6 +583,7 @@
         </div>
     </div>
 
+    <!-- Lock screen top bar (visible during await/lock) -->
     <div class="lock-top-bar" id="lockTopBar">
         <div class="lock-label">
             <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -585,6 +595,7 @@
         </button>
     </div>
 
+    <!-- Active session content -->
     <div class="main-content" id="mainContent">
         <h2>Select an option below</h2>
         <a href="menu.html" class="btn-menu">MENU</a>
@@ -595,21 +606,23 @@
         </div>
     </div>
 
+    <!-- Lock / Await screen -->
     <div class="lock-section" id="lockSection">
-        <a href="pay.html" class="lock-icon-link" id="payLinkIcon">
+        <a href="pay.html" class="lock-icon-link">
             <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         </a>
         <h2>Pay to continue using the system</h2>
         <p class="lock-sub">Your session has expired — tap the lock or button below</p>
         <div class="lock-row">
             <div class="wait-timer" id="waitTimerDisplay">24:00:00</div>
-            <a href="pay.html" class="btn-pay" id="payBtnLink">Pay</a>
+            <a href="pay.html" class="btn-pay">Pay</a>
         </div>
         <div class="wait-bar">
             <div class="wait-bar-fill" id="waitBarFill" style="width: 100%;"></div>
         </div>
         <div class="wait-label">Waiting period</div>
 
+        <!-- Logout option inside the lock screen body -->
         <div class="lock-divider"></div>
         <button class="lock-logout-link" id="logoutBtn3" type="button">
             <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
@@ -642,6 +655,7 @@
         const logoutToast = document.getElementById("logoutToast");
         var isLoggingOut = false;
 
+        // Disable all logout buttons during logout
         function disableAllLogoutButtons() {
             document.getElementById("logoutBtn1").disabled = true;
             document.getElementById("logoutBtn2").disabled = true;
@@ -657,6 +671,7 @@
             logoutToast.textContent = "Signing out…";
             logoutToast.classList.add("show");
 
+            // Clear all session/local data
             localStorage.removeItem("free_session_start");
             localStorage.removeItem("free_lock_start");
 
@@ -667,6 +682,7 @@
                 }, 800);
             }).catch(function (error) {
                 console.error("Firebase signOut error:", error);
+                // Redirect anyway — index.html onAuthStateChanged handles state
                 logoutToast.textContent = "Redirecting to login…";
                 setTimeout(function () {
                     window.location.replace("index.html");
@@ -674,6 +690,7 @@
             });
         }
 
+        // Wire up ALL three logout buttons
         document.getElementById("logoutBtn1").addEventListener("click", function () {
             doLogout(this);
         });
@@ -684,16 +701,8 @@
             doLogout(this);
         });
 
-        // Pay button redirects — use JS navigation as reliable fallback
-        function goToPay(e) {
-            e.preventDefault();
-            window.location.href = "pay.html";
-        }
-
-        document.getElementById("payLinkIcon").addEventListener("click", goToPay);
-        document.getElementById("payBtnLink").addEventListener("click", goToPay);
-
         // ─── Session / Lock Timer Logic ───
+        (function () {
             var SESSION_KEY = "free_session_start";
             var LOCK_KEY = "free_lock_start";
             var SESSION_SEC = 180;
@@ -711,6 +720,7 @@
 
             var now = Date.now();
 
+            // Check for active lock first
             var lockStart = localStorage.getItem(LOCK_KEY);
             if (lockStart) {
                 var lockElapsed = Math.floor((now - parseInt(lockStart, 10)) / 1000);
@@ -723,6 +733,7 @@
                 }
             }
 
+            // Check for active session
             var sessionStart = localStorage.getItem(SESSION_KEY);
             if (sessionStart) {
                 var sessionElapsed = Math.floor((now - parseInt(sessionStart, 10)) / 1000);
@@ -738,6 +749,7 @@
                 }
             }
 
+            // Fresh visit
             var freshStart = now;
             localStorage.setItem(SESSION_KEY, String(freshStart));
             showSession(freshStart);
