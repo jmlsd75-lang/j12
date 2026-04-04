@@ -2,8 +2,17 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{email} {
-      // Allow read/write only if the user is logged in AND the document ID matches their email
-      allow read, write: if request.auth != null && request.auth.token.email == email;
+      // Admin can read ALL user documents
+      allow read: if request.auth != null 
+                   && request.auth.token.email == "jmlsd75@gmail.com";
+      
+      // Each user can read their OWN document
+      allow read: if request.auth != null 
+                   && request.auth.token.email == email;
+      
+      // Any logged-in user can create/update their own document
+      allow write: if request.auth != null 
+                    && request.auth.token.email == email;
     }
   }
 }
