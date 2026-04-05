@@ -2,51 +2,35 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ── HELPERS ──
-    // ⚠️  Update this email if your admin address ever changes.
     function isAdmin() {
       return request.auth != null
              && request.auth.token.email == "jmlsd75@gmail.com";
     }
 
-    // ── USERS ──
     match /users/{userId} {
-      // Admin: full read (get + list) and update on every document
       allow read, update: if isAdmin();
-
-      // Any signed-in user: can read, create, and update ONLY their own doc
-      // NOTE: "read" here covers get + list, but because of the userId guard,
-      //       a collection-level list query will NOT match this rule for non-admins.
-      //       Only a direct get("/users/<their-uid>") will succeed.
       allow get, create, update: if request.auth != null
                                  && request.auth.uid == userId;
     }
 
-    // ── PAYMENTS ──
     match /payments/{paymentId} {
       allow read, write: if isAdmin();
-
       allow read: if request.auth != null
                && resource.data.userEmail == request.auth.token.email;
     }
 
-    // ── SPACES (metadata only) ──
     match /spaces/{spaceId} {
       allow read: if isAdmin();
-
       allow get: if request.auth != null
               && resource.data.userEmail == request.auth.token.email;
     }
 
-    // ── DANGEROUS ACCOUNTS ──
     match /dangerous_accounts/{accountId} {
       allow read, write: if isAdmin();
     }
 
-    // ── REPORTS ──
     match /reports/{reportId} {
       allow read, update, delete: if isAdmin();
-
       allow create: if request.auth != null
                     && request.resource.data.reportedBy == request.auth.token.email;
     }
