@@ -684,7 +684,6 @@
             <h1>Welcome</h1>
             <p>Access your dashboard for Health, Education & Business tools</p>
 
-            <!-- THIS onclick calls handleGoogleLogin() inside login.js -->
             <button class="google-login-btn" id="googleLoginBtn" onclick="handleGoogleLogin()">
                 <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -717,7 +716,7 @@
 
     </div>
 
-    <!-- THIS loads login.js which contains handleGoogleLogin() -->
-    <script src="login.js"></script>
+    <!-- Added type="module" so ES6 imports in login.js work properly -->
+    <script type="module" src="login.js"></script>
 </body>
 </html>
