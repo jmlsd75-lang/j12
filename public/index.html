@@ -21,7 +21,6 @@
             overflow: hidden;
         }
 
-        /* Animated Background */
         .bg-animation {
             position: fixed;
             top: 0;
@@ -81,7 +80,6 @@
             padding: 20px;
         }
 
-        /* ===== ILLUSTRATIONS SECTION ===== */
         .illustrations {
             display: flex;
             flex-direction: column;
@@ -114,7 +112,6 @@
             text-transform: uppercase;
         }
 
-        /* ===== HEALTH - HEART + PULSE ===== */
         .health-icon {
             position: relative;
             width: 80px;
@@ -190,7 +187,6 @@
             transform: rotate(45deg);
         }
 
-        /* Cross on heart */
         .health-cross {
             position: absolute;
             top: 18px;
@@ -220,7 +216,6 @@
             border-radius: 2px;
         }
 
-        /* ===== EDUCATION - GRADUATION CAP + BOOK ===== */
         .education-icon {
             position: relative;
             width: 80px;
@@ -233,7 +228,6 @@
             left: 10px;
         }
 
-        /* Cap top (diamond shape) */
         .cap-top {
             position: absolute;
             width: 45px;
@@ -255,7 +249,6 @@
             border-radius: 3px;
         }
 
-        /* Cap base */
         .cap-base {
             position: absolute;
             width: 35px;
@@ -266,7 +259,6 @@
             border-radius: 0 0 5px 5px;
         }
 
-        /* Tassel */
         .tassel {
             position: absolute;
             top: 5px;
@@ -300,7 +292,6 @@
             50% { transform: rotate(5deg); }
         }
 
-        /* Book under cap */
         .edu-book {
             position: absolute;
             bottom: 5px;
@@ -343,7 +334,6 @@
             border-radius: 2px 0 0 2px;
         }
 
-        /* ===== BUSINESS - BRIEFCASE + CHART ===== */
         .business-icon {
             position: relative;
             width: 80px;
@@ -415,7 +405,6 @@
             border-radius: 0 0 3px 3px;
         }
 
-        /* Chart bars */
         .chart-bars {
             position: absolute;
             bottom: 5px;
@@ -460,7 +449,6 @@
             50% { transform: scaleY(0.7); }
         }
 
-        /* Trend arrow */
         .trend-arrow {
             position: absolute;
             top: 8px;
@@ -478,7 +466,6 @@
             50% { opacity: 0.6; transform: translateY(-3px); }
         }
 
-        /* ===== LOGIN CARD ===== */
         .login-card {
             background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(20px);
@@ -530,6 +517,12 @@
 
         .google-login-btn:active {
             transform: translateY(0);
+        }
+
+        .google-login-btn:disabled {
+            cursor: wait;
+            transform: none !important;
+            opacity: 0.7;
         }
 
         .google-icon {
@@ -585,7 +578,23 @@
         .feature-dot.education { background: #3498db; }
         .feature-dot.business { background: #f39c12; }
 
-        /* Responsive */
+        .login-error {
+            color: #ff6b6b;
+            font-size: 13px;
+            margin-top: 14px;
+            padding: 10px 14px;
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.25);
+            border-radius: 8px;
+            text-align: center;
+            animation: errorIn 0.3s ease;
+        }
+
+        @keyframes errorIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         @media (max-width: 768px) {
             .main-container {
                 flex-direction: column;
@@ -612,7 +621,6 @@
 </head>
 <body>
 
-    <!-- Background Animation -->
     <div class="bg-animation">
         <div class="bg-circle"></div>
         <div class="bg-circle"></div>
@@ -621,10 +629,8 @@
 
     <div class="main-container">
 
-        <!-- Illustrations -->
         <div class="illustrations">
 
-            <!-- Health -->
             <div class="illustration-item">
                 <div class="health-icon">
                     <div class="heart"></div>
@@ -634,7 +640,6 @@
                 <span class="illustration-label" style="color: #e74c3c;">Health</span>
             </div>
 
-            <!-- Education -->
             <div class="illustration-item">
                 <div class="education-icon">
                     <div class="grad-cap">
@@ -655,7 +660,6 @@
                 <span class="illustration-label" style="color: #3498db;">Education</span>
             </div>
 
-            <!-- Business -->
             <div class="illustration-item">
                 <div class="business-icon">
                     <div class="briefcase">
@@ -676,11 +680,11 @@
 
         </div>
 
-        <!-- Login Card -->
         <div class="login-card">
             <h1>Welcome</h1>
             <p>Access your dashboard for Health, Education & Business tools</p>
 
+            <!-- THIS onclick calls handleGoogleLogin() inside login.js -->
             <button class="google-login-btn" id="googleLoginBtn" onclick="handleGoogleLogin()">
                 <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -713,6 +717,7 @@
 
     </div>
 
+    <!-- THIS loads login.js which contains handleGoogleLogin() -->
     <script src="login.js"></script>
 </body>
 </html>
