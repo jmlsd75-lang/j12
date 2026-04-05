@@ -7,62 +7,250 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * { font-family: 'Inter', sans-serif; }
-        body { background: #000; }
+        * { font-family: 'Inter', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: linear-gradient(180deg, #0a0e27 0%, #1a1a4e 20%, #2d3a8c 45%, #5b7fc7 70%, #a8c8f0 90%, #d4e4f7 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ── Stars ── */
+        .stars {
+            position: fixed; inset: 0; pointer-events: none; z-index: 0;
+        }
+        .star {
+            position: absolute;
+            width: 2px; height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle var(--dur) ease-in-out infinite alternate;
+            opacity: 0;
+        }
+        @keyframes twinkle {
+            0% { opacity: 0.1; transform: scale(0.8); }
+            100% { opacity: var(--max-o); transform: scale(1.2); }
+        }
+
+        /* ── Floating clouds ── */
+        .cloud {
+            position: fixed;
+            background: radial-gradient(ellipse at center, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.05) 50%, transparent 70%);
+            border-radius: 50%;
+            filter: blur(30px);
+            pointer-events: none;
+            z-index: 1;
+            animation: floatCloud var(--speed) linear infinite;
+        }
+        .cloud-alt {
+            background: radial-gradient(ellipse at center, rgba(200,220,255,0.12) 0%, rgba(180,200,240,0.04) 50%, transparent 70%);
+            filter: blur(40px);
+        }
+
+        @keyframes floatCloud {
+            0% { transform: translateX(var(--start-x)) translateY(0); }
+            25% { transform: translateX(calc(var(--start-x) + 15vw)) translateY(-18px); }
+            50% { transform: translateX(calc(var(--start-x) + 30vw)) translateY(8px); }
+            75% { transform: translateX(calc(var(--start-x) + 45vw)) translateY(-12px); }
+            100% { transform: translateX(var(--start-x)) translateY(0); }
+        }
+
+        /* ── Floating orbs ── */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1;
+            animation: orbFloat var(--orb-speed) ease-in-out infinite alternate;
+        }
+        @keyframes orbFloat {
+            0% { transform: translateY(0) scale(1); }
+            100% { transform: translateY(var(--orb-drift)) scale(var(--orb-scale)); }
+        }
+
+        /* ── Glass panels ── */
+        .glass {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .glass-strong {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        /* ── Timer ── */
         .timer-text { font-variant-numeric: tabular-nums; }
+
+        .timer-glow-free {
+            text-shadow: 0 0 60px rgba(100, 180, 255, 0.4), 0 0 120px rgba(100, 180, 255, 0.15);
+        }
+        .timer-glow-await {
+            text-shadow: 0 0 40px rgba(255, 100, 100, 0.3), 0 0 80px rgba(255, 100, 100, 0.1);
+        }
+
+        /* ── Buttons ── */
+        .btn-sky {
+            background: linear-gradient(135deg, #4a90d9 0%, #6cb4ee 100%);
+            box-shadow: 0 8px 32px rgba(74, 144, 217, 0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+        .btn-sky:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 12px 40px rgba(74, 144, 217, 0.5), inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+
+        .btn-pay {
+            background: linear-gradient(135deg, #34c759 0%, #5edd7e 100%);
+            box-shadow: 0 8px 32px rgba(52, 199, 89, 0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+        .btn-pay:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 12px 40px rgba(52, 199, 89, 0.5), inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+
         .logout-btn { display: none; }
         .logout-btn.visible { display: inline-flex; }
+
+        /* ── Navbar ── */
+        .nav-glass {
+            background: rgba(10, 14, 39, 0.5);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* ── Await card ── */
+        .await-card {
+            background: rgba(255, 70, 70, 0.08);
+            border: 1px solid rgba(255, 70, 70, 0.2);
+            backdrop-filter: blur(12px);
+        }
+
+        .await-box {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+        }
+
+        /* ── Moon ── */
+        .moon {
+            position: fixed;
+            top: 8%;
+            right: 12%;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #f0e6d3 0%, #d4c5a9 40%, #b8a88a 100%);
+            box-shadow: 0 0 40px rgba(240, 230, 211, 0.3), 0 0 100px rgba(240, 230, 211, 0.1), inset -8px -4px 12px rgba(0,0,0,0.15);
+            pointer-events: none;
+            z-index: 1;
+            animation: moonGlow 4s ease-in-out infinite alternate;
+        }
+        @keyframes moonGlow {
+            0% { box-shadow: 0 0 40px rgba(240, 230, 211, 0.3), 0 0 100px rgba(240, 230, 211, 0.1); }
+            100% { box-shadow: 0 0 60px rgba(240, 230, 211, 0.45), 0 0 140px rgba(240, 230, 211, 0.15); }
+        }
+
+        @media (max-width: 640px) {
+            .moon { width: 50px; height: 50px; top: 6%; right: 8%; }
+        }
     </style>
 </head>
-<body class="min-h-screen text-white flex flex-col">
+<body class="min-h-screen text-white flex flex-col relative">
+
+    <!-- Sky elements -->
+    <div class="stars" id="starsContainer"></div>
+    <div class="moon"></div>
+
+    <!-- Clouds -->
+    <div class="cloud" style="width:500px;height:180px;top:10%;--start-x:-20vw;--speed:60s;"></div>
+    <div class="cloud cloud-alt" style="width:600px;height:200px;top:25%;--start-x:10vw;--speed:80s;"></div>
+    <div class="cloud" style="width:400px;height:150px;top:50%;--start-x:50vw;--speed:70s;"></div>
+    <div class="cloud cloud-alt" style="width:550px;height:170px;top:70%;--start-x:-10vw;--speed:90s;"></div>
+    <div class="cloud" style="width:350px;height:120px;top:85%;--start-x:30vw;--speed:55s;"></div>
+
+    <!-- Floating orbs -->
+    <div class="orb" style="width:6px;height:6px;top:20%;left:15%;background:rgba(150,200,255,0.5);--orb-speed:6s;--orb-drift:-30px;--orb-scale:1.5;"></div>
+    <div class="orb" style="width:4px;height:4px;top:40%;left:75%;background:rgba(200,180,255,0.4);--orb-speed:8s;--orb-drift:25px;--orb-scale:1.3;"></div>
+    <div class="orb" style="width:5px;height:5px;top:60%;left:40%;background:rgba(180,220,255,0.35);--orb-speed:7s;--orb-drift:-20px;--orb-scale:1.4;"></div>
+    <div class="orb" style="width:3px;height:3px;top:30%;left:55%;background:rgba(255,220,180,0.3);--orb-speed:9s;--orb-drift:35px;--orb-scale:1.6;"></div>
+    <div class="orb" style="width:5px;height:5px;top:75%;left:85%;background:rgba(160,200,255,0.4);--orb-speed:5s;--orb-drift:-28px;--orb-scale:1.2;"></div>
+    <div class="orb" style="width:4px;height:4px;top:15%;left:90%;background:rgba(200,230,255,0.3);--orb-speed:7s;--orb-drift:22px;--orb-scale:1.5;"></div>
 
     <!-- Top Navbar -->
-    <nav class="w-full z-50 bg-black/80 backdrop-blur-xl border-b border-white/10">
+    <nav class="w-full z-50 nav-glass relative">
         <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <img id="userPhoto" class="w-8 h-8 rounded-full" src="" alt="Profile">
-                <span id="userName" class="font-medium text-sm text-neutral-300"></span>
+                <img id="userPhoto" class="w-8 h-8 rounded-full ring-2 ring-white/20" src="" alt="Profile">
+                <span id="userName" class="font-medium text-sm text-white/70"></span>
             </div>
-            <button id="logoutBtn" class="logout-btn text-sm font-medium text-neutral-400 hover:text-red-400 transition px-4 py-2 rounded-lg border border-transparent hover:border-red-500/30 cursor-pointer">
+            <button id="logoutBtn" class="logout-btn text-sm font-medium text-white/50 hover:text-red-300 transition px-4 py-2 rounded-lg border border-transparent hover:border-red-400/30 cursor-pointer">
                 Logout
             </button>
         </div>
     </nav>
 
     <!-- Main Content Area -->
-    <main class="flex-1 flex items-center justify-center px-6">
+    <main class="flex-1 flex items-center justify-center px-6 relative z-10">
 
         <!-- STATE 1: FREE COUNTDOWN VIEW -->
         <div id="freeView" class="hidden flex-col items-center text-center">
-            <p class="text-neutral-500 uppercase tracking-widest text-sm mb-6">Free Session Time</p>
-            <div id="freeTimer" class="timer-text text-7xl md:text-9xl font-bold tracking-tight text-white mb-4">
-                00:03:00
+            <p class="text-white/40 uppercase tracking-widest text-sm mb-6">Free Session Time</p>
+            <div class="glass-strong rounded-3xl px-10 py-8 mb-6">
+                <div id="freeTimer" class="timer-text timer-glow-free text-7xl md:text-9xl font-bold tracking-tight text-white">
+                    00:03:00
+                </div>
             </div>
-            <p id="tabCountFree" class="text-amber-400/80 text-sm font-medium mb-10">1 tab is opened by your email now</p>
-            <a href="menu.html" class="px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl transition transform hover:scale-105 shadow-lg shadow-blue-500/20">
+            <p id="tabCountFree" class="text-amber-200/70 text-sm font-medium mb-10">1 tab is opened by your email now</p>
+            <a href="menu.html" class="btn-sky px-8 py-4 text-white font-medium rounded-xl no-underline">
                 Open Menu
             </a>
         </div>
 
         <!-- STATE 2: AWAIT COUNTDOWN VIEW -->
-        <div id="awaitView" class="hidden flex-col items-center text-center max-w-lg">
-            <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
-                <p class="text-red-400 font-semibold text-lg">Pay to continue using the system.</p>
-                <p class="text-red-400/70 text-sm mt-1">Your free time has expired.</p>
+        <div id="awaitView" class="hidden flex-col items-center text-center max-w-lg w-full">
+            <div class="await-card rounded-2xl p-5 mb-6">
+                <p class="text-red-300 font-semibold text-lg">Pay to continue using the system.</p>
+                <p class="text-red-300/50 text-sm mt-1">Your free time has expired.</p>
             </div>
-            <p id="tabCountAwait" class="text-amber-400/80 text-sm font-medium mb-6">1 tab is opened by your email now</p>
-            <div class="flex flex-col sm:flex-row gap-6 items-center w-full">
-                <button disabled class="flex-1 w-full py-6 px-8 bg-[#111] border border-white/10 rounded-xl text-left opacity-60 cursor-not-allowed">
-                    <span class="text-neutral-500 text-sm font-medium block mb-2">AWAIT</span>
-                    <span id="awaitTimer" class="timer-text text-3xl md:text-4xl font-bold text-white">24:00:00</span>
-                </button>
-                <a href="pay.html" class="flex-1 w-full py-6 px-8 bg-green-500 hover:bg-green-600 text-center rounded-xl font-bold text-lg transition transform hover:scale-105 shadow-lg shadow-green-500/20">
+            <p id="tabCountAwait" class="text-amber-200/70 text-sm font-medium mb-6">1 tab is opened by your email now</p>
+            <div class="flex flex-col sm:flex-row gap-6 items-stretch w-full">
+                <div class="await-box flex-1 w-full py-6 px-8 rounded-xl text-left">
+                    <span class="text-white/30 text-sm font-medium block mb-2">AWAIT</span>
+                    <span id="awaitTimer" class="timer-text timer-glow-await text-3xl md:text-4xl font-bold text-white">24:00:00</span>
+                </div>
+                <a href="pay.html" class="btn-pay flex-1 w-full py-6 px-8 text-center rounded-xl font-bold text-lg no-underline flex items-center justify-center">
                     Pay Now
                 </a>
             </div>
         </div>
 
     </main>
+
+    <!-- Generate stars -->
+    <script>
+        (function() {
+            const container = document.getElementById('starsContainer');
+            const count = 80;
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 55 + '%';
+                star.style.setProperty('--dur', (2 + Math.random() * 4) + 's');
+                star.style.setProperty('--max-o', (0.3 + Math.random() * 0.7).toFixed(2));
+                star.style.animationDelay = (Math.random() * 4) + 's';
+                star.style.width = star.style.height = (1 + Math.random() * 2) + 'px';
+                container.appendChild(star);
+            }
+        })();
+    </script>
 
     <!-- Firebase SDKs -->
     <script type="module">
@@ -96,93 +284,53 @@
         const tabCountFreeEl = document.getElementById("tabCountFree");
         const tabCountAwaitEl = document.getElementById("tabCountAwait");
 
-        // ─────────────────────────────────────────────
-        // LOGOUT
-        // ─────────────────────────────────────────────
         async function handleLogout() {
             if (isLoggingOut) return;
             isLoggingOut = true;
-
-            if (intervalId) {
-                clearInterval(intervalId);
-                intervalId = null;
-            }
-
+            if (intervalId) { clearInterval(intervalId); intervalId = null; }
             window.removeEventListener("beforeunload", cleanupOnUnload);
-
             logoutBtn.textContent = "Signing out…";
             logoutBtn.disabled = true;
             logoutBtn.classList.add("opacity-50", "pointer-events-none");
-
             try {
-                if (currentEmail) {
-                    await deleteDoc(doc(db, "users", currentEmail));
-                }
+                if (currentEmail) { await deleteDoc(doc(db, "users", currentEmail)); }
                 await signOut(auth);
                 await new Promise(r => setTimeout(r, 400));
                 window.location.replace("index.html");
-            } catch (error) {
-                window.location.replace("index.html");
-            }
+            } catch (error) { window.location.replace("index.html"); }
         }
-
         logoutBtn.addEventListener("click", handleLogout);
 
-        // ─────────────────────────────────────────────
-        // BEFOREUNLOAD
-        // ─────────────────────────────────────────────
         function cleanupOnUnload() {
             if (isLoggingOut || !currentEmail) return;
-            try {
-                updateDoc(doc(db, "users", currentEmail), {
-                    [`sessions.${sessionId}`]: FieldValue.delete()
-                });
-            } catch (e) {}
+            try { updateDoc(doc(db, "users", currentEmail), { [`sessions.${sessionId}`]: FieldValue.delete() }); } catch (e) {}
         }
         window.addEventListener("beforeunload", cleanupOnUnload);
 
-        // ─────────────────────────────────────────────
-        // TIMER FORMATTING
-        // ─────────────────────────────────────────────
         function formatTime(totalSeconds) {
             const sec = Math.max(0, Math.floor(totalSeconds));
             const h = Math.floor(sec / 3600);
             const m = Math.floor((sec % 3600) / 60);
             const s = sec % 60;
-            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
         }
 
-        // ─────────────────────────────────────────────
-        // TAB COUNT TEXT
-        // ─────────────────────────────────────────────
         function getTabCountText(count) {
-            if (count === 1) return `${count} tab is opened by your email now`;
-            return `${count} tabs are opened by your email now`;
+            return count === 1 ? `${count} tab is opened by your email now` : `${count} tabs are opened by your email now`;
         }
 
-        // ─────────────────────────────────────────────
-        // VIEW SWITCHING
-        // ─────────────────────────────────────────────
         function showView(view) {
-            freeView.classList.add("hidden");
-            freeView.classList.remove("flex");
-            awaitView.classList.add("hidden");
-            awaitView.classList.remove("flex");
-
+            freeView.classList.add("hidden"); freeView.classList.remove("flex");
+            awaitView.classList.add("hidden"); awaitView.classList.remove("flex");
             if (view === "free") {
-                freeView.classList.remove("hidden");
-                freeView.classList.add("flex");
+                freeView.classList.remove("hidden"); freeView.classList.add("flex");
                 logoutBtn.classList.remove("visible");
             } else if (view === "await") {
-                awaitView.classList.remove("hidden");
-                awaitView.classList.add("flex");
+                awaitView.classList.remove("hidden"); awaitView.classList.add("flex");
                 logoutBtn.classList.add("visible");
             }
         }
 
-        // ─────────────────────────────────────────────
-        // TICK
-        // ─────────────────────────────────────────────
         let userRef = null;
 
         async function tick() {
@@ -191,11 +339,9 @@
                 await runTransaction(db, async (transaction) => {
                     const snap = await transaction.get(userRef);
                     if (!snap.exists()) return;
-
                     const data = snap.data();
                     const now = Date.now();
                     const updates = {};
-
                     const freeTime = data.freeTimeRemaining || 0;
                     const awaitTime = data.awaitTimeRemaining || 0;
 
@@ -208,62 +354,44 @@
                         const newAwait = Math.max(0, awaitTime - 1);
                         updates.awaitTimeRemaining = newAwait;
                         updates.lastAwaitTick = now;
-
                         if (newAwait <= 0) {
                             updates.freeTimeRemaining = 180;
                             updates.awaitTimeRemaining = 86400;
                         }
                     }
-
                     updates.lastTick = now;
                     transaction.update(userRef, updates);
                 });
-            } catch (e) {
-                console.error("Timer transaction error", e);
-            }
+            } catch (e) { console.error("Timer transaction error", e); }
         }
 
-        // ─────────────────────────────────────────────
-        // AUTH STATE
-        // ─────────────────────────────────────────────
         onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.replace("index.html");
-                return;
-            }
-
+            if (!user) { window.location.replace("index.html"); return; }
             currentEmail = user.email.toLowerCase();
             userRef = doc(db, "users", currentEmail);
 
             document.getElementById("userName").textContent = user.displayName || "User";
-            document.getElementById("userPhoto").src = user.photoURL || "https://ui-avatars.com/api/?name=User&background=111&color=fff";
+            document.getElementById("userPhoto").src = user.photoURL || "https://ui-avatars.com/api/?name=User&background=1a1a4e&color=fff";
 
             const existingDoc = await getDoc(userRef);
             if (!existingDoc.exists()) {
                 await setDoc(userRef, {
-                    freeTimeRemaining: 180,
-                    awaitTimeRemaining: 86400,
-                    lastTick: Date.now(),
-                    lastAwaitTick: Date.now(),
+                    freeTimeRemaining: 180, awaitTimeRemaining: 86400,
+                    lastTick: Date.now(), lastAwaitTick: Date.now(),
                     sessions: { [sessionId]: true }
                 });
             } else {
-                await updateDoc(userRef, {
-                    lastTick: Date.now(),
-                    [`sessions.${sessionId}`]: true
-                });
+                await updateDoc(userRef, { lastTick: Date.now(), [`sessions.${sessionId}`]: true });
             }
 
             onSnapshot(userRef, (docSnap) => {
                 if (!docSnap.exists()) return;
                 const data = docSnap.data();
-
                 const freeTime = data.freeTimeRemaining || 0;
                 const awaitTime = data.awaitTimeRemaining || 0;
                 const sessions = data.sessions || {};
                 const tabCount = Object.keys(sessions).length;
                 const tabText = getTabCountText(tabCount);
-
                 if (freeTime > 0) {
                     showView("free");
                     freeTimerEl.textContent = formatTime(freeTime);
