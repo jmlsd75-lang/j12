@@ -31,13 +31,14 @@
 
     <!-- Main Content Area -->
     <main class="flex-1 flex items-center justify-center px-6">
-        
+
         <!-- STATE 1: FREE COUNTDOWN VIEW -->
         <div id="freeView" class="hidden flex-col items-center text-center">
             <p class="text-neutral-500 uppercase tracking-widest text-sm mb-6">Free Session Time</p>
-            <div id="freeTimer" class="timer-text text-7xl md:text-9xl font-bold tracking-tight text-white mb-12">
+            <div id="freeTimer" class="timer-text text-7xl md:text-9xl font-bold tracking-tight text-white mb-4">
                 00:03:00
             </div>
+            <p id="tabCountFree" class="text-amber-400/80 text-sm font-medium mb-10">1 tab is opened by your email now</p>
             <a href="menu.html" class="px-8 py-4 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl transition transform hover:scale-105 shadow-lg shadow-blue-500/20">
                 Open Menu
             </a>
@@ -45,10 +46,11 @@
 
         <!-- STATE 2: AWAIT COUNTDOWN VIEW -->
         <div id="awaitView" class="hidden flex-col items-center text-center max-w-lg">
-            <div class="mb-10 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
+            <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
                 <p class="text-red-400 font-semibold text-lg">Pay to continue using the system.</p>
                 <p class="text-red-400/70 text-sm mt-1">Your free time has expired.</p>
             </div>
+            <p id="tabCountAwait" class="text-amber-400/80 text-sm font-medium mb-6">1 tab is opened by your email now</p>
             <div class="flex flex-col sm:flex-row gap-6 items-center w-full">
                 <button disabled class="flex-1 w-full py-6 px-8 bg-[#111] border border-white/10 rounded-xl text-left opacity-60 cursor-not-allowed">
                     <span class="text-neutral-500 text-sm font-medium block mb-2">AWAIT</span>
@@ -87,6 +89,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // Unique ID for THIS tab
         const sessionId = crypto.randomUUID();
         let currentEmail = null;
         let intervalId = null;
@@ -98,50 +101,38 @@
         const logoutBtn = document.getElementById("logoutBtn");
         const freeTimerEl = document.getElementById("freeTimer");
         const awaitTimerEl = document.getElementById("awaitTimer");
+        const tabCountFreeEl = document.getElementById("tabCountFree");
+        const tabCountAwaitEl = document.getElementById("tabCountAwait");
 
         // ─────────────────────────────────────────────
-        // LOGOUT — delete user doc from Firestore,
-        // sign out of Firebase Auth, redirect to login
+        // LOGOUT
         // ─────────────────────────────────────────────
         async function handleLogout() {
             if (isLoggingOut) return;
             isLoggingOut = true;
 
-            // Stop timer immediately
             if (intervalId) {
                 clearInterval(intervalId);
                 intervalId = null;
             }
 
-            // Remove beforeunload so it doesn't fire during logout
             window.removeEventListener("beforeunload", cleanupOnUnload);
 
-            // Visual feedback
             logoutBtn.textContent = "Signing out…";
             logoutBtn.disabled = true;
             logoutBtn.classList.add("opacity-50", "pointer-events-none");
 
             try {
-                // 1. DELETE the user's entire document from Firestore
                 if (currentEmail) {
-                    const userRef = doc(db, "users", currentEmail);
-                    await deleteDoc(userRef);
+                    await deleteDoc(doc(db, "users", currentEmail));
                     console.log("Firestore user doc deleted for:", currentEmail);
                 }
-
-                // 2. Sign out of Firebase Auth (clears browserLocalPersistence)
                 await signOut(auth);
                 console.log("Firebase Auth sign-out complete");
-
-                // 3. Wait a moment for persistence wipe to finish
                 await new Promise(r => setTimeout(r, 400));
-
-                // 4. Redirect to login page (replace so Back won't return here)
                 window.location.replace("index.html");
-
             } catch (error) {
                 console.error("Logout error:", error);
-                // Even if something fails, still redirect
                 window.location.replace("index.html");
             }
         }
@@ -149,7 +140,7 @@
         logoutBtn.addEventListener("click", handleLogout);
 
         // ─────────────────────────────────────────────
-        // BEFOREUNLOAD — clean session entry on tab close
+        // BEFOREUNLOAD — remove this tab's session
         // ─────────────────────────────────────────────
         function cleanupOnUnload() {
             if (isLoggingOut || !currentEmail) return;
@@ -170,6 +161,14 @@
             const m = Math.floor((sec % 3600) / 60);
             const s = sec % 60;
             return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        // ─────────────────────────────────────────────
+        // TAB COUNT TEXT
+        // ─────────────────────────────────────────────
+        function getTabCountText(count) {
+            if (count === 1) return `${count} tab is opened by your email now`;
+            return `${count} tabs are opened by your email now`;
         }
 
         // ─────────────────────────────────────────────
@@ -194,6 +193,52 @@
         }
 
         // ─────────────────────────────────────────────
+        // TICK FUNCTION — runs every second AND once immediately
+        // ─────────────────────────────────────────────
+        let userRef = null;
+
+        async function tick() {
+            if (isLoggingOut || !userRef) return;
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const snap = await transaction.get(userRef);
+                    if (!snap.exists()) return;
+
+                    const data = snap.data();
+                    const now = Date.now();
+                    const updates = {};
+
+                    const freeTime = data.freeTimeRemaining || 0;
+                    const awaitTime = data.awaitTimeRemaining || 0;
+
+                    // ── FREE TIMER: each tab subtracts 1 → n tabs = n/sec total ──
+                    if (freeTime > 0) {
+                        updates.freeTimeRemaining = Math.max(0, freeTime - 1);
+                    }
+
+                    // ── AWAIT TIMER: strictly 1/sec no matter how many tabs ──
+                    const lastAwaitTick = data.lastAwaitTick || data.lastTick || now;
+                    if (awaitTime > 0 && (now - lastAwaitTick) >= 1000) {
+                        const newAwait = Math.max(0, awaitTime - 1);
+                        updates.awaitTimeRemaining = newAwait;
+                        updates.lastAwaitTick = now;
+
+                        // When await hits 0 → reset both timers
+                        if (newAwait <= 0) {
+                            updates.freeTimeRemaining = 180;
+                            updates.awaitTimeRemaining = 86400;
+                        }
+                    }
+
+                    updates.lastTick = now;
+                    transaction.update(userRef, updates);
+                });
+            } catch (e) {
+                console.error("Timer transaction error", e);
+            }
+        }
+
+        // ─────────────────────────────────────────────
         // AUTH STATE
         // ─────────────────────────────────────────────
         onAuthStateChanged(auth, async (user) => {
@@ -203,19 +248,19 @@
             }
 
             currentEmail = user.email.toLowerCase();
+            userRef = doc(db, "users", currentEmail);
 
             document.getElementById("userName").textContent = user.displayName || "User";
             document.getElementById("userPhoto").src = user.photoURL || "https://ui-avatars.com/api/?name=User&background=111&color=fff";
 
-            const userRef = doc(db, "users", currentEmail);
-
-            // Only create doc if it doesn't exist
+            // Create doc if new, otherwise register this tab
             const existingDoc = await getDoc(userRef);
             if (!existingDoc.exists()) {
                 await setDoc(userRef, {
                     freeTimeRemaining: 180,
                     awaitTimeRemaining: 86400,
                     lastTick: Date.now(),
+                    lastAwaitTick: Date.now(),
                     sessions: { [sessionId]: true }
                 });
             } else {
@@ -225,59 +270,34 @@
                 });
             }
 
-            // Real-time UI
+            // ── Real-time UI updates ──
             onSnapshot(userRef, (docSnap) => {
                 if (!docSnap.exists()) return;
                 const data = docSnap.data();
+
                 const freeTime = data.freeTimeRemaining || 0;
                 const awaitTime = data.awaitTimeRemaining || 0;
+                const sessions = data.sessions || {};
+                const tabCount = Object.keys(sessions).length;
+
+                const tabText = getTabCountText(tabCount);
 
                 if (freeTime > 0) {
                     showView("free");
                     freeTimerEl.textContent = formatTime(freeTime);
+                    tabCountFreeEl.textContent = tabText;
                 } else {
                     showView("await");
                     awaitTimerEl.textContent = formatTime(awaitTime);
+                    tabCountAwaitEl.textContent = tabText;
                 }
             });
 
-            // Countdown
-            intervalId = setInterval(async () => {
-                if (isLoggingOut) return;
-                try {
-                    await runTransaction(db, async (transaction) => {
-                        const snap = await transaction.get(userRef);
-                        if (!snap.exists()) return;
+            // ── IMMEDIATE first tick (counts down by 1 right away) ──
+            await tick();
 
-                        const data = snap.data();
-                        const lastTick = data.lastTick || Date.now();
-                        const now = Date.now();
-                        const elapsed = Math.min(Math.floor((now - lastTick) / 1000), 60);
-
-                        if (elapsed <= 0) return;
-
-                        const freeTime = data.freeTimeRemaining || 0;
-                        const awaitTime = data.awaitTimeRemaining || 0;
-
-                        const updates = { lastTick: now };
-
-                        if (freeTime > 0) {
-                            updates.freeTimeRemaining = Math.max(0, freeTime - elapsed);
-                        } else if (awaitTime > 0) {
-                            const newAwait = Math.max(0, awaitTime - elapsed);
-                            updates.awaitTimeRemaining = newAwait;
-                            if (newAwait <= 0) {
-                                updates.freeTimeRemaining = 180;
-                                updates.awaitTimeRemaining = 86400;
-                            }
-                        }
-
-                        transaction.update(userRef, updates);
-                    });
-                } catch (e) {
-                    console.error("Timer transaction error", e);
-                }
-            }, 1000);
+            // ── Then tick every second ──
+            intervalId = setInterval(tick, 1000);
         });
     </script>
 </body>
