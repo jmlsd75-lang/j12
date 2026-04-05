@@ -142,7 +142,6 @@
             font-weight: 600;
             padding: 0.25rem 0.75rem;
             border-radius: 999px;
-            transition: all 300ms;
         }
 
         .table-scroll {
@@ -212,7 +211,7 @@
         td .visit-time { color: var(--moss-300); font-size: 0.75rem; }
         td .payment-date { color: var(--forest-800); font-weight: 500; }
         td .payment-amount { color: var(--forest-500); font-size: 0.78rem; font-weight: 600; }
-        td .no-payment { color: var(--bark-300); font-style: italic; font-size: 0.82rem; }
+        td .dash { color: var(--moss-300); font-size: 0.82rem; }
 
         tfoot tr {
             background: var(--forest-800);
@@ -397,7 +396,7 @@
                         <th>Email</th>
                         <th>Username</th>
                         <th>Space Used (MB)</th>
-                        <th>Last Visit (menu.html)</th>
+                        <th>Last Visit</th>
                         <th>Last Payment</th>
                     </tr>
                 </thead>
@@ -438,7 +437,6 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        const COLLECTION_NAME = "users";
         const MAX_SPACE = 1024;
 
         const errorState   = document.getElementById("errorState");
@@ -458,28 +456,34 @@
             errorState.classList.remove("visible");
             emptyState.classList.remove("visible");
             userTable.style.display = "none";
-
             if (state === "error") errorState.classList.add("visible");
             if (state === "empty") emptyState.classList.add("visible");
             if (state === "table") userTable.style.display = "table";
         }
 
         function formatDate(str) {
-            if (!str) return "—";
+            if (!str) return null;
             try {
                 const d = new Date(str);
-                if (isNaN(d)) return str;
+                if (isNaN(d)) return null;
                 const m = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
                 return m[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
             } catch {
-                return str;
+                return null;
             }
         }
 
         function parseAmount(val) {
-            if (val == null) return 0;
+            if (val == null || val === "" || val === 0) return 0;
             if (typeof val === "number") return val;
             return parseFloat(String(val).replace(/[^0-9.]/g, "")) || 0;
+        }
+
+        function hasValue(val) {
+            if (val == null) return false;
+            if (typeof val === "string" && val.trim() === "") return false;
+            if (typeof val === "number" && val === 0) return false;
+            return true;
         }
 
         function dataHash(u) {
@@ -500,33 +504,65 @@
             let totalPaid = 0;
 
             users.forEach((u, i) => {
-                const space = Number(u.spaceUsed ?? u.space ?? u.storage ?? 0);
+                const spaceRaw = u.spaceUsed ?? u.space ?? u.storage ?? 0;
+                const space = Number(spaceRaw) || 0;
                 totalSpace += space;
 
-                const amount = parseAmount(u.lastPaymentAmount ?? u.amount ?? u.paymentAmount);
-                const hasPayment = !!(u.lastPayment ?? u.paymentDate ?? u.paidAt);
+                const amountRaw = u.lastPaymentAmount ?? u.amount ?? u.paymentAmount ?? 0;
+                const amount = parseAmount(amountRaw);
 
-                if (hasPayment && amount > 0) {
+                const paymentDateRaw = u.lastPayment ?? u.paymentDate ?? u.paidAt ?? null;
+                const hasPayment = hasValue(paymentDateRaw) && amount > 0;
+
+                if (hasPayment) {
                     paidCount++;
                     totalPaid += amount;
                 }
 
-                const pct = Math.min(Math.round((space / MAX_SPACE) * 100), 100);
-                let barClass = "";
-                if (pct >= 85) barClass = "high";
-                else if (pct >= 60) barClass = "warn";
-
-                const visitRaw = u.lastVisit ?? u.lastVisitMenu ?? "";
-                let visitDate = "—";
-                let visitTime = "";
-                if (visitRaw) {
-                    const parts = String(visitRaw).split(" ");
-                    visitDate = formatDate(parts[0]);
-                    visitTime = parts[1] || "";
+                // Space column
+                let spaceHtml;
+                if (!hasValue(spaceRaw)) {
+                    spaceHtml = '<span class="dash">—</span>';
+                } else {
+                    const pct = Math.min(Math.round((space / MAX_SPACE) * 100), 100);
+                    let barClass = "";
+                    if (pct >= 85) barClass = "high";
+                    else if (pct >= 60) barClass = "warn";
+                    spaceHtml = `
+                        <div class="space-cell">
+                            <span class="space-num">${space}</span>
+                            <div class="space-bar-wrap">
+                                <div class="space-bar ${barClass}" style="width:${pct}%"></div>
+                            </div>
+                        </div>`;
                 }
 
-                const paymentDate = u.lastPayment ?? u.paymentDate ?? u.paidAt ?? null;
+                // Visit column
+                let visitHtml;
+                const visitRaw = u.lastVisit ?? u.lastVisitMenu ?? "";
+                if (!hasValue(visitRaw)) {
+                    visitHtml = '<span class="dash">—</span>';
+                } else {
+                    const parts = String(visitRaw).split(" ");
+                    const vDate = formatDate(parts[0]);
+                    const vTime = parts[1] || "";
+                    if (!vDate) {
+                        visitHtml = '<span class="dash">—</span>';
+                    } else {
+                        visitHtml = `<div class="visit">${vDate}</div>${vTime ? `<div class="visit-time">${vTime}</div>` : ""}`;
+                    }
+                }
 
+                // Payment column
+                let paymentHtml;
+                if (!hasPayment) {
+                    paymentHtml = '<span class="dash">—</span>';
+                } else {
+                    const pDate = formatDate(paymentDateRaw);
+                    paymentHtml = `<div class="payment-date">${pDate || "—"}</div><div class="payment-amount">$${amount.toFixed(2)}</div>`;
+                }
+
+                // Detect change for flash
                 const hash = dataHash(u);
                 const changed = previousData[u.id] && previousData[u.id] !== hash;
                 previousData[u.id] = hash;
@@ -536,26 +572,11 @@
 
                 tr.innerHTML = `
                     <td><span class="row-num">${i + 1}</span></td>
-                    <td><span class="email">${u.email ?? "—"}</span></td>
-                    <td><span class="username">${u.username ?? "—"}</span></td>
-                    <td>
-                        <div class="space-cell">
-                            <span class="space-num">${space}</span>
-                            <div class="space-bar-wrap">
-                                <div class="space-bar ${barClass}" style="width:${pct}%"></div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="visit">${visitDate}</div>
-                        ${visitTime ? `<div class="visit-time">${visitTime}</div>` : ""}
-                    </td>
-                    <td>
-                        ${hasPayment
-                            ? `<div class="payment-date">${formatDate(paymentDate)}</div><div class="payment-amount">$${amount.toFixed(2)}</div>`
-                            : `<span class="no-payment">No payment</span>`
-                        }
-                    </td>
+                    <td><span class="email">${u.email || "—"}</span></td>
+                    <td><span class="username">${u.username || "—"}</span></td>
+                    <td>${spaceHtml}</td>
+                    <td>${visitHtml}</td>
+                    <td>${paymentHtml}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -566,22 +587,16 @@
             userCount.textContent = users.length + " user" + (users.length !== 1 ? "s" : "");
         }
 
-        // ── AUTH GUARD ──
+        // ── Wait for auth session, then start real-time listener ──
         onAuthStateChanged(auth, (user) => {
             if (!user) {
                 window.location.replace("index.html");
                 return;
             }
 
-            if (user.email !== "jmlsd75@gmail.com") {
-                errorMsg.textContent = "Access denied. Admin only.";
-                showState("error");
-                userCount.textContent = "Denied";
-                return;
-            }
-
-            // ── REAL-TIME LISTENER — no await, no refresh needed ──
-            const q = query(collection(db, COLLECTION_NAME), orderBy("email", "asc"));
+            // Firestore rules are the security gate — if user can read, data appears.
+            // No hardcoded email check here that causes false "Access denied".
+            const q = query(collection(db, "users"), orderBy("email", "asc"));
 
             onSnapshot(q, (snapshot) => {
                 liveDot.classList.remove("offline");
@@ -601,9 +616,16 @@
                 showState("table");
 
             }, (err) => {
-                console.error("Firestore listener error:", err);
+                console.error("Snapshot error:", err);
                 liveDot.classList.add("offline");
-                errorMsg.textContent = err.message || "Listener failed. Check Firestore rules.";
+
+                // Only show permission error if Firestore actually denies access
+                if (err.code === "permission-denied") {
+                    window.location.replace("admin.html");
+                    return;
+                }
+
+                errorMsg.textContent = err.message || "Could not reach Firestore.";
                 showState("error");
                 userCount.textContent = "Error";
             });
