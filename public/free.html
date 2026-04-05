@@ -218,7 +218,7 @@
             font-family:"Orbitron",monospace;font-size:1.1rem;font-weight:800;
             letter-spacing:.2em;cursor:pointer;width:100%;transition:all .3s ease;
             display:flex;align-items:center;justify-content:center;gap:10px;
-            position:relative;text-decoration:none;
+            position:relative;
             box-shadow:0 4px 20px rgba(255,215,0,.2),inset 0 1px 0 rgba(255,255,255,.15);
         }
         .pay-btn:hover{
@@ -231,7 +231,7 @@
         .pay-shimmer{
             position:absolute;top:0;left:-100%;width:100%;height:100%;
             background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);
-            animation:shimmer 2.8s ease-in-out infinite;
+            animation:shimmer 2.8s ease-in-out infinite;pointer-events:none;
         }
         @keyframes shimmer{0%{left:-100%}100%{left:100%}}
 
@@ -312,7 +312,6 @@
 
     <main class="relative z-10 min-h-screen flex flex-col">
 
-        <!-- Loading — spinner only, no text -->
         <section id="loadingScreen" class="flex-1 flex items-center justify-center" aria-label="Loading">
             <div class="loading-spinner"></div>
         </section>
@@ -393,11 +392,11 @@
                         <p class="text-sm mb-6 leading-relaxed" style="color:var(--muted)">
                             Your free session has ended. Upgrade now to continue using the system without interruption.
                         </p>
-                        <a href="pay.html" class="pay-btn" aria-label="Go to payment">
+                        <button id="payBtn" class="pay-btn" aria-label="Go to payment">
                             <span class="pay-shimmer"></span>
                             <i class="fas fa-credit-card"></i>
                             <span>PAY</span>
-                        </a>
+                        </button>
                         <div class="flex items-center gap-2 mt-4 justify-center">
                             <i class="fas fa-shield-halved text-xs" style="color:var(--accent-dark)"></i>
                             <span class="text-xs" style="color:var(--muted)">Secure payment</span>
@@ -421,12 +420,15 @@
         const STALE_MS     = 2500;
         const TICK_MS      = 80;
 
+        /* All keys — ft_start kept for pay.html compatibility */
         const S = {
+            START:       "ft_start",
             AWAIT_START: "ft_await_start",
             PHASE:       "ft_phase",
             TABS:        "ft_tabs",
             MY_ID:       "ft_my_id",
-            CONSUMED:    "ft_consumed"
+            CONSUMED:    "ft_consumed",
+            USER_EMAIL:  "ft_user_email"
         };
 
         let myTabId   = null;
@@ -450,11 +452,15 @@
         const $aS       = document.getElementById("aSeconds");
         const $aprog    = document.getElementById("awaitProgressCircle");
         const $logout   = document.getElementById("logoutBtn");
+        const $payBtn   = document.getElementById("payBtn");
         const $toast    = document.getElementById("toast");
         const $toastMsg = document.getElementById("toastMsg");
         const $speedBdg = document.getElementById("speedBadge");
         const $speedTxt = document.getElementById("speedText");
 
+        /* =============================================
+           BROADCAST + STORAGE SYNC
+        ============================================= */
         try {
             channel = new BroadcastChannel("free_timer_channel");
             channel.onmessage = (e) => onMsg(e.data);
@@ -465,6 +471,9 @@
             if (e.key === S.PHASE && e.newValue === "await") showAwait();
         });
 
+        /* =============================================
+           HELPERS
+        ============================================= */
         const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,10);
         const getPhase = () => localStorage.getItem(S.PHASE) || "countdown";
         const setPhase = (p) => localStorage.setItem(S.PHASE, p);
@@ -511,6 +520,9 @@
             toastT = setTimeout(() => $toast.classList.remove("visible"), 3500);
         }
 
+        /* =============================================
+           TAB REGISTRATION
+        ============================================= */
         function regTab() {
             myTabId = uid();
             localStorage.setItem(S.MY_ID, myTabId);
@@ -547,11 +559,21 @@
             if (m.t === "phase" && m.p === "await") showAwait();
         }
 
+        /* =============================================
+           COUNTDOWN — consumed-based, n× multiplier
+        ============================================= */
         function stopTick() { if (tickTimer) { clearInterval(tickTimer); tickTimer = null; } }
 
         function ensureAwaitStart() {
             let v = localStorage.getItem(S.AWAIT_START);
             if (!v) { v = Date.now().toString(); localStorage.setItem(S.AWAIT_START, v); }
+            return parseInt(v);
+        }
+
+        /* Ensure ft_start exists — pay.html may require it */
+        function ensureStart() {
+            let v = localStorage.getItem(S.START);
+            if (!v) { v = Date.now().toString(); localStorage.setItem(S.START, v); }
             return parseInt(v);
         }
 
@@ -597,10 +619,15 @@
             })();
         }
 
+        /* =============================================
+           SCREENS
+        ============================================= */
         function show(el) { [$load, $cd, $aw].forEach(s => s.classList.add("hidden")); el.classList.remove("hidden"); }
 
         function showCountdown() {
             show($cd);
+            ensureStart();                                         /* ft_start for pay.html */
+            localStorage.setItem(S.USER_EMAIL, userEmail);         /* ft_user_email for pay.html */
             if (localStorage.getItem(S.CONSUMED) === null) {
                 localStorage.setItem(S.CONSUMED, "0");
             }
@@ -610,6 +637,8 @@
         function showAwait() {
             if (getPhase() !== "await") return;
             show($aw);
+            ensureStart();                                         /* keep ft_start alive */
+            localStorage.setItem(S.USER_EMAIL, userEmail);         /* keep ft_user_email alive */
             ensureAwaitStart();
             runAwait();
         }
@@ -617,18 +646,35 @@
         function goAwait() {
             setPhase("await");
             localStorage.removeItem(S.CONSUMED);
+            ensureStart();
+            localStorage.setItem(S.USER_EMAIL, userEmail);
             ensureAwaitStart();
             bc({ t: "phase", p: "await" });
             showAwait();
         }
 
+        /* =============================================
+           PAY BUTTON — stamps session then navigates
+        ============================================= */
+        $payBtn.addEventListener("click", () => {
+            /* Make absolutely sure pay.html can find the session */
+            ensureStart();
+            localStorage.setItem(S.USER_EMAIL, userEmail);
+            setPhase("await");
+            ensureAwaitStart();
+            window.location.href = "pay.html";
+        });
+
+        /* =============================================
+           LOGOUT
+        ============================================= */
         $logout.addEventListener("click", () => {
             $logout.disabled = true;
             $logout.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> <span>Signing out...</span>';
             unregTab(); stopTick();
             if (hbTimer) clearInterval(hbTimer);
             const cleanup = () => {
-                [S.AWAIT_START, S.PHASE, S.TABS, S.MY_ID, S.CONSUMED].forEach(k => localStorage.removeItem(k));
+                [S.START, S.AWAIT_START, S.PHASE, S.TABS, S.MY_ID, S.CONSUMED, S.USER_EMAIL].forEach(k => localStorage.removeItem(k));
                 window.location.replace("index.html");
             };
             if (window.__firebaseSignOut) {
@@ -642,6 +688,9 @@
             } else cleanup();
         });
 
+        /* =============================================
+           PARTICLES
+        ============================================= */
         (function() {
             const c = document.getElementById("particles");
             const types = ["particle-dot","particle-dot","particle-dot","particle-line","particle-glow"];
@@ -655,6 +704,9 @@
             }
         })();
 
+        /* =============================================
+           BOOT
+        ============================================= */
         function startApp(user) {
             userEmail = (user.email || "").trim().toLowerCase();
             $email.textContent = userEmail;
@@ -674,6 +726,9 @@
             else window.addEventListener("firebase-ready", onReady);
         }
 
+        /* =============================================
+           CLEANUP
+        ============================================= */
         window.addEventListener("beforeunload", () => { unregTab(); stopTick(); if (hbTimer) clearInterval(hbTimer); });
         document.addEventListener("visibilitychange", () => { if (!document.hidden && myTabId) { refreshTabs(); hb(); } });
 
