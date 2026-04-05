@@ -62,12 +62,6 @@
             </div>
         </div>
 
-        <!-- Loading State -->
-        <div id="loadingView" class="flex flex-col items-center">
-            <div class="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p class="text-neutral-500">Syncing session...</p>
-        </div>
-
     </main>
 
     <!-- Firebase SDKs -->
@@ -89,7 +83,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Unique ID for THIS tab
         const sessionId = crypto.randomUUID();
         let currentEmail = null;
         let intervalId = null;
@@ -97,7 +90,6 @@
 
         const freeView = document.getElementById("freeView");
         const awaitView = document.getElementById("awaitView");
-        const loadingView = document.getElementById("loadingView");
         const logoutBtn = document.getElementById("logoutBtn");
         const freeTimerEl = document.getElementById("freeTimer");
         const awaitTimerEl = document.getElementById("awaitTimer");
@@ -125,14 +117,11 @@
             try {
                 if (currentEmail) {
                     await deleteDoc(doc(db, "users", currentEmail));
-                    console.log("Firestore user doc deleted for:", currentEmail);
                 }
                 await signOut(auth);
-                console.log("Firebase Auth sign-out complete");
                 await new Promise(r => setTimeout(r, 400));
                 window.location.replace("index.html");
             } catch (error) {
-                console.error("Logout error:", error);
                 window.location.replace("index.html");
             }
         }
@@ -140,7 +129,7 @@
         logoutBtn.addEventListener("click", handleLogout);
 
         // ─────────────────────────────────────────────
-        // BEFOREUNLOAD — remove this tab's session
+        // BEFOREUNLOAD
         // ─────────────────────────────────────────────
         function cleanupOnUnload() {
             if (isLoggingOut || !currentEmail) return;
@@ -179,7 +168,6 @@
             freeView.classList.remove("flex");
             awaitView.classList.add("hidden");
             awaitView.classList.remove("flex");
-            loadingView.classList.add("hidden");
 
             if (view === "free") {
                 freeView.classList.remove("hidden");
@@ -193,7 +181,7 @@
         }
 
         // ─────────────────────────────────────────────
-        // TICK FUNCTION — runs every second AND once immediately
+        // TICK
         // ─────────────────────────────────────────────
         let userRef = null;
 
@@ -211,19 +199,16 @@
                     const freeTime = data.freeTimeRemaining || 0;
                     const awaitTime = data.awaitTimeRemaining || 0;
 
-                    // ── FREE TIMER: each tab subtracts 1 → n tabs = n/sec total ──
                     if (freeTime > 0) {
                         updates.freeTimeRemaining = Math.max(0, freeTime - 1);
                     }
 
-                    // ── AWAIT TIMER: strictly 1/sec no matter how many tabs ──
                     const lastAwaitTick = data.lastAwaitTick || data.lastTick || now;
                     if (awaitTime > 0 && (now - lastAwaitTick) >= 1000) {
                         const newAwait = Math.max(0, awaitTime - 1);
                         updates.awaitTimeRemaining = newAwait;
                         updates.lastAwaitTick = now;
 
-                        // When await hits 0 → reset both timers
                         if (newAwait <= 0) {
                             updates.freeTimeRemaining = 180;
                             updates.awaitTimeRemaining = 86400;
@@ -253,7 +238,6 @@
             document.getElementById("userName").textContent = user.displayName || "User";
             document.getElementById("userPhoto").src = user.photoURL || "https://ui-avatars.com/api/?name=User&background=111&color=fff";
 
-            // Create doc if new, otherwise register this tab
             const existingDoc = await getDoc(userRef);
             if (!existingDoc.exists()) {
                 await setDoc(userRef, {
@@ -270,7 +254,6 @@
                 });
             }
 
-            // ── Real-time UI updates ──
             onSnapshot(userRef, (docSnap) => {
                 if (!docSnap.exists()) return;
                 const data = docSnap.data();
@@ -279,7 +262,6 @@
                 const awaitTime = data.awaitTimeRemaining || 0;
                 const sessions = data.sessions || {};
                 const tabCount = Object.keys(sessions).length;
-
                 const tabText = getTabCountText(tabCount);
 
                 if (freeTime > 0) {
@@ -293,10 +275,7 @@
                 }
             });
 
-            // ── IMMEDIATE first tick (counts down by 1 right away) ──
             await tick();
-
-            // ── Then tick every second ──
             intervalId = setInterval(tick, 1000);
         });
     </script>
