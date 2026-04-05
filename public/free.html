@@ -31,12 +31,10 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        /* Match the persistence set on index.html so signOut clears it */
         setPersistence(auth, browserLocalPersistence)
             .then(() => console.log("Persistence: LOCAL"))
             .catch((e) => console.error("Persistence error:", e));
 
-        /* Expose to non-module script */
         window.__firebaseSignOut = () => signOut(auth);
         window.__onAuthStateChanged = (cb) => onAuthStateChanged(auth, cb);
         window.__firebaseReady = true;
@@ -77,7 +75,6 @@
             overflow-x: hidden;
         }
 
-        /* ---- backgrounds ---- */
         .bg-grid {
             position: fixed; inset: 0;
             background-image:
@@ -109,7 +106,6 @@
         .corner-bl{bottom:16px;left:16px;border-bottom:1px solid;border-left:1px solid}
         .corner-br{bottom:16px;right:16px;border-bottom:1px solid;border-right:1px solid}
 
-        /* ---- timer ---- */
         .timer-display {
             font-family:"Orbitron",monospace;
             font-size:clamp(3.2rem,11vw,8.5rem);
@@ -126,7 +122,6 @@
         .separator { animation:blink 1s step-end infinite; }
         @keyframes blink { 50%{opacity:.2} }
 
-        /* ---- progress ring ---- */
         .progress-ring { transform:rotate(-90deg); }
         .progress-circle {
             transition:stroke-dashoffset .25s linear;
@@ -139,7 +134,6 @@
         }
         .progress-bg { stroke:var(--border); }
 
-        /* ---- tab card ---- */
         .tab-card {
             background:linear-gradient(145deg,var(--card),rgba(0,255,136,.015));
             border:1px solid var(--border);
@@ -153,7 +147,18 @@
         }
         .tab-number.amber { color:var(--await-color);text-shadow:0 0 20px rgba(245,158,11,.3); }
 
-        /* ---- menu button (countdown only) ---- */
+        .speed-badge {
+            display:inline-flex;align-items:center;gap:6px;
+            background:rgba(255,56,96,.08);border:1px solid rgba(255,56,96,.2);
+            color:var(--danger);padding:6px 16px;border-radius:6px;
+            font-family:"Orbitron",monospace;font-size:.72rem;font-weight:600;
+            letter-spacing:.12em;transition:all .3s ease;
+        }
+        .speed-badge.normal {
+            background:rgba(0,255,136,.06);border-color:rgba(0,255,136,.15);
+            color:var(--accent);
+        }
+
         .menu-btn {
             background:transparent;border:1px solid var(--border);color:var(--fg);
             padding:14px 40px;border-radius:10px;cursor:pointer;
@@ -167,7 +172,6 @@
         }
         .menu-btn:focus-visible { outline:2px solid var(--accent);outline-offset:2px; }
 
-        /* ---- logout button ---- */
         .logout-btn {
             background:linear-gradient(145deg,rgba(255,56,96,.12),rgba(255,56,96,.04));
             border:2px solid rgba(255,56,96,.35);color:#ff3860;
@@ -184,7 +188,6 @@
         .logout-btn:focus-visible { outline:2px solid #ff3860;outline-offset:3px; }
         .logout-btn:disabled { opacity:.6;cursor:not-allowed;transform:none !important;box-shadow:none !important; }
 
-        /* ---- pay card ---- */
         .pay-card {
             background:linear-gradient(160deg,rgba(168,85,247,.08),rgba(168,85,247,.02),var(--card));
             border:1px solid rgba(168,85,247,.15);border-radius:16px;
@@ -225,7 +228,6 @@
             font-family:"Orbitron",monospace;font-size:.8rem;font-weight:600;letter-spacing:.2em;
         }
 
-        /* ---- particles ---- */
         .particle { position:fixed;border-radius:50%;pointer-events:none;opacity:0; }
         .particle-dot { width:2px;height:2px;background:var(--accent);animation:floatUp 8s ease-in-out infinite; }
         .particle-line { width:1px;height:20px;background:linear-gradient(to top,transparent,var(--accent));animation:floatUp 10s ease-in-out infinite; }
@@ -235,7 +237,6 @@
             100%{opacity:0;transform:translateY(-100px) rotate(180deg)}
         }
 
-        /* ---- toast ---- */
         .toast-container { position:fixed;top:24px;right:24px;z-index:10000; }
         .toast {
             background:var(--card);border:1px solid var(--border);border-left:3px solid var(--danger);
@@ -245,7 +246,6 @@
         }
         .toast.visible { transform:translateX(0); }
 
-        /* ---- loading ---- */
         .loading-spinner {
             width:40px;height:40px;border:3px solid var(--border);
             border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;
@@ -261,7 +261,6 @@
         .label-text { font-size:.7rem;text-transform:uppercase;letter-spacing:.15em;color:var(--muted); }
         .hidden { display:none !important; }
 
-        /* ---- await grid ---- */
         .await-grid {
             display:grid;grid-template-columns:1fr auto;gap:40px;
             align-items:center;width:100%;max-width:900px;
@@ -306,7 +305,6 @@
         <!-- ========== COUNTDOWN SCREEN ========== -->
         <section id="countdownScreen" class="hidden flex-1 flex flex-col items-center justify-center gap-7 px-4" aria-label="Countdown timer">
 
-            <!-- User info -->
             <div class="flex items-center gap-3 text-sm text-[var(--muted)]">
                 <div class="status-dot"></div>
                 <span id="userEmailDisplay"></span>
@@ -321,19 +319,24 @@
                 </svg>
                 <div class="absolute inset-0 flex items-center justify-center flex-col">
                     <div class="timer-display" id="mainTimer" aria-live="polite" aria-atomic="true">
-                        <span id="tHours">00</span><span class="separator">:</span><span id="tMinutes">03</span><span class="separator">:</span><span id="tSeconds">00</span>
+                        <span id="tHours">03</span><span class="separator">:</span><span id="tMinutes">00</span><span class="separator">:</span><span id="tSeconds">00</span>
                     </div>
                     <div class="label-text mt-3 tracking-widest">Remaining</div>
                 </div>
             </div>
 
-            <!-- Active tabs -->
-            <div class="tab-card rounded-2xl px-8 py-5 text-center">
-                <div class="label-text mb-2">Global Active Tabs</div>
-                <div class="tab-number" id="tabCountDisplay">1</div>
+            <!-- Active tabs + speed indicator -->
+            <div class="flex flex-col items-center gap-3">
+                <div class="tab-card rounded-2xl px-8 py-5 text-center">
+                    <div class="label-text mb-2">Your Active Tabs</div>
+                    <div class="tab-number" id="tabCountDisplay">1</div>
+                </div>
+                <div class="speed-badge normal" id="speedBadge">
+                    <i class="fas fa-gauge-high" aria-hidden="true"></i>
+                    <span id="speedText">SPEED x1</span>
+                </div>
             </div>
 
-            <!-- Menu button — ONLY on countdown, centered -->
             <a href="menu.html" class="menu-btn" aria-label="Go to menu">
                 <i class="fas fa-bars" aria-hidden="true"></i>
                 <span>Menu</span>
@@ -345,10 +348,7 @@
 
             <div class="await-badge">SESSION EXPIRED</div>
 
-            <!-- Two columns: timer + pay -->
             <div class="await-grid">
-
-                <!-- Left column -->
                 <div class="flex flex-col items-center gap-6">
                     <div class="relative">
                         <svg class="progress-ring" width="230" height="230" aria-hidden="true">
@@ -365,12 +365,11 @@
                     </div>
 
                     <div class="tab-card rounded-xl px-6 py-4 text-center" style="border-color:rgba(245,158,11,.08);">
-                        <div class="label-text mb-1">Active Tabs</div>
+                        <div class="label-text mb-1">Your Active Tabs</div>
                         <div class="tab-number amber text-2xl" id="awaitTabCountDisplay">1</div>
                     </div>
                 </div>
 
-                <!-- Right column — pay card -->
                 <div class="pay-card">
                     <div class="relative z-10">
                         <div class="flex items-center gap-3 mb-5">
@@ -396,7 +395,6 @@
                 </div>
             </div>
 
-            <!-- Logout — NO menu here, only logout -->
             <button id="logoutBtn" class="logout-btn" aria-label="Log out of your account">
                 <i class="fas fa-right-from-bracket" aria-hidden="true"></i>
                 <span>LOGOUT</span>
@@ -409,27 +407,28 @@
         /* =============================================
            CONFIG
         ============================================= */
-        const COUNTDOWN_MS = 3 * 60 * 1000;
-        const AWAIT_MS     = 24 * 60 * 60 * 1000;
+        const COUNTDOWN_MS = 3 * 60 * 1000;       /* 3 minutes total budget */
+        const AWAIT_MS     = 24 * 60 * 60 * 1000; /* 24-hour cooldown */
         const HB_MS        = 800;
         const STALE_MS     = 2500;
         const TICK_MS      = 80;
 
+        /* Storage keys — no more ft_start, replaced by ft_consumed */
         const S = {
-            START:      "ft_start",
-            AWAIT_START:"ft_await_start",
-            PHASE:      "ft_phase",
-            TABS:       "ft_tabs",
-            MY_ID:      "ft_my_id"
+            AWAIT_START: "ft_await_start",
+            PHASE:       "ft_phase",
+            TABS:        "ft_tabs",
+            MY_ID:       "ft_my_id",
+            CONSUMED:    "ft_consumed"   /* accumulated ms consumed by tab-count multiplier */
         };
 
         /* =============================================
            STATE
         ============================================= */
-        let myTabId = null;
+        let myTabId   = null;
         let tickTimer = null;
-        let hbTimer = null;
-        let channel = null;
+        let hbTimer   = null;
+        let channel   = null;
         let userEmail = "";
 
         /* =============================================
@@ -452,9 +451,11 @@
         const $logout   = document.getElementById("logoutBtn");
         const $toast    = document.getElementById("toast");
         const $toastMsg = document.getElementById("toastMsg");
+        const $speedBdg = document.getElementById("speedBadge");
+        const $speedTxt = document.getElementById("speedText");
 
         /* =============================================
-           BROADCAST CHANNEL
+           BROADCAST CHANNEL + STORAGE SYNC
         ============================================= */
         try {
             channel = new BroadcastChannel("free_timer_channel");
@@ -462,8 +463,9 @@
         } catch(_){}
 
         window.addEventListener("storage", (e) => {
-            if (e.key === S.TABS) refreshTabs();
+            if (e.key === S.TABS)     refreshTabs();
             if (e.key === S.PHASE && e.newValue === "await") showAwait();
+            if (e.key === S.CONSUMED) { /* leader wrote new consumed — non-leaders just re-render next tick */ }
         });
 
         /* =============================================
@@ -477,15 +479,30 @@
         function readTabs() {
             try {
                 const t = JSON.parse(localStorage.getItem(S.TABS) || "{}");
-                const n = Date.now(); let c = false;
-                for (const k in t) { if (n - t[k].hb > STALE_MS) { delete t[k]; c = true; } }
-                if (c) localStorage.setItem(S.TABS, JSON.stringify(t));
+                const n = Date.now(); let dirty = false;
+                for (const k in t) { if (n - t[k].hb > STALE_MS) { delete t[k]; dirty = true; } }
+                if (dirty) localStorage.setItem(S.TABS, JSON.stringify(t));
                 return t;
             } catch(_) { return {}; }
         }
         const writeTabs = (t) => localStorage.setItem(S.TABS, JSON.stringify(t));
-        const tabCount  = () => Object.keys(readTabs()).length;
-        const bc        = (m) => { if (channel) channel.postMessage(m); };
+
+        /* Count tabs belonging to a specific email */
+        function tabsForEmail(email) {
+            const tabs = readTabs();
+            return Object.values(tabs).filter(t => t.email === email).length;
+        }
+
+        /* Leader election: lowest tab-id for this email is the driver */
+        function isLeader() {
+            const tabs = readTabs();
+            const myTabs = Object.values(tabs)
+                .filter(t => t.email === userEmail)
+                .sort((a, b) => a.id.localeCompare(b.id));
+            return myTabs.length > 0 && myTabs[0].id === myTabId;
+        }
+
+        const bc = (m) => { if (channel) channel.postMessage(m); };
 
         function fmt(ms) {
             const tot = Math.max(0, Math.floor(ms / 1000));
@@ -528,9 +545,18 @@
             bc({ t: "hb" });
         }
         function refreshTabs() {
-            const c = tabCount();
-            $tabC.textContent = c;
+            const c = tabsForEmail(userEmail);
+            $tabC.textContent  = c;
             $atabC.textContent = c;
+            updateSpeedBadge(c);
+        }
+        function updateSpeedBadge(n) {
+            $speedTxt.textContent = "SPEED x" + n;
+            if (n <= 1) {
+                $speedBdg.classList.add("normal");
+            } else {
+                $speedBdg.classList.remove("normal");
+            }
         }
         function onMsg(m) {
             if (m.t === "sync" || m.t === "hb") refreshTabs();
@@ -538,35 +564,63 @@
         }
 
         /* =============================================
-           TIMER LOGIC  (setInterval — no rAF throttling)
+           COUNTDOWN — consumed-based, leader-driven
+           
+           Only the leader tab writes ft_consumed.
+           Each tick the leader adds:  n × TICK_MS
+           where n = number of tabs for this email.
+           
+           All tabs READ ft_consumed to compute remaining.
+           More tabs → faster drain.
         ============================================= */
-        function ensureStart(key) {
-            let v = localStorage.getItem(key);
-            if (!v) { v = Date.now().toString(); localStorage.setItem(key, v); }
+        function stopTick() { if (tickTimer) { clearInterval(tickTimer); tickTimer = null; } }
+
+        function ensureAwaitStart() {
+            let v = localStorage.getItem(S.AWAIT_START);
+            if (!v) { v = Date.now().toString(); localStorage.setItem(S.AWAIT_START, v); }
             return parseInt(v);
         }
-        function stopTick() { if (tickTimer) { clearInterval(tickTimer); tickTimer = null; } }
 
         function runCountdown() {
             stopTick();
-            const C = 2 * Math.PI * 145; let last = "";
+            const C = 2 * Math.PI * 145; /* ring circumference */
+            let last = "";
+
             (function tick() {
-                const rem = Math.max(0, COUNTDOWN_MS - (Date.now() - parseInt(localStorage.getItem(S.START))));
+                /* ---- Leader writes consumed time ---- */
+                if (isLeader()) {
+                    const prev = parseFloat(localStorage.getItem(S.CONSUMED) || "0");
+                    const n    = Math.max(1, tabsForEmail(userEmail)); /* at least 1x */
+                    const next = prev + (n * TICK_MS);
+                    localStorage.setItem(S.CONSUMED, next.toString());
+                }
+
+                /* ---- All tabs read & render ---- */
+                const consumed = parseFloat(localStorage.getItem(S.CONSUMED) || "0");
+                const rem      = Math.max(0, COUNTDOWN_MS - consumed);
                 const { h, m, s } = fmt(rem);
                 const d = h + m + s;
+
                 if (d !== last) {
-                    $tH.textContent = h; $tM.textContent = m; $tS.textContent = s;
+                    $tH.textContent = h;
+                    $tM.textContent = m;
+                    $tS.textContent = s;
                     $prog.style.strokeDashoffset = C * (1 - rem / COUNTDOWN_MS);
                     last = d;
                 }
+
                 if (rem <= 0) { stopTick(); goAwait(); return; }
                 tickTimer = setInterval(tick, TICK_MS);
             })();
         }
 
+        /* =============================================
+           AWAIT TIMER — normal wall-clock, no multiplier
+        ============================================= */
         function runAwait() {
             stopTick();
-            const C = 2 * Math.PI * 100; let last = "";
+            const C = 2 * Math.PI * 100;
+            let last = "";
             (function tick() {
                 const rem = Math.max(0, AWAIT_MS - (Date.now() - parseInt(localStorage.getItem(S.AWAIT_START))));
                 const { h, m, s } = fmt(rem);
@@ -585,13 +639,33 @@
            SCREENS
         ============================================= */
         function show(el) { [$load, $cd, $aw].forEach(s => s.classList.add("hidden")); el.classList.remove("hidden"); }
-        function showCountdown() { show($cd); ensureStart(S.START); runCountdown(); }
-        function showAwait() { if (getPhase() !== "await") return; show($aw); ensureStart(S.AWAIT_START); runAwait(); }
-        function goAwait() { setPhase("await"); ensureStart(S.AWAIT_START); bc({ t:"phase", p:"await" }); showAwait(); }
+
+        function showCountdown() {
+            show($cd);
+            /* If no consumed value yet, this is a fresh countdown — ensure it starts at 0 */
+            if (localStorage.getItem(S.CONSUMED) === null) {
+                localStorage.setItem(S.CONSUMED, "0");
+            }
+            runCountdown();
+        }
+
+        function showAwait() {
+            if (getPhase() !== "await") return;
+            show($aw);
+            ensureAwaitStart();
+            runAwait();
+        }
+
+        function goAwait() {
+            setPhase("await");
+            localStorage.removeItem(S.CONSUMED);     /* reset consumed for next cycle */
+            ensureAwaitStart();
+            bc({ t: "phase", p: "await" });
+            showAwait();
+        }
 
         /* =============================================
-           LOGOUT — actual Firebase signOut that
-           wipes browserLocalPersistence
+           LOGOUT
         ============================================= */
         $logout.addEventListener("click", () => {
             $logout.disabled = true;
@@ -602,18 +676,17 @@
             if (hbTimer) clearInterval(hbTimer);
 
             const cleanup = () => {
-                /* Wipe all timer state so next login is fresh */
-                localStorage.removeItem(S.START);
                 localStorage.removeItem(S.AWAIT_START);
                 localStorage.removeItem(S.PHASE);
                 localStorage.removeItem(S.TABS);
                 localStorage.removeItem(S.MY_ID);
+                localStorage.removeItem(S.CONSUMED);
                 window.location.replace("index.html");
             };
 
             if (window.__firebaseSignOut) {
                 window.__firebaseSignOut()
-                    .then(() => { console.log("Signed out successfully"); cleanup(); })
+                    .then(() => { console.log("Signed out"); cleanup(); })
                     .catch((err) => {
                         console.error("Sign-out error:", err);
                         toast("Logout failed. Try again.");
@@ -642,7 +715,7 @@
         })();
 
         /* =============================================
-           BOOT — wait for Firebase, check auth
+           BOOT
         ============================================= */
         function startApp(user) {
             userEmail = (user.email || "").trim().toLowerCase();
@@ -666,8 +739,13 @@
         /* =============================================
            CLEANUP
         ============================================= */
-        window.addEventListener("beforeunload", () => { unregTab(); stopTick(); if (hbTimer) clearInterval(hbTimer); });
-        document.addEventListener("visibilitychange", () => { if (!document.hidden && myTabId) { refreshTabs(); hb(); } });
+        window.addEventListener("beforeunload", () => {
+            unregTab(); stopTick();
+            if (hbTimer) clearInterval(hbTimer);
+        });
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden && myTabId) { refreshTabs(); hb(); }
+        });
 
         boot();
     </script>
