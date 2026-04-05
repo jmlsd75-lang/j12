@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Timer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'orbitron': ['Orbitron', 'monospace'],
+                        'space': ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --bg: #06080a;
+            --fg: #e4e8ec;
+            --muted: #4a5568;
+            --accent: #00ff88;
+            --accent-dim: #00cc6a;
+            --card: #0d1117;
+            --border: #1b2332;
+            --danger: #ff3860;
+            --await-color: #f59e0b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Animated grid background */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0, 255, 136, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 136, 0.025) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridShift 25s linear infinite;
+        }
+
+        @keyframes gridShift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
+        }
+
+        /* Glow orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+        }
+
+        .orb-1 {
+            width: 500px; height: 500px;
+            background: rgba(0, 255, 136, 0.08);
+            top: -150px; right: -150px;
+            animation: orbDrift 10s ease-in-out infinite;
+        }
+
+        .orb-2 {
+            width: 400px; height: 400px;
+            background: rgba(0, 100, 255, 0.06);
+            bottom: -100px; left: -100px;
+            animation: orbDrift 12s ease-in-out infinite reverse;
+        }
+
+        .orb-3 {
+            width: 300px; height: 300px;
+            background: rgba(0, 255, 136, 0.04);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            animation: orbPulse 6s ease-in-out infinite;
+        }
+
+        @keyframes orbDrift {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(40px, -30px) scale(1.05); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        @keyframes orbPulse {
+            0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        /* Scanlines */
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.02) 2px,
+                rgba(0, 0, 0, 0.02) 4px
+            );
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* Timer display */
+        .timer-display {
+            font-family: 'Orbitron', monospace;
+            font-size: clamp(3.5rem, 12vw, 9rem);
+            font-weight: 900;
+            letter-spacing: 0.04em;
+            color: var(--accent);
+            text-shadow:
+                0 0 30px rgba(0, 255, 136, 0.4),
+                0 0 60px rgba(0, 255, 136, 0.15);
+        }
+
+        .timer-display.await-mode {
+            color: var(--await-color);
+            text-shadow:
+                0 0 30px rgba(245, 158, 11, 0.4),
+                0 0 60px rgba(245, 158, 11, 0.15);
+        }
+
+        .separator {
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0.2; }
+        }
+
+        /* Progress ring */
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .progress-circle {
+            transition: stroke-dashoffset 0.15s linear;
+            stroke: var(--accent);
+            filter: drop-shadow(0 0 6px rgba(0, 255, 136, 0.5));
+        }
+
+        .progress-circle.await-mode {
+            stroke: var(--await-color);
+            filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.5));
+        }
+
+        .progress-bg {
+            stroke: var(--border);
+        }
+
+        /* Tab counter card */
+        .tab-card {
+            background: linear-gradient(145deg, var(--card), rgba(0, 255, 136, 0.02));
+            border: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+            transition: border-color 0.3s;
+        }
+
+        .tab-card:hover {
+            border-color: rgba(0, 255, 136, 0.2);
+        }
+
+        .tab-number {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--accent);
+            text-shadow: 0 0 25px rgba(0, 255, 136, 0.3);
+            animation: numberPulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes numberPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        /* Menu button */
+        .menu-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--fg);
+            padding: 10px 22px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .menu-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .menu-btn:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* Await button (unclickable) */
+        .await-button {
+            background: linear-gradient(145deg, #1a1510, #1f1712);
+            border: 2px solid rgba(245, 158, 11, 0.15);
+            color: rgba(245, 158, 11, 0.4);
+            padding: 22px 70px;
+            border-radius: 14px;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.6rem;
+            font-weight: 700;
+            letter-spacing: 0.25em;
+            cursor: not-allowed;
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .await-button::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                -45deg,
+                transparent,
+                transparent 10px,
+                rgba(245, 158, 11, 0.03) 10px,
+                rgba(245, 158, 11, 0.03) 20px
+            );
+            animation: stripeMove 20s linear infinite;
+        }
+
+        @keyframes stripeMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 200px 200px; }
+        }
+
+        /* Email input */
+        .email-field {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--fg);
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            width: 280px;
+            transition: all 0.3s;
+        }
+
+        .email-field:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
+        }
+
+        .email-field::placeholder {
+            color: var(--muted);
+        }
+
+        .go-btn {
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .go-btn:hover {
+            background: var(--accent-dim);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 255, 136, 0.25);
+        }
+
+        .go-btn:focus-visible {
+            outline: 2px solid var(--fg);
+            outline-offset: 2px;
+        }
+
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        .particle-dot {
+            width: 2px;
+            height: 2px;
+            background: var(--accent);
+            animation: floatUp 8s ease-in-out infinite;
+        }
+
+        .particle-line {
+            width: 1px;
+            height: 20px;
+            background: linear-gradient(to top, transparent, var(--accent));
+            animation: floatUp 10s ease-in-out infinite;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 0; transform: translateY(100vh) rotate(0deg); }
+            15% { opacity: 0.5; }
+            85% { opacity: 0.5; }
+            100% { opacity: 0; transform: translateY(-100px) rotate(180deg); }
+        }
+
+        /* Corner decorations */
+        .corner-deco {
+            position: fixed;
+            width: 80px;
+            height: 80px;
+            border-color: rgba(0, 255, 136, 0.1);
+            pointer-events: none;
+        }
+
+        .corner-tl { top: 20px; left: 20px; border-top: 1px solid; border-left: 1px solid; }
+        .corner-tr { top: 20px; right: 20px; border-top: 1px solid; border-right: 1px solid; }
+        .corner-bl { bottom: 20px; left: 20px; border-bottom: 1px solid; border-left: 1px solid; }
+        .corner-br { bottom: 20px; right: 20px; border-bottom: 1px solid; border-right: 1px solid; }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 10000;
+        }
+
+        .toast {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--danger);
+            padding: 14px 20px;
+            border-radius: 8px;
+            transform: translateX(calc(100% + 40px));
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.9rem;
+            max-width: 320px;
+        }
+
+        .toast.visible {
+            transform: translateX(0);
+        }
+
+        /* Status indicator */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Label text */
+        .label-text {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--muted);
+        }
+
+        /* Hide elements */
+        .hidden { display: none !important; }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .timer-display { font-size: 3rem; }
+            .tab-number { font-size: 2rem; }
+            .email-field { width: 200px; }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background layers -->
+    <div class="bg-grid" aria-hidden="true"></div>
+    <div class="orb orb-1" aria-hidden="true"></div>
+    <div class="orb orb-2" aria-hidden="true"></div>
+    <div class="orb orb-3" aria-hidden="true"></div>
+    <div class="scanlines" aria-hidden="true"></div>
+
+    <!-- Corner decorations -->
+    <div class="corner-deco corner-tl" aria-hidden="true"></div>
+    <div class="corner-deco corner-tr" aria-hidden="true"></div>
+    <div class="corner-deco corner-bl" aria-hidden="true"></div>
+    <div class="corner-deco corner-br" aria-hidden="true"></div>
+
+    <!-- Particles container -->
+    <div id="particles" aria-hidden="true"></div>
+
+    <!-- Toast container -->
+    <div class="toast-container">
+        <div id="toast" class="toast" role="alert">
+            <span id="toastMsg"></span>
+        </div>
+    </div>
+
+    <!-- Main app -->
+    <main class="relative z-10 min-h-screen flex flex-col">
+
+        <!-- Header -->
+        <header class="flex justify-between items-center px-6 py-5 sm:px-8">
+            <div class="flex items-center gap-3">
+                <div class="status-dot"></div>
+                <span class="label-text tracking-widest">Session Active</span>
+            </div>
+            <a href="menu.html" class="menu-btn" aria-label="Go to menu">
+                <i class="fas fa-bars" aria-hidden="true"></i>
+                <span>Menu</span>
+            </a>
+        </header>
+
+        <!-- Email prompt screen -->
+        <section id="emailScreen" class="hidden flex-1 flex items-center justify-center px-4" aria-label="Email verification">
+            <div class="text-center">
+                <div class="mb-10">
+                    <div class="w-20 h-20 mx-auto mb-6 rounded-full border border-[var(--border)] flex items-center justify-center">
+                        <i class="fas fa-fingerprint text-3xl text-[var(--accent)]"></i>
+                    </div>
+                    <h1 class="font-orbitron text-2xl sm:text-3xl font-bold mb-3 tracking-wide">Identity Verification</h1>
+                    <p class="text-[var(--muted)] max-w-xs mx-auto">Enter your email address to synchronize across tabs</p>
+                </div>
+                <form id="emailForm" class="flex gap-3 justify-center flex-wrap">
+                    <input
+                        type="email"
+                        id="emailInput"
+                        class="email-field"
+                        placeholder="your@email.com"
+                        required
+                        autocomplete="email"
+                        aria-label="Email address"
+                    >
+                    <button type="submit" class="go-btn">
+                        <span>Enter</span>
+                        <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Countdown screen -->
+        <section id="countdownScreen" class="hidden flex-1 flex flex-col items-center justify-center gap-10 px-4" aria-label="Countdown timer">
+            <!-- Timer ring -->
+            <div class="relative">
+                <svg class="progress-ring" width="340" height="340" aria-hidden="true">
+                    <circle class="progress-bg" cx="170" cy="170" r="155" fill="none" stroke-width="3"/>
+                    <circle id="progressCircle" class="progress-circle" cx="170" cy="170" r="155" fill="none"
+                        stroke-width="4" stroke-linecap="round"
+                        stroke-dasharray="974" stroke-dashoffset="0"/>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center flex-col">
+                    <div class="timer-display" id="mainTimer" aria-live="polite" aria-atomic="true">
+                        <span id="tHours">00</span><span class="separator">:</span><span id="tMinutes">03</span><span class="separator">:</span><span id="tSeconds">00</span>
+                    </div>
+                    <div class="label-text mt-3 tracking-widest">Remaining</div>
+                </div>
+            </div>
+
+            <!-- Active tabs counter -->
+            <div class="tab-card rounded-2xl px-8 py-6 text-center">
+                <div class="label-text mb-2">Global Active Tabs</div>
+                <div class="tab-number" id="tabCountDisplay">1</div>
+            </div>
+
+            <!-- User email display -->
+            <div class="flex items-center gap-2 text-[var(--muted)] text-sm">
+                <i class="fas fa-user-shield text-xs" aria-hidden="true"></i>
+                <span id="userEmailDisplay"></span>
+            </div>
+        </section>
+
+        <!-- Await screen -->
+        <section id="awaitScreen" class="hidden flex-1 flex flex-col items-center justify-center gap-10 px-4" aria-label="Await phase">
+            <!-- Status text -->
+            <div class="text-center">
+                <div class="label-text mb-6 tracking-[0.3em]">Session Expired</div>
+                <button class="await-button" disabled aria-disabled="true" tabindex="-1">
+                    AWAIT
+                </button>
+            </div>
+
+            <!-- 24h countdown ring -->
+            <div class="relative mt-6">
+                <svg class="progress-ring" width="260" height="260" aria-hidden="true">
+                    <circle class="progress-bg" cx="130" cy="130" r="115" fill="none" stroke-width="3"/>
+                    <circle id="awaitProgressCircle" class="progress-circle await-mode" cx="130" cy="130" r="115" fill="none"
+                        stroke-width="3" stroke-linecap="round"
+                        stroke-dasharray="723" stroke-dashoffset="0"/>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center flex-col">
+                    <div class="timer-display await-mode text-4xl sm:text-5xl" id="awaitTimer" aria-live="polite">
+                        <span id="aHours">24</span><span class="separator">:</span><span id="aMinutes">00</span><span class="separator">:</span><span id="aSeconds">00</span>
+                    </div>
+                    <div class="label-text mt-2 tracking-widest" style="color: rgba(245,158,11,0.5);">Until Reset</div>
+                </div>
+            </div>
+
+            <!-- Active tabs counter in await -->
+            <div class="tab-card rounded-2xl px-6 py-5 text-center" style="border-color: rgba(245,158,11,0.1);">
+                <div class="label-text mb-1">Active Tabs</div>
+                <div class="tab-number text-2xl" id="awaitTabCountDisplay" style="color: var(--await-color); text-shadow: 0 0 20px rgba(245,158,11,0.3);">1</div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        /* ========================================
+           CONFIGURATION
+        ======================================== */
+        const COUNTDOWN_MS = 3 * 60 * 1000;          // 3 minutes
+        const AWAIT_MS = 24 * 60 * 60 * 1000;        // 24 hours
+        const HEARTBEAT_MS = 800;                     // Heartbeat frequency
+        const STALE_MS = 2500;                        // Tab considered stale after this
+
+        const STORAGE = {
+            EMAIL: 'ft_email',
+            START: 'ft_start',
+            AWAIT_START: 'ft_await_start',
+            PHASE: 'ft_phase',        // 'countdown' | 'await'
+            TABS: 'ft_tabs',
+            MY_ID: 'ft_my_id'
+        };
+
+        /* ========================================
+           STATE
+        ======================================== */
+        let myTabId = null;
+        let rafId = null;
+        let heartbeatTimer = null;
+        let channel = null;
+
+        /* ========================================
+           DOM REFS
+        ======================================== */
+        const $emailScreen = document.getElementById('emailScreen');
+        const $countdownScreen = document.getElementById('countdownScreen');
+        const $awaitScreen = document.getElementById('awaitScreen');
+        const $emailForm = document.getElementById('emailForm');
+        const $emailInput = document.getElementById('emailInput');
+        const $tHours = document.getElementById('tHours');
+        const $tMinutes = document.getElementById('tMinutes');
+        const $tSeconds = document.getElementById('tSeconds');
+        const $progressCircle = document.getElementById('progressCircle');
+        const $tabCountDisplay = document.getElementById('tabCountDisplay');
+        const $awaitTabCountDisplay = document.getElementById('awaitTabCountDisplay');
+        const $userEmailDisplay = document.getElementById('userEmailDisplay');
+        const $aHours = document.getElementById('aHours');
+        const $aMinutes = document.getElementById('aMinutes');
+        const $aSeconds = document.getElementById('aSeconds');
+        const $awaitProgressCircle = document.getElementById('awaitProgressCircle');
+        const $toast = document.getElementById('toast');
+        const $toastMsg = document.getElementById('toastMsg');
+
+        /* ========================================
+           BROADCAST CHANNEL (cross-tab sync)
+        ======================================== */
+        try {
+            channel = new BroadcastChannel('free_timer_channel');
+            channel.onmessage = (e) => onChannelMsg(e.data);
+        } catch (_) {
+            // Fallback to storage events
+        }
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === STORAGE.TABS) refreshTabCount();
+            if (e.key === STORAGE.PHASE && e.newValue === 'await') showAwait();
+        });
+
+        /* ========================================
+           UTILITY FUNCTIONS
+        ======================================== */
+
+        // Generate unique tab ID
+        function uid() {
+            return Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+        }
+
+        // Get/set email
+        function getEmail() {
+            // Check URL first
+            const params = new URLSearchParams(location.search);
+            const urlEmail = params.get('email');
+            if (urlEmail) {
+                localStorage.setItem(STORAGE.EMAIL, urlEmail);
+                return urlEmail;
+            }
+            return localStorage.getItem(STORAGE.EMAIL) || '';
+        }
+
+        // Get phase
+        function getPhase() {
+            return localStorage.getItem(STORAGE.PHASE) || 'countdown';
+        }
+
+        // Set phase
+        function setPhase(p) {
+            localStorage.setItem(STORAGE.PHASE, p);
+        }
+
+        // Read tabs object, prune stale entries
+        function readTabs() {
+            try {
+                const raw = localStorage.getItem(STORAGE.TABS) || '{}';
+                const tabs = JSON.parse(raw);
+                const now = Date.now();
+                let changed = false;
+                for (const id in tabs) {
+                    if (now - tabs[id].hb > STALE_MS) {
+                        delete tabs[id];
+                        changed = true;
+                    }
+                }
+                if (changed) localStorage.setItem(STORAGE.TABS, JSON.stringify(tabs));
+                return tabs;
+            } catch (_) {
+                return {};
+            }
+        }
+
+        // Write tabs
+        function writeTabs(tabs) {
+            localStorage.setItem(STORAGE.TABS, JSON.stringify(tabs));
+        }
+
+        // Get active tab count (global - all users in this browser)
+        function getTabCount() {
+            return Object.keys(readTabs()).length;
+        }
+
+        // Broadcast message to other tabs
+        function broadcast(msg) {
+            if (channel) channel.postMessage(msg);
+        }
+
+        // Format milliseconds to {h, m, s} strings (floored to full seconds)
+        function fmtTime(ms) {
+            const total = Math.max(0, Math.floor(ms / 1000));
+            const h = String(Math.floor(total / 3600)).padStart(2, '0');
+            const m = String(Math.floor((total % 3600) / 60)).padStart(2, '0');
+            const s = String(total % 60).padStart(2, '0');
+            return { h, m, s };
+        }
+
+        // Show toast
+        let toastTimeout = null;
+        function showToast(msg) {
+            $toastMsg.textContent = msg;
+            $toast.classList.add('visible');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => $toast.classList.remove('visible'), 3500);
+        }
+
+        /* ========================================
+           TAB REGISTRATION
+        ======================================== */
+
+        function registerTab() {
+            myTabId = uid();
+            localStorage.setItem(STORAGE.MY_ID, myTabId);
+            const tabs = readTabs();
+            tabs[myTabId] = {
+                id: myTabId,
+                email: getEmail(),
+                hb: Date.now(),
+                phase: getPhase()
+            };
+            writeTabs(tabs);
+            broadcast({ t: 'sync' });
+            refreshTabCount();
+        }
+
+        function unregisterTab() {
+            if (!myTabId) return;
+            const tabs = readTabs();
+            delete tabs[myTabId];
+            writeTabs(tabs);
+            broadcast({ t: 'sync' });
+        }
+
+        function heartbeat() {
+            if (!myTabId) return;
+            const tabs = readTabs();
+            if (tabs[myTabId]) {
+                tabs[myTabId].hb = Date.now();
+                writeTabs(tabs);
+            }
+            broadcast({ t: 'hb' });
+        }
+
+        function refreshTabCount() {
+            const count = getTabCount();
+            $tabCountDisplay.textContent = count;
+            $awaitTabCountDisplay.textContent = count;
+        }
+
+        /* ========================================
+           CHANNEL MESSAGE HANDLER
+        ======================================== */
+
+        function onChannelMsg(msg) {
+            if (msg.t === 'sync' || msg.t === 'hb') {
+                refreshTabCount();
+            }
+            if (msg.t === 'phase' && msg.p === 'await') {
+                showAwait();
+            }
+        }
+
+        /* ========================================
+           COUNTDOWN LOGIC
+        ======================================== */
+
+        // Initialize countdown start time if not exists
+        function ensureStartTime() {
+            let start = localStorage.getItem(STORAGE.START);
+            if (!start) {
+                start = Date.now().toString();
+                localStorage.setItem(STORAGE.START, start);
+            }
+            return parseInt(start);
+        }
+
+        // Ensure await start time
+        function ensureAwaitStartTime() {
+            let start = localStorage.getItem(STORAGE.AWAIT_START);
+            if (!start) {
+                start = Date.now().toString();
+                localStorage.setItem(STORAGE.AWAIT_START, start);
+            }
+            return parseInt(start);
+        }
+
+        // Run countdown loop
+        function runCountdown() {
+            cancelAnimationFrame(rafId);
+
+            function tick() {
+                const start = parseInt(localStorage.getItem(STORAGE.START));
+                const elapsed = Date.now() - start;
+                const remaining = Math.max(0, COUNTDOWN_MS - elapsed);
+
+                // Floor to last full second for consistent display across tabs
+                const floored = Math.floor(remaining / 1000) * 1000;
+                const { h, m, s } = fmtTime(floored);
+
+                $tHours.textContent = h;
+                $tMinutes.textContent = m;
+                $tSeconds.textContent = s;
+
+                // Update progress ring
+                const circumference = 2 * Math.PI * 155; // ~974
+                const progress = remaining / COUNTDOWN_MS;
+                $progressCircle.style.strokeDashoffset = circumference * (1 - progress);
+
+                if (remaining <= 0) {
+                    // Transition to await
+                    goToAwait();
+                    return;
+                }
+
+                rafId = requestAnimationFrame(tick);
+            }
+
+            tick();
+        }
+
+        // Run await countdown loop
+        function runAwaitCountdown() {
+            cancelAnimationFrame(rafId);
+
+            function tick() {
+                const start = parseInt(localStorage.getItem(STORAGE.AWAIT_START));
+                const elapsed = Date.now() - start;
+                const remaining = Math.max(0, AWAIT_MS - elapsed);
+
+                const floored = Math.floor(remaining / 1000) * 1000;
+                const { h, m, s } = fmtTime(floored);
+
+                $aHours.textContent = h;
+                $aMinutes.textContent = m;
+                $aSeconds.textContent = s;
+
+                // Update progress ring
+                const circumference = 2 * Math.PI * 115; // ~723
+                const progress = remaining / AWAIT_MS;
+                $awaitProgressCircle.style.strokeDashoffset = circumference * (1 - progress);
+
+                if (remaining <= 0) {
+                    // 24h done - could reset or hold
+                    return;
+                }
+
+                rafId = requestAnimationFrame(tick);
+            }
+
+            tick();
+        }
+
+        /* ========================================
+           SCREEN TRANSITIONS
+        ======================================== */
+
+        function showScreen(screen) {
+            $emailScreen.classList.add('hidden');
+            $countdownScreen.classList.add('hidden');
+            $awaitScreen.classList.add('hidden');
+            screen.classList.remove('hidden');
+        }
+
+        function showEmailPrompt() {
+            showScreen($emailScreen);
+            $emailInput.focus();
+        }
+
+        function showCountdown() {
+            showScreen($countdownScreen);
+            ensureStartTime();
+            runCountdown();
+        }
+
+        function showAwait() {
+            if (getPhase() !== 'await') return;
+            showScreen($awaitScreen);
+            ensureAwaitStartTime();
+            runAwaitCountdown();
+        }
+
+        function goToAwait() {
+            setPhase('await');
+            ensureAwaitStartTime();
+            broadcast({ t: 'phase', p: 'await' });
+            showAwait();
+        }
+
+        /* ========================================
+           PARTICLES
+        ======================================== */
+
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const count = 25;
+            for (let i = 0; i < count; i++) {
+                const el = document.createElement('div');
+                const isLine = Math.random() > 0.6;
+                el.className = `particle ${isLine ? 'particle-line' : 'particle-dot'}`;
+                el.style.left = (Math.random() * 100) + '%';
+                el.style.animationDelay = (Math.random() * 10) + 's';
+                el.style.animationDuration = (6 + Math.random() * 6) + 's';
+                container.appendChild(el);
+            }
+        }
+
+        /* ========================================
+           INITIALIZATION
+        ======================================== */
+
+        function init() {
+            createParticles();
+
+            const email = getEmail();
+
+            if (!email) {
+                showEmailPrompt();
+                return;
+            }
+
+            // Email exists - proceed
+            $userEmailDisplay.textContent = email;
+            registerTab();
+            startHeartbeat();
+
+            const phase = getPhase();
+
+            if (phase === 'await') {
+                showAwait();
+            } else {
+                showCountdown();
+            }
+        }
+
+        function startHeartbeat() {
+            heartbeat();
+            heartbeatTimer = setInterval(heartbeat, HEARTBEAT_MS);
+        }
+
+        /* ========================================
+           EVENT LISTENERS
+        ======================================== */
+
+        // Email form submission
+        $emailForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = $emailInput.value.trim();
+
+            if (!email || !email.includes('@') || !email.includes('.')) {
+                showToast('Please enter a valid email address');
+                $emailInput.focus();
+                return;
+            }
+
+            localStorage.setItem(STORAGE.EMAIL, email);
+            $userEmailDisplay.textContent = email;
+
+            registerTab();
+            startHeartbeat();
+
+            const phase = getPhase();
+            if (phase === 'await') {
+                showAwait();
+            } else {
+                showCountdown();
+            }
+        });
+
+        // Cleanup on close
+        window.addEventListener('beforeunload', () => {
+            unregisterTab();
+            if (heartbeatTimer) clearInterval(heartbeatTimer);
+        });
+
+        // Visibility change - refresh tab count when returning
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                refreshTabCount();
+                // Re-register heartbeat
+                if (myTabId) heartbeat();
+            }
+        });
+
+        // Start the app
+        init();
+    </script>
+</body>
+</html>
