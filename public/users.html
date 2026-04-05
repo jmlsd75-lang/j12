@@ -129,6 +129,11 @@
             animation: none;
         }
 
+        .live-dot.waiting {
+            background: var(--bark-300);
+            animation: none;
+        }
+
         @keyframes pulse {
             0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(61,168,84,0.5); }
             50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(61,168,84,0); }
@@ -142,6 +147,10 @@
             font-weight: 600;
             padding: 0.25rem 0.75rem;
             border-radius: 999px;
+        }
+
+        .table-header .badge.error-badge {
+            background: #7F1D1D;
         }
 
         .table-scroll {
@@ -351,6 +360,35 @@
 
         .empty-text { font-size: 0.85rem; color: var(--moss-500); }
 
+        .loading-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            gap: 1rem;
+        }
+
+        .loading-wrap.hidden { display: none; }
+
+        .spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid var(--forest-100);
+            border-top-color: var(--forest-500);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 0.82rem;
+            color: var(--moss-500);
+        }
+
         @media (max-width: 640px) {
             body { padding: 1rem; }
             .table-header { padding: 1rem 1.25rem; }
@@ -362,33 +400,43 @@
 
     <div class="table-wrapper">
         <div class="table-header">
-            <button class="back-btn" onclick="window.location.href='admin.html'" title="Back to Admin">
+            <button class="back-btn" title="Go back">
                 <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
             <div class="table-header-icon">
                 <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
             <h1>User Records</h1>
-            <div class="live-dot" id="liveDot" title="Live sync"></div>
-            <span class="badge" id="userCount">—</span>
+            <div class="live-dot waiting" id="liveDot" title="Connecting…"></div>
+            <span class="badge" id="userCount">…</span>
         </div>
 
         <div class="table-scroll">
+
+            <!-- Loading state (shown first) -->
+            <div class="loading-wrap" id="loadingState">
+                <div class="spinner"></div>
+                <span class="loading-text">Connecting to Firestore…</span>
+            </div>
+
+            <!-- Error state -->
             <div class="error-wrap" id="errorState">
                 <div class="error-icon">
                     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
                 </div>
                 <span class="error-title">Failed to load users</span>
-                <span class="error-msg" id="errorMsg">Check your Firestore rules and collection name.</span>
+                <span class="error-msg" id="errorMsg">Could not reach Firestore. Check your connection and collection name.</span>
             </div>
 
+            <!-- Empty state -->
             <div class="empty-wrap" id="emptyState">
                 <div class="empty-icon">
                     <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
                 </div>
-                <span class="empty-text">No users found in Firestore</span>
+                <span class="empty-text">No users found in the "users" collection</span>
             </div>
 
+            <!-- Data table -->
             <table id="userTable" style="display:none;">
                 <thead>
                     <tr>
@@ -424,6 +472,7 @@
             orderBy
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+        /* ── Firebase init ── */
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
             authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -433,95 +482,169 @@
             appId: "1:167159607898:web:23ca11366b88868b085e63"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const app  = initializeApp(firebaseConfig);
+        const db   = getFirestore(app);
         const auth = getAuth(app);
 
-        const MAX_SPACE = 1024;
-
+        /* ── DOM refs ── */
+        const loadingState = document.getElementById("loadingState");
         const errorState   = document.getElementById("errorState");
         const emptyState   = document.getElementById("emptyState");
         const userTable    = document.getElementById("userTable");
         const tbody        = document.getElementById("tbody");
-        const userCount    = document.getElementById("userCount");
+        const userCountEl  = document.getElementById("userCount");
         const totalSpaceEl = document.getElementById("totalSpace");
         const totalVisitsEl= document.getElementById("totalVisits");
         const totalPayEl   = document.getElementById("totalPayments");
-        const errorMsg     = document.getElementById("errorMsg");
+        const errorMsgEl   = document.getElementById("errorMsg");
         const liveDot      = document.getElementById("liveDot");
 
+        const MAX_SPACE = 1024;
         let previousData = {};
 
+        /* ── State switcher ── */
         function showState(state) {
+            loadingState.classList.add("hidden");
             errorState.classList.remove("visible");
             emptyState.classList.remove("visible");
             userTable.style.display = "none";
-            if (state === "error") errorState.classList.add("visible");
-            if (state === "empty") emptyState.classList.add("visible");
-            if (state === "table") userTable.style.display = "table";
+            userCountEl.classList.remove("error-badge");
+
+            if (state === "loading") loadingState.classList.remove("hidden");
+            if (state === "error")   { errorState.classList.add("visible"); userCountEl.classList.add("error-badge"); }
+            if (state === "empty")   { emptyState.classList.add("visible"); }
+            if (state === "table")   { userTable.style.display = "table"; }
         }
 
-        function formatDate(str) {
-            if (!str) return null;
+        /* ── Helpers ── */
+        function resolve(obj, ...keys) {
+            for (const k of keys) {
+                if (obj[k] !== undefined && obj[k] !== null) return obj[k];
+            }
+            return undefined;
+        }
+
+        function hasVal(v) {
+            if (v === undefined || v === null) return false;
+            if (typeof v === "string" && v.trim() === "") return false;
+            if (typeof v === "number" && v === 0) return false;
+            return true;
+        }
+
+        function toNum(v) {
+            if (v === undefined || v === null) return 0;
+            if (typeof v === "number") return isNaN(v) ? 0 : v;
+            const cleaned = String(v).replace(/[^0-9.\-]/g, "");
+            const n = parseFloat(cleaned);
+            return isNaN(n) ? 0 : n;
+        }
+
+        function formatDate(raw) {
+            if (!raw) return null;
+            let str = String(raw).trim();
+            // Handle Firestore Timestamp objects
+            if (typeof raw === "object" && raw.toDate) {
+                try { return fmtDateObj(raw.toDate()); } catch { return null; }
+            }
+            // Handle ISO strings or date strings
+            if (str.includes("T")) {
+                try { return fmtDateObj(new Date(str)); } catch { return null; }
+            }
+            // Handle "YYYY-MM-DD" or "YYYY-MM-DD HH:MM:SS"
+            if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+                try { return fmtDateObj(new Date(str)); } catch { return null; }
+            }
+            // Handle "Mon DD, YYYY" already formatted
+            if (/^[A-Z][a-z]{2}\s+\d{1,2},\s+\d{4}$/.test(str)) return str;
+            // Fallback
             try {
                 const d = new Date(str);
-                if (isNaN(d)) return null;
-                const m = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-                return m[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
-            } catch {
-                return null;
+                if (isNaN(d.getTime())) return null;
+                return fmtDateObj(d);
+            } catch { return null; }
+        }
+
+        function fmtDateObj(d) {
+            if (isNaN(d.getTime())) return null;
+            const m = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+            return m[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
+        }
+
+        function parseVisitStr(raw) {
+            if (!raw) return { date: null, time: null };
+            let str = String(raw).trim();
+            // Firestore Timestamp
+            if (typeof raw === "object" && raw.toDate) {
+                try {
+                    const d = raw.toDate();
+                    return { date: fmtDateObj(d), time: d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) };
+                } catch { return { date: null, time: null }; }
             }
-        }
-
-        function parseAmount(val) {
-            if (val == null || val === "" || val === 0) return 0;
-            if (typeof val === "number") return val;
-            return parseFloat(String(val).replace(/[^0-9.]/g, "")) || 0;
-        }
-
-        function hasValue(val) {
-            if (val == null) return false;
-            if (typeof val === "string" && val.trim() === "") return false;
-            if (typeof val === "number" && val === 0) return false;
-            return true;
+            // ISO with time
+            if (str.includes("T")) {
+                try {
+                    const d = new Date(str);
+                    if (isNaN(d.getTime())) return { date: null, time: null };
+                    return { date: fmtDateObj(d), time: d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" }) };
+                } catch { return { date: null, time: null }; }
+            }
+            // "YYYY-MM-DD HH:MM:SS"
+            if (/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}/.test(str)) {
+                const parts = str.split(" ");
+                return { date: formatDate(parts[0]), time: parts[1].substring(0, 5) };
+            }
+            // "YYYY-MM-DD"
+            if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+                return { date: formatDate(str), time: null };
+            }
+            // Already formatted
+            if (/^[A-Z][a-z]{2}\s+\d{1,2},\s+\d{4}$/.test(str)) {
+                return { date: str, time: null };
+            }
+            return { date: null, time: null };
         }
 
         function dataHash(u) {
             return JSON.stringify({
-                s: u.spaceUsed ?? u.space ?? u.storage ?? 0,
-                v: u.lastVisit ?? u.lastVisitMenu ?? "",
-                p: u.lastPayment ?? u.paymentDate ?? u.paidAt ?? "",
-                a: u.lastPaymentAmount ?? u.amount ?? u.paymentAmount ?? 0,
-                n: u.username ?? ""
+                s: resolve(u, "spaceUsed", "space", "storage", "storageUsed", "usedSpace", "diskUsage"),
+                v: resolve(u, "lastVisit", "lastVisitMenu", "lastLogin", "lastActive", "lastSeen"),
+                p: resolve(u, "lastPayment", "paymentDate", "paidAt", "lastPaidAt", "paymentAt"),
+                a: resolve(u, "lastPaymentAmount", "amount", "paymentAmount", "paidAmount", "totalPaid", "lastAmount"),
+                n: resolve(u, "username", "displayName", "name", "userName")
             });
         }
 
+        /* ── Render ── */
         function renderTable(users) {
             tbody.innerHTML = "";
 
             let totalSpace = 0;
-            let paidCount = 0;
-            let totalPaid = 0;
+            let paidCount  = 0;
+            let totalPaid  = 0;
 
             users.forEach((u, i) => {
-                const spaceRaw = u.spaceUsed ?? u.space ?? u.storage ?? 0;
-                const space = Number(spaceRaw) || 0;
+                // Space
+                const spaceRaw = resolve(u, "spaceUsed", "space", "storage", "storageUsed", "usedSpace", "diskUsage");
+                const space = toNum(spaceRaw);
                 totalSpace += space;
 
-                const amountRaw = u.lastPaymentAmount ?? u.amount ?? u.paymentAmount ?? 0;
-                const amount = parseAmount(amountRaw);
+                // Payment amount
+                const amountRaw = resolve(u, "lastPaymentAmount", "amount", "paymentAmount", "paidAmount", "totalPaid", "lastAmount");
+                const amount = toNum(amountRaw);
 
-                const paymentDateRaw = u.lastPayment ?? u.paymentDate ?? u.paidAt ?? null;
-                const hasPayment = hasValue(paymentDateRaw) && amount > 0;
+                // Payment date
+                const payDateRaw = resolve(u, "lastPayment", "paymentDate", "paidAt", "lastPaidAt", "paymentAt");
+                const payDate = formatDate(payDateRaw);
+                const hasPayment = payDate !== null && amount > 0;
 
                 if (hasPayment) {
                     paidCount++;
                     totalPaid += amount;
                 }
 
-                // Space column
+                // ── Space cell ──
                 let spaceHtml;
-                if (!hasValue(spaceRaw)) {
+                if (!hasVal(spaceRaw)) {
                     spaceHtml = '<span class="dash">—</span>';
                 } else {
                     const pct = Math.min(Math.round((space / MAX_SPACE) * 100), 100);
@@ -530,22 +653,20 @@
                     else if (pct >= 60) barClass = "warn";
                     spaceHtml = `
                         <div class="space-cell">
-                            <span class="space-num">${space}</span>
+                            <span class="space-num">${space.toLocaleString()}</span>
                             <div class="space-bar-wrap">
                                 <div class="space-bar ${barClass}" style="width:${pct}%"></div>
                             </div>
                         </div>`;
                 }
 
-                // Visit column
+                // ── Visit cell ──
                 let visitHtml;
-                const visitRaw = u.lastVisit ?? u.lastVisitMenu ?? "";
-                if (!hasValue(visitRaw)) {
+                const visitRaw = resolve(u, "lastVisit", "lastVisitMenu", "lastLogin", "lastActive", "lastSeen");
+                if (!hasVal(visitRaw)) {
                     visitHtml = '<span class="dash">—</span>';
                 } else {
-                    const parts = String(visitRaw).split(" ");
-                    const vDate = formatDate(parts[0]);
-                    const vTime = parts[1] || "";
+                    const { date: vDate, time: vTime } = parseVisitStr(visitRaw);
                     if (!vDate) {
                         visitHtml = '<span class="dash">—</span>';
                     } else {
@@ -553,16 +674,19 @@
                     }
                 }
 
-                // Payment column
+                // ── Payment cell ──
                 let paymentHtml;
                 if (!hasPayment) {
                     paymentHtml = '<span class="dash">—</span>';
                 } else {
-                    const pDate = formatDate(paymentDateRaw);
-                    paymentHtml = `<div class="payment-date">${pDate || "—"}</div><div class="payment-amount">$${amount.toFixed(2)}</div>`;
+                    paymentHtml = `<div class="payment-date">${payDate}</div><div class="payment-amount">$${amount.toFixed(2)}</div>`;
                 }
 
-                // Detect change for flash
+                // ── Email & username ──
+                const email    = resolve(u, "email", "mail", "userEmail") || "—";
+                const username = resolve(u, "username", "displayName", "name", "userName", "nick") || "—";
+
+                // ── Row flash on change ──
                 const hash = dataHash(u);
                 const changed = previousData[u.id] && previousData[u.id] !== hash;
                 previousData[u.id] = hash;
@@ -572,8 +696,8 @@
 
                 tr.innerHTML = `
                     <td><span class="row-num">${i + 1}</span></td>
-                    <td><span class="email">${u.email || "—"}</span></td>
-                    <td><span class="username">${u.username || "—"}</span></td>
+                    <td><span class="email">${email}</span></td>
+                    <td><span class="username">${username}</span></td>
                     <td>${spaceHtml}</td>
                     <td>${visitHtml}</td>
                     <td>${paymentHtml}</td>
@@ -581,55 +705,94 @@
                 tbody.appendChild(tr);
             });
 
-            totalSpaceEl.textContent = totalSpace.toLocaleString() + " MB";
-            totalVisitsEl.textContent = users.length + " users";
-            totalPayEl.textContent = "$" + totalPaid.toFixed(2) + " (" + paidCount + "/" + users.length + ")";
-            userCount.textContent = users.length + " user" + (users.length !== 1 ? "s" : "");
+            // Footer totals
+            totalSpaceEl.textContent  = totalSpace.toLocaleString() + " MB";
+            totalVisitsEl.textContent = users.length + " user" + (users.length !== 1 ? "s" : "");
+            totalPayEl.textContent    = paidCount > 0
+                ? "$" + totalPaid.toFixed(2) + " (" + paidCount + "/" + users.length + ")"
+                : "—";
+
+            userCountEl.textContent = users.length + " user" + (users.length !== 1 ? "s" : "");
         }
 
-        // ── Wait for auth session, then start real-time listener ──
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                window.location.replace("index.html");
+        /* ── Firestore listener — starts regardless of auth state ── */
+        function startListening() {
+            showState("loading");
+            liveDot.classList.add("waiting");
+
+            let q;
+            try {
+                q = query(collection(db, "users"), orderBy("email", "asc"));
+            } catch (err) {
+                errorMsgEl.textContent = "Could not build query: " + (err.message || err);
+                showState("error");
+                userCountEl.textContent = "Error";
+                liveDot.classList.remove("waiting");
+                liveDot.classList.add("offline");
                 return;
             }
 
-            // Firestore rules are the security gate — if user can read, data appears.
-            // No hardcoded email check here that causes false "Access denied".
-            const q = query(collection(db, "users"), orderBy("email", "asc"));
-
             onSnapshot(q, (snapshot) => {
+                // Success — dot goes green
+                liveDot.classList.remove("waiting");
                 liveDot.classList.remove("offline");
 
                 if (snapshot.empty) {
                     showState("empty");
-                    userCount.textContent = "0 users";
+                    userCountEl.textContent = "0 users";
                     return;
                 }
 
-                const users = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-
+                const users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderTable(users);
                 showState("table");
 
             }, (err) => {
-                console.error("Snapshot error:", err);
+                console.error("Firestore snapshot error:", err);
+                liveDot.classList.remove("waiting");
                 liveDot.classList.add("offline");
 
-                // Only show permission error if Firestore actually denies access
+                let msg = err.message || "Unknown error";
+
                 if (err.code === "permission-denied") {
-                    window.location.replace("admin.html");
-                    return;
+                    msg = "Permission denied — your Firestore security rules block read access to the 'users' collection. No redirect; staying on this page.";
+                } else if (err.code === "not-found") {
+                    msg = "The 'users' collection does not exist yet in your Firestore database.";
+                } else if (err.code === "unauthenticated") {
+                    msg = "Authentication required to read this collection. Sign in and refresh.";
+                } else if (err.code === "resource-exhausted") {
+                    msg = "Firestore quota exceeded. Try again later.";
                 }
 
-                errorMsg.textContent = err.message || "Could not reach Firestore.";
+                errorMsgEl.textContent = msg;
                 showState("error");
-                userCount.textContent = "Error";
+                userCountEl.textContent = "Error";
             });
+        }
+
+        /* ── Kick off ── */
+        // We don't gate on auth — the listener starts immediately.
+        // If Firestore rules require auth, the error state will show that clearly.
+        // If the user IS signed in, auth state change fires but we already started.
+        let listenerStarted = false;
+
+        onAuthStateChanged(auth, () => {
+            // We intentionally ignore the user object here.
+            // The Firestore listener handles its own auth via security rules.
+            if (!listenerStarted) {
+                listenerStarted = true;
+                startListening();
+            }
         });
+
+        // Safety fallback: if onAuthStateChanged never fires (e.g. SDK issue),
+        // start the listener after 3 seconds anyway.
+        setTimeout(() => {
+            if (!listenerStarted) {
+                listenerStarted = true;
+                startListening();
+            }
+        }, 3000);
     </script>
 </body>
 </html>
