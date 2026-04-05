@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Session</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Lock Icon Animation */
+        .lock-icon {
+            font-size: 40px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
+        /* Countdown Timers */
+        .timer-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .timer-label {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .timer-display {
+            font-size: 80px;
+            font-weight: bold;
+            font-variant-numeric: tabular-nums;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px 40px;
+            border-radius: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .timer-display.warning {
+            color: #f39c12;
+            border-color: rgba(243, 156, 18, 0.4);
+            text-shadow: 0 0 20px rgba(243, 156, 18, 0.4);
+        }
+
+        .timer-display.danger {
+            color: #e74c3c;
+            border-color: rgba(231, 76, 60, 0.5);
+            text-shadow: 0 0 20px rgba(231, 76, 60, 0.5);
+            animation: shake 0.5s infinite;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* Multi-tab Warning */
+        .tab-warning {
+            display: none;
+            background: rgba(231, 76, 60, 0.15);
+            border: 1px solid rgba(231, 76, 60, 0.4);
+            color: #ff6b6b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-warning.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Buttons */
+        .action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .action-btn.pay-btn {
+            background: linear-gradient(90deg, #f39c12, #e67e22);
+            border: none;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.4);
+            display: none; /* Hidden until Await phase */
+        }
+
+        .action-btn.pay-btn:hover {
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.6);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="lock-icon">🔒</div>
+
+    <div class="tab-warning" id="tabWarning">
+        ⚠️ Multi-tab detected! Free timer speed increased.
+    </div>
+
+    <!-- PHASE 1: FREE COUNTDOWN -->
+    <div id="freePhase">
+        <div class="timer-container">
+            <div class="timer-label">Free Session Time</div>
+            <div class="timer-display" id="freeTimer">00:03:00</div>
+        </div>
+        <a href="menu.html" class="action-btn" id="menuBtn">Open Menu</a>
+    </div>
+
+    <!-- PHASE 2: AWAIT COUNTDOWN -->
+    <div id="awaitPhase" class="hidden">
+        <div class="timer-container">
+            <div class="timer-label">Next Session Available In</div>
+            <div class="timer-display" id="awaitTimer">24:00:00</div>
+        </div>
+        <a href="pay.html" class="action-btn pay-btn" id="payBtn" style="display: inline-block;">💡 Unlock Instantly - Pay Now</a>
+    </div>
+
+    <script>
+        // ── Core Config ──
+        const FREE_TIME = 180; // 3 minutes in seconds
+        const AWAIT_TIME = 86400; // 24 hours in seconds
+        const TAB_CHECK_INTERVAL = 1000; // 1 second
+        const TICK_INTERVAL = 1000; // 1 second
+
+        // ── State Initialization (Locked & Secured) ──
+        let userData = JSON.parse(localStorage.getItem("userSession"));
+        if (!userData || !userData.email) {
+            window.location.href = "index.html";
+            throw new Error("Not authenticated");
+        }
+
+        const email = userData.email;
+        
+        // Use email-specific keys to lock timers per user across devices
+        const LS_FREE_KEY = `lock_free_${email}`;
+        const LS_AWAIT_KEY = `lock_await_${email}`;
+
+        let freeTime = parseInt(localStorage.getItem(LS_FREE_KEY));
+        let awaitTime = parseInt(localStorage.getItem(LS_AWAIT_KEY));
+
+        // Strict initialization lock: If neither exist, start fresh. If they exist, FORCE them.
+        if (isNaN(freeTime) && isNaN(awaitTime)) {
+            freeTime = FREE_TIME;
+            localStorage.setItem(LS_FREE_KEY, freeTime);
+        } else if (!isNaN(freeTime) && freeTime > 0) {
+            // Free timer is active, enforce it
+        } else if (isNaN(awaitTime) || awaitTime <= 0) {
+            // Free time finished, but await hasn't started or finished
+            awaitTime = AWAIT_TIME;
+            localStorage.setItem(LS_AWAIT_KEY, awaitTime);
+        }
+
+        // ── DOM Elements ──
+        const freePhase = document.getElementById("freePhase");
+        const awaitPhase = document.getElementById("awaitPhase");
+        const freeTimerEl = document.getElementById("freeTimer");
+        const awaitTimerEl = document.getElementById("awaitTimer");
+        const tabWarning = document.getElementById("tabWarning");
+        const payBtn = document.getElementById("payBtn");
+
+        // ── Multi-Tab Detection & Sync System ──
+        let activeTabs = 1;
+        const TAB_ID = Date.now().toString();
+        
+        // Channel for same-device cross-tab communication
+        const bc = new BroadcastChannel('free_tab_sync');
+
+        function updateTabCount() {
+            // For same device: count alive tabs via BroadcastChannel ping
+            activeTabs = 1; // Start with self
+            
+            // Ask other tabs to identify themselves
+            bc.postMessage({ type: 'ping', id: TAB_ID });
+        }
+
+        bc.onmessage = (event) => {
+            if (event.data.type === 'ping') {
+                // Another tab is alive, respond
+                activeTabs++;
+                bc.postMessage({ type: 'pong', id: TAB_ID });
+            } else if (event.data.type === 'pong') {
+                if (event.data.id !== TAB_ID) {
+                    activeTabs++;
+                }
+            } else if (event.data.type === 'close') {
+                if (event.data.id !== TAB_ID) {
+                    activeTabs = Math.max(1, activeTabs - 1);
+                }
+            }
+        };
+
+        // Listen for other tabs closing
+        window.addEventListener('beforeunload', () => {
+            bc.postMessage({ type: 'close', id: TAB_ID });
+        });
+
+        // Initial check & interval
+        updateTabCount();
+        setInterval(updateTabCount, TAB_CHECK_INTERVAL);
+
+        // ── Formatting Helper ──
+        function formatTime(totalSeconds) {
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        // ── Phase Transition Logic ──
+        function switchToAwaitPhase() {
+            freePhase.classList.add('hidden');
+            awaitPhase.classList.remove('hidden');
+            payBtn.style.display = 'inline-block'; // Show pay button
+            
+            // Lock the await time in storage if just transitioning
+            if (isNaN(parseInt(localStorage.getItem(LS_AWAIT_KEY))) || parseInt(localStorage.getItem(LS_AWAIT_KEY)) <= 0) {
+                awaitTime = AWAIT_TIME;
+                localStorage.setItem(LS_AWAIT_KEY, awaitTime);
+            } else {
+                awaitTime = parseInt(localStorage.getItem(LS_AWAIT_KEY));
+            }
+            
+            awaitTimerEl.innerText = formatTime(awaitTime);
+            
+            // Close any open menu.html windows that originated from here
+            if (window.menuWindow && !window.menuWindow.closed) {
+                window.menuWindow.close();
+            }
+        }
+
+        // ── Main Engine Loop ──
+        function engineTick() {
+            freeTime = parseInt(localStorage.getItem(LS_FREE_KEY));
+            awaitTime = parseInt(localStorage.getItem(LS_AWAIT_KEY));
+
+            // --- HANDLE FREE PHASE ---
+            if (freeTime > 0) {
+                // Tab Warning UI
+                if (activeTabs > 1) {
+                    tabWarning.classList.add('active');
+                } else {
+                    tabWarning.classList.remove('active');
+                }
+
+                // CRITICAL RULE: Countdown rate = n (number of active tabs)
+                freeTime -= activeTabs;
+                
+                if (freeTime <= 0) {
+                    freeTime = 0;
+                    localStorage.setItem(LS_FREE_KEY, 0);
+                    localStorage.setItem(LS_AWAIT_KEY, AWAIT_TIME); // Trigger await lock
+                    switchToAwaitPhase();
+                    return;
+                }
+                
+                localStorage.setItem(LS_FREE_KEY, freeTime);
+                freeTimerEl.innerText = formatTime(freeTime);
+
+                // Color warnings
+                if (freeTime <= 10) {
+                    freeTimerEl.className = 'timer-display danger';
+                } else if (freeTime <= 30) {
+                    freeTimerEl.className = 'timer-display warning';
+                } else {
+                    freeTimerEl.className = 'timer-display';
+                }
+
+            } 
+            // --- HANDLE AWAIT PHASE ---
+            else {
+                // CRITICAL RULE: Await rate ALWAYS 1, no matter the tabs
+                awaitTime -= 1;
+                
+                if (awaitTime <= 0) {
+                    awaitTime = 0;
+                    localStorage.setItem(LS_AWAIT_KEY, 0);
+                    
+                    // Reset cycle back to Free
+                    localStorage.setItem(LS_FREE_KEY, FREE_TIME);
+                    location.reload(); 
+                    return;
+                }
+                
+                localStorage.setItem(LS_AWAIT_KEY, awaitTime);
+                awaitTimerEl.innerText = formatTime(awaitTime);
+            }
+        }
+
+        // ── Initialization Logic on Page Load ──
+        function init() {
+            if (freeTime > 0) {
+                // We are in FREE phase
+                freeTimerEl.innerText = formatTime(freeTime);
+            } else {
+                // We are in AWAIT phase
+                switchToAwaitPhase();
+            }
+
+            // Start the main loop
+            setInterval(engineTick, TICK_INTERVAL);
+        }
+
+        // Handle Menu Button Click (Open in new window so we can close it later)
+        document.getElementById('menuBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            window.menuWindow = window.open('menu.html', '_blank', 'width=800,height=600');
+        });
+
+        // Block tampering via DevTools (Basic obfuscation lock)
+        setInterval(() => {
+            if (freeTime > 0) {
+                if (parseInt(localStorage.getItem(LS_FREE_KEY)) !== freeTime) {
+                    localStorage.setItem(LS_FREE_KEY, freeTime); // Revert tamper
+                }
+            } else {
+                if (parseInt(localStorage.getItem(LS_AWAIT_KEY)) !== awaitTime) {
+                    localStorage.setItem(LS_AWAIT_KEY, awaitTime); // Revert tamper
+                }
+            }
+        }, 500);
+
+        // Start App
+        init();
+
+    </script>
+</body>
+</html>
