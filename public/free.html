@@ -420,7 +420,7 @@
         const STALE_MS     = 2500;
         const TICK_MS      = 80;
 
-        /* All keys — ft_start kept for pay.html compatibility */
+        /* All localStorage keys */
         const S = {
             START:       "ft_start",
             AWAIT_START: "ft_await_start",
@@ -428,7 +428,9 @@
             TABS:        "ft_tabs",
             MY_ID:       "ft_my_id",
             CONSUMED:    "ft_consumed",
-            USER_EMAIL:  "ft_user_email"
+            USER_EMAIL:  "ft_user_email",
+            ACTIVE:      "ft_active_session",
+            SESSION_T:   "ft_session_time"
         };
 
         let myTabId   = null;
@@ -560,22 +562,34 @@
         }
 
         /* =============================================
+           SESSION STAMPING — used by both screens
+           and by the PAY button to fresh-stamp for
+           pay.html compatibility
+        ============================================= */
+        function stampSession() {
+            const now = Date.now().toString();
+            localStorage.setItem(S.START, now);
+            localStorage.setItem(S.SESSION_T, now);
+            localStorage.setItem(S.ACTIVE, "true");
+            localStorage.setItem(S.USER_EMAIL, userEmail);
+        }
+
+        function ensureStart() {
+            if (!localStorage.getItem(S.START)) {
+                localStorage.setItem(S.START, Date.now().toString());
+            }
+        }
+
+        function ensureAwaitStart() {
+            if (!localStorage.getItem(S.AWAIT_START)) {
+                localStorage.setItem(S.AWAIT_START, Date.now().toString());
+            }
+        }
+
+        /* =============================================
            COUNTDOWN — consumed-based, n× multiplier
         ============================================= */
         function stopTick() { if (tickTimer) { clearInterval(tickTimer); tickTimer = null; } }
-
-        function ensureAwaitStart() {
-            let v = localStorage.getItem(S.AWAIT_START);
-            if (!v) { v = Date.now().toString(); localStorage.setItem(S.AWAIT_START, v); }
-            return parseInt(v);
-        }
-
-        /* Ensure ft_start exists — pay.html may require it */
-        function ensureStart() {
-            let v = localStorage.getItem(S.START);
-            if (!v) { v = Date.now().toString(); localStorage.setItem(S.START, v); }
-            return parseInt(v);
-        }
 
         function runCountdown() {
             stopTick();
@@ -626,8 +640,7 @@
 
         function showCountdown() {
             show($cd);
-            ensureStart();                                         /* ft_start for pay.html */
-            localStorage.setItem(S.USER_EMAIL, userEmail);         /* ft_user_email for pay.html */
+            stampSession();
             if (localStorage.getItem(S.CONSUMED) === null) {
                 localStorage.setItem(S.CONSUMED, "0");
             }
@@ -637,8 +650,7 @@
         function showAwait() {
             if (getPhase() !== "await") return;
             show($aw);
-            ensureStart();                                         /* keep ft_start alive */
-            localStorage.setItem(S.USER_EMAIL, userEmail);         /* keep ft_user_email alive */
+            stampSession();
             ensureAwaitStart();
             runAwait();
         }
@@ -646,22 +658,28 @@
         function goAwait() {
             setPhase("await");
             localStorage.removeItem(S.CONSUMED);
-            ensureStart();
-            localStorage.setItem(S.USER_EMAIL, userEmail);
+            stampSession();
             ensureAwaitStart();
             bc({ t: "phase", p: "await" });
             showAwait();
         }
 
         /* =============================================
-           PAY BUTTON — stamps session then navigates
+           PAY BUTTON — fresh-stamps session so
+           pay.html sees a LIVE active session
         ============================================= */
         $payBtn.addEventListener("click", () => {
-            /* Make absolutely sure pay.html can find the session */
-            ensureStart();
+            /* Force-fresh stamp right now so pay.html cannot reject it as stale */
+            const now = Date.now().toString();
+            localStorage.setItem(S.START, now);
+            localStorage.setItem(S.SESSION_T, now);
+            localStorage.setItem(S.ACTIVE, "true");
             localStorage.setItem(S.USER_EMAIL, userEmail);
-            setPhase("await");
-            ensureAwaitStart();
+            localStorage.setItem(S.PHASE, "await");
+            localStorage.setItem(S.AWAIT_START, now);
+            if (myTabId) localStorage.setItem(S.MY_ID, myTabId);
+
+            /* Go to pay */
             window.location.href = "pay.html";
         });
 
@@ -674,7 +692,7 @@
             unregTab(); stopTick();
             if (hbTimer) clearInterval(hbTimer);
             const cleanup = () => {
-                [S.START, S.AWAIT_START, S.PHASE, S.TABS, S.MY_ID, S.CONSUMED, S.USER_EMAIL].forEach(k => localStorage.removeItem(k));
+                [S.START, S.AWAIT_START, S.PHASE, S.TABS, S.MY_ID, S.CONSUMED, S.USER_EMAIL, S.ACTIVE, S.SESSION_T].forEach(k => localStorage.removeItem(k));
                 window.location.replace("index.html");
             };
             if (window.__firebaseSignOut) {
