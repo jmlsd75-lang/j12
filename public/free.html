@@ -7,13 +7,49 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import {
+            getAuth,
+            onAuthStateChanged,
+            browserLocalPersistence,
+            setPersistence,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        /* Match the persistence set on index.html so signOut clears it */
+        setPersistence(auth, browserLocalPersistence)
+            .then(() => console.log("Persistence: LOCAL"))
+            .catch((e) => console.error("Persistence error:", e));
+
+        /* Expose to non-module script */
+        window.__firebaseSignOut = () => signOut(auth);
+        window.__onAuthStateChanged = (cb) => onAuthStateChanged(auth, cb);
+        window.__firebaseReady = true;
+        window.dispatchEvent(new Event("firebase-ready"));
+    </script>
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        'orbitron': ['Orbitron', 'monospace'],
-                        'space': ['Space Grotesk', 'sans-serif'],
+                        orbitron: ["Orbitron", "monospace"],
+                        space: ["Space Grotesk", "sans-serif"],
                     }
                 }
             }
@@ -30,464 +66,258 @@
             --border: #1b2332;
             --danger: #ff3860;
             --await-color: #f59e0b;
+            --pay-color: #a855f7;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: "Space Grotesk", sans-serif;
             background: var(--bg);
             color: var(--fg);
             min-height: 100vh;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
-        /* Animated grid background */
+        /* ---- backgrounds ---- */
         .bg-grid {
-            position: fixed;
-            inset: 0;
+            position: fixed; inset: 0;
             background-image:
-                linear-gradient(rgba(0, 255, 136, 0.025) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 136, 0.025) 1px, transparent 1px);
+                linear-gradient(rgba(0,255,136,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,255,136,0.02) 1px, transparent 1px);
             background-size: 60px 60px;
             animation: gridShift 25s linear infinite;
         }
+        @keyframes gridShift { to { transform: translate(60px,60px); } }
 
-        @keyframes gridShift {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(60px, 60px); }
-        }
-
-        /* Glow orbs */
-        .orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(120px);
-            pointer-events: none;
-        }
-
-        .orb-1 {
-            width: 500px; height: 500px;
-            background: rgba(0, 255, 136, 0.08);
-            top: -150px; right: -150px;
-            animation: orbDrift 10s ease-in-out infinite;
-        }
-
-        .orb-2 {
-            width: 400px; height: 400px;
-            background: rgba(0, 100, 255, 0.06);
-            bottom: -100px; left: -100px;
-            animation: orbDrift 12s ease-in-out infinite reverse;
-        }
-
-        .orb-3 {
-            width: 300px; height: 300px;
-            background: rgba(0, 255, 136, 0.04);
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            animation: orbPulse 6s ease-in-out infinite;
-        }
-
+        .orb { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; }
+        .orb-1 { width:500px;height:500px;background:rgba(0,255,136,0.07);top:-150px;right:-150px;animation:orbDrift 10s ease-in-out infinite; }
+        .orb-2 { width:400px;height:400px;background:rgba(0,100,255,0.05);bottom:-100px;left:-100px;animation:orbDrift 12s ease-in-out infinite reverse; }
+        .orb-3 { width:250px;height:250px;background:rgba(0,255,136,0.03);top:50%;left:50%;transform:translate(-50%,-50%);animation:orbPulse 6s ease-in-out infinite; }
         @keyframes orbDrift {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(40px, -30px) scale(1.05); }
-            66% { transform: translate(-20px, 20px) scale(0.95); }
+            0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(40px,-30px) scale(1.05)} 66%{transform:translate(-20px,20px) scale(0.95)}
         }
-
         @keyframes orbPulse {
-            0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(1)} 50%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}
         }
-
-        /* Scanlines */
         .scanlines {
-            position: fixed;
-            inset: 0;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(0, 0, 0, 0.02) 2px,
-                rgba(0, 0, 0, 0.02) 4px
-            );
-            pointer-events: none;
-            z-index: 999;
+            position:fixed;inset:0;
+            background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.015) 2px,rgba(0,0,0,0.015) 4px);
+            pointer-events:none;z-index:999;
         }
+        .corner-deco { position:fixed;width:70px;height:70px;border-color:rgba(0,255,136,0.08);pointer-events:none; }
+        .corner-tl{top:16px;left:16px;border-top:1px solid;border-left:1px solid}
+        .corner-tr{top:16px;right:16px;border-top:1px solid;border-right:1px solid}
+        .corner-bl{bottom:16px;left:16px;border-bottom:1px solid;border-left:1px solid}
+        .corner-br{bottom:16px;right:16px;border-bottom:1px solid;border-right:1px solid}
 
-        /* Timer display */
+        /* ---- timer ---- */
         .timer-display {
-            font-family: 'Orbitron', monospace;
-            font-size: clamp(3.5rem, 12vw, 9rem);
-            font-weight: 900;
-            letter-spacing: 0.04em;
-            color: var(--accent);
-            text-shadow:
-                0 0 30px rgba(0, 255, 136, 0.4),
-                0 0 60px rgba(0, 255, 136, 0.15);
+            font-family:"Orbitron",monospace;
+            font-size:clamp(3.2rem,11vw,8.5rem);
+            font-weight:900;letter-spacing:.04em;
+            color:var(--accent);
+            text-shadow:0 0 30px rgba(0,255,136,.4),0 0 60px rgba(0,255,136,.15);
+            line-height:1;
         }
-
         .timer-display.await-mode {
-            color: var(--await-color);
-            text-shadow:
-                0 0 30px rgba(245, 158, 11, 0.4),
-                0 0 60px rgba(245, 158, 11, 0.15);
+            color:var(--await-color);
+            text-shadow:0 0 30px rgba(245,158,11,.4),0 0 60px rgba(245,158,11,.15);
         }
+        .timer-display.sm { font-size:clamp(2rem,5vw,3.5rem); }
+        .separator { animation:blink 1s step-end infinite; }
+        @keyframes blink { 50%{opacity:.2} }
 
-        .separator {
-            animation: blink 1s step-end infinite;
-        }
-
-        @keyframes blink {
-            50% { opacity: 0.2; }
-        }
-
-        /* Progress ring */
-        .progress-ring {
-            transform: rotate(-90deg);
-        }
-
+        /* ---- progress ring ---- */
+        .progress-ring { transform:rotate(-90deg); }
         .progress-circle {
-            transition: stroke-dashoffset 0.15s linear;
-            stroke: var(--accent);
-            filter: drop-shadow(0 0 6px rgba(0, 255, 136, 0.5));
+            transition:stroke-dashoffset .25s linear;
+            stroke:var(--accent);
+            filter:drop-shadow(0 0 6px rgba(0,255,136,.5));
         }
-
         .progress-circle.await-mode {
-            stroke: var(--await-color);
-            filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.5));
+            stroke:var(--await-color);
+            filter:drop-shadow(0 0 6px rgba(245,158,11,.5));
         }
+        .progress-bg { stroke:var(--border); }
 
-        .progress-bg {
-            stroke: var(--border);
-        }
-
-        /* Tab counter card */
+        /* ---- tab card ---- */
         .tab-card {
-            background: linear-gradient(145deg, var(--card), rgba(0, 255, 136, 0.02));
-            border: 1px solid var(--border);
-            backdrop-filter: blur(20px);
-            transition: border-color 0.3s;
+            background:linear-gradient(145deg,var(--card),rgba(0,255,136,.015));
+            border:1px solid var(--border);
+            backdrop-filter:blur(20px);
+            transition:border-color .3s;
         }
-
-        .tab-card:hover {
-            border-color: rgba(0, 255, 136, 0.2);
-        }
-
+        .tab-card:hover { border-color:rgba(0,255,136,.2); }
         .tab-number {
-            font-family: 'Orbitron', monospace;
-            font-size: 2.8rem;
-            font-weight: 800;
-            color: var(--accent);
-            text-shadow: 0 0 25px rgba(0, 255, 136, 0.3);
-            animation: numberPulse 2.5s ease-in-out infinite;
+            font-family:"Orbitron",monospace;font-size:2.5rem;font-weight:800;
+            color:var(--accent);text-shadow:0 0 25px rgba(0,255,136,.3);
         }
+        .tab-number.amber { color:var(--await-color);text-shadow:0 0 20px rgba(245,158,11,.3); }
 
-        @keyframes numberPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.03); }
-        }
-
-        /* Menu button */
+        /* ---- menu button (countdown only) ---- */
         .menu-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--fg);
-            padding: 10px 22px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 0.95rem;
-            transition: all 0.25s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
+            background:transparent;border:1px solid var(--border);color:var(--fg);
+            padding:14px 40px;border-radius:10px;cursor:pointer;
+            font-family:"Space Grotesk",sans-serif;font-size:1.05rem;font-weight:500;
+            transition:all .25s ease;display:inline-flex;align-items:center;gap:12px;
+            text-decoration:none;
         }
-
         .menu-btn:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-            box-shadow: 0 0 25px rgba(0, 255, 136, 0.08);
-            transform: translateY(-1px);
+            border-color:var(--accent);color:var(--accent);
+            box-shadow:0 0 30px rgba(0,255,136,.1);transform:translateY(-2px);
+        }
+        .menu-btn:focus-visible { outline:2px solid var(--accent);outline-offset:2px; }
+
+        /* ---- logout button ---- */
+        .logout-btn {
+            background:linear-gradient(145deg,rgba(255,56,96,.12),rgba(255,56,96,.04));
+            border:2px solid rgba(255,56,96,.35);color:#ff3860;
+            padding:14px 40px;border-radius:10px;
+            font-family:"Orbitron",monospace;font-size:.9rem;font-weight:700;
+            letter-spacing:.12em;cursor:pointer;transition:all .3s ease;
+            display:inline-flex;align-items:center;gap:10px;
+        }
+        .logout-btn:hover {
+            background:linear-gradient(145deg,rgba(255,56,96,.22),rgba(255,56,96,.08));
+            border-color:#ff3860;box-shadow:0 0 35px rgba(255,56,96,.15);transform:translateY(-2px);
+        }
+        .logout-btn:active { transform:translateY(0) scale(.98); }
+        .logout-btn:focus-visible { outline:2px solid #ff3860;outline-offset:3px; }
+        .logout-btn:disabled { opacity:.6;cursor:not-allowed;transform:none !important;box-shadow:none !important; }
+
+        /* ---- pay card ---- */
+        .pay-card {
+            background:linear-gradient(160deg,rgba(168,85,247,.08),rgba(168,85,247,.02),var(--card));
+            border:1px solid rgba(168,85,247,.15);border-radius:16px;
+            padding:32px 28px;backdrop-filter:blur(20px);
+            position:relative;overflow:hidden;max-width:320px;
+        }
+        .pay-card::before {
+            content:"";position:absolute;top:-50%;right:-50%;width:200%;height:200%;
+            background:radial-gradient(circle at 70% 30%,rgba(168,85,247,.06),transparent 60%);
+            pointer-events:none;
+        }
+        .pay-btn {
+            background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;border:none;
+            padding:16px 0;border-radius:10px;
+            font-family:"Orbitron",monospace;font-size:1.1rem;font-weight:800;
+            letter-spacing:.2em;cursor:pointer;width:100%;transition:all .3s ease;
+            display:flex;align-items:center;justify-content:center;gap:10px;
+            position:relative;text-decoration:none;
+        }
+        .pay-btn:hover {
+            background:linear-gradient(135deg,#c084fc,#8b5cf6);
+            box-shadow:0 0 40px rgba(168,85,247,.35),0 8px 30px rgba(168,85,247,.2);
+            transform:translateY(-3px);
+        }
+        .pay-btn:active { transform:translateY(-1px); }
+        .pay-btn:focus-visible { outline:2px solid var(--pay-color);outline-offset:3px; }
+        .pay-shimmer {
+            position:absolute;top:0;left:-100%;width:100%;height:100%;
+            background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);
+            animation:shimmer 3s ease-in-out infinite;
+        }
+        @keyframes shimmer { 0%{left:-100%} 100%{left:100%} }
+
+        .await-badge {
+            display:inline-block;background:rgba(245,158,11,.08);
+            border:1px solid rgba(245,158,11,.15);color:var(--await-color);
+            padding:8px 24px;border-radius:8px;
+            font-family:"Orbitron",monospace;font-size:.8rem;font-weight:600;letter-spacing:.2em;
         }
 
-        .menu-btn:focus-visible {
-            outline: 2px solid var(--accent);
-            outline-offset: 2px;
-        }
-
-        /* Await button (unclickable) */
-        .await-button {
-            background: linear-gradient(145deg, #1a1510, #1f1712);
-            border: 2px solid rgba(245, 158, 11, 0.15);
-            color: rgba(245, 158, 11, 0.4);
-            padding: 22px 70px;
-            border-radius: 14px;
-            font-family: 'Orbitron', monospace;
-            font-size: 1.6rem;
-            font-weight: 700;
-            letter-spacing: 0.25em;
-            cursor: not-allowed;
-            user-select: none;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .await-button::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: repeating-linear-gradient(
-                -45deg,
-                transparent,
-                transparent 10px,
-                rgba(245, 158, 11, 0.03) 10px,
-                rgba(245, 158, 11, 0.03) 20px
-            );
-            animation: stripeMove 20s linear infinite;
-        }
-
-        @keyframes stripeMove {
-            0% { background-position: 0 0; }
-            100% { background-position: 200px 200px; }
-        }
-
-        /* Email input */
-        .email-field {
-            background: var(--card);
-            border: 1px solid var(--border);
-            color: var(--fg);
-            padding: 14px 18px;
-            border-radius: 10px;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1rem;
-            outline: none;
-            width: 280px;
-            transition: all 0.3s;
-        }
-
-        .email-field:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
-        }
-
-        .email-field::placeholder {
-            color: var(--muted);
-        }
-
-        .go-btn {
-            background: var(--accent);
-            color: var(--bg);
-            border: none;
-            padding: 14px 28px;
-            border-radius: 10px;
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.25s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .go-btn:hover {
-            background: var(--accent-dim);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(0, 255, 136, 0.25);
-        }
-
-        .go-btn:focus-visible {
-            outline: 2px solid var(--fg);
-            outline-offset: 2px;
-        }
-
-        /* Floating particles */
-        .particle {
-            position: fixed;
-            border-radius: 50%;
-            pointer-events: none;
-            opacity: 0;
-        }
-
-        .particle-dot {
-            width: 2px;
-            height: 2px;
-            background: var(--accent);
-            animation: floatUp 8s ease-in-out infinite;
-        }
-
-        .particle-line {
-            width: 1px;
-            height: 20px;
-            background: linear-gradient(to top, transparent, var(--accent));
-            animation: floatUp 10s ease-in-out infinite;
-        }
-
+        /* ---- particles ---- */
+        .particle { position:fixed;border-radius:50%;pointer-events:none;opacity:0; }
+        .particle-dot { width:2px;height:2px;background:var(--accent);animation:floatUp 8s ease-in-out infinite; }
+        .particle-line { width:1px;height:20px;background:linear-gradient(to top,transparent,var(--accent));animation:floatUp 10s ease-in-out infinite; }
         @keyframes floatUp {
-            0% { opacity: 0; transform: translateY(100vh) rotate(0deg); }
-            15% { opacity: 0.5; }
-            85% { opacity: 0.5; }
-            100% { opacity: 0; transform: translateY(-100px) rotate(180deg); }
+            0%{opacity:0;transform:translateY(100vh) rotate(0deg)}
+            15%{opacity:.4}85%{opacity:.4}
+            100%{opacity:0;transform:translateY(-100px) rotate(180deg)}
         }
 
-        /* Corner decorations */
-        .corner-deco {
-            position: fixed;
-            width: 80px;
-            height: 80px;
-            border-color: rgba(0, 255, 136, 0.1);
-            pointer-events: none;
-        }
-
-        .corner-tl { top: 20px; left: 20px; border-top: 1px solid; border-left: 1px solid; }
-        .corner-tr { top: 20px; right: 20px; border-top: 1px solid; border-right: 1px solid; }
-        .corner-bl { bottom: 20px; left: 20px; border-bottom: 1px solid; border-left: 1px solid; }
-        .corner-br { bottom: 20px; right: 20px; border-bottom: 1px solid; border-right: 1px solid; }
-
-        /* Toast */
-        .toast-container {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            z-index: 10000;
-        }
-
+        /* ---- toast ---- */
+        .toast-container { position:fixed;top:24px;right:24px;z-index:10000; }
         .toast {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-left: 3px solid var(--danger);
-            padding: 14px 20px;
-            border-radius: 8px;
-            transform: translateX(calc(100% + 40px));
-            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: 0.9rem;
-            max-width: 320px;
+            background:var(--card);border:1px solid var(--border);border-left:3px solid var(--danger);
+            padding:14px 20px;border-radius:8px;
+            transform:translateX(calc(100% + 40px));transition:transform .35s cubic-bezier(.4,0,.2,1);
+            font-size:.9rem;max-width:320px;
         }
+        .toast.visible { transform:translateX(0); }
 
-        .toast.visible {
-            transform: translateX(0);
+        /* ---- loading ---- */
+        .loading-spinner {
+            width:40px;height:40px;border:3px solid var(--border);
+            border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;
         }
+        @keyframes spin { to{transform:rotate(360deg)} }
 
-        /* Status indicator */
         .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--accent);
-            box-shadow: 0 0 8px var(--accent);
-            animation: statusPulse 2s ease-in-out infinite;
+            width:8px;height:8px;border-radius:50%;background:var(--accent);
+            box-shadow:0 0 8px var(--accent);animation:statusPulse 2s ease-in-out infinite;
         }
+        @keyframes statusPulse { 0%,100%{opacity:1} 50%{opacity:.5} }
 
-        @keyframes statusPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        .label-text { font-size:.7rem;text-transform:uppercase;letter-spacing:.15em;color:var(--muted); }
+        .hidden { display:none !important; }
+
+        /* ---- await grid ---- */
+        .await-grid {
+            display:grid;grid-template-columns:1fr auto;gap:40px;
+            align-items:center;width:100%;max-width:900px;
         }
-
-        /* Label text */
-        .label-text {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: var(--muted);
+        @media(max-width:768px){
+            .await-grid{grid-template-columns:1fr;justify-items:center;gap:28px}
+            .pay-card{max-width:100%;width:100%}
         }
-
-        /* Hide elements */
-        .hidden { display: none !important; }
-
-        /* Responsive */
-        @media (max-width: 640px) {
-            .timer-display { font-size: 3rem; }
-            .tab-number { font-size: 2rem; }
-            .email-field { width: 200px; }
+        @media(max-width:640px){
+            .timer-display{font-size:2.8rem}
+            .timer-display.sm{font-size:1.8rem}
+            .tab-number{font-size:2rem}
         }
-
-        /* Reduced motion */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
+        @media(prefers-reduced-motion:reduce){
+            *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
         }
     </style>
 </head>
 <body>
-    <!-- Background layers -->
     <div class="bg-grid" aria-hidden="true"></div>
     <div class="orb orb-1" aria-hidden="true"></div>
     <div class="orb orb-2" aria-hidden="true"></div>
     <div class="orb orb-3" aria-hidden="true"></div>
     <div class="scanlines" aria-hidden="true"></div>
-
-    <!-- Corner decorations -->
     <div class="corner-deco corner-tl" aria-hidden="true"></div>
     <div class="corner-deco corner-tr" aria-hidden="true"></div>
     <div class="corner-deco corner-bl" aria-hidden="true"></div>
     <div class="corner-deco corner-br" aria-hidden="true"></div>
-
-    <!-- Particles container -->
     <div id="particles" aria-hidden="true"></div>
+    <div class="toast-container"><div id="toast" class="toast" role="alert"><span id="toastMsg"></span></div></div>
 
-    <!-- Toast container -->
-    <div class="toast-container">
-        <div id="toast" class="toast" role="alert">
-            <span id="toastMsg"></span>
-        </div>
-    </div>
-
-    <!-- Main app -->
     <main class="relative z-10 min-h-screen flex flex-col">
 
-        <!-- Header -->
-        <header class="flex justify-between items-center px-6 py-5 sm:px-8">
-            <div class="flex items-center gap-3">
-                <div class="status-dot"></div>
-                <span class="label-text tracking-widest">Session Active</span>
-            </div>
-            <a href="menu.html" class="menu-btn" aria-label="Go to menu">
-                <i class="fas fa-bars" aria-hidden="true"></i>
-                <span>Menu</span>
-            </a>
-        </header>
-
-        <!-- Email prompt screen -->
-        <section id="emailScreen" class="hidden flex-1 flex items-center justify-center px-4" aria-label="Email verification">
+        <!-- Loading -->
+        <section id="loadingScreen" class="flex-1 flex items-center justify-center" aria-label="Loading">
             <div class="text-center">
-                <div class="mb-10">
-                    <div class="w-20 h-20 mx-auto mb-6 rounded-full border border-[var(--border)] flex items-center justify-center">
-                        <i class="fas fa-fingerprint text-3xl text-[var(--accent)]"></i>
-                    </div>
-                    <h1 class="font-orbitron text-2xl sm:text-3xl font-bold mb-3 tracking-wide">Identity Verification</h1>
-                    <p class="text-[var(--muted)] max-w-xs mx-auto">Enter your email address to synchronize across tabs</p>
-                </div>
-                <form id="emailForm" class="flex gap-3 justify-center flex-wrap">
-                    <input
-                        type="email"
-                        id="emailInput"
-                        class="email-field"
-                        placeholder="your@email.com"
-                        required
-                        autocomplete="email"
-                        aria-label="Email address"
-                    >
-                    <button type="submit" class="go-btn">
-                        <span>Enter</span>
-                        <i class="fas fa-arrow-right" aria-hidden="true"></i>
-                    </button>
-                </form>
+                <div class="loading-spinner mx-auto mb-5"></div>
+                <p class="text-[var(--muted)] text-sm tracking-wider">Verifying session...</p>
             </div>
         </section>
 
-        <!-- Countdown screen -->
-        <section id="countdownScreen" class="hidden flex-1 flex flex-col items-center justify-center gap-10 px-4" aria-label="Countdown timer">
+        <!-- ========== COUNTDOWN SCREEN ========== -->
+        <section id="countdownScreen" class="hidden flex-1 flex flex-col items-center justify-center gap-7 px-4" aria-label="Countdown timer">
+
+            <!-- User info -->
+            <div class="flex items-center gap-3 text-sm text-[var(--muted)]">
+                <div class="status-dot"></div>
+                <span id="userEmailDisplay"></span>
+            </div>
+
             <!-- Timer ring -->
             <div class="relative">
-                <svg class="progress-ring" width="340" height="340" aria-hidden="true">
-                    <circle class="progress-bg" cx="170" cy="170" r="155" fill="none" stroke-width="3"/>
-                    <circle id="progressCircle" class="progress-circle" cx="170" cy="170" r="155" fill="none"
-                        stroke-width="4" stroke-linecap="round"
-                        stroke-dasharray="974" stroke-dashoffset="0"/>
+                <svg class="progress-ring" width="320" height="320" aria-hidden="true">
+                    <circle class="progress-bg" cx="160" cy="160" r="145" fill="none" stroke-width="3"/>
+                    <circle id="progressCircle" class="progress-circle" cx="160" cy="160" r="145" fill="none"
+                        stroke-width="4" stroke-linecap="round" stroke-dasharray="911" stroke-dashoffset="0"/>
                 </svg>
                 <div class="absolute inset-0 flex items-center justify-center flex-col">
                     <div class="timer-display" id="mainTimer" aria-live="polite" aria-atomic="true">
@@ -497,480 +327,349 @@
                 </div>
             </div>
 
-            <!-- Active tabs counter -->
-            <div class="tab-card rounded-2xl px-8 py-6 text-center">
+            <!-- Active tabs -->
+            <div class="tab-card rounded-2xl px-8 py-5 text-center">
                 <div class="label-text mb-2">Global Active Tabs</div>
                 <div class="tab-number" id="tabCountDisplay">1</div>
             </div>
 
-            <!-- User email display -->
-            <div class="flex items-center gap-2 text-[var(--muted)] text-sm">
-                <i class="fas fa-user-shield text-xs" aria-hidden="true"></i>
-                <span id="userEmailDisplay"></span>
-            </div>
+            <!-- Menu button — ONLY on countdown, centered -->
+            <a href="menu.html" class="menu-btn" aria-label="Go to menu">
+                <i class="fas fa-bars" aria-hidden="true"></i>
+                <span>Menu</span>
+            </a>
         </section>
 
-        <!-- Await screen -->
-        <section id="awaitScreen" class="hidden flex-1 flex flex-col items-center justify-center gap-10 px-4" aria-label="Await phase">
-            <!-- Status text -->
-            <div class="text-center">
-                <div class="label-text mb-6 tracking-[0.3em]">Session Expired</div>
-                <button class="await-button" disabled aria-disabled="true" tabindex="-1">
-                    AWAIT
-                </button>
-            </div>
+        <!-- ========== AWAIT SCREEN ========== -->
+        <section id="awaitScreen" class="hidden flex-1 flex flex-col items-center justify-center gap-8 px-4" aria-label="Await phase">
 
-            <!-- 24h countdown ring -->
-            <div class="relative mt-6">
-                <svg class="progress-ring" width="260" height="260" aria-hidden="true">
-                    <circle class="progress-bg" cx="130" cy="130" r="115" fill="none" stroke-width="3"/>
-                    <circle id="awaitProgressCircle" class="progress-circle await-mode" cx="130" cy="130" r="115" fill="none"
-                        stroke-width="3" stroke-linecap="round"
-                        stroke-dasharray="723" stroke-dashoffset="0"/>
-                </svg>
-                <div class="absolute inset-0 flex items-center justify-center flex-col">
-                    <div class="timer-display await-mode text-4xl sm:text-5xl" id="awaitTimer" aria-live="polite">
-                        <span id="aHours">24</span><span class="separator">:</span><span id="aMinutes">00</span><span class="separator">:</span><span id="aSeconds">00</span>
+            <div class="await-badge">SESSION EXPIRED</div>
+
+            <!-- Two columns: timer + pay -->
+            <div class="await-grid">
+
+                <!-- Left column -->
+                <div class="flex flex-col items-center gap-6">
+                    <div class="relative">
+                        <svg class="progress-ring" width="230" height="230" aria-hidden="true">
+                            <circle class="progress-bg" cx="115" cy="115" r="100" fill="none" stroke-width="3"/>
+                            <circle id="awaitProgressCircle" class="progress-circle await-mode" cx="115" cy="115" r="100" fill="none"
+                                stroke-width="3" stroke-linecap="round" stroke-dasharray="628" stroke-dashoffset="0"/>
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center flex-col">
+                            <div class="timer-display await-mode sm" id="awaitTimer" aria-live="polite">
+                                <span id="aHours">24</span><span class="separator">:</span><span id="aMinutes">00</span><span class="separator">:</span><span id="aSeconds">00</span>
+                            </div>
+                            <div class="label-text mt-2 tracking-widest" style="color:rgba(245,158,11,.45);">Until Reset</div>
+                        </div>
                     </div>
-                    <div class="label-text mt-2 tracking-widest" style="color: rgba(245,158,11,0.5);">Until Reset</div>
+
+                    <div class="tab-card rounded-xl px-6 py-4 text-center" style="border-color:rgba(245,158,11,.08);">
+                        <div class="label-text mb-1">Active Tabs</div>
+                        <div class="tab-number amber text-2xl" id="awaitTabCountDisplay">1</div>
+                    </div>
+                </div>
+
+                <!-- Right column — pay card -->
+                <div class="pay-card">
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-3 mb-5">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.2);">
+                                <i class="fas fa-lock text-sm" style="color:var(--pay-color);"></i>
+                            </div>
+                            <span class="label-text" style="color:rgba(168,85,247,.6);">SCRIPT</span>
+                        </div>
+                        <h2 class="font-orbitron text-lg font-bold mb-2">Pay to Continue</h2>
+                        <p class="text-sm mb-6 leading-relaxed" style="color:var(--muted);">
+                            Your free session has ended. Upgrade now to continue using the system without interruption.
+                        </p>
+                        <a href="pay.html" class="pay-btn" aria-label="Go to payment">
+                            <span class="pay-shimmer"></span>
+                            <i class="fas fa-credit-card"></i>
+                            <span>PAY</span>
+                        </a>
+                        <div class="flex items-center gap-2 mt-4 justify-center">
+                            <i class="fas fa-shield-halved text-xs" style="color:rgba(168,85,247,.4);"></i>
+                            <span class="text-xs" style="color:var(--muted);">Secure payment</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Active tabs counter in await -->
-            <div class="tab-card rounded-2xl px-6 py-5 text-center" style="border-color: rgba(245,158,11,0.1);">
-                <div class="label-text mb-1">Active Tabs</div>
-                <div class="tab-number text-2xl" id="awaitTabCountDisplay" style="color: var(--await-color); text-shadow: 0 0 20px rgba(245,158,11,0.3);">1</div>
-            </div>
+            <!-- Logout — NO menu here, only logout -->
+            <button id="logoutBtn" class="logout-btn" aria-label="Log out of your account">
+                <i class="fas fa-right-from-bracket" aria-hidden="true"></i>
+                <span>LOGOUT</span>
+            </button>
         </section>
 
     </main>
 
     <script>
-        /* ========================================
-           CONFIGURATION
-        ======================================== */
-        const COUNTDOWN_MS = 3 * 60 * 1000;          // 3 minutes
-        const AWAIT_MS = 24 * 60 * 60 * 1000;        // 24 hours
-        const HEARTBEAT_MS = 800;                     // Heartbeat frequency
-        const STALE_MS = 2500;                        // Tab considered stale after this
+        /* =============================================
+           CONFIG
+        ============================================= */
+        const COUNTDOWN_MS = 3 * 60 * 1000;
+        const AWAIT_MS     = 24 * 60 * 60 * 1000;
+        const HB_MS        = 800;
+        const STALE_MS     = 2500;
+        const TICK_MS      = 80;
 
-        const STORAGE = {
-            EMAIL: 'ft_email',
-            START: 'ft_start',
-            AWAIT_START: 'ft_await_start',
-            PHASE: 'ft_phase',        // 'countdown' | 'await'
-            TABS: 'ft_tabs',
-            MY_ID: 'ft_my_id'
+        const S = {
+            START:      "ft_start",
+            AWAIT_START:"ft_await_start",
+            PHASE:      "ft_phase",
+            TABS:       "ft_tabs",
+            MY_ID:      "ft_my_id"
         };
 
-        /* ========================================
+        /* =============================================
            STATE
-        ======================================== */
+        ============================================= */
         let myTabId = null;
-        let rafId = null;
-        let heartbeatTimer = null;
+        let tickTimer = null;
+        let hbTimer = null;
         let channel = null;
+        let userEmail = "";
 
-        /* ========================================
-           DOM REFS
-        ======================================== */
-        const $emailScreen = document.getElementById('emailScreen');
-        const $countdownScreen = document.getElementById('countdownScreen');
-        const $awaitScreen = document.getElementById('awaitScreen');
-        const $emailForm = document.getElementById('emailForm');
-        const $emailInput = document.getElementById('emailInput');
-        const $tHours = document.getElementById('tHours');
-        const $tMinutes = document.getElementById('tMinutes');
-        const $tSeconds = document.getElementById('tSeconds');
-        const $progressCircle = document.getElementById('progressCircle');
-        const $tabCountDisplay = document.getElementById('tabCountDisplay');
-        const $awaitTabCountDisplay = document.getElementById('awaitTabCountDisplay');
-        const $userEmailDisplay = document.getElementById('userEmailDisplay');
-        const $aHours = document.getElementById('aHours');
-        const $aMinutes = document.getElementById('aMinutes');
-        const $aSeconds = document.getElementById('aSeconds');
-        const $awaitProgressCircle = document.getElementById('awaitProgressCircle');
-        const $toast = document.getElementById('toast');
-        const $toastMsg = document.getElementById('toastMsg');
+        /* =============================================
+           DOM
+        ============================================= */
+        const $load     = document.getElementById("loadingScreen");
+        const $cd       = document.getElementById("countdownScreen");
+        const $aw       = document.getElementById("awaitScreen");
+        const $tH       = document.getElementById("tHours");
+        const $tM       = document.getElementById("tMinutes");
+        const $tS       = document.getElementById("tSeconds");
+        const $prog     = document.getElementById("progressCircle");
+        const $tabC     = document.getElementById("tabCountDisplay");
+        const $atabC    = document.getElementById("awaitTabCountDisplay");
+        const $email    = document.getElementById("userEmailDisplay");
+        const $aH       = document.getElementById("aHours");
+        const $aM       = document.getElementById("aMinutes");
+        const $aS       = document.getElementById("aSeconds");
+        const $aprog    = document.getElementById("awaitProgressCircle");
+        const $logout   = document.getElementById("logoutBtn");
+        const $toast    = document.getElementById("toast");
+        const $toastMsg = document.getElementById("toastMsg");
 
-        /* ========================================
-           BROADCAST CHANNEL (cross-tab sync)
-        ======================================== */
+        /* =============================================
+           BROADCAST CHANNEL
+        ============================================= */
         try {
-            channel = new BroadcastChannel('free_timer_channel');
-            channel.onmessage = (e) => onChannelMsg(e.data);
-        } catch (_) {
-            // Fallback to storage events
-        }
+            channel = new BroadcastChannel("free_timer_channel");
+            channel.onmessage = (e) => onMsg(e.data);
+        } catch(_){}
 
-        window.addEventListener('storage', (e) => {
-            if (e.key === STORAGE.TABS) refreshTabCount();
-            if (e.key === STORAGE.PHASE && e.newValue === 'await') showAwait();
+        window.addEventListener("storage", (e) => {
+            if (e.key === S.TABS) refreshTabs();
+            if (e.key === S.PHASE && e.newValue === "await") showAwait();
         });
 
-        /* ========================================
-           UTILITY FUNCTIONS
-        ======================================== */
+        /* =============================================
+           HELPERS
+        ============================================= */
+        const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,10);
 
-        // Generate unique tab ID
-        function uid() {
-            return Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
-        }
+        const getPhase = () => localStorage.getItem(S.PHASE) || "countdown";
+        const setPhase = (p) => localStorage.setItem(S.PHASE, p);
 
-        // Get/set email
-        function getEmail() {
-            // Check URL first
-            const params = new URLSearchParams(location.search);
-            const urlEmail = params.get('email');
-            if (urlEmail) {
-                localStorage.setItem(STORAGE.EMAIL, urlEmail);
-                return urlEmail;
-            }
-            return localStorage.getItem(STORAGE.EMAIL) || '';
-        }
-
-        // Get phase
-        function getPhase() {
-            return localStorage.getItem(STORAGE.PHASE) || 'countdown';
-        }
-
-        // Set phase
-        function setPhase(p) {
-            localStorage.setItem(STORAGE.PHASE, p);
-        }
-
-        // Read tabs object, prune stale entries
         function readTabs() {
             try {
-                const raw = localStorage.getItem(STORAGE.TABS) || '{}';
-                const tabs = JSON.parse(raw);
-                const now = Date.now();
-                let changed = false;
-                for (const id in tabs) {
-                    if (now - tabs[id].hb > STALE_MS) {
-                        delete tabs[id];
-                        changed = true;
-                    }
-                }
-                if (changed) localStorage.setItem(STORAGE.TABS, JSON.stringify(tabs));
-                return tabs;
-            } catch (_) {
-                return {};
-            }
+                const t = JSON.parse(localStorage.getItem(S.TABS) || "{}");
+                const n = Date.now(); let c = false;
+                for (const k in t) { if (n - t[k].hb > STALE_MS) { delete t[k]; c = true; } }
+                if (c) localStorage.setItem(S.TABS, JSON.stringify(t));
+                return t;
+            } catch(_) { return {}; }
         }
+        const writeTabs = (t) => localStorage.setItem(S.TABS, JSON.stringify(t));
+        const tabCount  = () => Object.keys(readTabs()).length;
+        const bc        = (m) => { if (channel) channel.postMessage(m); };
 
-        // Write tabs
-        function writeTabs(tabs) {
-            localStorage.setItem(STORAGE.TABS, JSON.stringify(tabs));
-        }
-
-        // Get active tab count (global - all users in this browser)
-        function getTabCount() {
-            return Object.keys(readTabs()).length;
-        }
-
-        // Broadcast message to other tabs
-        function broadcast(msg) {
-            if (channel) channel.postMessage(msg);
-        }
-
-        // Format milliseconds to {h, m, s} strings (floored to full seconds)
-        function fmtTime(ms) {
-            const total = Math.max(0, Math.floor(ms / 1000));
-            const h = String(Math.floor(total / 3600)).padStart(2, '0');
-            const m = String(Math.floor((total % 3600) / 60)).padStart(2, '0');
-            const s = String(total % 60).padStart(2, '0');
-            return { h, m, s };
-        }
-
-        // Show toast
-        let toastTimeout = null;
-        function showToast(msg) {
-            $toastMsg.textContent = msg;
-            $toast.classList.add('visible');
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => $toast.classList.remove('visible'), 3500);
-        }
-
-        /* ========================================
-           TAB REGISTRATION
-        ======================================== */
-
-        function registerTab() {
-            myTabId = uid();
-            localStorage.setItem(STORAGE.MY_ID, myTabId);
-            const tabs = readTabs();
-            tabs[myTabId] = {
-                id: myTabId,
-                email: getEmail(),
-                hb: Date.now(),
-                phase: getPhase()
+        function fmt(ms) {
+            const tot = Math.max(0, Math.floor(ms / 1000));
+            return {
+                h: String(Math.floor(tot / 3600)).padStart(2, "0"),
+                m: String(Math.floor((tot % 3600) / 60)).padStart(2, "0"),
+                s: String(tot % 60).padStart(2, "0")
             };
-            writeTabs(tabs);
-            broadcast({ t: 'sync' });
-            refreshTabCount();
         }
 
-        function unregisterTab() {
+        let toastT;
+        function toast(msg) {
+            $toastMsg.textContent = msg;
+            $toast.classList.add("visible");
+            clearTimeout(toastT);
+            toastT = setTimeout(() => $toast.classList.remove("visible"), 3500);
+        }
+
+        /* =============================================
+           TAB REGISTRATION
+        ============================================= */
+        function regTab() {
+            myTabId = uid();
+            localStorage.setItem(S.MY_ID, myTabId);
+            const t = readTabs();
+            t[myTabId] = { id: myTabId, email: userEmail, hb: Date.now(), phase: getPhase() };
+            writeTabs(t);
+            bc({ t: "sync" });
+            refreshTabs();
+        }
+        function unregTab() {
             if (!myTabId) return;
-            const tabs = readTabs();
-            delete tabs[myTabId];
-            writeTabs(tabs);
-            broadcast({ t: 'sync' });
+            const t = readTabs(); delete t[myTabId]; writeTabs(t);
+            bc({ t: "sync" });
         }
-
-        function heartbeat() {
+        function hb() {
             if (!myTabId) return;
-            const tabs = readTabs();
-            if (tabs[myTabId]) {
-                tabs[myTabId].hb = Date.now();
-                writeTabs(tabs);
-            }
-            broadcast({ t: 'hb' });
+            const t = readTabs();
+            if (t[myTabId]) { t[myTabId].hb = Date.now(); writeTabs(t); }
+            bc({ t: "hb" });
+        }
+        function refreshTabs() {
+            const c = tabCount();
+            $tabC.textContent = c;
+            $atabC.textContent = c;
+        }
+        function onMsg(m) {
+            if (m.t === "sync" || m.t === "hb") refreshTabs();
+            if (m.t === "phase" && m.p === "await") showAwait();
         }
 
-        function refreshTabCount() {
-            const count = getTabCount();
-            $tabCountDisplay.textContent = count;
-            $awaitTabCountDisplay.textContent = count;
+        /* =============================================
+           TIMER LOGIC  (setInterval — no rAF throttling)
+        ============================================= */
+        function ensureStart(key) {
+            let v = localStorage.getItem(key);
+            if (!v) { v = Date.now().toString(); localStorage.setItem(key, v); }
+            return parseInt(v);
         }
+        function stopTick() { if (tickTimer) { clearInterval(tickTimer); tickTimer = null; } }
 
-        /* ========================================
-           CHANNEL MESSAGE HANDLER
-        ======================================== */
-
-        function onChannelMsg(msg) {
-            if (msg.t === 'sync' || msg.t === 'hb') {
-                refreshTabCount();
-            }
-            if (msg.t === 'phase' && msg.p === 'await') {
-                showAwait();
-            }
-        }
-
-        /* ========================================
-           COUNTDOWN LOGIC
-        ======================================== */
-
-        // Initialize countdown start time if not exists
-        function ensureStartTime() {
-            let start = localStorage.getItem(STORAGE.START);
-            if (!start) {
-                start = Date.now().toString();
-                localStorage.setItem(STORAGE.START, start);
-            }
-            return parseInt(start);
-        }
-
-        // Ensure await start time
-        function ensureAwaitStartTime() {
-            let start = localStorage.getItem(STORAGE.AWAIT_START);
-            if (!start) {
-                start = Date.now().toString();
-                localStorage.setItem(STORAGE.AWAIT_START, start);
-            }
-            return parseInt(start);
-        }
-
-        // Run countdown loop
         function runCountdown() {
-            cancelAnimationFrame(rafId);
-
-            function tick() {
-                const start = parseInt(localStorage.getItem(STORAGE.START));
-                const elapsed = Date.now() - start;
-                const remaining = Math.max(0, COUNTDOWN_MS - elapsed);
-
-                // Floor to last full second for consistent display across tabs
-                const floored = Math.floor(remaining / 1000) * 1000;
-                const { h, m, s } = fmtTime(floored);
-
-                $tHours.textContent = h;
-                $tMinutes.textContent = m;
-                $tSeconds.textContent = s;
-
-                // Update progress ring
-                const circumference = 2 * Math.PI * 155; // ~974
-                const progress = remaining / COUNTDOWN_MS;
-                $progressCircle.style.strokeDashoffset = circumference * (1 - progress);
-
-                if (remaining <= 0) {
-                    // Transition to await
-                    goToAwait();
-                    return;
+            stopTick();
+            const C = 2 * Math.PI * 145; let last = "";
+            (function tick() {
+                const rem = Math.max(0, COUNTDOWN_MS - (Date.now() - parseInt(localStorage.getItem(S.START))));
+                const { h, m, s } = fmt(rem);
+                const d = h + m + s;
+                if (d !== last) {
+                    $tH.textContent = h; $tM.textContent = m; $tS.textContent = s;
+                    $prog.style.strokeDashoffset = C * (1 - rem / COUNTDOWN_MS);
+                    last = d;
                 }
-
-                rafId = requestAnimationFrame(tick);
-            }
-
-            tick();
+                if (rem <= 0) { stopTick(); goAwait(); return; }
+                tickTimer = setInterval(tick, TICK_MS);
+            })();
         }
 
-        // Run await countdown loop
-        function runAwaitCountdown() {
-            cancelAnimationFrame(rafId);
-
-            function tick() {
-                const start = parseInt(localStorage.getItem(STORAGE.AWAIT_START));
-                const elapsed = Date.now() - start;
-                const remaining = Math.max(0, AWAIT_MS - elapsed);
-
-                const floored = Math.floor(remaining / 1000) * 1000;
-                const { h, m, s } = fmtTime(floored);
-
-                $aHours.textContent = h;
-                $aMinutes.textContent = m;
-                $aSeconds.textContent = s;
-
-                // Update progress ring
-                const circumference = 2 * Math.PI * 115; // ~723
-                const progress = remaining / AWAIT_MS;
-                $awaitProgressCircle.style.strokeDashoffset = circumference * (1 - progress);
-
-                if (remaining <= 0) {
-                    // 24h done - could reset or hold
-                    return;
+        function runAwait() {
+            stopTick();
+            const C = 2 * Math.PI * 100; let last = "";
+            (function tick() {
+                const rem = Math.max(0, AWAIT_MS - (Date.now() - parseInt(localStorage.getItem(S.AWAIT_START))));
+                const { h, m, s } = fmt(rem);
+                const d = h + m + s;
+                if (d !== last) {
+                    $aH.textContent = h; $aM.textContent = m; $aS.textContent = s;
+                    $aprog.style.strokeDashoffset = C * (1 - rem / AWAIT_MS);
+                    last = d;
                 }
+                if (rem <= 0) { stopTick(); return; }
+                tickTimer = setInterval(tick, TICK_MS);
+            })();
+        }
 
-                rafId = requestAnimationFrame(tick);
+        /* =============================================
+           SCREENS
+        ============================================= */
+        function show(el) { [$load, $cd, $aw].forEach(s => s.classList.add("hidden")); el.classList.remove("hidden"); }
+        function showCountdown() { show($cd); ensureStart(S.START); runCountdown(); }
+        function showAwait() { if (getPhase() !== "await") return; show($aw); ensureStart(S.AWAIT_START); runAwait(); }
+        function goAwait() { setPhase("await"); ensureStart(S.AWAIT_START); bc({ t:"phase", p:"await" }); showAwait(); }
+
+        /* =============================================
+           LOGOUT — actual Firebase signOut that
+           wipes browserLocalPersistence
+        ============================================= */
+        $logout.addEventListener("click", () => {
+            $logout.disabled = true;
+            $logout.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> <span>Signing out...</span>';
+
+            unregTab();
+            stopTick();
+            if (hbTimer) clearInterval(hbTimer);
+
+            const cleanup = () => {
+                /* Wipe all timer state so next login is fresh */
+                localStorage.removeItem(S.START);
+                localStorage.removeItem(S.AWAIT_START);
+                localStorage.removeItem(S.PHASE);
+                localStorage.removeItem(S.TABS);
+                localStorage.removeItem(S.MY_ID);
+                window.location.replace("index.html");
+            };
+
+            if (window.__firebaseSignOut) {
+                window.__firebaseSignOut()
+                    .then(() => { console.log("Signed out successfully"); cleanup(); })
+                    .catch((err) => {
+                        console.error("Sign-out error:", err);
+                        toast("Logout failed. Try again.");
+                        $logout.disabled = false;
+                        $logout.innerHTML = '<i class="fas fa-right-from-bracket" aria-hidden="true"></i> <span>LOGOUT</span>';
+                    });
+            } else {
+                cleanup();
             }
+        });
 
-            tick();
-        }
-
-        /* ========================================
-           SCREEN TRANSITIONS
-        ======================================== */
-
-        function showScreen(screen) {
-            $emailScreen.classList.add('hidden');
-            $countdownScreen.classList.add('hidden');
-            $awaitScreen.classList.add('hidden');
-            screen.classList.remove('hidden');
-        }
-
-        function showEmailPrompt() {
-            showScreen($emailScreen);
-            $emailInput.focus();
-        }
-
-        function showCountdown() {
-            showScreen($countdownScreen);
-            ensureStartTime();
-            runCountdown();
-        }
-
-        function showAwait() {
-            if (getPhase() !== 'await') return;
-            showScreen($awaitScreen);
-            ensureAwaitStartTime();
-            runAwaitCountdown();
-        }
-
-        function goToAwait() {
-            setPhase('await');
-            ensureAwaitStartTime();
-            broadcast({ t: 'phase', p: 'await' });
-            showAwait();
-        }
-
-        /* ========================================
+        /* =============================================
            PARTICLES
-        ======================================== */
-
-        function createParticles() {
-            const container = document.getElementById('particles');
-            const count = 25;
-            for (let i = 0; i < count; i++) {
-                const el = document.createElement('div');
-                const isLine = Math.random() > 0.6;
-                el.className = `particle ${isLine ? 'particle-line' : 'particle-dot'}`;
-                el.style.left = (Math.random() * 100) + '%';
-                el.style.animationDelay = (Math.random() * 10) + 's';
-                el.style.animationDuration = (6 + Math.random() * 6) + 's';
-                container.appendChild(el);
+        ============================================= */
+        (function particles() {
+            const c = document.getElementById("particles");
+            for (let i = 0; i < 22; i++) {
+                const e = document.createElement("div");
+                const l = Math.random() > 0.6;
+                e.className = "particle " + (l ? "particle-line" : "particle-dot");
+                e.style.left = Math.random() * 100 + "%";
+                e.style.animationDelay = Math.random() * 10 + "s";
+                e.style.animationDuration = (6 + Math.random() * 6) + "s";
+                c.appendChild(e);
             }
+        })();
+
+        /* =============================================
+           BOOT — wait for Firebase, check auth
+        ============================================= */
+        function startApp(user) {
+            userEmail = (user.email || "").trim().toLowerCase();
+            $email.textContent = userEmail;
+            regTab();
+            hbTimer = setInterval(hb, HB_MS);
+            getPhase() === "await" ? showAwait() : showCountdown();
         }
 
-        /* ========================================
-           INITIALIZATION
-        ======================================== */
-
-        function init() {
-            createParticles();
-
-            const email = getEmail();
-
-            if (!email) {
-                showEmailPrompt();
-                return;
-            }
-
-            // Email exists - proceed
-            $userEmailDisplay.textContent = email;
-            registerTab();
-            startHeartbeat();
-
-            const phase = getPhase();
-
-            if (phase === 'await') {
-                showAwait();
-            } else {
-                showCountdown();
-            }
+        function boot() {
+            const onReady = () => {
+                window.__onAuthStateChanged((user) => {
+                    if (user) startApp(user);
+                    else window.location.replace("index.html");
+                });
+            };
+            if (window.__firebaseReady) onReady();
+            else window.addEventListener("firebase-ready", onReady);
         }
 
-        function startHeartbeat() {
-            heartbeat();
-            heartbeatTimer = setInterval(heartbeat, HEARTBEAT_MS);
-        }
+        /* =============================================
+           CLEANUP
+        ============================================= */
+        window.addEventListener("beforeunload", () => { unregTab(); stopTick(); if (hbTimer) clearInterval(hbTimer); });
+        document.addEventListener("visibilitychange", () => { if (!document.hidden && myTabId) { refreshTabs(); hb(); } });
 
-        /* ========================================
-           EVENT LISTENERS
-        ======================================== */
-
-        // Email form submission
-        $emailForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = $emailInput.value.trim();
-
-            if (!email || !email.includes('@') || !email.includes('.')) {
-                showToast('Please enter a valid email address');
-                $emailInput.focus();
-                return;
-            }
-
-            localStorage.setItem(STORAGE.EMAIL, email);
-            $userEmailDisplay.textContent = email;
-
-            registerTab();
-            startHeartbeat();
-
-            const phase = getPhase();
-            if (phase === 'await') {
-                showAwait();
-            } else {
-                showCountdown();
-            }
-        });
-
-        // Cleanup on close
-        window.addEventListener('beforeunload', () => {
-            unregisterTab();
-            if (heartbeatTimer) clearInterval(heartbeatTimer);
-        });
-
-        // Visibility change - refresh tab count when returning
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                refreshTabCount();
-                // Re-register heartbeat
-                if (myTabId) heartbeat();
-            }
-        });
-
-        // Start the app
-        init();
+        boot();
     </script>
 </body>
 </html>
