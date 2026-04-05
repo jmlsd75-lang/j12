@@ -96,7 +96,6 @@
             50% { transform: translateX(20px); }
         }
 
-        /* Floating particles in water */
         .particle {
             position: absolute;
             width: 4px;
@@ -306,15 +305,26 @@
         }
 
         .file-item .icon {
-            width: 20px;
-            height: 20px;
-            background: #3498db;
-            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
+            font-size: 12px;
             color: white;
+        }
+
+        .icon-health {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .icon-business {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .icon-education {
+            background: linear-gradient(135deg, #27ae60, #229954);
         }
 
         /* Responsive */
@@ -377,21 +387,17 @@
         </div>
         <div class="file-list" id="fileList">
             <h3>Files</h3>
-            <a class="file-item" onclick="window.location.href='file.html'">
-                <span class="icon">📄</span>
-                <span>Document 1</span>
+            <a class="file-item" onclick="window.location.href='health-file.html'">
+                <span class="icon icon-health">❤</span>
+                <span>Health File</span>
             </a>
-            <a class="file-item" onclick="window.location.href='file.html'">
-                <span class="icon">📄</span>
-                <span>Document 2</span>
+            <a class="file-item" onclick="window.location.href='business-file.html'">
+                <span class="icon icon-business">💼</span>
+                <span>Business File</span>
             </a>
-            <a class="file-item" onclick="window.location.href='file.html'">
-                <span class="icon">📄</span>
-                <span>Document 3</span>
-            </a>
-            <a class="file-item" onclick="window.location.href='file.html'">
-                <span class="icon">📄</span>
-                <span>Document 4</span>
+            <a class="file-item" onclick="window.location.href='education-file.html'">
+                <span class="icon icon-education">📚</span>
+                <span>Education File</span>
             </a>
         </div>
     </div>
