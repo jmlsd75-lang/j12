@@ -15,8 +15,11 @@ const firebaseConfig = {
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
-// ── Admin email — ONLY this email goes to admin.html ──
-const ADMIN_EMAIL = "jmlsd75@gmail.com";
+// ── Admin emails — add more here anytime ──
+const ADMIN_EMAILS = [
+  "jmlsd75@gmail.com",
+  "mohd.khamis18.mk@gmail.com"
+];
 
 // ── Initialize ──
 const app = initializeApp(firebaseConfig);
@@ -29,8 +32,12 @@ setPersistence(auth, browserLocalPersistence)
 
 // ── ONLY two possible destinations ──
 function getDestination(email) {
-  if (email === ADMIN_EMAIL) return "admin.html";
+  if (ADMIN_EMAILS.includes(email)) return "admin.html";
   return "free.html";
+}
+
+function isAdmin(email) {
+  return ADMIN_EMAILS.includes(email);
 }
 
 // ── LOGIN ──
@@ -57,7 +64,7 @@ async function handleGoogleLogin() {
       email: user.email,
       photo: user.photoURL || "",
       uid: user.uid,
-      isAdmin: user.email === ADMIN_EMAIL,
+      isAdmin: isAdmin(user.email),
       loginTime: new Date().toISOString()
     };
     localStorage.setItem("userSession", JSON.stringify(userData));
@@ -74,7 +81,6 @@ async function handleGoogleLogin() {
 
     window.dispatchEvent(new CustomEvent("loginSuccess", { detail: userData }));
 
-    // ONLY goes to admin.html or free.html — nothing else
     setTimeout(() => {
       window.location.href = getDestination(user.email);
     }, 1200);
@@ -149,7 +155,6 @@ onAuthStateChanged(auth, (user) => {
     const session = localStorage.getItem("userSession");
     if (session) {
       console.log("Session active, redirecting...");
-      // ONLY goes to admin.html or free.html — nothing else
       window.location.href = getDestination(user.email);
     }
   }
