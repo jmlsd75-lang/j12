@@ -15,26 +15,32 @@ const firebaseConfig = {
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
+// ── Admin email — ONLY this email goes to admin.html ──
+const ADMIN_EMAIL = "jmlsd75@gmail.com";
+
 // ── Initialize ──
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// Keep user logged in after closing browser
 setPersistence(auth, browserLocalPersistence)
   .then(() => console.log("Auth persistence: LOCAL"))
   .catch((err) => console.error("Persistence error:", err));
+
+// ── ONLY two possible destinations ──
+function getDestination(email) {
+  if (email === ADMIN_EMAIL) return "admin.html";
+  return "free.html";
+}
 
 // ── LOGIN ──
 async function handleGoogleLogin() {
   const btn = document.getElementById("googleLoginBtn");
   if (!btn) return;
 
-  // Loading state
   btn.disabled = true;
   btn.innerHTML = '<div class="btn-spinner"></div> Signing in...';
 
-  // Inject spinner CSS once
   if (!document.getElementById("spinnerCSS")) {
     const s = document.createElement("style");
     s.id = "spinnerCSS";
@@ -46,17 +52,16 @@ async function handleGoogleLogin() {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
 
-    // Save user data to localStorage
     const userData = {
       name: user.displayName || "User",
       email: user.email,
       photo: user.photoURL || "",
       uid: user.uid,
+      isAdmin: user.email === ADMIN_EMAIL,
       loginTime: new Date().toISOString()
     };
     localStorage.setItem("userSession", JSON.stringify(userData));
 
-    // Success feedback
     btn.innerHTML = `
       <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#34A853"/>
@@ -65,14 +70,13 @@ async function handleGoogleLogin() {
     btn.style.background = "#e8f5e9";
     btn.style.color = "#2e7d32";
 
-    console.log("Login success:", userData.email);
+    console.log("Login success:", userData.email, "| Admin:", userData.isAdmin);
 
-    // Dispatch event so other pages/scripts can listen and redirect
     window.dispatchEvent(new CustomEvent("loginSuccess", { detail: userData }));
 
-    // Redirect after short delay
+    // ONLY goes to admin.html or free.html — nothing else
     setTimeout(() => {
-      window.location.href = "dashboard.html";
+      window.location.href = getDestination(user.email);
     }, 1200);
 
   } catch (error) {
@@ -105,10 +109,7 @@ async function handleLogout() {
     localStorage.removeItem("userSession");
     console.log("User signed out");
 
-    // Dispatch event for other scripts to listen
     window.dispatchEvent(new CustomEvent("logoutSuccess"));
-
-    // Redirect to login page
     window.location.href = "index.html";
   } catch (error) {
     console.error("Logout error:", error);
@@ -144,13 +145,12 @@ function showError(message) {
 
 // ── Auto-redirect if already logged in ──
 onAuthStateChanged(auth, (user) => {
-  if (user && window.location.pathname.includes("index.html") || 
-      user && window.location.pathname.endsWith("/")) {
-    // Already logged in, skip login page
+  if (user && (window.location.pathname.includes("index.html") || window.location.pathname.endsWith("/"))) {
     const session = localStorage.getItem("userSession");
     if (session) {
       console.log("Session active, redirecting...");
-      window.location.href = "dashboard.html";
+      // ONLY goes to admin.html or free.html — nothing else
+      window.location.href = getDestination(user.email);
     }
   }
 });
