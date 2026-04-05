@@ -1,0 +1,66 @@
+name: Deploy Firestore Rules
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'firestore/firestore.rules'
+  pull_request:
+    branches:
+      - main
+      - master
+    paths:
+      - 'firestore/firestore.rules'
+
+jobs:
+  # Job for PR - validate rules only (doesn't deploy)
+  validate-rules:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Validate Firestore Rules
+        run: firebase firestore:check --rules firestore/firestore.rules
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+  # Job for push to main/master - deploy rules
+  deploy-rules:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Deploy Firestore Rules
+        run: firebase deploy --only firestore:rules
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Deployment Summary
+        run: |
+          echo "✅ Firestore Rules deployed successfully!"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "Committed by: ${{ github.actor }}"
+          
