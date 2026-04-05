@@ -14,48 +14,47 @@ service cloud.firestore {
     }
 
     // ── USERS ──
-    match /users/{email} {
-      // Admin can READ all users
-      allow read: if isAdmin();
-
-      // Admin can UPDATE any user (ban, unban, flag, etc.)
+    match /users/{userId} {
+      // Admin can read all users metadata (like spaceUsed, lastVisit, lastPayment)
+      allow get, list: if isAdmin();
+      
+      // Admin can update any user (e.g., flag, ban)
       allow update: if isAdmin();
 
-      // User can read their own doc
-      allow read: if isOwner(email);
-
-      // User can create/update their own doc
-      allow create, update: if isOwner(email);
+      // Users can read/update only their own document
+      allow get, update, create: if isOwner(userId);
     }
 
     // ── PAYMENTS ──
     match /payments/{paymentId} {
       // Only admin reads/writes payments
-      allow read, write: if isAdmin();
+      allow get, list, create, update, delete: if isAdmin();
 
       // User can read their own payments
-      allow read: if request.auth != null 
-                  && request.resource.data.userEmail == request.auth.token.email;
+      allow get, list: if request.auth != null 
+                      && resource.data.userEmail == request.auth.token.email;
     }
 
-    // ── SPACES ──
+    // ── SPACES (metadata only) ──
     match /spaces/{spaceId} {
-      // Admin full access
-      allow read, write: if isAdmin();
+      // Admin can read all space usage metadata
+      allow get, list: if isAdmin();
+      
+      // Users can read their own space usage
+      allow get: if request.auth != null && resource.data.userEmail == request.auth.token.email;
 
-      // Logged-in users can read
-      allow read: if request.auth != null;
+      // No one can write actual file content here — only metadata is allowed
+      allow update, create, delete: if false;
     }
 
     // ── DANGEROUS ACCOUNTS ──
     match /dangerous_accounts/{accountId} {
-      // Only admin — this is sensitive
-      allow read, write: if isAdmin();
+      allow get, list, update, create, delete: if isAdmin();
     }
 
-    // ── REPORTS (if you add reporting) ──
+    // ── REPORTS ──
     match /reports/{reportId} {
-      allow read, write: if isAdmin();
+      allow get, list, update, delete: if isAdmin();
       allow create: if request.auth != null;
     }
   }
