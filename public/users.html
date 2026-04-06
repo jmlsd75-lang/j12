@@ -148,37 +148,6 @@
             border-bottom: none;
         }
 
-        /* Loading & Error */
-        #loading {
-            text-align: center;
-            padding: 60px;
-            color: #5f6368;
-            font-size: 16px;
-        }
-
-        .spinner {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 15px;
-        }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .error-message {
-            color: #d93025;
-            text-align: center;
-            padding: 20px;
-            background: #fce8e6;
-            border-radius: 8px;
-            margin: 20px 0;
-            display: none;
-        }
-
         .badge-null {
             color: #9aa0a6;
             font-style: italic;
@@ -204,17 +173,9 @@
         <div class="card">
             <div class="card-header">
                 <h2>Registered Users</h2>
-                <span style="font-size: 0.9rem; color: #5f6368;" id="updateStatus">Live Updates Active</span>
             </div>
             
-            <div id="loading">
-                <div class="spinner"></div>
-                <br>Connecting to Firestore...
-            </div>
-            
-            <div id="error" class="error-message"></div>
-
-            <div class="table-responsive" id="tableContainer" style="display:none;">
+            <div class="table-responsive">
                 <table id="usersTable">
                     <thead>
                         <tr>
@@ -266,12 +227,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // DOM Elements
         const tableBody = document.getElementById("tableBody");
-        const loadingMsg = document.getElementById("loading");
-        const errorMsg = document.getElementById("error");
-        const tableContainer = document.getElementById("tableContainer");
-        
         const elTotalUsers = document.getElementById("totalUsers");
         const elTotalPayment = document.getElementById("totalPayment");
         const elTotalSpace = document.getElementById("totalSpace");
@@ -299,61 +255,45 @@
         }
 
         // ── Real-time Data Listener ──
-        function startUserListener() {
-            const usersCollection = collection(db, "users"); 
+        const usersCollection = collection(db, "users"); 
 
-            onSnapshot(usersCollection, (snapshot) => {
-                tableBody.innerHTML = "";
+        onSnapshot(usersCollection, (snapshot) => {
+            tableBody.innerHTML = "";
+            
+            let countUsers = 0;
+            let sumPayment = 0;
+            let sumSpace = 0;
+
+            if (snapshot.empty) {
+                tableBody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding: 30px; color:#777;'>No users found.</td></tr>";
+            }
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
                 
-                let countUsers = 0;
-                let sumPayment = 0;
-                let sumSpace = 0;
+                countUsers++;
+                sumPayment += (data.lastPaymentAmount || 0);
+                sumSpace += (data.spaceUsed || 0);
 
-                if (snapshot.empty) {
-                    tableBody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding: 30px; color:#777;'>No users found in database.</td></tr>";
-                }
-
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-                    
-                    countUsers++;
-                    sumPayment += (data.lastPaymentAmount || 0);
-                    sumSpace += (data.spaceUsed || 0);
-
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
-                        <td>
-                            <strong>${data.username || "Unknown User"}</strong>
-                        </td>
-                        <td>${data.email || doc.id}</td>
-                        <td class="col-number">${formatSpace(data.spaceUsed)}</td>
-                        <td class="col-number">${formatCurrency(data.lastPaymentAmount)}</td>
-                        <td class="col-date">${formatDate(data.lastPayment)}</td>
-                        <td class="col-date">${formatDate(data.lastVisit)}</td>
-                    `;
-                    tableBody.appendChild(row);
-                });
-
-                // Update Footer
-                elTotalUsers.textContent = `${countUsers} Users`;
-                elTotalPayment.textContent = formatCurrency(sumPayment);
-                elTotalSpace.textContent = formatSpace(sumSpace);
-
-                // UI Update
-                loadingMsg.style.display = "none";
-                errorMsg.style.display = "none";
-                tableContainer.style.display = "block";
-
-            }, (error) => {
-                console.error("Firestore Error:", error);
-                loadingMsg.style.display = "none";
-                errorMsg.style.display = "block";
-                errorMsg.textContent = "Error fetching users: " + error.message;
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>
+                        <strong>${data.username || "Unknown User"}</strong>
+                    </td>
+                    <td>${data.email || doc.id}</td>
+                    <td class="col-number">${formatSpace(data.spaceUsed)}</td>
+                    <td class="col-number">${formatCurrency(data.lastPaymentAmount)}</td>
+                    <td class="col-date">${formatDate(data.lastPayment)}</td>
+                    <td class="col-date">${formatDate(data.lastVisit)}</td>
+                `;
+                tableBody.appendChild(row);
             });
-        }
 
-        // ── Start Immediately (No Login Check) ──
-        startUserListener();
+            // Update Footer
+            elTotalUsers.textContent = `${countUsers} Users`;
+            elTotalPayment.textContent = formatCurrency(sumPayment);
+            elTotalSpace.textContent = formatSpace(sumSpace);
+        });
 
     </script>
 </body>
