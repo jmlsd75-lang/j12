@@ -1,11 +1,27 @@
 // ============================================================
-// login.js — Handles Google Login & Logout ONLY
+// login.js — Google Login + Firestore User Sync
 // ============================================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, browserLocalPersistence, setPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+  browserLocalPersistence,
+  setPersistence
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// ── Your Firebase Config ──
+// ── Firebase Config ──
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
   authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -24,20 +40,62 @@ const ADMIN_EMAILS = [
 // ── Initialize ──
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
 setPersistence(auth, browserLocalPersistence)
   .then(() => console.log("Auth persistence: LOCAL"))
   .catch((err) => console.error("Persistence error:", err));
 
-// ── ONLY two possible destinations ──
+// ── Routing helpers ──
 function getDestination(email) {
-  if (ADMIN_EMAILS.includes(email)) return "admin.html";
-  return "free.html";
+  return ADMIN_EMAILS.includes(email) ? "admin.html" : "free.html";
 }
 
 function isAdmin(email) {
   return ADMIN_EMAILS.includes(email);
+}
+
+// ── Firestore: create or update user document after login ──
+async function syncUserToFirestore(authUser) {
+  // Document ID = user's email (matches your current structure)
+  const userRef = doc(db, "users", authUser.email);
+  const snapshot = await getDoc(userRef);
+
+  if (snapshot.exists()) {
+    // ✅ User exists — update lastVisit, return merged data
+    const existing = snapshot.data();
+
+    await updateDoc(userRef, {
+      lastVisit: serverTimestamp()
+    });
+
+    console.log("Firestore user updated:", authUser.email);
+
+    return {
+      ...existing,
+      lastVisit: new Date().toISOString() // local timestamp for immediate use
+    };
+  } else {
+    // 🆕 First-time user — create the document
+    const newUserData = {
+      email: authUser.email,
+      username: authUser.displayName || "User",
+      lastPayment: null,
+      lastPaymentAmount: 0,
+      lastVisit: new Date().toISOString(),
+      spaceUsed: 0
+    };
+
+    await setDoc(userRef, {
+      ...newUserData,
+      lastVisit: serverTimestamp()
+    });
+
+    console.log("Firestore user created:", authUser.email);
+
+    return newUserData;
+  }
 }
 
 // ── LOGIN ──
@@ -56,19 +114,35 @@ async function handleGoogleLogin() {
   }
 
   try {
+    // Step 1: Google auth
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
 
+    // Step 2: Sync with Firestore
+    const firestoreData = await syncUserToFirestore(user);
+
+    // Step 3: Build complete session object
     const userData = {
+      // Auth info
       name: user.displayName || "User",
       email: user.email,
       photo: user.photoURL || "",
       uid: user.uid,
       isAdmin: isAdmin(user.email),
-      loginTime: new Date().toISOString()
+      loginTime: new Date().toISOString(),
+
+      // Firestore info (from users collection)
+      username: firestoreData.username || user.displayName || "User",
+      lastPayment: firestoreData.lastPayment || null,
+      lastPaymentAmount: firestoreData.lastPaymentAmount || 0,
+      lastVisit: firestoreData.lastVisit || new Date().toISOString(),
+      spaceUsed: firestoreData.spaceUsed || 0
     };
+
+    // Step 4: Save to localStorage
     localStorage.setItem("userSession", JSON.stringify(userData));
 
+    // Step 5: UI feedback
     btn.innerHTML = `
       <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#34A853"/>
@@ -77,8 +151,15 @@ async function handleGoogleLogin() {
     btn.style.background = "#e8f5e9";
     btn.style.color = "#2e7d32";
 
-    console.log("Login success:", userData.email, "| Admin:", userData.isAdmin);
+    console.log("Login success:", userData.email);
+    console.log("Firestore data merged:", {
+      username: userData.username,
+      spaceUsed: userData.spaceUsed,
+      lastPayment: userData.lastPayment,
+      lastPaymentAmount: userData.lastPaymentAmount
+    });
 
+    // Step 6: Notify other pages + redirect
     window.dispatchEvent(new CustomEvent("loginSuccess", { detail: userData }));
 
     setTimeout(() => {
@@ -150,10 +231,25 @@ function showError(message) {
 }
 
 // ── Auto-redirect if already logged in ──
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (user && (window.location.pathname.includes("index.html") || window.location.pathname.endsWith("/"))) {
     const session = localStorage.getItem("userSession");
+
     if (session) {
+      const parsed = JSON.parse(session);
+
+      // If session has no Firestore fields, re-sync now
+      if (parsed.spaceUsed === undefined) {
+        console.log("Legacy session detected — re-syncing Firestore data...");
+        const firestoreData = await syncUserToFirestore(user);
+        parsed.username = firestoreData.username || parsed.name;
+        parsed.lastPayment = firestoreData.lastPayment || null;
+        parsed.lastPaymentAmount = firestoreData.lastPaymentAmount || 0;
+        parsed.lastVisit = firestoreData.lastVisit;
+        parsed.spaceUsed = firestoreData.spaceUsed || 0;
+        localStorage.setItem("userSession", JSON.stringify(parsed));
+      }
+
       console.log("Session active, redirecting...");
       window.location.href = getDestination(user.email);
     }
