@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <style>
+        /* ── RESET & BASE STYLES ── */
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --road-color: #1e293b;
+            --road-line: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden; /* Hide scrollbars for the background scene */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* ── BACKGROUND: MOVING CARS ON FLYOVER ── */
+        .scene {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            perspective: 800px;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #020617 0%, #1e293b 100%);
+        }
+
+        /* The Flyover Road */
+        .road {
+            position: absolute;
+            bottom: 30%;
+            left: -50%;
+            width: 200%;
+            height: 400px;
+            background: 
+                linear-gradient(90deg, transparent 49%, var(--road-line) 49%, var(--road-line) 51%, transparent 51%),
+                linear-gradient(var(--road-color), var(--road-color));
+            background-size: 100px 100%, 100% 100%;
+            transform: rotateX(60deg);
+            transform-origin: 50% 100%;
+            animation: moveRoad 2s linear infinite;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            opacity: 0.6;
+        }
+
+        @keyframes moveRoad {
+            from { background-position: 0 0, 0 0; }
+            to { background-position: 100px 0, 0 0; }
+        }
+
+        /* The Car */
+        .car-container {
+            position: absolute;
+            bottom: 55%; /* Positioned on the road visually */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 60px;
+            z-index: 2;
+            animation: carBounce 0.5s ease-in-out infinite alternate;
+        }
+
+        .car-body {
+            width: 100%;
+            height: 40px;
+            background: var(--accent);
+            border-radius: 20px 20px 10px 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            position: relative;
+            z-index: 2;
+        }
+
+        .car-top {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            width: 70px;
+            height: 20px;
+            background: #0ea5e9;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .car-window {
+            position: absolute;
+            top: 2px;
+            left: 5px;
+            width: 60px;
+            height: 12px;
+            background: #bae6fd;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .wheel {
+            width: 24px;
+            height: 24px;
+            background: #333;
+            border: 2px solid #666;
+            border-radius: 50%;
+            position: absolute;
+            bottom: -10px;
+            animation: wheelSpin 0.5s linear infinite;
+        }
+
+        .wheel.left { left: 15px; }
+        .wheel.right { right: 15px; }
+
+        /* Wheel Spokes */
+        .wheel::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 2px;
+            height: 100%;
+            background: #999;
+            transform: translate(-50%, -50%);
+        }
+        .wheel::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 2px;
+            background: #999;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes wheelSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes carBounce {
+            from { transform: translateX(-50%) translateY(0); }
+            to { transform: translateX(-50%) translateY(-2px); }
+        }
+
+        /* Speed Lines */
+        .speed-line {
+            position: absolute;
+            background: rgba(255,255,255,0.1);
+            height: 2px;
+            border-radius: 2px;
+            animation: speedLine 0.8s linear infinite;
+        }
+        .sl1 { top: 60%; left: 80%; width: 100px; animation-delay: 0s; }
+        .sl2 { top: 70%; left: 90%; width: 60px; animation-delay: 0.3s; }
+        .sl3 { top: 50%; left: 70%; width: 120px; animation-delay: 0.5s; }
+
+        @keyframes speedLine {
+            0% { transform: translateX(0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(-200px); opacity: 0; }
+        }
+
+        /* ── MAIN UI LAYOUT ── */
+        .ui-layer {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 100px; /* Push down slightly to see the road */
+        }
+
+        /* Back Button */
+        .back-btn {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            margin-bottom: 20px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-5px);
+        }
+
+        /* Glass Card Container */
+        .data-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-header {
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 15px;
+        }
+
+        .card-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .card-header span {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* ── ROTATED TABLE (Vertical Columns) ── */
+        .table-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            overflow-x: auto; /* Handle small screens */
+            padding-bottom: 10px;
+        }
+
+        .data-row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-width: 120px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px 10px;
+            border-radius: 12px;
+            transition: transform 0.2s;
+        }
+
+        .data-row:hover {
+            transform: translateY(-5px);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        /* Field Name (Rotated Header) */
+        .field-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent);
+            margin-bottom: 10px;
+            font-weight: 700;
+            /* We aren't literally rotating text 90deg here because that hurts readability.
+               Instead, we stacked the layout to match the requested "Rotated Table" data flow */
+            writing-mode: horizontal-tb; 
+        }
+
+        /* Field Value */
+        .field-value {
+            font-size: 1rem;
+            color: var(--text-main);
+            word-break: break-all;
+            font-weight: 500;
+            max-width: 150px;
+        }
+
+        .field-value.null {
+            color: var(--text-muted);
+            font-style: italic;
+            opacity: 0.7;
+        }
+
+        /* Loading Spinner */
+        .loader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-left-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            .table-container {
+                flex-direction: column; /* Stack vertically on very small screens if needed, or keep scroll */
+                flex-direction: row; /* Keep horizontal but scrollable */
+                justify-content: flex-start;
+            }
+            .car-container {
+                transform: scale(0.8) translateX(-60%);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Animation Scene -->
+    <div class="scene">
+        <div class="road"></div>
+        
+        <!-- The Car -->
+        <div class="car-container">
+            <div class="car-top"></div>
+            <div class="car-body">
+                <div class="car-window"></div>
+            </div>
+            <div class="wheel left"></div>
+            <div class="wheel right"></div>
+        </div>
+
+        <!-- Speed Lines for effect -->
+        <div class="speed-line sl1"></div>
+        <div class="speed-line sl2"></div>
+        <div class="speed-line sl3"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ui-layer">
+        
+        <!-- Go Back Button -->
+        <button class="back-btn" onclick="goBack()">
+            <span>&gt;</span> Go Back
+        </button>
+
+        <!-- Data Card -->
+        <div class="data-card" id="dataCard">
+            <div class="card-header">
+                <h2 id="displayUsername">Loading...</h2>
+                <span>Account Details</span>
+            </div>
+
+            <!-- Loader initially visible -->
+            <div id="loader" class="loader-container">
+                <div class="spinner"></div>
+            </div>
+
+            <!-- Data Table (Hidden until loaded) -->
+            <div id="dataTable" class="table-container" style="display: none;">
+                <!-- 
+                   Structure: 
+                   We use a flex container where each "column" is a vertical stack (field-label then field-value).
+                   This creates the visual effect of a table rotated 90 degrees.
+                -->
+                
+                <!-- Email -->
+                <div class="data-row">
+                    <div class="field-label">Email</div>
+                    <div class="field-value" id="val-email">--</div>
+                </div>
+
+                <!-- Last Payment -->
+                <div class="data-row">
+                    <div class="field-label">Last Payment</div>
+                    <div class="field-value" id="val-lastPayment">--</div>
+                </div>
+
+                <!-- Last Payment Amount -->
+                <div class="data-row">
+                    <div class="field-label">Amount</div>
+                    <div class="field-value" id="val-lastPaymentAmount">--</div>
+                </div>
+
+                <!-- Last Visit -->
+                <div class="data-row">
+                    <div class="field-label">Last Visit</div>
+                    <div class="field-value" id="val-lastVisit">--</div>
+                </div>
+
+                <!-- Space Used -->
+                <div class="data-row">
+                    <div class="field-label">Space Used</div>
+                    <div class="field-value" id="val-spaceUsed">--</div>
+                </div>
+
+                <!-- Username -->
+                <div class="data-row">
+                    <div class="field-label">Username</div>
+                    <div class="field-value" id="val-username">--</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Modules -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // ── Firebase Config ──
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
+
+        // ── Initialize ──
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // ── DOM Elements ──
+        const loader = document.getElementById('loader');
+        const dataTable = document.getElementById('dataTable');
+        const displayUsername = document.getElementById('displayUsername');
+
+        const els = {
+            email: document.getElementById('val-email'),
+            lastPayment: document.getElementById('val-lastPayment'),
+            lastPaymentAmount: document.getElementById('val-lastPaymentAmount'),
+            lastVisit: document.getElementById('val-lastVisit'),
+            spaceUsed: document.getElementById('val-spaceUsed'),
+            username: document.getElementById('val-username'),
+        };
+
+        // ── Load User Data ──
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                // Not logged in, redirect to index
+                window.location.href = "index.html";
+                return;
+            }
+
+            try {
+                // 1. Fetch from Firestore
+                // We use the user's email as the document ID (based on login.js logic)
+                const userRef = doc(db, "users", user.email);
+                const docSnap = await getDoc(userRef);
+
+                let data = {};
+
+                if (docSnap.exists()) {
+                    data = docSnap.data();
+                    console.log("Firestore data retrieved:", data);
+                } else {
+                    console.warn("No Firestore doc found, using local Auth data only.");
+                    // Fallback if doc doesn't exist yet (rare if login.js worked correctly)
+                    data = {
+                        username: user.displayName || "Unknown",
+                        email: user.email,
+                        lastPayment: null,
+                        lastPaymentAmount: 0,
+                        lastVisit: "First visit",
+                        spaceUsed: 0
+                    };
+                }
+
+                // 2. Update UI
+                updateUI(data);
+                
+                // Hide loader, show table
+                loader.style.display = 'none';
+                dataTable.style.display = 'flex';
+
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+                displayUsername.innerText = "Error loading data";
+                loader.style.display = 'none';
+            }
+        });
+
+        function updateUI(data) {
+            // Header
+            displayUsername.textContent = data.username || "User";
+
+            // Helper to format dates
+            const formatDate = (ts) => {
+                if (!ts) return "null";
+                // Handle Firestore Timestamp or ISO string
+                const date = ts.toDate ? ts.toDate() : new Date(ts);
+                return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleString();
+            };
+
+            // Populate Fields
+            els.email.textContent = data.email || "null";
+            
+            // Last Payment (Date)
+            if (data.lastPayment) {
+                els.lastPayment.textContent = formatDate(data.lastPayment);
+                els.lastPayment.classList.remove('null');
+            } else {
+                els.lastPayment.textContent = "null";
+                els.lastPayment.classList.add('null');
+            }
+
+            // Last Payment Amount
+            els.lastPaymentAmount.textContent = data.lastPaymentAmount ?? 0;
+
+            // Last Visit
+            els.lastVisit.textContent = data.lastVisit ? formatDate(data.lastVisit) : "null";
+
+            // Space Used
+            els.spaceUsed.textContent = data.spaceUsed ?? 0;
+
+            // Username
+            els.username.textContent = data.username || "null";
+        }
+
+        // Expose goBack to window
+        window.goBack = function() {
+            window.location.href = "free.html"; // Or index.html, based on your flow
+        };
+    </script>
+</body>
+</html>
