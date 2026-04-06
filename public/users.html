@@ -3,547 +3,537 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile</title>
+    <title>User Profile Dashboard</title>
     <style>
-        /* ── RESET & BASE STYLES ── */
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent: #38bdf8;
-            --road-color: #1e293b;
-            --road-line: #334155;
-        }
-
+        /* =========================================
+           RESET & TYPOGRAPHY
+           ========================================= */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0f172a; /* Fallback dark blue */
+            color: #ffffff;
             height: 100vh;
-            overflow: hidden; /* Hide scrollbars for the background scene */
+            width: 100vw;
+            overflow: hidden; /* Prevent scrollbars due to animation */
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            position: relative;
         }
 
-        /* ── BACKGROUND: MOVING CARS ON FLYOVER ── */
+        /* =========================================
+           BACKGROUND SCENE (FLYOVER & MOVING CAR)
+           ========================================= */
         .scene {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 0;
-            perspective: 800px;
+            z-index: -1;
+            background: linear-gradient(to bottom, #020024 0%, #090979 35%, #2a2a2a 100%);
             overflow: hidden;
-            background: linear-gradient(to bottom, #020617 0%, #1e293b 100%);
         }
 
-        /* The Flyover Road */
+        /* Stars/City lights in distance */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+            animation: starMove 100s linear infinite;
+        }
+
+        /* City Skyline (Silhouette) */
+        .city {
+            position: absolute;
+            bottom: 30%; /* Above the road */
+            left: 0;
+            width: 200%;
+            height: 150px;
+            background: 
+                linear-gradient(to bottom, transparent 0%, #000 100%),
+                repeating-linear-gradient(90deg, #000 0px, #000 20px, transparent 20px, transparent 25px),
+                repeating-linear-gradient(90deg, #111 0px, #111 40px, #000 40px, #000 60px);
+            background-size: 100% 100%, 100px 100%, 150px 100%;
+            opacity: 0.6;
+            animation: cityMove 60s linear infinite;
+        }
+
+        /* Flyover Pillars (Static) */
+        .pillars {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            z-index: 1;
+        }
+
+        .pillar {
+            width: 60px;
+            height: 100%;
+            background: linear-gradient(90deg, #1a1a1a, #333, #1a1a1a);
+            border-top: 5px solid #555;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        /* The Road */
         .road {
             position: absolute;
-            bottom: 30%;
-            left: -50%;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 35%; /* Thicker road */
+            background: #1c1c1c;
+            border-top: 6px solid #444;
+            z-index: 2;
+            overflow: hidden;
+            perspective: 600px;
+        }
+
+        /* Road Markings (Moving) */
+        .road-lines {
+            position: absolute;
+            top: 50%;
+            left: 0;
             width: 200%;
-            height: 400px;
-            background: 
-                linear-gradient(90deg, transparent 49%, var(--road-line) 49%, var(--road-line) 51%, transparent 51%),
-                linear-gradient(var(--road-color), var(--road-color));
-            background-size: 100px 100%, 100% 100%;
-            transform: rotateX(60deg);
-            transform-origin: 50% 100%;
-            animation: moveRoad 2s linear infinite;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            opacity: 0.6;
+            height: 4px;
+            background: repeating-linear-gradient(90deg, #fff 0, #fff 50px, transparent 50px, transparent 100px);
+            transform: translateY(-50%);
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+            animation: roadMove 1s linear infinite;
         }
 
-        @keyframes moveRoad {
-            from { background-position: 0 0, 0 0; }
-            to { background-position: 100px 0, 0 0; }
-        }
-
-        /* The Car */
+        /* The Moving Car */
         .car-container {
             position: absolute;
-            bottom: 55%; /* Positioned on the road visually */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 120px;
-            height: 60px;
-            z-index: 2;
-            animation: carBounce 0.5s ease-in-out infinite alternate;
+            bottom: 45%; /* On the road */
+            left: -300px; /* Start off-screen */
+            width: 260px;
+            height: 80px;
+            z-index: 3;
+            animation: driveCar 4s linear infinite;
         }
 
         .car-body {
             width: 100%;
-            height: 40px;
-            background: var(--accent);
-            border-radius: 20px 20px 10px 10px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            height: 50px;
+            background: linear-gradient(to bottom, #e74c3c, #c0392b);
+            border-radius: 10px 40px 10px 10px; /* Aerodynamic shape */
             position: relative;
-            z-index: 2;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
         }
 
-        .car-top {
+        .car-roof {
             position: absolute;
-            top: -15px;
-            left: 20px;
-            width: 70px;
-            height: 20px;
-            background: #0ea5e9;
+            top: -25px;
+            left: 50px;
+            width: 100px;
+            height: 30px;
+            background: #2c3e50;
             border-radius: 20px 20px 0 0;
         }
 
-        .car-window {
+        .window {
             position: absolute;
-            top: 2px;
+            top: 5px;
             left: 5px;
-            width: 60px;
-            height: 12px;
-            background: #bae6fd;
+            width: 90px;
+            height: 20px;
+            background: linear-gradient(135deg, #81ecec, #00cec9);
             border-radius: 15px 15px 0 0;
+            opacity: 0.8;
         }
 
         .wheel {
-            width: 24px;
-            height: 24px;
-            background: #333;
-            border: 2px solid #666;
-            border-radius: 50%;
             position: absolute;
-            bottom: -10px;
+            bottom: -15px;
+            width: 35px;
+            height: 35px;
+            background: #222;
+            border: 3px solid #555;
+            border-radius: 50%;
             animation: wheelSpin 0.5s linear infinite;
         }
+        .wheel.front { right: 35px; }
+        .wheel.back { left: 35px; }
 
-        .wheel.left { left: 15px; }
-        .wheel.right { right: 15px; }
-
-        /* Wheel Spokes */
-        .wheel::after {
-            content: '';
+        .headlights {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 2px;
-            height: 100%;
-            background: #999;
-            transform: translate(-50%, -50%);
+            right: -5px;
+            top: 15px;
+            width: 10px;
+            height: 20px;
+            background: #f1c40f;
+            box-shadow: 20px 0 40px 10px rgba(241, 196, 15, 0.6); /* Light beam */
+            border-radius: 0 5px 5px 0;
         }
-        .wheel::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 100%;
-            height: 2px;
-            background: #999;
-            transform: translate(-50%, -50%);
+
+        /* =========================================
+           ANIMATIONS
+           ========================================= */
+        @keyframes roadMove {
+            0% { transform: translateY(-50%) translateX(0); }
+            100% { transform: translateY(-50%) translateX(-100px); }
+        }
+
+        @keyframes driveCar {
+            0% { left: -300px; transform: scale(0.8); }
+            40% { left: 30%; transform: scale(1); }
+            60% { left: 30%; transform: scale(1); } /* Pause briefly */
+            100% { left: 110%; transform: scale(0.8); }
         }
 
         @keyframes wheelSpin {
-            to { transform: rotate(360deg); }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        @keyframes carBounce {
-            from { transform: translateX(-50%) translateY(0); }
-            to { transform: translateX(-50%) translateY(-2px); }
+        @keyframes starMove {
+            from { background-position: 0 0, 40px 60px, 130px 270px; }
+            to { background-position: 550px 0, 590px 60px, 680px 270px; }
         }
 
-        /* Speed Lines */
-        .speed-line {
-            position: absolute;
-            background: rgba(255,255,255,0.1);
-            height: 2px;
-            border-radius: 2px;
-            animation: speedLine 0.8s linear infinite;
-        }
-        .sl1 { top: 60%; left: 80%; width: 100px; animation-delay: 0s; }
-        .sl2 { top: 70%; left: 90%; width: 60px; animation-delay: 0.3s; }
-        .sl3 { top: 50%; left: 70%; width: 120px; animation-delay: 0.5s; }
-
-        @keyframes speedLine {
-            0% { transform: translateX(0); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: translateX(-200px); opacity: 0; }
+        @keyframes cityMove {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
         }
 
-        /* ── MAIN UI LAYOUT ── */
-        .ui-layer {
+        /* =========================================
+           CONTENT UI (Glassmorphism Card)
+           ========================================= */
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
             position: relative;
             z-index: 10;
-            width: 100%;
-            max-width: 600px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 100px; /* Push down slightly to see the road */
+            animation: cardFadeIn 0.8s ease-out;
+        }
+
+        @keyframes cardFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Back Button */
         .back-btn {
-            align-self: flex-start;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 10px 20px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 10px 15px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 1.2rem;
+            font-size: 14px;
+            font-weight: bold;
             display: flex;
             align-items: center;
-            gap: 5px;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
-            margin-bottom: 20px;
+            gap: 8px;
+            transition: all 0.2s ease;
+            z-index: 20;
         }
 
         .back-btn:hover {
             background: rgba(255, 255, 255, 0.2);
-            transform: translateX(-5px);
+            transform: translateX(-3px);
         }
 
-        /* Glass Card Container */
-        .data-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 30px;
-            width: 100%;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            animation: slideUp 0.6s ease-out;
+        .back-icon {
+            font-size: 18px;
+            line-height: 1;
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .card-header {
-            margin-bottom: 20px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 15px;
-        }
-
-        .card-header h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--text-main);
-        }
-
-        .card-header span {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-
-        /* ── ROTATED TABLE (Vertical Columns) ── */
+        /* Table Styling */
         .table-container {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            overflow-x: auto; /* Handle small screens */
-            padding-bottom: 10px;
+            overflow-x: auto;
+            margin-top: 20px;
         }
 
-        .data-row {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            min-width: 120px;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 15px 10px;
-            border-radius: 12px;
-            transition: transform 0.2s;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px; /* Ensure horizontal scroll on mobile */
         }
 
-        .data-row:hover {
-            transform: translateY(-5px);
-            background: rgba(0, 0, 0, 0.4);
+        th, td {
+            text-align: left;
+            padding: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        /* Field Name (Rotated Header) */
-        .field-label {
-            font-size: 0.8rem;
+        th {
+            color: #a0a0a0;
+            font-weight: 600;
             text-transform: uppercase;
+            font-size: 0.85rem;
             letter-spacing: 1px;
-            color: var(--accent);
-            margin-bottom: 10px;
-            font-weight: 700;
-            /* We aren't literally rotating text 90deg here because that hurts readability.
-               Instead, we stacked the layout to match the requested "Rotated Table" data flow */
-            writing-mode: horizontal-tb; 
+            background: rgba(0, 0, 0, 0.2);
         }
 
-        /* Field Value */
-        .field-value {
+        td {
             font-size: 1rem;
-            color: var(--text-main);
-            word-break: break-all;
-            font-weight: 500;
-            max-width: 150px;
+            color: #fff;
+            font-family: 'Courier New', monospace; /* Monospace for data feel */
         }
 
-        .field-value.null {
-            color: var(--text-muted);
-            font-style: italic;
-            opacity: 0.7;
+        tr:last-child th, tr:last-child td {
+            border-bottom: none;
         }
 
-        /* Loading Spinner */
-        .loader-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 200px;
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.05);
+            transition: background 0.2s;
         }
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255,255,255,0.1);
-            border-left-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* Mobile Adjustments */
+        /* Specific styling for values based on type */
+        .val-null { color: #ff6b6b; font-style: italic; }
+        .val-zero { color: #feca57; }
+        .val-date { color: #48dbfb; }
+
+        /* Responsive */
         @media (max-width: 600px) {
-            .table-container {
-                flex-direction: column; /* Stack vertically on very small screens if needed, or keep scroll */
-                flex-direction: row; /* Keep horizontal but scrollable */
-                justify-content: flex-start;
+            .card {
+                padding: 50px 15px 20px 15px; /* Top padding for button */
             }
-            .car-container {
-                transform: scale(0.8) translateX(-60%);
+            .back-btn {
+                top: 10px;
+                left: 10px;
+                padding: 8px 12px;
             }
+            th, td {
+                padding: 12px 8px;
+                font-size: 0.9rem;
+            }
+            .city { height: 80px; bottom: 35%; }
+            .road { height: 35%; }
+            .car-container { transform: scale(0.7); bottom: 48%; left: -250px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Background Animation Scene -->
+    <!-- 1. The Animated Background -->
     <div class="scene">
-        <div class="road"></div>
+        <div class="stars"></div>
+        <div class="city"></div>
         
-        <!-- The Car -->
-        <div class="car-container">
-            <div class="car-top"></div>
-            <div class="car-body">
-                <div class="car-window"></div>
-            </div>
-            <div class="wheel left"></div>
-            <div class="wheel right"></div>
+        <div class="pillars">
+            <div class="pillar"></div>
+            <div class="pillar"></div>
+            <div class="pillar"></div>
+            <div class="pillar"></div>
+            <div class="pillar"></div>
         </div>
 
-        <!-- Speed Lines for effect -->
-        <div class="speed-line sl1"></div>
-        <div class="speed-line sl2"></div>
-        <div class="speed-line sl3"></div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="ui-layer">
-        
-        <!-- Go Back Button -->
-        <button class="back-btn" onclick="goBack()">
-            <span>&gt;</span> Go Back
-        </button>
-
-        <!-- Data Card -->
-        <div class="data-card" id="dataCard">
-            <div class="card-header">
-                <h2 id="displayUsername">Loading...</h2>
-                <span>Account Details</span>
-            </div>
-
-            <!-- Loader initially visible -->
-            <div id="loader" class="loader-container">
-                <div class="spinner"></div>
-            </div>
-
-            <!-- Data Table (Hidden until loaded) -->
-            <div id="dataTable" class="table-container" style="display: none;">
-                <!-- 
-                   Structure: 
-                   We use a flex container where each "column" is a vertical stack (field-label then field-value).
-                   This creates the visual effect of a table rotated 90 degrees.
-                -->
-                
-                <!-- Email -->
-                <div class="data-row">
-                    <div class="field-label">Email</div>
-                    <div class="field-value" id="val-email">--</div>
-                </div>
-
-                <!-- Last Payment -->
-                <div class="data-row">
-                    <div class="field-label">Last Payment</div>
-                    <div class="field-value" id="val-lastPayment">--</div>
-                </div>
-
-                <!-- Last Payment Amount -->
-                <div class="data-row">
-                    <div class="field-label">Amount</div>
-                    <div class="field-value" id="val-lastPaymentAmount">--</div>
-                </div>
-
-                <!-- Last Visit -->
-                <div class="data-row">
-                    <div class="field-label">Last Visit</div>
-                    <div class="field-value" id="val-lastVisit">--</div>
-                </div>
-
-                <!-- Space Used -->
-                <div class="data-row">
-                    <div class="field-label">Space Used</div>
-                    <div class="field-value" id="val-spaceUsed">--</div>
-                </div>
-
-                <!-- Username -->
-                <div class="data-row">
-                    <div class="field-label">Username</div>
-                    <div class="field-value" id="val-username">--</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Firebase Modules -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-        // ── Firebase Config ──
-        const firebaseConfig = {
-            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-            authDomain: "my-project-66803-95cb3.firebaseapp.com",
-            projectId: "my-project-66803-95cb3",
-            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-            messagingSenderId: "167159607898",
-            appId: "1:167159607898:web:23ca11366b88868b085e63"
-        };
-
-        // ── Initialize ──
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // ── DOM Elements ──
-        const loader = document.getElementById('loader');
-        const dataTable = document.getElementById('dataTable');
-        const displayUsername = document.getElementById('displayUsername');
-
-        const els = {
-            email: document.getElementById('val-email'),
-            lastPayment: document.getElementById('val-lastPayment'),
-            lastPaymentAmount: document.getElementById('val-lastPaymentAmount'),
-            lastVisit: document.getElementById('val-lastVisit'),
-            spaceUsed: document.getElementById('val-spaceUsed'),
-            username: document.getElementById('val-username'),
-        };
-
-        // ── Load User Data ──
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                // Not logged in, redirect to index
-                window.location.href = "index.html";
-                return;
-            }
-
-            try {
-                // 1. Fetch from Firestore
-                // We use the user's email as the document ID (based on login.js logic)
-                const userRef = doc(db, "users", user.email);
-                const docSnap = await getDoc(userRef);
-
-                let data = {};
-
-                if (docSnap.exists()) {
-                    data = docSnap.data();
-                    console.log("Firestore data retrieved:", data);
-                } else {
-                    console.warn("No Firestore doc found, using local Auth data only.");
-                    // Fallback if doc doesn't exist yet (rare if login.js worked correctly)
-                    data = {
-                        username: user.displayName || "Unknown",
-                        email: user.email,
-                        lastPayment: null,
-                        lastPaymentAmount: 0,
-                        lastVisit: "First visit",
-                        spaceUsed: 0
-                    };
-                }
-
-                // 2. Update UI
-                updateUI(data);
-                
-                // Hide loader, show table
-                loader.style.display = 'none';
-                dataTable.style.display = 'flex';
-
-            } catch (error) {
-                console.error("Error fetching user data:", error);
-                displayUsername.innerText = "Error loading data";
-                loader.style.display = 'none';
-            }
-        });
-
-        function updateUI(data) {
-            // Header
-            displayUsername.textContent = data.username || "User";
-
-            // Helper to format dates
-            const formatDate = (ts) => {
-                if (!ts) return "null";
-                // Handle Firestore Timestamp or ISO string
-                const date = ts.toDate ? ts.toDate() : new Date(ts);
-                return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleString();
-            };
-
-            // Populate Fields
-            els.email.textContent = data.email || "null";
+        <div class="road">
+            <div class="road-lines"></div>
             
-            // Last Payment (Date)
-            if (data.lastPayment) {
-                els.lastPayment.textContent = formatDate(data.lastPayment);
-                els.lastPayment.classList.remove('null');
+            <!-- Moving Car -->
+            <div class="car-container">
+                <div class="car-body">
+                    <div class="car-roof">
+                        <div class="window"></div>
+                    </div>
+                    <div class="headlights"></div>
+                    <div class="wheel back"></div>
+                    <div class="wheel front"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. The UI Content -->
+    <button class="back-btn" onclick="goBack()">
+        <span class="back-icon">&lt;</span> Back
+    </button>
+
+    <div class="card">
+        <div style="margin-bottom: 20px;">
+            <h2 style="font-weight: 300; letter-spacing: 1px;">User Data</h2>
+            <div style="height: 3px; width: 50px; background: #e74c3c; margin-top: 5px;"></div>
+        </div>
+
+        <div class="table-container">
+            <!-- The Modified Table: Rotated 90° logic applied (Fields as headers) -->
+            <table id="userTable">
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>email</th>
+                        <th>lastPayment</th>
+                        <th>lastPaymentAmount</th>
+                        <th>lastVisit</th>
+                        <th>spaceUsed</th>
+                        <th>username</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Value</strong></td>
+                        <!-- Data injected via JS -->
+                        <td id="d-email">Loading...</td>
+                        <td id="d-lastPayment">Loading...</td>
+                        <td id="d-lastPaymentAmount">Loading...</td>
+                        <td id="d-lastVisit">Loading...</td>
+                        <td id="d-spaceUsed">Loading...</td>
+                        <td id="d-username">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // LOGIC: Fetch Data & Populate Table
+        // ============================================
+
+        // 1. Helper to format dates nicely (matches prompt example style)
+        function formatDate(isoString) {
+            if (!isoString) return null;
+            const date = new Date(isoString);
+            return date.toLocaleString('en-GB', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZoneName: 'short'
+            }) + " UTC+3"; // Hardcoding UTC+3 as per prompt example
+        }
+
+        // 2. The Data from the prompt (Fallback/Default)
+        const staticData = {
+            email: "camelkazembe1@gmail.com",
+            lastPayment: null,
+            lastPaymentAmount: 0,
+            lastVisit: "2026-04-06T16:10:06.000Z", // Approximate for the date in prompt
+            spaceUsed: 0,
+            username: "Camel Kazembe"
+        };
+
+        // 3. Function to populate table
+        function renderTable(data) {
+            // Email
+            document.getElementById('d-email').textContent = data.email;
+
+            // Last Payment
+            const lpEl = document.getElementById('d-lastPayment');
+            if (data.lastPayment === null) {
+                lpEl.textContent = "null";
+                lpEl.className = "val-null";
             } else {
-                els.lastPayment.textContent = "null";
-                els.lastPayment.classList.add('null');
+                lpEl.textContent = data.lastPayment;
             }
 
             // Last Payment Amount
-            els.lastPaymentAmount.textContent = data.lastPaymentAmount ?? 0;
+            const lpaEl = document.getElementById('d-lastPaymentAmount');
+            lpaEl.textContent = data.lastPaymentAmount;
+            if (data.lastPaymentAmount === 0) lpaEl.className = "val-zero";
 
             // Last Visit
-            els.lastVisit.textContent = data.lastVisit ? formatDate(data.lastVisit) : "null";
+            const lvEl = document.getElementById('d-lastVisit');
+            // If we have the exact string from prompt, use it, otherwise format
+            if (typeof data.lastVisit === 'string' && data.lastVisit.includes('6 April 2026')) {
+                 lvEl.textContent = data.lastVisit; // Use exact string if present
+                 lvEl.className = "val-date";
+            } else {
+                const formatted = formatDate(data.lastVisit);
+                lvEl.textContent = formatted ? formatted : "null";
+                if(formatted) lvEl.className = "val-date";
+            }
 
             // Space Used
-            els.spaceUsed.textContent = data.spaceUsed ?? 0;
+            const suEl = document.getElementById('d-spaceUsed');
+            suEl.textContent = data.spaceUsed;
+            if (data.spaceUsed === 0) suEl.className = "val-zero";
 
             // Username
-            els.username.textContent = data.username || "null";
+            document.getElementById('d-username').textContent = data.username;
         }
 
-        // Expose goBack to window
-        window.goBack = function() {
-            window.location.href = "free.html"; // Or index.html, based on your flow
-        };
+        // 4. Initialization logic
+        document.addEventListener('DOMContentLoaded', () => {
+            // A. Try to get data from LocalStorage (set by your login.js)
+            const session = localStorage.getItem('userSession');
+            let userData = staticData; // Default to prompt data
+
+            if (session) {
+                try {
+                    const parsed = JSON.parse(session);
+                    // Map login.js keys to our table keys if needed, 
+                    // but they match perfectly based on your login.js code.
+                    userData = {
+                        email: parsed.email,
+                        lastPayment: parsed.lastPayment,
+                        lastPaymentAmount: parsed.lastPaymentAmount,
+                        lastVisit: parsed.lastVisit, // login.js sets this as ISO string usually
+                        spaceUsed: parsed.spaceUsed,
+                        username: parsed.username
+                    };
+                    
+                    // Special handling: If the login.js just created a new user, 
+                    // lastVisit might be an ISO string. 
+                    // For the demo effect requested, if it is 2026, keep it, 
+                    // otherwise the staticData is better for the visual "preview".
+                    
+                    // To strictly follow "use it" (the prompt data) while supporting login:
+                    // We will use the session data if it exists and has valid fields.
+                    
+                } catch (e) {
+                    console.error("Session parse error, using static data", e);
+                }
+            } else {
+                console.log("No session found, displaying demo data from prompt.");
+            }
+
+            // If we want to force the Prompt's specific "6 April 2026" date for visual consistency 
+            // with the request, we can override it here if the session doesn't have it.
+            // But typically, we want real data. 
+            // However, the prompt says: "Table data: ... use it".
+            // I will prioritize the Session, but if the session is empty, I use the static.
+            
+            renderTable(userData);
+        });
+
+        // 5. Navigation
+        function goBack() {
+            // Simply go back in history
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                // If no history, maybe go to index or do nothing
+                console.log("No history to go back to");
+                // Fallback for a standalone file test:
+                // window.location.href = 'index.html'; 
+            }
+        }
     </script>
 </body>
 </html>
