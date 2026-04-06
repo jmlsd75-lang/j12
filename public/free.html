@@ -25,7 +25,6 @@
             position: relative;
         }
 
-        /* ── Sky Stars ── */
         body::before {
             content: '';
             position: fixed;
@@ -54,7 +53,6 @@
             100% { opacity: 1; }
         }
 
-        /* ── Ground ── */
         .ground {
             position: fixed;
             bottom: 0;
@@ -85,7 +83,6 @@
             opacity: 0.5;
         }
 
-        /* ── Grass Tufts ── */
         .grass {
             position: fixed;
             bottom: 16%;
@@ -113,7 +110,6 @@
             50% { transform: rotate(5deg); }
         }
 
-        /* ── Tree ── */
         .tree-container {
             position: fixed;
             bottom: 18%;
@@ -132,7 +128,6 @@
             margin: 0 auto;
         }
 
-        /* Bark texture */
         .tree-trunk::before {
             content: '';
             position: absolute;
@@ -161,7 +156,6 @@
             border-radius: 5px;
         }
 
-        /* Branch left */
         .branch-left {
             position: absolute;
             top: 60px;
@@ -174,7 +168,6 @@
             transform-origin: right center;
         }
 
-        /* Branch right */
         .branch-right {
             position: absolute;
             top: 100px;
@@ -187,7 +180,6 @@
             transform-origin: left center;
         }
 
-        /* Tree canopy — layered circles */
         .canopy {
             position: absolute;
             top: -120px;
@@ -248,7 +240,6 @@
             left: -70px;
         }
 
-        /* Animated eating leaves cluster — near giraffe mouth */
         .eating-leaves {
             position: absolute;
             top: -60px;
@@ -278,7 +269,6 @@
             75% { transform: translate(2px, 2px) rotate(1deg); }
         }
 
-        /* ── Giraffe ── */
         .giraffe-container {
             position: fixed;
             bottom: 18%;
@@ -293,7 +283,6 @@
             50% { transform: translateY(-3px); }
         }
 
-        /* Body */
         .giraffe-body {
             width: 100px;
             height: 65px;
@@ -302,7 +291,6 @@
             position: relative;
         }
 
-        /* Giraffe spots */
         .giraffe-body::before {
             content: '';
             position: absolute;
@@ -321,7 +309,6 @@
                 30px 35px 0 2px rgba(139, 90, 20, 0.3);
         }
 
-        /* Neck */
         .giraffe-neck {
             position: absolute;
             bottom: 50px;
@@ -351,7 +338,6 @@
                 0px 175px 0 2px rgba(139, 90, 20, 0.3);
         }
 
-        /* Head */
         .giraffe-head {
             position: absolute;
             top: -28px;
@@ -363,7 +349,6 @@
             transform: rotate(5deg);
         }
 
-        /* Ear */
         .giraffe-head::before {
             content: '';
             position: absolute;
@@ -384,7 +369,6 @@
             95% { transform: rotate(-5deg); }
         }
 
-        /* Ossicones (horns) */
         .ossicone {
             position: absolute;
             top: -15px;
@@ -408,7 +392,6 @@
         .ossicone.left { left: 8px; transform: rotate(-10deg); }
         .ossicone.right { right: 8px; transform: rotate(10deg); }
 
-        /* Eye */
         .giraffe-eye {
             position: absolute;
             top: 8px;
@@ -436,7 +419,6 @@
             95% { transform: scaleY(0.1); }
         }
 
-        /* Mouth — chewing animation */
         .giraffe-mouth {
             position: absolute;
             bottom: 2px;
@@ -455,7 +437,6 @@
             75% { transform: scaleY(0.7) translateY(0.5px); }
         }
 
-        /* Legs */
         .giraffe-legs {
             position: absolute;
             bottom: -55px;
@@ -485,7 +466,6 @@
 
         .leg.back { background: linear-gradient(90deg, #b07020, #c47e28, #b07020); }
 
-        /* Tail */
         .giraffe-tail {
             position: absolute;
             bottom: 30px;
@@ -514,7 +494,6 @@
             50% { transform: rotate(15deg); }
         }
 
-        /* ── Floating Leaves ── */
         .floating-leaf {
             position: fixed;
             width: 14px;
@@ -538,7 +517,6 @@
             100% { top: 85%; transform: translateX(80px) rotate(360deg); opacity: 0; }
         }
 
-        /* ── UI Overlay ── */
         .ui-overlay {
             position: relative;
             z-index: 10;
@@ -672,7 +650,6 @@
             border: none;
             color: #3a2010;
             box-shadow: 0 4px 20px rgba(212, 137, 46, 0.4);
-            display: none;
         }
 
         .action-btn.pay-btn:hover {
@@ -702,7 +679,6 @@
             display: none !important;
         }
 
-        /* Logout toast */
         .logout-toast {
             position: fixed;
             top: 30px;
@@ -729,7 +705,6 @@
             transform: translateX(-50%) translateY(0);
         }
 
-        /* ── Small bush accents ── */
         .bush {
             position: fixed;
             bottom: 17%;
@@ -752,7 +727,6 @@
         .bush.right-bush .bush-blob:nth-child(2) { width: 40px; height: 30px; background: #3d8a2e; left: 12px; top: -10px; }
         .bush.right-bush .bush-blob:nth-child(3) { width: 28px; height: 20px; background: #4a8e32; left: -8px; top: 3px; }
 
-        /* ── Distant trees silhouette ── */
         .distant-tree {
             position: fixed;
             bottom: 18%;
@@ -781,7 +755,6 @@
         .distant-tree.t2 { right: 15%; transform: scale(0.85); }
         .distant-tree.t3 { left: 25%; transform: scale(0.5); opacity: 0.2; }
 
-        /* Responsive */
         @media (max-width: 600px) {
             .timer-display {
                 font-size: 44px;
@@ -801,22 +774,18 @@
 </head>
 <body>
 
-    <!-- Logout feedback toast -->
     <div class="logout-toast" id="logoutToast">Signing out...</div>
 
-    <!-- Floating leaves -->
     <div class="floating-leaf"></div>
     <div class="floating-leaf"></div>
     <div class="floating-leaf"></div>
     <div class="floating-leaf"></div>
     <div class="floating-leaf"></div>
 
-    <!-- Distant trees -->
     <div class="distant-tree t1"><div class="dt-top"></div><div class="dt-trunk"></div></div>
     <div class="distant-tree t2"><div class="dt-top"></div><div class="dt-trunk"></div></div>
     <div class="distant-tree t3"><div class="dt-top"></div><div class="dt-trunk"></div></div>
 
-    <!-- Bushes -->
     <div class="bush left-bush">
         <div class="bush-blob"></div>
         <div class="bush-blob"></div>
@@ -828,7 +797,6 @@
         <div class="bush-blob"></div>
     </div>
 
-    <!-- Grass tufts -->
     <div class="grass" style="left: 15%;">
         <span></span><span></span><span></span><span></span><span></span>
     </div>
@@ -839,10 +807,8 @@
         <span></span><span></span><span></span><span></span><span></span>
     </div>
 
-    <!-- Ground -->
     <div class="ground"></div>
 
-    <!-- Tree -->
     <div class="tree-container">
         <div class="canopy">
             <div class="canopy-layer c1"></div>
@@ -864,7 +830,6 @@
         </div>
     </div>
 
-    <!-- Giraffe -->
     <div class="giraffe-container">
         <div class="giraffe-body">
             <div class="giraffe-neck">
@@ -885,7 +850,6 @@
         </div>
     </div>
 
-    <!-- UI Overlay -->
     <div class="ui-overlay">
         <div class="scene-icon">🌿</div>
 
@@ -893,7 +857,6 @@
             ⚠️ Multi-tab detected! Free timer speed increased.
         </div>
 
-        <!-- PHASE 1: FREE COUNTDOWN -->
         <div id="freePhase">
             <div class="timer-container">
                 <div class="timer-label">Free Session Time</div>
@@ -902,25 +865,22 @@
             <a href="menu.html" class="action-btn" id="menuBtn">Open Menu</a>
         </div>
 
-        <!-- PHASE 2: AWAIT COUNTDOWN -->
         <div id="awaitPhase" class="hidden">
             <div class="timer-container">
                 <div class="timer-label">Next Session Available In</div>
                 <div class="timer-display" id="awaitTimer">24:00:00</div>
             </div>
             <div class="btn-group">
-                <a href="pay.html" class="action-btn pay-btn" id="payBtn" style="display: inline-block;">Unlock Instantly — Pay Now</a>
-                <button class="action-btn logout-btn" id="logoutBtn">Sign Out</button>
+                <button type="button" class="action-btn pay-btn" id="payBtn">Unlock Instantly — Pay Now</button>
+                <button type="button" class="action-btn logout-btn" id="logoutBtn">Sign Out</button>
             </div>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
     <script>
-        // Firebase Init
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
             authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -932,7 +892,7 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        // Logout
+        // ── Logout ──
         const logoutBtn = document.getElementById("logoutBtn");
         const logoutToast = document.getElementById("logoutToast");
 
@@ -948,19 +908,27 @@
             const email = (JSON.parse(localStorage.getItem("userSession") || "{}")).email || "";
             localStorage.removeItem("userSession");
             if (email) {
-                localStorage.removeItem(`lock_free_${email}`);
-                localStorage.removeItem(`lock_await_${email}`);
+                localStorage.removeItem("lock_free_" + email);
+                localStorage.removeItem("lock_await_" + email);
             }
             setTimeout(() => { window.location.href = "index.html"; }, 800);
         });
 
-        // Core Config
+        // ── Pay button — goes ONLY to pay.html ──
+        const payBtn = document.getElementById("payBtn");
+        payBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.location.href = "pay.html";
+        });
+
+        // ── Core Config ──
         const FREE_TIME = 180;
         const AWAIT_TIME = 86400;
         const TAB_CHECK_INTERVAL = 1000;
         const TICK_INTERVAL = 1000;
 
-        // Auth Guard
+        // ── Auth Guard ──
         let userData = JSON.parse(localStorage.getItem("userSession"));
         if (!userData || !userData.email) {
             window.location.href = "index.html";
@@ -968,8 +936,8 @@
         }
 
         const email = userData.email;
-        const LS_FREE_KEY = `lock_free_${email}`;
-        const LS_AWAIT_KEY = `lock_await_${email}`;
+        const LS_FREE_KEY = "lock_free_" + email;
+        const LS_AWAIT_KEY = "lock_await_" + email;
 
         let freeTime = parseInt(localStorage.getItem(LS_FREE_KEY));
         let awaitTime = parseInt(localStorage.getItem(LS_AWAIT_KEY));
@@ -978,20 +946,20 @@
             freeTime = FREE_TIME;
             localStorage.setItem(LS_FREE_KEY, freeTime);
         } else if (!isNaN(freeTime) && freeTime > 0) {
+            // continue free session
         } else if (isNaN(awaitTime) || awaitTime <= 0) {
             awaitTime = AWAIT_TIME;
             localStorage.setItem(LS_AWAIT_KEY, awaitTime);
         }
 
-        // DOM
+        // ── DOM ──
         const freePhase = document.getElementById("freePhase");
         const awaitPhase = document.getElementById("awaitPhase");
         const freeTimerEl = document.getElementById("freeTimer");
         const awaitTimerEl = document.getElementById("awaitTimer");
         const tabWarning = document.getElementById("tabWarning");
-        const payBtn = document.getElementById("payBtn");
 
-        // Multi-Tab
+        // ── Multi-Tab Detection ──
         let activeTabs = 1;
         const TAB_ID = Date.now().toString();
         const bc = new BroadcastChannel("free_tab_sync");
@@ -1001,7 +969,7 @@
             bc.postMessage({ type: "ping", id: TAB_ID });
         }
 
-        bc.onmessage = (event) => {
+        bc.onmessage = function (event) {
             if (event.data.type === "ping") {
                 activeTabs++;
                 bc.postMessage({ type: "pong", id: TAB_ID });
@@ -1012,29 +980,30 @@
             }
         };
 
-        window.addEventListener("beforeunload", () => {
+        window.addEventListener("beforeunload", function () {
             bc.postMessage({ type: "close", id: TAB_ID });
         });
 
         updateTabCount();
         setInterval(updateTabCount, TAB_CHECK_INTERVAL);
 
+        // ── Helpers ──
         function formatTime(totalSeconds) {
-            const h = Math.floor(totalSeconds / 3600);
-            const m = Math.floor((totalSeconds % 3600) / 60);
-            const s = totalSeconds % 60;
-            return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+            var h = Math.floor(totalSeconds / 3600);
+            var m = Math.floor((totalSeconds % 3600) / 60);
+            var s = totalSeconds % 60;
+            return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
         }
 
         function switchToAwaitPhase() {
             freePhase.classList.add("hidden");
             awaitPhase.classList.remove("hidden");
-            payBtn.style.display = "inline-block";
-            if (isNaN(parseInt(localStorage.getItem(LS_AWAIT_KEY))) || parseInt(localStorage.getItem(LS_AWAIT_KEY)) <= 0) {
+            var stored = parseInt(localStorage.getItem(LS_AWAIT_KEY));
+            if (isNaN(stored) || stored <= 0) {
                 awaitTime = AWAIT_TIME;
                 localStorage.setItem(LS_AWAIT_KEY, awaitTime);
             } else {
-                awaitTime = parseInt(localStorage.getItem(LS_AWAIT_KEY));
+                awaitTime = stored;
             }
             awaitTimerEl.innerText = formatTime(awaitTime);
             if (window.menuWindow && !window.menuWindow.closed) {
@@ -1042,9 +1011,11 @@
             }
         }
 
+        // ── Engine Tick ──
         function engineTick() {
             freeTime = parseInt(localStorage.getItem(LS_FREE_KEY));
             awaitTime = parseInt(localStorage.getItem(LS_AWAIT_KEY));
+
             if (freeTime > 0) {
                 tabWarning.classList.toggle("active", activeTabs > 1);
                 freeTime -= activeTabs;
@@ -1074,6 +1045,7 @@
             }
         }
 
+        // ── Init ──
         function init() {
             if (freeTime > 0) {
                 freeTimerEl.innerText = formatTime(freeTime);
@@ -1083,16 +1055,22 @@
             setInterval(engineTick, TICK_INTERVAL);
         }
 
-        document.getElementById("menuBtn").addEventListener("click", (e) => {
+        // ── Menu button opens menu.html in new window ──
+        document.getElementById("menuBtn").addEventListener("click", function (e) {
             e.preventDefault();
             window.menuWindow = window.open("menu.html", "_blank", "width=800,height=600");
         });
 
-        setInterval(() => {
+        // ── Periodic localStorage sync ──
+        setInterval(function () {
             if (freeTime > 0) {
-                if (parseInt(localStorage.getItem(LS_FREE_KEY)) !== freeTime) localStorage.setItem(LS_FREE_KEY, freeTime);
+                if (parseInt(localStorage.getItem(LS_FREE_KEY)) !== freeTime) {
+                    localStorage.setItem(LS_FREE_KEY, freeTime);
+                }
             } else {
-                if (parseInt(localStorage.getItem(LS_AWAIT_KEY)) !== awaitTime) localStorage.setItem(LS_AWAIT_KEY, awaitTime);
+                if (parseInt(localStorage.getItem(LS_AWAIT_KEY)) !== awaitTime) {
+                    localStorage.setItem(LS_AWAIT_KEY, awaitTime);
+                }
             }
         }, 500);
 
