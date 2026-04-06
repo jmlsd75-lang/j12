@@ -3,50 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile Dashboard</title>
+    <title>User Profile Dashboard (Live)</title>
     <style>
         /* =========================================
            RESET & TYPOGRAPHY
            ========================================= */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #0f172a; /* Fallback dark blue */
+            background-color: #0f172a;
             color: #ffffff;
             height: 100vh;
             width: 100vw;
-            overflow: hidden; /* Prevent scrollbars due to animation */
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         /* =========================================
-           BACKGROUND SCENE (FLYOVER & MOVING CAR)
+           BACKGROUND SCENE
            ========================================= */
         .scene {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             z-index: -1;
             background: linear-gradient(to bottom, #020024 0%, #090979 35%, #2a2a2a 100%);
             overflow: hidden;
         }
 
-        /* Stars/City lights in distance */
+        /* Stars */
         .stars {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 50%;
+            top: 0; left: 0; width: 100%; height: 50%;
             background-image: 
                 radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
                 radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
@@ -56,13 +47,9 @@
             animation: starMove 100s linear infinite;
         }
 
-        /* City Skyline (Silhouette) */
+        /* City */
         .city {
-            position: absolute;
-            bottom: 30%; /* Above the road */
-            left: 0;
-            width: 200%;
-            height: 150px;
+            position: absolute; bottom: 30%; left: 0; width: 200%; height: 150px;
             background: 
                 linear-gradient(to bottom, transparent 0%, #000 100%),
                 repeating-linear-gradient(90deg, #000 0px, #000 20px, transparent 20px, transparent 25px),
@@ -72,22 +59,13 @@
             animation: cityMove 60s linear infinite;
         }
 
-        /* Flyover Pillars (Static) */
+        /* Flyover Pillars */
         .pillars {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 40%;
-            display: flex;
-            justify-content: space-around;
-            align-items: flex-end;
-            z-index: 1;
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 40%;
+            display: flex; justify-content: space-around; align-items: flex-end; z-index: 1;
         }
-
         .pillar {
-            width: 60px;
-            height: 100%;
+            width: 60px; height: 100%;
             background: linear-gradient(90deg, #1a1a1a, #333, #1a1a1a);
             border-top: 5px solid #555;
             box-shadow: 0 0 20px rgba(0,0,0,0.8);
@@ -95,11 +73,7 @@
 
         /* The Road */
         .road {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 35%; /* Thicker road */
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 35%;
             background: #1c1c1c;
             border-top: 6px solid #444;
             z-index: 2;
@@ -107,81 +81,67 @@
             perspective: 600px;
         }
 
-        /* Road Markings (Moving) */
+        /* Road Lines */
         .road-lines {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            width: 200%;
-            height: 4px;
+            position: absolute; top: 50%; left: 0; width: 200%; height: 4px;
             background: repeating-linear-gradient(90deg, #fff 0, #fff 50px, transparent 50px, transparent 100px);
             transform: translateY(-50%);
             box-shadow: 0 0 10px rgba(255,255,255,0.5);
             animation: roadMove 1s linear infinite;
         }
 
-        /* The Moving Car */
+        /* =========================================
+           CARS (Generic Styling)
+           ========================================= */
         .car-container {
             position: absolute;
-            bottom: 45%; /* On the road */
-            left: -300px; /* Start off-screen */
+            bottom: 45%;
+            left: -300px;
             width: 260px;
             height: 80px;
             z-index: 3;
-            animation: driveCar 4s linear infinite;
+            /* Animation name is generic, duration/delay set via JS */
+            animation-name: driveCar; 
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
         }
 
         .car-body {
-            width: 100%;
-            height: 50px;
-            background: linear-gradient(to bottom, #e74c3c, #c0392b);
-            border-radius: 10px 40px 10px 10px; /* Aerodynamic shape */
+            width: 100%; height: 50px;
+            border-radius: 10px 40px 10px 10px;
             position: relative;
             box-shadow: 0 10px 20px rgba(0,0,0,0.5);
         }
 
         .car-roof {
-            position: absolute;
-            top: -25px;
-            left: 50px;
-            width: 100px;
-            height: 30px;
-            background: #2c3e50;
+            position: absolute; top: -25px; left: 50px;
+            width: 100px; height: 30px;
+            background: #222; /* Dark roof default */
             border-radius: 20px 20px 0 0;
         }
 
         .window {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            width: 90px;
-            height: 20px;
+            position: absolute; top: 5px; left: 5px;
+            width: 90px; height: 20px;
             background: linear-gradient(135deg, #81ecec, #00cec9);
             border-radius: 15px 15px 0 0;
             opacity: 0.8;
         }
 
         .wheel {
-            position: absolute;
-            bottom: -15px;
-            width: 35px;
-            height: 35px;
-            background: #222;
-            border: 3px solid #555;
-            border-radius: 50%;
+            position: absolute; bottom: -15px;
+            width: 35px; height: 35px;
+            background: #222; border: 3px solid #555; border-radius: 50%;
             animation: wheelSpin 0.5s linear infinite;
         }
         .wheel.front { right: 35px; }
         .wheel.back { left: 35px; }
 
         .headlights {
-            position: absolute;
-            right: -5px;
-            top: 15px;
-            width: 10px;
-            height: 20px;
+            position: absolute; right: -5px; top: 15px;
+            width: 10px; height: 20px;
             background: #f1c40f;
-            box-shadow: 20px 0 40px 10px rgba(241, 196, 15, 0.6); /* Light beam */
+            box-shadow: 20px 0 40px 10px rgba(241, 196, 15, 0.6);
             border-radius: 0 5px 5px 0;
         }
 
@@ -196,7 +156,7 @@
         @keyframes driveCar {
             0% { left: -300px; transform: scale(0.8); }
             40% { left: 30%; transform: scale(1); }
-            60% { left: 30%; transform: scale(1); } /* Pause briefly */
+            60% { left: 30%; transform: scale(1); }
             100% { left: 110%; transform: scale(0.8); }
         }
 
@@ -204,19 +164,11 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        @keyframes starMove {
-            from { background-position: 0 0, 40px 60px, 130px 270px; }
-            to { background-position: 550px 0, 590px 60px, 680px 270px; }
-        }
-
-        @keyframes cityMove {
-            from { transform: translateX(0); }
-            to { transform: translateX(-50%); }
-        }
+        @keyframes starMove { from { background-position: 0 0, 40px 60px, 130px 270px; } to { background-position: 550px 0, 590px 60px, 680px 270px; } }
+        @keyframes cityMove { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
         /* =========================================
-           CONTENT UI (Glassmorphism Card)
+           UI CARD & TABLE
            ========================================= */
         .card {
             background: rgba(255, 255, 255, 0.1);
@@ -225,123 +177,49 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 20px;
             padding: 30px;
-            width: 90%;
-            max-width: 800px;
+            width: 90%; max-width: 800px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            position: relative;
-            z-index: 10;
+            position: relative; z-index: 10;
             animation: cardFadeIn 0.8s ease-out;
         }
+        @keyframes cardFadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes cardFadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Back Button */
         .back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
+            position: absolute; top: 20px; left: 20px;
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #fff;
-            padding: 10px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-            z-index: 20;
+            color: #fff; padding: 10px 15px; border-radius: 8px;
+            cursor: pointer; font-size: 14px; font-weight: bold;
+            display: flex; align-items: center; gap: 8px;
+            transition: all 0.2s ease; z-index: 20;
         }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.2); transform: translateX(-3px); }
 
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateX(-3px);
-        }
-
-        .back-icon {
-            font-size: 18px;
-            line-height: 1;
-        }
-
-        /* Table Styling */
-        .table-container {
-            overflow-x: auto;
-            margin-top: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 600px; /* Ensure horizontal scroll on mobile */
-        }
-
-        th, td {
-            text-align: left;
-            padding: 16px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        th {
-            color: #a0a0a0;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        td {
-            font-size: 1rem;
-            color: #fff;
-            font-family: 'Courier New', monospace; /* Monospace for data feel */
-        }
-
-        tr:last-child th, tr:last-child td {
-            border-bottom: none;
-        }
-
-        tr:hover td {
-            background: rgba(255, 255, 255, 0.05);
-            transition: background 0.2s;
-        }
-
-        /* Specific styling for values based on type */
+        .table-container { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th, td { text-align: left; padding: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.15); }
+        th { color: #a0a0a0; font-weight: 600; text-transform: uppercase; font-size: 0.85rem; background: rgba(0, 0, 0, 0.2); }
+        td { font-size: 1rem; color: #fff; font-family: 'Courier New', monospace; }
+        tr:hover td { background: rgba(255, 255, 255, 0.05); transition: background 0.2s; }
+        
         .val-null { color: #ff6b6b; font-style: italic; }
         .val-zero { color: #feca57; }
         .val-date { color: #48dbfb; }
+        .loading-text { color: #aaa; font-style: italic; }
 
-        /* Responsive */
         @media (max-width: 600px) {
-            .card {
-                padding: 50px 15px 20px 15px; /* Top padding for button */
-            }
-            .back-btn {
-                top: 10px;
-                left: 10px;
-                padding: 8px 12px;
-            }
-            th, td {
-                padding: 12px 8px;
-                font-size: 0.9rem;
-            }
-            .city { height: 80px; bottom: 35%; }
-            .road { height: 35%; }
-            .car-container { transform: scale(0.7); bottom: 48%; left: -250px; }
+            .card { padding: 50px 15px 20px 15px; }
+            .back-btn { top: 10px; left: 10px; padding: 8px 12px; }
+            th, td { padding: 12px 8px; font-size: 0.9rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- 1. The Animated Background -->
+    <!-- BACKGROUND SCENE -->
     <div class="scene">
         <div class="stars"></div>
         <div class="city"></div>
-        
         <div class="pillars">
             <div class="pillar"></div>
             <div class="pillar"></div>
@@ -349,37 +227,26 @@
             <div class="pillar"></div>
             <div class="pillar"></div>
         </div>
-
         <div class="road">
             <div class="road-lines"></div>
-            
-            <!-- Moving Car -->
-            <div class="car-container">
-                <div class="car-body">
-                    <div class="car-roof">
-                        <div class="window"></div>
-                    </div>
-                    <div class="headlights"></div>
-                    <div class="wheel back"></div>
-                    <div class="wheel front"></div>
-                </div>
-            </div>
+            <!-- Cars will be injected here by JavaScript -->
+            <div id="traffic-layer"></div>
         </div>
     </div>
 
-    <!-- 2. The UI Content -->
+    <!-- UI -->
     <button class="back-btn" onclick="goBack()">
-        <span class="back-icon">&lt;</span> Back
+        <span style="font-size: 18px;">&lt;</span> Back
     </button>
 
     <div class="card">
         <div style="margin-bottom: 20px;">
-            <h2 style="font-weight: 300; letter-spacing: 1px;">User Data</h2>
+            <h2 style="font-weight: 300; letter-spacing: 1px;">User Data (Live)</h2>
             <div style="height: 3px; width: 50px; background: #e74c3c; margin-top: 5px;"></div>
+            <div id="status-msg" style="font-size: 12px; margin-top: 5px; color: #aaa;">Connecting to Firebase...</div>
         </div>
 
         <div class="table-container">
-            <!-- The Modified Table: Rotated 90° logic applied (Fields as headers) -->
             <table id="userTable">
                 <thead>
                     <tr>
@@ -395,145 +262,203 @@
                 <tbody>
                     <tr>
                         <td><strong>Value</strong></td>
-                        <!-- Data injected via JS -->
-                        <td id="d-email">Loading...</td>
-                        <td id="d-lastPayment">Loading...</td>
-                        <td id="d-lastPaymentAmount">Loading...</td>
-                        <td id="d-lastVisit">Loading...</td>
-                        <td id="d-spaceUsed">Loading...</td>
-                        <td id="d-username">Loading...</td>
+                        <td id="d-email">...</td>
+                        <td id="d-lastPayment">...</td>
+                        <td id="d-lastPaymentAmount">...</td>
+                        <td id="d-lastVisit">...</td>
+                        <td id="d-spaceUsed">...</td>
+                        <td id="d-username">...</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <script>
-        // ============================================
-        // LOGIC: Fetch Data & Populate Table
-        // ============================================
+    <!-- LOGIC: FIREBASE + ANIMATION -->
+    <script type="module">
+        // ============================================================
+        // 1. FIREBASE IMPORTS & CONFIG
+        // ============================================================
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // 1. Helper to format dates nicely (matches prompt example style)
-        function formatDate(isoString) {
-            if (!isoString) return null;
-            const date = new Date(isoString);
-            return date.toLocaleString('en-GB', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                timeZoneName: 'short'
-            }) + " UTC+3"; // Hardcoding UTC+3 as per prompt example
-        }
-
-        // 2. The Data from the prompt (Fallback/Default)
-        const staticData = {
-            email: "camelkazembe1@gmail.com",
-            lastPayment: null,
-            lastPaymentAmount: 0,
-            lastVisit: "2026-04-06T16:10:06.000Z", // Approximate for the date in prompt
-            spaceUsed: 0,
-            username: "Camel Kazembe"
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
         };
 
-        // 3. Function to populate table
-        function renderTable(data) {
-            // Email
-            document.getElementById('d-email').textContent = data.email;
+        // Initialize Firebase
+        let db;
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            console.log("Firebase initialized");
+        } catch (e) {
+            console.error("Firebase init error:", e);
+            document.getElementById('status-msg').textContent = "Error connecting to database.";
+            document.getElementById('status-msg').style.color = "#ff6b6b";
+        }
 
-            // Last Payment
-            const lpEl = document.getElementById('d-lastPayment');
-            if (data.lastPayment === null) {
-                lpEl.textContent = "null";
-                lpEl.className = "val-null";
-            } else {
-                lpEl.textContent = data.lastPayment;
+        // ============================================================
+        // 2. VISUALS: GENERATE MULTIPLE CARS
+        // ============================================================
+        function generateTraffic() {
+            const trafficLayer = document.getElementById('traffic-layer');
+            const colors = [
+                { body: '#e74c3c', roof: '#c0392b' }, // Red
+                { body: '#3498db', roof: '#2980b9' }, // Blue
+                { body: '#f1c40f', roof: '#f39c12' }, // Yellow
+                { body: '#ecf0f1', roof: '#bdc3c7' }, // Silver
+                { body: '#9b59b6', roof: '#8e44ad' }, // Purple
+                { body: '#2ecc71', roof: '#27ae60' }  // Green
+            ];
+
+            // Generate 6 cars
+            for (let i = 0; i < 6; i++) {
+                const colorSet = colors[i % colors.length];
+                
+                // Randomize animation properties for realism
+                const duration = 3 + Math.random() * 3; // Speed between 3s and 6s
+                const delay = Math.random() * -5; // Negative delay to start already in progress
+                const zIndex = 3 + i; // Layering
+
+                const carHTML = `
+                    <div class="car-container" style="
+                        animation-duration: ${duration}s; 
+                        animation-delay: ${delay}s;
+                        z-index: ${zIndex};
+                    ">
+                        <div class="car-body" style="background: linear-gradient(to bottom, ${colorSet.body}, ${colorSet.roof});">
+                            <div class="car-roof">
+                                <div class="window"></div>
+                            </div>
+                            <div class="headlights"></div>
+                            <div class="wheel back"></div>
+                            <div class="wheel front"></div>
+                        </div>
+                    </div>
+                `;
+                trafficLayer.insertAdjacentHTML('beforeend', carHTML);
+            }
+        }
+
+        // ============================================================
+        // 3. DATA: REAL-TIME FIREBASE LISTENER
+        // ============================================================
+        function initRealtimeData() {
+            // 1. Get User Email from Session (set by login.js)
+            const session = localStorage.getItem('userSession');
+            
+            if (!session) {
+                document.getElementById('status-msg').textContent = "No user session found. Please log in.";
+                document.getElementById('status-msg').style.color = "#ff6b6b";
+                renderTable({
+                    email: "N/A",
+                    lastPayment: null,
+                    lastPaymentAmount: 0,
+                    lastVisit: null,
+                    spaceUsed: 0,
+                    username: "Guest"
+                });
+                return;
             }
 
-            // Last Payment Amount
-            const lpaEl = document.getElementById('d-lastPaymentAmount');
-            lpaEl.textContent = data.lastPaymentAmount;
-            if (data.lastPaymentAmount === 0) lpaEl.className = "val-zero";
+            try {
+                const user = JSON.parse(session);
+                const userEmail = user.email;
+
+                if (!userEmail || !db) return;
+
+                // 2. Listen to Firestore Document (Real-time)
+                const userDocRef = doc(db, "users", userEmail);
+
+                document.getElementById('status-msg').textContent = "Live Sync Active...";
+                document.getElementById('status-msg').style.color = "#2ecc71";
+
+                // onSnapshot triggers immediately and then on every change
+                onSnapshot(userDocRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        console.log("Real-time update received:", data);
+                        renderTable(data);
+                    } else {
+                        console.log("No such document!");
+                        document.getElementById('status-msg').textContent = "No data found in Firestore.";
+                    }
+                }, (error) => {
+                    console.error("Firestore error:", error);
+                    document.getElementById('status-msg').textContent = "Error loading data.";
+                    document.getElementById('status-msg').style.color = "#ff6b6b";
+                });
+
+            } catch (e) {
+                console.error("Error parsing session", e);
+            }
+        }
+
+        // Helper: Render Table
+        function renderTable(data) {
+            const setText = (id, val, cls) => {
+                const el = document.getElementById(id);
+                el.textContent = val;
+                el.className = cls || "";
+            };
+
+            setText('d-email', data.email || "-");
+            
+            // Last Payment
+            if (data.lastPayment === null) {
+                setText('d-lastPayment', "null", "val-null");
+            } else {
+                setText('d-lastPayment', data.lastPayment);
+            }
+
+            // Amount
+            setText('d-lastPaymentAmount', data.lastPaymentAmount, data.lastPaymentAmount === 0 ? "val-zero" : "");
 
             // Last Visit
-            const lvEl = document.getElementById('d-lastVisit');
-            // If we have the exact string from prompt, use it, otherwise format
-            if (typeof data.lastVisit === 'string' && data.lastVisit.includes('6 April 2026')) {
-                 lvEl.textContent = data.lastVisit; // Use exact string if present
-                 lvEl.className = "val-date";
+            const lv = data.lastVisit;
+            if (!lv) {
+                setText('d-lastVisit', "null", "val-null");
             } else {
-                const formatted = formatDate(data.lastVisit);
-                lvEl.textContent = formatted ? formatted : "null";
-                if(formatted) lvEl.className = "val-date";
+                // Format timestamp if it's a Firestore Timestamp or ISO string
+                let dateStr = lv;
+                if (lv.toDate) { // Firestore Timestamp object
+                    dateStr = lv.toDate().toLocaleString();
+                } else if (typeof lv === 'string' && !lv.includes("April")) {
+                    // ISO String
+                    dateStr = new Date(lv).toLocaleString();
+                }
+                setText('d-lastVisit', dateStr, "val-date");
             }
 
             // Space Used
-            const suEl = document.getElementById('d-spaceUsed');
-            suEl.textContent = data.spaceUsed;
-            if (data.spaceUsed === 0) suEl.className = "val-zero";
+            setText('d-spaceUsed', data.spaceUsed, data.spaceUsed === 0 ? "val-zero" : "");
 
             // Username
-            document.getElementById('d-username').textContent = data.username;
+            setText('d-username', data.username || "-");
         }
 
-        // 4. Initialization logic
+        // ============================================================
+        // 4. INITIALIZATION
+        // ============================================================
         document.addEventListener('DOMContentLoaded', () => {
-            // A. Try to get data from LocalStorage (set by your login.js)
-            const session = localStorage.getItem('userSession');
-            let userData = staticData; // Default to prompt data
-
-            if (session) {
-                try {
-                    const parsed = JSON.parse(session);
-                    // Map login.js keys to our table keys if needed, 
-                    // but they match perfectly based on your login.js code.
-                    userData = {
-                        email: parsed.email,
-                        lastPayment: parsed.lastPayment,
-                        lastPaymentAmount: parsed.lastPaymentAmount,
-                        lastVisit: parsed.lastVisit, // login.js sets this as ISO string usually
-                        spaceUsed: parsed.spaceUsed,
-                        username: parsed.username
-                    };
-                    
-                    // Special handling: If the login.js just created a new user, 
-                    // lastVisit might be an ISO string. 
-                    // For the demo effect requested, if it is 2026, keep it, 
-                    // otherwise the staticData is better for the visual "preview".
-                    
-                    // To strictly follow "use it" (the prompt data) while supporting login:
-                    // We will use the session data if it exists and has valid fields.
-                    
-                } catch (e) {
-                    console.error("Session parse error, using static data", e);
-                }
-            } else {
-                console.log("No session found, displaying demo data from prompt.");
-            }
-
-            // If we want to force the Prompt's specific "6 April 2026" date for visual consistency 
-            // with the request, we can override it here if the session doesn't have it.
-            // But typically, we want real data. 
-            // However, the prompt says: "Table data: ... use it".
-            // I will prioritize the Session, but if the session is empty, I use the static.
-            
-            renderTable(userData);
+            generateTraffic(); // Start the cars
+            initRealtimeData(); // Connect to Firebase
         });
 
-        // 5. Navigation
-        function goBack() {
-            // Simply go back in history
+        // Navigation (exposed to window for onclick)
+        window.goBack = function() {
             if (window.history.length > 1) {
                 window.history.back();
             } else {
-                // If no history, maybe go to index or do nothing
                 console.log("No history to go back to");
-                // Fallback for a standalone file test:
-                // window.location.href = 'index.html'; 
             }
-        }
+        };
     </script>
 </body>
 </html>
