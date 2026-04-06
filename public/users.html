@@ -1,588 +1,545 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Profile Dashboard</title>
-    <style>
-        /* =========================================
-           RESET & TYPOGRAPHY
-           ========================================= */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard - Admin</title>
+  
+  <!-- Google Fonts for a clean dashboard look -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-color: #4285F4;
+      --success-color: #34A853;
+      --warning-color: #FBBC05;
+      --danger-color: #EA4335;
+      --bg-color: #f4f6f8;
+      --card-bg: #ffffff;
+      --text-main: #202124;
+      --text-secondary: #5f6368;
+      --border-color: #dadce0;
+    }
 
-        body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #0f172a; 
-            color: #ffffff;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* =========================================
-           BACKGROUND SCENE
-           ========================================= */
-        .scene {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: linear-gradient(to bottom, #020024 0%, #090979 35%, #2a2a2a 100%);
-            overflow: hidden;
-        }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-        .stars {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 50%;
-            background-image: 
-                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
-                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
-                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
-            background-size: 550px 550px, 350px 350px, 250px 250px;
-            background-position: 0 0, 40px 60px, 130px 270px;
-            animation: starMove 100s linear infinite;
-        }
+    /* --- Header / Nav --- */
+    header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 1px 2px rgba(60,64,67,0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
 
-        .city {
-            position: absolute;
-            bottom: 30%; 
-            left: 0;
-            width: 200%;
-            height: 150px;
-            background: 
-                linear-gradient(to bottom, transparent 0%, #000 100%),
-                repeating-linear-gradient(90deg, #000 0px, #000 20px, transparent 20px, transparent 25px),
-                repeating-linear-gradient(90deg, #111 0px, #111 40px, #000 40px, #000 60px);
-            background-size: 100% 100%, 100px 100%, 150px 100%;
-            opacity: 0.6;
-            animation: cityMove 60s linear infinite;
-        }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text-main);
+    }
 
-        .pillars {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 40%;
-            display: flex;
-            justify-content: space-around;
-            align-items: flex-end;
-            z-index: 1;
-        }
+    .brand svg { width: 24px; height: 24px; fill: var(--primary-color); }
 
-        .pillar {
-            width: 60px;
-            height: 100%;
-            background: linear-gradient(90deg, #1a1a1a, #333, #1a1a1a);
-            border-top: 5px solid #555;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
-        }
+    .admin-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
 
-        .road {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 35%;
-            background: #1c1c1c;
-            border-top: 6px solid #444;
-            z-index: 2;
-            overflow: hidden;
-            perspective: 600px;
-        }
+    .admin-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
 
-        .road-lines {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            width: 200%;
-            height: 4px;
-            background: repeating-linear-gradient(90deg, #fff 0, #fff 50px, transparent 50px, transparent 100px);
-            transform: translateY(-50%);
-            box-shadow: 0 0 10px rgba(255,255,255,0.5);
-            animation: roadMove 1s linear infinite;
-        }
+    .admin-profile img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid var(--border-color);
+    }
 
-        .car-container {
-            position: absolute;
-            bottom: 45%; 
-            left: -300px; 
-            width: 260px;
-            height: 80px;
-            z-index: 3;
-            animation: driveCar 4s linear infinite;
-        }
+    button.btn-logout {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      padding: 6px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--text-main);
+      transition: background 0.2s;
+    }
 
-        .car-body {
-            width: 100%;
-            height: 50px;
-            background: linear-gradient(to bottom, #e74c3c, #c0392b);
-            border-radius: 10px 40px 10px 10px;
-            position: relative;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
-        }
+    button.btn-logout:hover { background: #f1f3f4; }
 
-        .car-roof {
-            position: absolute;
-            top: -25px;
-            left: 50px;
-            width: 100px;
-            height: 30px;
-            background: #2c3e50;
-            border-radius: 20px 20px 0 0;
-        }
+    /* --- Main Content --- */
+    main {
+      flex: 1;
+      padding: 24px;
+      overflow: hidden; /* For inner scrolling */
+      display: flex;
+      flex-direction: column;
+    }
 
-        .window {
-            position: absolute;
-            top: 5px;
-            left: 5px;
-            width: 90px;
-            height: 20px;
-            background: linear-gradient(135deg, #81ecec, #00cec9);
-            border-radius: 15px 15px 0 0;
-            opacity: 0.8;
-        }
+    .dashboard-card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
 
-        .wheel {
-            position: absolute;
-            bottom: -15px;
-            width: 35px;
-            height: 35px;
-            background: #222;
-            border: 3px solid #555;
-            border-radius: 50%;
-            animation: wheelSpin 0.5s linear infinite;
-        }
-        .wheel.front { right: 35px; }
-        .wheel.back { left: 35px; }
+    .card-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-        .headlights {
-            position: absolute;
-            right: -5px;
-            top: 15px;
-            width: 10px;
-            height: 20px;
-            background: #f1c40f;
-            box-shadow: 20px 0 40px 10px rgba(241, 196, 15, 0.6);
-            border-radius: 0 5px 5px 0;
-        }
+    .card-header h2 { font-size: 18px; font-weight: 500; }
 
-        @keyframes roadMove {
-            0% { transform: translateY(-50%) translateX(0); }
-            100% { transform: translateY(-50%) translateX(-100px); }
-        }
+    .refresh-btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+    .refresh-btn:hover { background: #3367d6; }
+    .refresh-btn svg { width: 16px; height: 16px; fill: white; }
 
-        @keyframes driveCar {
-            0% { left: -300px; transform: scale(0.8); }
-            40% { left: 30%; transform: scale(1); }
-            60% { left: 30%; transform: scale(1); } 
-            100% { left: 110%; transform: scale(0.8); }
-        }
+    /* --- Table Styles --- */
+    .table-container {
+      flex: 1;
+      overflow-y: auto;
+      position: relative;
+    }
 
-        @keyframes wheelSpin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px; /* Prevent squishing on small screens */
+    }
 
-        @keyframes starMove {
-            from { background-position: 0 0, 40px 60px, 130px 270px; }
-            to { background-position: 550px 0, 590px 60px, 680px 270px; }
-        }
+    thead {
+      background-color: #f8f9fa;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
 
-        @keyframes cityMove {
-            from { transform: translateX(0); }
-            to { transform: translateX(-50%); }
-        }
+    th {
+      text-align: left;
+      padding: 12px 24px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
 
-        /* =========================================
-           CONTENT UI
-           ========================================= */
-        .card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 30px;
-            width: 95%;
-            max-width: 1200px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            position: relative;
-            z-index: 10;
-            animation: cardFadeIn 0.8s ease-out;
-            display: flex;
-            flex-direction: column;
-        }
+    td {
+      padding: 14px 24px;
+      font-size: 14px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-main);
+      vertical-align: middle;
+    }
 
-        @keyframes cardFadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    tr:hover { background-color: #f8f9fa; }
 
-        .back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #fff;
-            padding: 10px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-            z-index: 20;
-        }
+    /* User Cell */
+    .user-cell { display: flex; align-items: center; gap: 12px; }
+    .user-avatar {
+      width: 36px; height: 36px;
+      background: #e8f0fe; color: var(--primary-color);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold; font-size: 14px;
+    }
+    .user-info div:first-child { font-weight: 500; }
+    .user-info div:last-child { font-size: 12px; color: var(--text-secondary); }
 
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateX(-3px);
-        }
+    /* Space Bar */
+    .space-bar-container {
+      width: 100px; height: 6px;
+      background: #e0e0e0; border-radius: 3px;
+      overflow: hidden; display: inline-block;
+      margin-right: 8px; vertical-align: middle;
+    }
+    .space-bar-fill { height: 100%; background: var(--success-color); }
 
-        .back-icon {
-            font-size: 18px;
-            line-height: 1;
-        }
+    /* Payment Badge */
+    .payment-badge {
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+      background: #f1f3f4;
+      color: var(--text-secondary);
+    }
+    .payment-badge.paid { background: #e6f4ea; color: var(--success-color); }
 
-        .table-container {
-            margin-top: 20px;
-            width: 100%;
-            overflow-x: auto;
-            padding-bottom: 10px;
-        }
+    /* --- Footer / Totals --- */
+    tfoot {
+      background-color: #f8f9fa;
+      font-weight: 700;
+      border-top: 2px solid var(--border-color);
+    }
+    tfoot td { padding: 16px 24px; }
+    .total-highlight { color: var(--primary-color); }
 
-        .table-container::-webkit-scrollbar {
-            height: 8px;
-        }
-        .table-container::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 4px;
-        }
-        .table-container::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-        }
+    /* --- Toast Notification --- */
+    #toast-container {
+      position: fixed; bottom: 20px; right: 20px; z-index: 1000;
+    }
+    .toast {
+      background: #323232; color: white;
+      padding: 12px 24px; border-radius: 4px;
+      margin-top: 10px; font-size: 14px;
+      opacity: 0; transform: translateY(10px);
+      transition: opacity 0.3s, transform 0.3s;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 1000px;
-        }
+    /* --- Loading Overlay --- */
+    #loader {
+      position: absolute; top:0; left:0; right:0; bottom:0;
+      background: rgba(255,255,255,0.8);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 50;
+    }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        th, td {
-            text-align: center;
-            padding: 15px 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-            min-width: 120px;
-        }
-
-        th:last-child, td:last-child {
-            border-right: none;
-        }
-
-        th {
-            color: #a0a0a0;
-            font-weight: 700;
-            text-transform: uppercase;
-            font-size: 0.8rem;
-            letter-spacing: 1px;
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        th:first-child, td:first-child {
-            background: rgba(255, 255, 255, 0.05);
-            font-weight: bold;
-            text-align: left;
-            padding-left: 20px;
-            min-width: 80px;
-            border-right: 2px solid rgba(255,255,255,0.2);
-        }
-
-        td {
-            font-size: 1rem;
-            color: #fff;
-            font-family: 'Courier New', monospace;
-            word-break: break-word;
-        }
-
-        tr:last-child th, tr:last-child td {
-            border-bottom: none;
-        }
-
-        .val-null { color: #ff6b6b; font-style: italic; }
-        .val-zero { color: #feca57; }
-        .val-date { color: #48dbfb; }
-
-        @media (max-width: 600px) {
-            .card {
-                padding: 60px 10px 20px 10px; 
-                width: 98%;
-            }
-            .back-btn {
-                top: 10px;
-                left: 10px;
-                padding: 6px 10px;
-            }
-            .city { height: 80px; bottom: 35%; }
-            .road { height: 35%; }
-            .car-container { transform: scale(0.7); bottom: 48%; left: -250px; }
-            
-            th, td {
-                font-size: 0.85rem;
-                padding: 10px 5px;
-            }
-        }
-    </style>
+    /* Utility */
+    .hidden { display: none !important; }
+    .text-right { text-align: right; }
+    .empty-state {
+      padding: 40px; text-align: center; color: var(--text-secondary);
+    }
+  </style>
 </head>
 <body>
 
-    <!-- 1. The Animated Background -->
-    <div class="scene">
-        <div class="stars"></div>
-        <div class="city"></div>
-        
-        <div class="pillars">
-            <div class="pillar"></div>
-            <div class="pillar"></div>
-            <div class="pillar"></div>
-            <div class="pillar"></div>
-            <div class="pillar"></div>
-        </div>
-
-        <div class="road">
-            <div class="road-lines"></div>
-            
-            <!-- Moving Car -->
-            <div class="car-container">
-                <div class="car-body">
-                    <div class="car-roof">
-                        <div class="window"></div>
-                    </div>
-                    <div class="headlights"></div>
-                    <div class="wheel back"></div>
-                    <div class="wheel front"></div>
-                </div>
-            </div>
-        </div>
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+      Admin Dashboard
     </div>
-
-    <!-- 2. The UI Content -->
-    <button class="back-btn" onclick="goBack()">
-        <span class="back-icon">&lt;</span> Back
-    </button>
-
-    <div class="card">
-        <div style="margin-bottom: 20px; padding-left: 20px;">
-            <h2 style="font-weight: 300; letter-spacing: 1px;">User Data</h2>
-            <div style="height: 3px; width: 50px; background: #e74c3c; margin-top: 5px;"></div>
-        </div>
-
-        <div class="table-container">
-            <table id="userTable">
-                <thead>
-                    <tr>
-                        <th>Field</th>
-                        <th>email</th>
-                        <th>lastPayment</th>
-                        <th>lastPaymentAmount</th>
-                        <th>lastVisit</th>
-                        <th>spaceUsed</th>
-                        <th>username</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Value</strong></td>
-                        <td id="d-email">Loading...</td>
-                        <td id="d-lastPayment">Loading...</td>
-                        <td id="d-lastPaymentAmount">Loading...</td>
-                        <td id="d-lastVisit">Loading...</td>
-                        <td id="d-spaceUsed">Loading...</td>
-                        <td id="d-username">Loading...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <div class="admin-controls">
+      <div class="admin-profile" id="adminProfile">
+        <!-- Filled by JS -->
+        <span>Loading...</span>
+      </div>
+      <button class="btn-logout" onclick="handleLogout()">Sign Out</button>
     </div>
+  </header>
 
-    <!-- Firebase Logic -->
-    <script type="module">
-        // ============================================
-        // IMPORTS & CONFIG
-        // ============================================
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { 
-            getAuth, 
-            onAuthStateChanged,
-            signOut
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { 
-            getFirestore, 
-            collection, 
-            query, 
-            where,
-            onSnapshot 
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  <!-- Main Content -->
+  <main>
+    <div class="dashboard-card">
+      <div class="card-header">
+        <h2>Registered Users</h2>
+        <button class="refresh-btn" onclick="fetchUsers()">
+          <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+          Refresh Data
+        </button>
+      </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-            authDomain: "my-project-66803-95cb3.firebaseapp.com",
-            projectId: "my-project-66803-95cb3",
-            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-            messagingSenderId: "167159607898",
-            appId: "1:167159607898:web:23ca11366b88868b085e63"
-        };
+      <div class="table-container">
+        <div id="loader"><div class="spinner"></div></div>
+        <table id="usersTable">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Email</th>
+              <th>Space Used</th>
+              <th>Last Payment Amount</th>
+              <th>Last Payment Date</th>
+              <th>Last Visit</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <!-- Rows generated by JS -->
+          </tbody>
+          <tfoot id="usersTableFoot">
+            <!-- Totals generated by JS -->
+          </tfoot>
+        </table>
+        <div id="emptyState" class="empty-state hidden">No users found.</div>
+      </div>
+    </div>
+  </main>
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
 
-        // ============================================
-        // DOM ELEMENTS
-        // ============================================
-        const elEmail = document.getElementById('d-email');
-        const elLastPayment = document.getElementById('d-lastPayment');
-        const elLastPaymentAmount = document.getElementById('d-lastPaymentAmount');
-        const elLastVisit = document.getElementById('d-lastVisit');
-        const elSpaceUsed = document.getElementById('d-spaceUsed');
-        const elUsername = document.getElementById('d-username');
+  <!-- JavaScript logic -->
+  <script type="module">
+    // ============================================================
+    // Firebase Imports & Config
+    // ============================================================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      query,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // ============================================
-        // HELPERS
-        // ============================================
-        
-        // Format dates to match: "6 April 2026 at 16:12:26 GMT+3 UTC+3"
-        function formatDate(value) {
-            if (!value) return null;
-            
-            let dateObj;
-            // Check if it's a Firestore Timestamp object
-            if (value && typeof value.toDate === 'function') {
-                dateObj = value.toDate();
-            } else {
-                // Assume string or standard Date
-                dateObj = new Date(value);
-            }
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+      authDomain: "my-project-66803-95cb3.firebaseapp.com",
+      projectId: "my-project-66803-95cb3",
+      storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+      messagingSenderId: "167159607898",
+      appId: "1:167159607898:web:23ca11366b88868b085e63"
+    };
 
-            if (isNaN(dateObj.getTime())) return null; // Invalid date
+    const ADMIN_EMAILS = [
+      "jmlsd75@gmail.com",
+      "mohd.khamis18.mk@gmail.com"
+    ];
 
-            // Get parts manually to construct the specific format string
-            const day = dateObj.getDate();
-            const month = dateObj.toLocaleString('en-GB', { month: 'long' });
-            const year = dateObj.getFullYear();
-            
-            const hours = String(dateObj.getHours()).padStart(2, '0');
-            const minutes = String(dateObj.getMinutes()).padStart(2, '0');
-            const seconds = String(dateObj.getSeconds()).padStart(2, '0');
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-            // Timezone string
-            const timezone = "GMT+3"; 
+    // DOM Elements
+    const tableBody = document.getElementById('usersTableBody');
+    const tableFoot = document.getElementById('usersTableFoot');
+    const loader = document.getElementById('loader');
+    const emptyState = document.getElementById('emptyState');
+    const adminProfile = document.getElementById('adminProfile');
 
-            return `${day} ${month} ${year} at ${hours}:${minutes}:${seconds} ${timezone} UTC+3`;
+    // ============================================================
+    // Authentication Check
+    // ============================================================
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        if (ADMIN_EMAILS.includes(user.email)) {
+          // Admin verified
+          updateAdminProfile(user);
+          fetchUsers();
+        } else {
+          showToast("Access Denied: You are not an admin.");
+          setTimeout(() => window.location.href = "index.html", 2000);
+        }
+      } else {
+        // Not logged in
+        window.location.href = "index.html";
+      }
+    });
+
+    function updateAdminProfile(user) {
+      adminProfile.innerHTML = `
+        <img src="${user.photoURL || 'https://picsum.photos/seed/admin/32/32'}" alt="Admin">
+        <span>${user.displayName || user.email}</span>
+      `;
+    }
+
+    // ============================================================
+    // Firestore Data Fetching
+    // ============================================================
+    async function fetchUsers() {
+      loader.classList.remove('hidden');
+      tableBody.innerHTML = '';
+      tableFoot.innerHTML = '';
+      emptyState.classList.add('hidden');
+
+      try {
+        // Fetch all users from 'users' collection
+        const usersRef = collection(db, "users");
+        // Optional: Order by last visit to see active users first
+        const q = query(usersRef); 
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+          emptyState.classList.remove('hidden');
+          loader.classList.add('hidden');
+          return;
         }
 
-        // ============================================
-        // REAL-TIME DATA LOGIC (FIXED)
-        // ============================================
+        let totalUsers = 0;
+        let totalPayment = 0;
+        let totalSpace = 0;
 
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                // Not logged in, redirect to index
-                window.location.href = "index.html";
-                return;
-            }
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          totalUsers++;
 
-            // User is logged in. 
-            
-            // --- THE FIX ---
-            // Instead of looking for a specific Doc ID, we now Query the "users" collection
-            // to find the document where the "email" field matches the user's email.
-            // This works even if your Document ID is random/auto-generated.
-            
-            const usersCollectionRef = collection(db, "users");
-            const q = query(usersCollectionRef, where("email", "==", user.email));
+          // Extract values safely, default to 0 if null/undefined
+          const space = parseFloat(data.spaceUsed) || 0;
+          const paymentAmt = parseFloat(data.lastPaymentAmount) || 0;
+          
+          totalSpace += space;
+          totalPayment += paymentAmt;
 
-            // onSnapshot listens for real-time changes on the query result
-            onSnapshot(q, (querySnapshot) => {
-                if (querySnapshot.empty) {
-                    console.error("No documents found matching email:", user.email);
-                    elUsername.textContent = "User not found";
-                    return;
-                }
-
-                // Iterate through results (should be just one)
-                querySnapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
-                    console.log("Firestore Data Found:", data); // Debug log
-                    updateTable(data);
-                });
-            }, (error) => {
-                console.error("Error listening to Firestore:", error);
-            });
+          // Render Row
+          const row = document.createElement('tr');
+          
+          // Initial for avatar
+          const initial = (data.username || data.email || 'U').charAt(0).toUpperCase();
+          
+          row.innerHTML = `
+            <td>
+              <div class="user-cell">
+                <div class="user-avatar">${initial}</div>
+                <div class="user-info">
+                  <div>${escapeHtml(data.username || 'Unknown User')}</div>
+                </div>
+              </div>
+            </td>
+            <td>${escapeHtml(data.email)}</td>
+            <td>
+              <div style="display:flex; align-items:center;">
+                <div class="space-bar-container">
+                  <div class="space-bar-fill" style="width: ${Math.min((space / 100) * 100, 100)}%"></div>
+                </div>
+                <span>${formatBytes(space)}</span>
+              </div>
+            </td>
+            <td class="text-right">
+              ${paymentAmt > 0 ? '$' + paymentAmt.toFixed(2) : '-'}
+            </td>
+            <td>
+              ${data.lastPayment 
+                ? `<span class="payment-badge paid">Paid</span> ` + new Date(data.lastPayment).toLocaleDateString() 
+                : '<span style="color:#999">No payment</span>'}
+            </td>
+            <td>
+              ${data.lastVisit 
+                ? new Date(data.lastVisit).toLocaleString() 
+                : 'Never'}
+            </td>
+          `;
+          tableBody.appendChild(row);
         });
 
-        function updateTable(data) {
-            // Email
-            elEmail.textContent = data.email || "N/A";
+        // Render Totals Footer
+        renderTotals(totalUsers, totalPayment, totalSpace);
 
-            // Username
-            elUsername.textContent = data.username || "Unknown User";
+      } catch (error) {
+        console.error("Error fetching users:", error);
+        showToast("Failed to load user data.");
+      } finally {
+        loader.classList.add('hidden');
+      }
+    }
 
-            // Space Used
-            elSpaceUsed.textContent = data.spaceUsed !== undefined ? data.spaceUsed : 0;
-            if (data.spaceUsed === 0) elSpaceUsed.className = "val-zero";
-            else elSpaceUsed.className = "";
+    function renderTotals(count, payment, space) {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td colspan="2" class="total-highlight">TOTAL USERS: ${count}</td>
+        <td class="total-highlight">${formatBytes(space)}</td>
+        <td class="text-right total-highlight">$${payment.toFixed(2)}</td>
+        <td></td>
+        <td></td>
+      `;
+      tableFoot.appendChild(row);
+    }
 
-            // Last Payment Amount
-            elLastPaymentAmount.textContent = data.lastPaymentAmount || 0;
-            if ((data.lastPaymentAmount || 0) === 0) elLastPaymentAmount.className = "val-zero";
-            else elLastPaymentAmount.className = "";
+    // ============================================================
+    // Utilities
+    // ============================================================
+    
+    // Format bytes to MB/GB for readability
+    function formatBytes(bytes, decimals = 2) {
+      if (!+bytes) return '0 Bytes';
+      const k = 1024;
+      const dm = decimals < 0 ? 0 : decimals;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+    }
 
-            // Last Payment (Date or Null)
-            if (!data.lastPayment) {
-                elLastPayment.textContent = "null";
-                elLastPayment.className = "val-null";
-            } else {
-                const formatted = formatDate(data.lastPayment);
-                elLastPayment.textContent = formatted || "Invalid Date";
-                elLastPayment.className = "val-date";
-            }
+    // Prevent XSS
+    function escapeHtml(text) {
+      if (!text) return '';
+      return text
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+    }
 
-            // Last Visit (Date)
-            const formattedVisit = formatDate(data.lastVisit);
-            elLastVisit.textContent = formattedVisit || "No visit data";
-            if(formattedVisit) elLastVisit.className = "val-date";
-            else elLastVisit.className = "val-null";
-        }
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      container.appendChild(toast);
+      
+      // Trigger animation
+      requestAnimationFrame(() => {
+        toast.classList.add('show');
+      });
 
-        // ============================================
-        // GLOBAL NAVIGATION
-        // ============================================
-        window.goBack = async function() {
-            if (window.history.length > 1) {
-                window.history.back();
-            } else {
-                window.location.href = "index.html";
-            }
-        };
-    </script>
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // Logout Function
+    window.handleLogout = async () => {
+      try {
+        await signOut(auth);
+        window.location.href = "index.html";
+      } catch (error) {
+        console.error("Logout error", error);
+        showToast("Error signing out");
+      }
+    };
+
+    // Initial fetch (triggered by onAuthStateChanged, but exposed for button)
+    window.fetchUsers = fetchUsers;
+  </script>
 </body>
 </html>
