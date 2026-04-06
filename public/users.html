@@ -226,7 +226,7 @@
             border-radius: 20px;
             padding: 30px;
             width: 90%;
-            max-width: 800px;
+            max-width: 600px; /* Slightly narrower for vertical table */
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
             position: relative;
             z-index: 10;
@@ -277,7 +277,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 600px; /* Ensure horizontal scroll on mobile */
+            min-width: 400px;
         }
 
         th, td {
@@ -292,6 +292,7 @@
             text-transform: uppercase;
             font-size: 0.85rem;
             letter-spacing: 1px;
+            width: 40%; /* Fixed width for labels */
             background: rgba(0, 0, 0, 0.2);
         }
 
@@ -299,6 +300,7 @@
             font-size: 1rem;
             color: #fff;
             font-family: 'Courier New', monospace; /* Monospace for data feel */
+            width: 60%;
         }
 
         tr:last-child th, tr:last-child td {
@@ -379,45 +381,106 @@
         </div>
 
         <div class="table-container">
-            <!-- The Modified Table: Rotated 90° logic applied (Fields as headers) -->
+            <!-- Standard Table: Fields in Col 1, Values in Col 2 -->
+            <!-- Order: Last to First (username, spaceUsed, lastVisit, lastPaymentAmount, lastPayment, email) -->
             <table id="userTable">
                 <thead>
                     <tr>
                         <th>Field</th>
-                        <th>email</th>
-                        <th>lastPayment</th>
-                        <th>lastPaymentAmount</th>
-                        <th>lastVisit</th>
-                        <th>spaceUsed</th>
-                        <th>username</th>
+                        <th>Value</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td><strong>Value</strong></td>
-                        <!-- Data injected via JS -->
-                        <td id="d-email">Loading...</td>
-                        <td id="d-lastPayment">Loading...</td>
-                        <td id="d-lastPaymentAmount">Loading...</td>
-                        <td id="d-lastVisit">Loading...</td>
-                        <td id="d-spaceUsed">Loading...</td>
+                        <td><strong>username</strong></td>
                         <td id="d-username">Loading...</td>
+                    </tr>
+                    <tr>
+                        <td><strong>spaceUsed</strong></td>
+                        <td id="d-spaceUsed">Loading...</td>
+                    </tr>
+                    <tr>
+                        <td><strong>lastVisit</strong></td>
+                        <td id="d-lastVisit">Loading...</td>
+                    </tr>
+                    <tr>
+                        <td><strong>lastPaymentAmount</strong></td>
+                        <td id="d-lastPaymentAmount">Loading...</td>
+                    </tr>
+                    <tr>
+                        <td><strong>lastPayment</strong></td>
+                        <td id="d-lastPayment">Loading...</td>
+                    </tr>
+                    <tr>
+                        <td><strong>email</strong></td>
+                        <td id="d-email">Loading...</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <script>
+    <!-- Firebase Logic -->
+    <script type="module">
         // ============================================
-        // LOGIC: Fetch Data & Populate Table
+        // IMPORTS & CONFIG
         // ============================================
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            onSnapshot 
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // 1. Helper to format dates nicely (matches prompt example style)
-        function formatDate(isoString) {
-            if (!isoString) return null;
-            const date = new Date(isoString);
-            return date.toLocaleString('en-GB', {
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // ============================================
+        // DOM ELEMENTS
+        // ============================================
+        const elEmail = document.getElementById('d-email');
+        const elLastPayment = document.getElementById('d-lastPayment');
+        const elLastPaymentAmount = document.getElementById('d-lastPaymentAmount');
+        const elLastVisit = document.getElementById('d-lastVisit');
+        const elSpaceUsed = document.getElementById('d-spaceUsed');
+        const elUsername = document.getElementById('d-username');
+
+        // ============================================
+        // HELPERS
+        // ============================================
+        
+        // Format dates nicely (matches prompt example style)
+        function formatDate(value) {
+            if (!value) return null;
+            
+            let dateObj;
+            // Check if it's a Firestore Timestamp object
+            if (value && typeof value.toDate === 'function') {
+                dateObj = value.toDate();
+            } else {
+                // Assume string or standard Date
+                dateObj = new Date(value);
+            }
+
+            if (isNaN(dateObj.getTime())) return null; // Invalid date
+
+            return dateObj.toLocaleString('en-GB', {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric',
@@ -425,115 +488,88 @@
                 minute: '2-digit',
                 second: '2-digit',
                 timeZoneName: 'short'
-            }) + " UTC+3"; // Hardcoding UTC+3 as per prompt example
+            }) + " UTC+3"; 
         }
 
-        // 2. The Data from the prompt (Fallback/Default)
-        const staticData = {
-            email: "camelkazembe1@gmail.com",
-            lastPayment: null,
-            lastPaymentAmount: 0,
-            lastVisit: "2026-04-06T16:10:06.000Z", // Approximate for the date in prompt
-            spaceUsed: 0,
-            username: "Camel Kazembe"
-        };
+        // ============================================
+        // REAL-TIME DATA LOGIC
+        // ============================================
 
-        // 3. Function to populate table
-        function renderTable(data) {
-            // Email
-            document.getElementById('d-email').textContent = data.email;
-
-            // Last Payment
-            const lpEl = document.getElementById('d-lastPayment');
-            if (data.lastPayment === null) {
-                lpEl.textContent = "null";
-                lpEl.className = "val-null";
-            } else {
-                lpEl.textContent = data.lastPayment;
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                // Not logged in, redirect to index
+                window.location.href = "index.html";
+                return;
             }
 
-            // Last Payment Amount
-            const lpaEl = document.getElementById('d-lastPaymentAmount');
-            lpaEl.textContent = data.lastPaymentAmount;
-            if (data.lastPaymentAmount === 0) lpaEl.className = "val-zero";
+            // User is logged in. Setup real-time listener for their document.
+            // Document ID is user.email
+            const userDocRef = doc(db, "users", user.email);
 
-            // Last Visit
-            const lvEl = document.getElementById('d-lastVisit');
-            // If we have the exact string from prompt, use it, otherwise format
-            if (typeof data.lastVisit === 'string' && data.lastVisit.includes('6 April 2026')) {
-                 lvEl.textContent = data.lastVisit; // Use exact string if present
-                 lvEl.className = "val-date";
-            } else {
-                const formatted = formatDate(data.lastVisit);
-                lvEl.textContent = formatted ? formatted : "null";
-                if(formatted) lvEl.className = "val-date";
-            }
-
-            // Space Used
-            const suEl = document.getElementById('d-spaceUsed');
-            suEl.textContent = data.spaceUsed;
-            if (data.spaceUsed === 0) suEl.className = "val-zero";
-
-            // Username
-            document.getElementById('d-username').textContent = data.username;
-        }
-
-        // 4. Initialization logic
-        document.addEventListener('DOMContentLoaded', () => {
-            // A. Try to get data from LocalStorage (set by your login.js)
-            const session = localStorage.getItem('userSession');
-            let userData = staticData; // Default to prompt data
-
-            if (session) {
-                try {
-                    const parsed = JSON.parse(session);
-                    // Map login.js keys to our table keys if needed, 
-                    // but they match perfectly based on your login.js code.
-                    userData = {
-                        email: parsed.email,
-                        lastPayment: parsed.lastPayment,
-                        lastPaymentAmount: parsed.lastPaymentAmount,
-                        lastVisit: parsed.lastVisit, // login.js sets this as ISO string usually
-                        spaceUsed: parsed.spaceUsed,
-                        username: parsed.username
-                    };
-                    
-                    // Special handling: If the login.js just created a new user, 
-                    // lastVisit might be an ISO string. 
-                    // For the demo effect requested, if it is 2026, keep it, 
-                    // otherwise the staticData is better for the visual "preview".
-                    
-                    // To strictly follow "use it" (the prompt data) while supporting login:
-                    // We will use the session data if it exists and has valid fields.
-                    
-                } catch (e) {
-                    console.error("Session parse error, using static data", e);
+            // onSnapshot listens for real-time changes
+            onSnapshot(userDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    updateTable(data);
+                } else {
+                    console.error("User document does not exist in Firestore!");
+                    // Optionally: Create document or redirect
+                    alert("User data not found. Please contact support or login again.");
+                    window.location.href = "index.html";
                 }
-            } else {
-                console.log("No session found, displaying demo data from prompt.");
-            }
-
-            // If we want to force the Prompt's specific "6 April 2026" date for visual consistency 
-            // with the request, we can override it here if the session doesn't have it.
-            // But typically, we want real data. 
-            // However, the prompt says: "Table data: ... use it".
-            // I will prioritize the Session, but if the session is empty, I use the static.
-            
-            renderTable(userData);
+            }, (error) => {
+                console.error("Error listening to Firestore:", error);
+            });
         });
 
-        // 5. Navigation
-        function goBack() {
-            // Simply go back in history
+        function updateTable(data) {
+            // Email
+            elEmail.textContent = data.email || "N/A";
+
+            // Username
+            elUsername.textContent = data.username || "Unknown User";
+
+            // Space Used
+            elSpaceUsed.textContent = data.spaceUsed !== undefined ? data.spaceUsed : 0;
+            if (data.spaceUsed === 0) elSpaceUsed.className = "val-zero";
+            else elSpaceUsed.className = "";
+
+            // Last Payment Amount
+            elLastPaymentAmount.textContent = data.lastPaymentAmount || 0;
+            if ((data.lastPaymentAmount || 0) === 0) elLastPaymentAmount.className = "val-zero";
+            else elLastPaymentAmount.className = "";
+
+            // Last Payment (Date or Null)
+            if (!data.lastPayment) {
+                elLastPayment.textContent = "null";
+                elLastPayment.className = "val-null";
+            } else {
+                const formatted = formatDate(data.lastPayment);
+                elLastPayment.textContent = formatted || "Invalid Date";
+                elLastPayment.className = "val-date";
+            }
+
+            // Last Visit (Date)
+            const formattedVisit = formatDate(data.lastVisit);
+            elLastVisit.textContent = formattedVisit || "No visit data";
+            if(formattedVisit) elLastVisit.className = "val-date";
+            else elLastVisit.className = "val-null";
+        }
+
+        // ============================================
+        // GLOBAL NAVIGATION
+        // ============================================
+        window.goBack = async function() {
+            // Optional: Sign out if you want "Back" to log them out completely
+            // await signOut(auth); 
+            
+            // Or just go back in history
             if (window.history.length > 1) {
                 window.history.back();
             } else {
-                // If no history, maybe go to index or do nothing
-                console.log("No history to go back to");
-                // Fallback for a standalone file test:
-                // window.location.href = 'index.html'; 
+                window.location.href = "index.html";
             }
-        }
+        };
     </script>
 </body>
 </html>
