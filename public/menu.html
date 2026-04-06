@@ -7,15 +7,23 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body {
             font-family: 'Quicksand', sans-serif;
-            min-height: 100vh; overflow: hidden;
-            background: linear-gradient(180deg, #1a0e2e 0%, #2d1b4e 15%, #4a2c6e 30%, #7b4a8a 45%, #c4856c 60%, #e8a96a 75%, #f0c87a 85%, #d4a45a 95%, #8b6914 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            background: #1a0e2e;
             position: relative;
         }
-        body::before {
+        .bg-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, #1a0e2e 0%, #2d1b4e 15%, #4a2c6e 30%, #7b4a8a 45%, #c4856c 60%, #e8a96a 75%, #f0c87a 85%, #d4a45a 95%, #8b6914 100%);
+            z-index: 0;
+        }
+        .bg-layer::before {
             content: '';
-            position: fixed; top: 0; left: 0; width: 100%; height: 45%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 45%;
             background:
                 radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.8) 50%, transparent 100%),
                 radial-gradient(1.5px 1.5px at 25% 8%, rgba(255,255,220,0.9) 50%, transparent 100%),
@@ -28,12 +36,17 @@
             pointer-events: none; z-index: 0; animation: twinkle 4s ease-in-out infinite alternate;
         }
         @keyframes twinkle { 0% { opacity: 0.6; } 100% { opacity: 1; } }
-        .ground {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 15%;
-            background: linear-gradient(180deg, #5a7a32 0%, #4a6a28 30%, #3d5a20 100%);
-            border-top: 3px solid #6b8f3a; z-index: 1;
+
+        .scene-layer {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 1;
         }
-        .grass { position: fixed; bottom: 13%; z-index: 2; pointer-events: none; }
+        .ground {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 15%;
+            background: linear-gradient(180deg, #5a7a32 0%, #4a6a28 30%, #3d5a20 100%);
+            border-top: 3px solid #6b8f3a;
+        }
+        .grass { position: absolute; bottom: 13%; pointer-events: none; }
         .grass span {
             display: inline-block; width: 4px; background: #6b8f3a;
             border-radius: 2px 2px 0 0; transform-origin: bottom center; animation: sway 3s ease-in-out infinite;
@@ -44,7 +57,7 @@
         .grass span:nth-child(4) { height: 14px; background: #5a7a32; animation-delay: 0.15s; }
         .grass span:nth-child(5) { height: 18px; background: #6b8f3a; animation-delay: 0.45s; }
         @keyframes sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
-        .bush { position: fixed; bottom: 14%; z-index: 2; pointer-events: none; }
+        .bush { position: absolute; bottom: 14%; pointer-events: none; }
         .bush-blob { border-radius: 50%; position: absolute; }
         .bush.lb { left: 8%; }
         .bush.lb .bush-blob:nth-child(1) { width: 40px; height: 30px; background: #3d7a28; }
@@ -55,7 +68,7 @@
         .bush.rb .bush-blob:nth-child(2) { width: 40px; height: 30px; background: #3d8a2e; left: 12px; top: -10px; }
         .bush.rb .bush-blob:nth-child(3) { width: 28px; height: 20px; background: #4a8e32; left: -8px; top: 3px; }
         .floating-leaf {
-            position: fixed; width: 14px; height: 8px; background: #5cc048;
+            position: absolute; width: 14px; height: 8px; background: #5cc048;
             border-radius: 0 50% 50% 0; opacity: 0.7; z-index: 5; pointer-events: none;
         }
         .floating-leaf:nth-child(1) { left: 20%; animation: leafFall 8s linear infinite; background: #4a9e36; }
@@ -68,47 +81,51 @@
         }
 
         .back-btn {
-            position: fixed; top: 24px; left: 24px; z-index: 100;
+            position: fixed; top: 20px; left: 20px; z-index: 100;
             width: 48px; height: 48px; border-radius: 14px;
             border: 1.5px solid rgba(232, 160, 64, 0.35);
-            background: rgba(40, 25, 10, 0.55); backdrop-filter: blur(12px);
+            background: rgba(40, 25, 10, 0.6); backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             color: #ffe8b8; font-size: 22px; font-weight: 700;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
             transition: all 0.25s ease; box-shadow: 0 4px 16px rgba(0,0,0,0.25);
             font-family: 'Quicksand', sans-serif; line-height: 1;
             opacity: 0; animation: fadeUp 0.4s ease 0.05s forwards;
         }
-        .back-btn:hover { background: rgba(40, 25, 10, 0.8); border-color: rgba(232, 160, 64, 0.6); transform: translateX(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.35); }
+        .back-btn:hover { background: rgba(40, 25, 10, 0.85); border-color: rgba(232, 160, 64, 0.6); transform: translateX(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.35); }
         .back-btn:active { transform: translateX(-1px); }
 
         .files-wrapper {
-            position: fixed; top: 24px; right: 24px; z-index: 100;
+            position: fixed; top: 20px; right: 20px; z-index: 100;
             opacity: 0; animation: fadeUp 0.4s ease 0.1s forwards;
         }
         .files-btn {
             display: flex; align-items: center; gap: 8px;
-            padding: 12px 22px; border-radius: 14px;
+            padding: 12px 20px; border-radius: 14px;
             border: 1.5px solid rgba(232, 160, 64, 0.35);
-            background: rgba(40, 25, 10, 0.55); backdrop-filter: blur(12px);
+            background: rgba(40, 25, 10, 0.6); backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             color: #ffe8b8; font-size: 15px; font-weight: 600;
             font-family: 'Quicksand', sans-serif; cursor: pointer;
             transition: all 0.25s ease; box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+            white-space: nowrap;
         }
-        .files-btn:hover { background: rgba(40, 25, 10, 0.8); border-color: rgba(232, 160, 64, 0.6); box-shadow: 0 6px 24px rgba(0,0,0,0.35); }
-        .files-btn svg { width: 18px; height: 18px; transition: transform 0.3s ease; }
-        .files-btn.open svg { transform: rotate(90deg); }
+        .files-btn:hover { background: rgba(40, 25, 10, 0.85); border-color: rgba(232, 160, 64, 0.6); box-shadow: 0 6px 24px rgba(0,0,0,0.35); }
+        .files-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
         .files-arrow {
             width: 0; height: 0;
             border-left: 5px solid transparent; border-right: 5px solid transparent;
             border-top: 6px solid rgba(255, 232, 184, 0.5);
             transition: transform 0.3s ease, border-top-color 0.3s;
+            flex-shrink: 0;
         }
         .files-btn.open .files-arrow { transform: rotate(180deg); border-top-color: rgba(255, 232, 184, 0.9); }
 
         .files-dropdown {
             position: absolute; top: calc(100% + 10px); right: 0;
-            min-width: 230px;
-            background: rgba(30, 18, 8, 0.92); backdrop-filter: blur(18px);
+            min-width: 240px;
+            background: rgba(30, 18, 8, 0.94); backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
             border: 1.5px solid rgba(232, 160, 64, 0.25); border-radius: 16px;
             padding: 8px; box-shadow: 0 12px 40px rgba(0,0,0,0.4);
             opacity: 0; visibility: hidden; transform: translateY(-8px) scale(0.96);
@@ -119,7 +136,7 @@
 
         .file-item {
             display: flex; align-items: center; gap: 12px;
-            padding: 12px 16px; border-radius: 10px; text-decoration: none;
+            padding: 12px 14px; border-radius: 10px; text-decoration: none;
             color: rgba(255, 248, 230, 0.75); font-size: 14px; font-weight: 600;
             font-family: 'Quicksand', sans-serif; transition: all 0.2s ease;
             cursor: pointer; border: none; background: none; width: 100%; text-align: left;
@@ -133,33 +150,38 @@
         .file-item:hover .file-dot.blue { box-shadow: 0 0 14px rgba(80, 160, 220, 0.7); }
         .file-item:hover .file-dot.green { box-shadow: 0 0 14px rgba(80, 200, 120, 0.7); }
         .file-item:hover .file-dot.amber { box-shadow: 0 0 14px rgba(232, 160, 64, 0.7); }
-        .file-item-text { display: flex; flex-direction: column; gap: 1px; }
+        .file-item-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
         .file-item-label { font-size: 14px; font-weight: 600; }
-        .file-item-sub { font-size: 11px; font-weight: 400; opacity: 0.45; }
-        .file-item-arrow { margin-left: auto; opacity: 0; transform: translateX(-4px); transition: all 0.2s ease; font-size: 13px; }
+        .file-item-sub { font-size: 11px; font-weight: 400; opacity: 0.45; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-item-arrow { margin-left: auto; opacity: 0; transform: translateX(-4px); transition: all 0.2s ease; font-size: 13px; flex-shrink: 0; }
         .file-item:hover .file-item-arrow { opacity: 0.5; transform: translateX(0); }
 
         .content {
             position: relative; z-index: 10;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            min-height: 100vh; padding: 80px 20px 40px;
+            min-height: 100vh;
+            padding: 100px 24px 120px;
         }
         .page-title {
-            font-size: 15px; font-weight: 600; color: rgba(255, 248, 230, 0.55);
-            text-transform: uppercase; letter-spacing: 4px; margin-bottom: 8px;
+            font-size: 14px; font-weight: 600; color: rgba(255, 248, 230, 0.5);
+            text-transform: uppercase; letter-spacing: 4px; margin-bottom: 10px;
             text-shadow: 0 1px 4px rgba(0,0,0,0.3);
             opacity: 0; transform: translateY(15px); animation: fadeUp 0.5s ease 0.05s forwards;
         }
         .page-heading {
-            font-size: 42px; font-weight: 700; color: #ffe8b8;
-            text-shadow: 0 2px 12px rgba(0,0,0,0.3); margin-bottom: 48px;
+            font-size: 44px; font-weight: 700; color: #ffe8b8;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.3); margin-bottom: 52px;
             opacity: 0; transform: translateY(20px); animation: fadeUp 0.5s ease forwards;
+            text-align: center;
         }
         @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
-        .cards-container { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; max-width: 780px; }
+        .cards-container {
+            display: flex; gap: 24px; flex-wrap: wrap; justify-content: center;
+            max-width: 800px; width: 100%;
+        }
         .card {
-            width: 220px; border-radius: 20px; padding: 32px 24px 28px;
+            width: 230px; border-radius: 20px; padding: 32px 24px 28px;
             text-align: center; cursor: pointer; text-decoration: none;
             position: relative; overflow: hidden;
             transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -178,7 +200,7 @@
         .card::after { content: '→'; position: absolute; bottom: 16px; right: 18px; font-size: 18px; opacity: 0; transform: translateX(-8px); transition: all 0.3s ease; }
         .card:hover::after { opacity: 0.7; transform: translateX(0); }
 
-        .card.business { background: linear-gradient(145deg, rgba(30,60,90,0.85), rgba(20,45,70,0.9)); border: 1.5px solid rgba(80,160,220,0.35); backdrop-filter: blur(14px); }
+        .card.business { background: linear-gradient(145deg, rgba(30,60,90,0.85), rgba(20,45,70,0.9)); border: 1.5px solid rgba(80,160,220,0.35); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
         .card.business::before { background: radial-gradient(circle at 50% 0%, rgba(80,160,220,0.15), transparent 70%); }
         .card.business:hover { border-color: rgba(80,160,220,0.65); box-shadow: 0 16px 48px rgba(20,60,100,0.4); }
         .card.business::after { color: #50a0dc; }
@@ -187,7 +209,7 @@
         .card.business .card-title { color: #c8e6ff; }
         .card.business .card-desc { color: rgba(160,200,240,0.6); }
 
-        .card.health { background: linear-gradient(145deg, rgba(25,70,40,0.85), rgba(18,55,30,0.9)); border: 1.5px solid rgba(80,200,120,0.35); backdrop-filter: blur(14px); }
+        .card.health { background: linear-gradient(145deg, rgba(25,70,40,0.85), rgba(18,55,30,0.9)); border: 1.5px solid rgba(80,200,120,0.35); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
         .card.health::before { background: radial-gradient(circle at 50% 0%, rgba(80,200,120,0.15), transparent 70%); }
         .card.health:hover { border-color: rgba(80,200,120,0.65); box-shadow: 0 16px 48px rgba(20,80,40,0.4); }
         .card.health::after { color: #50c878; }
@@ -196,7 +218,7 @@
         .card.health .card-title { color: #c8f5d8; }
         .card.health .card-desc { color: rgba(160,230,190,0.6); }
 
-        .card.education { background: linear-gradient(145deg, rgba(75,45,20,0.85), rgba(55,32,12,0.9)); border: 1.5px solid rgba(232,170,64,0.35); backdrop-filter: blur(14px); }
+        .card.education { background: linear-gradient(145deg, rgba(75,45,20,0.85), rgba(55,32,12,0.9)); border: 1.5px solid rgba(232,170,64,0.35); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
         .card.education::before { background: radial-gradient(circle at 50% 0%, rgba(232,170,64,0.15), transparent 70%); }
         .card.education:hover { border-color: rgba(232,170,64,0.65); box-shadow: 0 16px 48px rgba(100,60,10,0.4); }
         .card.education::after { color: #e8aa40; }
@@ -214,42 +236,202 @@
         .dropdown-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 99; display: none; }
         .dropdown-overlay.active { display: block; }
 
-        @media (max-width: 720px) {
-            .cards-container { flex-direction: column; align-items: center; gap: 18px; }
-            .card { width: 280px; padding: 28px 22px 24px; }
-            .page-heading { font-size: 32px; margin-bottom: 36px; }
-            .files-dropdown { right: -8px; min-width: 200px; }
-        }
-        @media (max-width: 400px) {
-            .card { width: 260px; }
-            .page-heading { font-size: 28px; }
-            .files-btn { padding: 10px 16px; font-size: 13px; }
-            .back-btn { width: 42px; height: 42px; top: 16px; left: 16px; }
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(232, 160, 64, 0.25); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(232, 160, 64, 0.4); }
+
+        /* === TABLET (768px and below) === */
+        @media (max-width: 768px) {
+            .content { padding: 90px 20px 110px; }
+            .page-heading { font-size: 36px; margin-bottom: 40px; }
+            .page-title { font-size: 12px; letter-spacing: 3px; }
+            .cards-container { gap: 20px; max-width: 520px; }
+            .card { width: 240px; padding: 28px 22px 26px; }
+            .card-icon { width: 56px; height: 56px; border-radius: 15px; margin-bottom: 16px; }
+            .card-icon svg { width: 26px; height: 26px; }
+            .card-title { font-size: 18px; }
+            .card-desc { font-size: 12px; }
+            .back-btn { top: 16px; left: 16px; width: 44px; height: 44px; font-size: 20px; border-radius: 12px; }
             .files-wrapper { top: 16px; right: 16px; }
+            .files-btn { padding: 10px 16px; font-size: 14px; border-radius: 12px; gap: 6px; }
+            .files-btn svg { width: 16px; height: 16px; }
+            .files-dropdown { min-width: 220px; right: 0; }
+            .file-item { padding: 10px 12px; gap: 10px; }
+            .file-item-label { font-size: 13px; }
+            .file-item-sub { font-size: 10px; }
+            .bush.lb { left: 4%; }
+            .bush.rb { right: 3%; }
+        }
+
+        /* === MOBILE LANDSCAPE (600px height and below) === */
+        @media (max-height: 600px) {
+            .content { padding: 80px 20px 100px; min-height: auto; }
+            .page-title { margin-bottom: 6px; }
+            .page-heading { font-size: 28px; margin-bottom: 24px; }
+            .cards-container { gap: 14px; }
+            .card { width: 200px; padding: 20px 18px 22px; border-radius: 16px; }
+            .card-icon { width: 48px; height: 48px; border-radius: 12px; margin-bottom: 12px; }
+            .card-icon svg { width: 22px; height: 22px; }
+            .card-title { font-size: 16px; margin-bottom: 4px; }
+            .card-desc { font-size: 11px; line-height: 1.4; }
+            .back-btn { width: 40px; height: 40px; font-size: 18px; top: 12px; left: 12px; }
+            .files-wrapper { top: 12px; right: 12px; }
+            .files-btn { padding: 8px 14px; font-size: 13px; border-radius: 10px; }
+            .ground { height: 12%; }
+            .grass { bottom: 10%; }
+            .bush { bottom: 11%; }
+        }
+
+        /* === SMALL MOBILE (480px and below) === */
+        @media (max-width: 480px) {
+            .content { padding: 84px 16px 110px; }
+            .page-heading { font-size: 30px; margin-bottom: 32px; }
+            .page-title { font-size: 11px; letter-spacing: 2.5px; }
+            .cards-container {
+                flex-direction: column; align-items: center;
+                gap: 16px; max-width: 320px;
+            }
+            .card {
+                width: 100%; max-width: 300px;
+                padding: 24px 20px 22px; border-radius: 18px;
+                display: flex; align-items: center; text-align: left; gap: 16px;
+            }
+            .card-icon {
+                width: 52px; height: 52px; border-radius: 14px;
+                margin: 0; flex-shrink: 0;
+            }
+            .card-icon svg { width: 24px; height: 24px; }
+            .card-text-wrap { flex: 1; min-width: 0; }
+            .card-title { font-size: 17px; margin-bottom: 4px; }
+            .card-desc { font-size: 12px; }
+            .card:hover { transform: translateY(-4px) scale(1.01); }
+            .card:hover .card-icon { transform: scale(1.08); }
+            .card::after { bottom: 50%; right: 14px; transform: translateY(50%) translateX(-8px); font-size: 16px; }
+            .card:hover::after { transform: translateY(50%) translateX(0); }
+            .back-btn { width: 42px; height: 42px; top: 14px; left: 14px; font-size: 19px; border-radius: 12px; }
+            .files-wrapper { top: 14px; right: 14px; }
+            .files-btn { padding: 9px 14px; font-size: 13px; border-radius: 11px; gap: 5px; }
+            .files-btn svg { width: 15px; height: 15px; }
+            .files-dropdown { min-width: 210px; right: -4px; }
+            .file-item { padding: 10px 10px; gap: 8px; }
+            .file-item-label { font-size: 13px; }
+            .file-item-sub { font-size: 10px; }
+            .bush.lb .bush-blob:nth-child(1) { width: 30px; height: 22px; }
+            .bush.lb .bush-blob:nth-child(2) { width: 26px; height: 20px; left: 10px; top: -6px; }
+            .bush.lb .bush-blob:nth-child(3) { width: 22px; height: 16px; left: -8px; top: 2px; }
+            .bush.rb .bush-blob:nth-child(1) { width: 26px; height: 20px; }
+            .bush.rb .bush-blob:nth-child(2) { width: 30px; height: 22px; left: 10px; top: -8px; }
+            .bush.rb .bush-blob:nth-child(3) { width: 20px; height: 15px; left: -6px; top: 2px; }
+            .grass span { width: 3px; }
+            .grass span:nth-child(1) { height: 14px; }
+            .grass span:nth-child(2) { height: 12px; }
+            .grass span:nth-child(3) { height: 16px; }
+            .grass span:nth-child(4) { height: 10px; }
+            .grass span:nth-child(5) { height: 13px; }
+        }
+
+        /* === VERY SMALL (360px and below) === */
+        @media (max-width: 360px) {
+            .content { padding: 80px 12px 100px; }
+            .page-heading { font-size: 26px; margin-bottom: 28px; }
+            .cards-container { max-width: 280px; gap: 14px; }
+            .card { padding: 20px 16px 20px; gap: 14px; border-radius: 16px; }
+            .card-icon { width: 46px; height: 46px; border-radius: 12px; }
+            .card-icon svg { width: 22px; height: 22px; }
+            .card-title { font-size: 16px; }
+            .card-desc { font-size: 11px; }
+            .files-btn span:not(.files-arrow) { display: none; }
+            .files-btn { padding: 10px 12px; }
+            .files-dropdown { min-width: 200px; right: -8px; }
+            .back-btn { width: 40px; height: 40px; top: 12px; left: 12px; }
+            .files-wrapper { top: 12px; right: 12px; }
+        }
+
+        /* === TINY HEIGHT (500px and below — like phones in landscape) === */
+        @media (max-height: 500px) {
+            .content { padding: 70px 16px 90px; min-height: auto; }
+            .page-title { margin-bottom: 4px; font-size: 10px; }
+            .page-heading { font-size: 22px; margin-bottom: 18px; }
+            .cards-container { gap: 12px; }
+            .card { width: 180px; padding: 16px 14px 18px; border-radius: 14px; gap: 10px; }
+            .card-icon { width: 40px; height: 40px; border-radius: 10px; margin-bottom: 10px; }
+            .card-icon svg { width: 20px; height: 20px; }
+            .card-title { font-size: 14px; margin-bottom: 2px; }
+            .card-desc { font-size: 10px; }
+            .ground { height: 10%; }
+        }
+
+        /* === LARGE SCREENS === */
+        @media (min-width: 1200px) {
+            .cards-container { gap: 32px; max-width: 860px; }
+            .card { width: 250px; padding: 36px 28px 32px; }
+            .card-icon { width: 72px; height: 72px; border-radius: 20px; margin-bottom: 22px; }
+            .card-icon svg { width: 34px; height: 34px; }
+            .card-title { font-size: 22px; }
+            .card-desc { font-size: 14px; }
+            .page-heading { font-size: 50px; }
+        }
+
+        /* === ULTRA WIDE === */
+        @media (min-width: 1600px) {
+            .page-heading { font-size: 56px; }
+            .cards-container { gap: 40px; max-width: 920px; }
+            .card { width: 270px; padding: 40px 30px 36px; }
+            .card-icon { width: 78px; height: 78px; border-radius: 22px; }
+            .card-icon svg { width: 36px; height: 36px; }
+            .card-title { font-size: 24px; }
+            .card-desc { font-size: 15px; }
+        }
+
+        /* Safe area insets for notched phones */
+        @supports (padding: env(safe-area-inset-top)) {
+            .back-btn { top: calc(20px + env(safe-area-inset-top)); left: calc(20px + env(safe-area-inset-left)); }
+            .files-wrapper { top: calc(20px + env(safe-area-inset-top)); right: calc(20px + env(safe-area-inset-right)); }
+            .content { padding-top: calc(100px + env(safe-area-inset-top)); padding-bottom: calc(120px + env(safe-area-inset-bottom)); }
+            @media (max-width: 480px) {
+                .back-btn { top: calc(14px + env(safe-area-inset-top)); left: calc(14px + env(safe-area-inset-left)); }
+                .files-wrapper { top: calc(14px + env(safe-area-inset-top)); right: calc(14px + env(safe-area-inset-right)); }
+                .content { padding-top: calc(84px + env(safe-area-inset-top)); padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
+            }
+        }
+
+        /* Hover capability detection — reduce hover effects on touch devices */
+        @media (hover: none) {
+            .card:hover { transform: none; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+            .card:hover .card-icon { transform: none; }
+            .card::after { display: none; }
+            .card:active { transform: scale(0.97); }
+            .back-btn:hover { transform: none; }
+            .files-btn:hover { background: rgba(40, 25, 10, 0.6); }
         }
     </style>
 </head>
 <body>
-    <div class="floating-leaf"></div>
-    <div class="floating-leaf"></div>
-    <div class="floating-leaf"></div>
-    <div class="bush lb"><div class="bush-blob"></div><div class="bush-blob"></div><div class="bush-blob"></div></div>
-    <div class="bush rb"><div class="bush-blob"></div><div class="bush-blob"></div><div class="bush-blob"></div></div>
-    <div class="grass" style="left: 15%;"><span></span><span></span><span></span><span></span><span></span></div>
-    <div class="grass" style="left: 55%;"><span></span><span></span><span></span><span></span><span></span></div>
-    <div class="grass" style="left: 82%;"><span></span><span></span><span></span><span></span><span></span></div>
-    <div class="ground"></div>
+    <div class="bg-layer"></div>
+    <div class="scene-layer">
+        <div class="floating-leaf"></div>
+        <div class="floating-leaf"></div>
+        <div class="floating-leaf"></div>
+        <div class="bush lb"><div class="bush-blob"></div><div class="bush-blob"></div><div class="bush-blob"></div></div>
+        <div class="bush rb"><div class="bush-blob"></div><div class="bush-blob"></div><div class="bush-blob"></div></div>
+        <div class="grass" style="left: 15%;"><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="grass" style="left: 55%;"><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="grass" style="left: 82%;"><span></span><span></span><span></span><span></span><span></span></div>
+        <div class="ground"></div>
+    </div>
 
     <button class="back-btn" id="backBtn" aria-label="Go back">&lt;</button>
 
     <div class="files-wrapper">
-        <button class="files-btn" id="filesBtn">
+        <button class="files-btn" id="filesBtn" aria-haspopup="true" aria-expanded="false">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-            Files
+            <span>Files</span>
             <div class="files-arrow"></div>
         </button>
-        <div class="files-dropdown" id="filesDropdown">
-            <a href="business file.html" class="file-item">
+        <div class="files-dropdown" id="filesDropdown" role="menu">
+            <a href="business file.html" class="file-item" role="menuitem">
                 <div class="file-dot blue"></div>
                 <div class="file-item-text">
                     <span class="file-item-label">Business File</span>
@@ -257,7 +439,7 @@
                 </div>
                 <span class="file-item-arrow">›</span>
             </a>
-            <a href="health file.html" class="file-item">
+            <a href="health file.html" class="file-item" role="menuitem">
                 <div class="file-dot green"></div>
                 <div class="file-item-text">
                     <span class="file-item-label">Health File</span>
@@ -265,7 +447,7 @@
                 </div>
                 <span class="file-item-arrow">›</span>
             </a>
-            <a href="education file.html" class="file-item">
+            <a href="education file.html" class="file-item" role="menuitem">
                 <div class="file-dot amber"></div>
                 <div class="file-item-text">
                     <span class="file-item-label">Education File</span>
@@ -285,22 +467,28 @@
                 <div class="card-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
                 </div>
-                <div class="card-title">Business</div>
-                <div class="card-desc">Strategy, growth &amp; market insights</div>
+                <div class="card-text-wrap">
+                    <div class="card-title">Business</div>
+                    <div class="card-desc">Strategy, growth &amp; market insights</div>
+                </div>
             </a>
             <a href="health.html" class="card health">
                 <div class="card-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                 </div>
-                <div class="card-title">Health</div>
-                <div class="card-desc">Wellness, fitness &amp; nutrition tips</div>
+                <div class="card-text-wrap">
+                    <div class="card-title">Health</div>
+                    <div class="card-desc">Wellness, fitness &amp; nutrition tips</div>
+                </div>
             </a>
             <a href="education.html" class="card education">
                 <div class="card-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                 </div>
-                <div class="card-title">Education</div>
-                <div class="card-desc">Learning paths &amp; knowledge hubs</div>
+                <div class="card-text-wrap">
+                    <div class="card-title">Education</div>
+                    <div class="card-desc">Learning paths &amp; knowledge hubs</div>
+                </div>
             </a>
         </div>
     </div>
@@ -309,19 +497,77 @@
         const filesBtn = document.getElementById("filesBtn");
         const filesDropdown = document.getElementById("filesDropdown");
         const dropdownOverlay = document.getElementById("dropdownOverlay");
+
+        function openDropdown() {
+            filesDropdown.classList.add("show");
+            filesBtn.classList.add("open");
+            filesBtn.setAttribute("aria-expanded", "true");
+            dropdownOverlay.classList.add("active");
+        }
+        function closeDropdown() {
+            filesDropdown.classList.remove("show");
+            filesBtn.classList.remove("open");
+            filesBtn.setAttribute("aria-expanded", "false");
+            dropdownOverlay.classList.remove("active");
+        }
+
         filesBtn.addEventListener("click", (e) => {
             e.stopPropagation();
-            if (filesDropdown.classList.contains("show")) { closeDropdown(); }
-            else { filesDropdown.classList.add("show"); filesBtn.classList.add("open"); dropdownOverlay.classList.add("active"); }
+            filesDropdown.classList.contains("show") ? closeDropdown() : openDropdown();
         });
         dropdownOverlay.addEventListener("click", closeDropdown);
         document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDropdown(); });
-        function closeDropdown() { filesDropdown.classList.remove("show"); filesBtn.classList.remove("open"); dropdownOverlay.classList.remove("active"); }
+
+        /* Close dropdown when scrolling */
+        let scrollTicking = false;
+        window.addEventListener("scroll", () => {
+            if (!scrollTicking) {
+                window.requestAnimationFrame(() => {
+                    closeDropdown();
+                    scrollTicking = false;
+                });
+                scrollTicking = true;
+            }
+        }, { passive: true });
+
         document.getElementById("backBtn").addEventListener("click", () => {
             if (window.history.length > 1) window.history.back();
-            else if (window.opener && !window.opener.closed) window.close();
             else window.history.back();
+        });
+
+        /* Prevent dropdown from going off-screen on small devices */
+        function adjustDropdownPosition() {
+            const rect = filesDropdown.getBoundingClientRect();
+            if (rect.right > window.innerWidth - 8) {
+                filesDropdown.style.right = 'auto';
+                filesDropdown.style.left = '0';
+            } else {
+                filesDropdown.style.right = '0';
+                filesDropdown.style.left = 'auto';
+            }
+            if (rect.bottom > window.innerHeight - 8) {
+                filesDropdown.style.top = 'auto';
+                filesDropdown.style.bottom = 'calc(100% + 10px)';
+                filesDropdown.style.transformOrigin = 'bottom right';
+            } else {
+                filesDropdown.style.bottom = 'auto';
+                filesDropdown.style.top = 'calc(100% + 10px)';
+                filesDropdown.style.transformOrigin = 'top right';
+            }
+        }
+
+        const origOpen = openDropdown;
+        openDropdown = function() {
+            origOpen();
+            requestAnimationFrame(adjustDropdownPosition);
+        };
+
+        window.addEventListener("resize", () => {
+            if (filesDropdown.classList.contains("show")) adjustDropdownPosition();
         });
     </script>
 </body>
 </html>
+
+
+
