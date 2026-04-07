@@ -1,51 +1,472 @@
-    <script type="module">
-        // --- FIREBASE IMPORTS & CONFIG ---
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Transaction Tool</title>
+    <style>
+        /* --- RESET & BASE STYLES --- */
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #27ae60;
+            --danger-color: #c0392b;
+            --text-color: #333;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-        // Your provided Config
-        const firebaseConfig = {
-            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-            authDomain: "my-project-66803-95cb3.firebaseapp.com",
-            projectId: "my-project-66803-95cb3",
-            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-            messagingSenderId: "167159607898",
-            appId: "1:167159607898:web:23ca11366b88868b085e63"
-        };
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        body {
+            font-family: var(--font-family);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            color: var(--text-color);
+        }
 
+        /* --- SCENE & THEMES --- */
+        #scene {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            transition: background 1s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Theme: Village (Advanced) */
+        .theme-village {
+            background: linear-gradient(to bottom, #87CEEB 0%, #B3E5FC 60%, #E0F7FA 100%);
+            position: relative;
+        }
+
+        /* Sun */
+        .sun {
+            position: absolute;
+            top: 8%;
+            right: 15%;
+            width: 90px;
+            height: 90px;
+            background: #f1c40f;
+            border-radius: 50%;
+            box-shadow: 0 0 40px #f39c12, 0 0 80px rgba(243, 156, 18, 0.4);
+            animation: sun-pulse 6s infinite alternate;
+            z-index: 1;
+        }
+
+        /* Clouds */
+        .cloud {
+            position: absolute;
+            background: #fff;
+            border-radius: 50px;
+            opacity: 0.9;
+            z-index: 2;
+            animation: drift linear infinite;
+        }
+        .cloud::after, .cloud::before {
+            content: ''; position: absolute; background: inherit; border-radius: 50%;
+        }
+        .c1 { width: 120px; height: 40px; top: 15%; left: -150px; animation-duration: 25s; }
+        .c1::after { width: 50px; height: 50px; top: -25px; left: 15px; }
+        .c1::before { width: 40px; height: 40px; top: -15px; left: 50px; }
+        .c2 { width: 100px; height: 35px; top: 25%; left: -120px; animation-duration: 35s; animation-delay: 5s; transform: scale(0.8); }
+        .c2::after { width: 40px; height: 40px; top: -20px; left: 10px; }
+
+        /* Hills */
+        .hill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            z-index: 3;
+        }
+        .hill-back {
+            height: 35%;
+            background: #81C784;
+            border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+            transform: scaleX(1.5);
+        }
+        .hill-front {
+            height: 25%;
+            background: #66BB6A;
+            border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+            transform: scaleX(1.2) translateY(20px);
+            z-index: 4;
+        }
+
+        /* Huts */
+        .village-container {
+            position: absolute;
+            bottom: 18%;
+            width: 100%;
+            height: 150px;
+            z-index: 5;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            padding: 0 10%;
+        }
+
+        .hut {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hut-roof {
+            width: 0; height: 0;
+            border-left: 45px solid transparent;
+            border-right: 45px solid transparent;
+            border-bottom: 60px solid #5D4037;
+            filter: drop-shadow(0 4px 2px rgba(0,0,0,0.2));
+            z-index: 6;
+        }
+        .hut-body {
+            width: 70px;
+            height: 60px;
+            background: #8D6E63;
+            border: 2px solid #5D4037;
+            position: relative;
+            z-index: 5;
+            margin-top: -10px;
+        }
+        .hut-door {
+            width: 20px;
+            height: 35px;
+            background: #3E2723;
+            position: absolute;
+            bottom: 0; left: 50%;
+            transform: translateX(-50%);
+            border-radius: 10px 10px 0 0;
+        }
+        .hut-window {
+            width: 15px;
+            height: 15px;
+            background: #FFF9C4;
+            position: absolute;
+            top: 15px;
+            border: 2px solid #5D4037;
+        }
+        .w-left { left: 10px; }
+        .w-right { right: 10px; }
+
+        .hut.small { transform: scale(0.8); margin-bottom: 20px; z-index: 4; }
+        .hut.large { transform: scale(1.1); z-index: 6; }
+
+        /* Other Themes */
+        .theme-forest { background: linear-gradient(to bottom, #1a2f1a 0%, #2d5a27 100%); }
+        .tree {
+            position: absolute; bottom: 0;
+            width: 0; height: 0;
+            border-left: 30px solid transparent;
+            border-right: 30px solid transparent;
+            border-bottom: 150px solid #1b3d16;
+        }
+        .tree::after {
+            content: ''; position: absolute; top: 150px; left: -5px;
+            width: 10px; height: 20px; background: #3e2723;
+        }
+
+        .theme-waterflow { background: linear-gradient(180deg, #2980b9, #6dd5fa, #ffffff); }
+        .water-wave {
+            position: absolute; bottom: 0; left: 0; width: 200%; height: 200px;
+            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="%23ffffff" fill-opacity="0.4"/></svg>');
+            background-size: 50% 100%; animation: wave-flow 5s linear infinite;
+        }
+
+        .theme-monkeys { background: #2d5a27; }
+        .monkey {
+            position: absolute; font-size: 40px;
+            animation: monkey-swing 3s ease-in-out infinite alternate; z-index: 1;
+        }
+
+        .theme-gold { background: #1a1a1a; }
+        .gold-particle {
+            position: absolute; width: 6px; height: 6px; background: gold; border-radius: 50%;
+            box-shadow: 0 0 10px gold; animation: twinkle 1s infinite alternate;
+        }
+
+        .theme-money { background: #27ae60; }
+        .money-item {
+            position: absolute; font-size: 30px; opacity: 0.6;
+            animation: float-up 4s linear infinite;
+        }
+
+        /* --- UI CONTAINER --- */
+        #ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; pointer-events: none;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.95); padding: 2rem; border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center;
+            max-width: 600px; width: 90%; pointer-events: auto;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            max-height: 90vh; overflow-y: auto;
+        }
+
+        .hidden { display: none !important; }
+        
+        h1, h2, h3 { margin-bottom: 1.5rem; color: var(--primary-color); }
+
+        .btn-group { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem; }
+
+        button {
+            padding: 12px 24px; font-size: 1rem; border: none; border-radius: 8px;
+            cursor: pointer; transition: all 0.2s; background-color: var(--primary-color);
+            color: white; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        button:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        button.btn-cancel { background-color: var(--danger-color); margin-top: 10px; }
+        button.btn-ok { background-color: var(--accent-color); }
+        button.btn-back { background-color: #7f8c8d; }
+
+        .input-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: var(--primary-color); }
+
+        input[type="text"], input[type="number"], input[type="file"] {
+            width: 100%; padding: 12px; font-size: 1.1rem; border: 2px solid #ccc;
+            border-radius: 8px; outline: none; transition: border-color 0.3s, opacity 0.3s; background: #fff;
+        }
+        input:focus { border-color: var(--primary-color); }
+
+        .pending-field { opacity: 0.5; cursor: pointer; border-style: dashed; }
+        .pending-field:focus { opacity: 1; border-style: solid; }
+        .pending-label { color: #7f8c8d; }
+
+        /* Table Styles */
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .data-table th, .data-table td { text-align: left; padding: 10px; border-bottom: 1px solid #ddd; }
+        .data-table th { background-color: #f2f2f2; }
+        .empty-msg { color: #7f8c8d; font-style: italic; }
+
+        /* Upload Area */
+        .upload-area { border: 2px dashed #ccc; padding: 20px; border-radius: 8px; margin-bottom: 15px; }
+
+        /* --- TOP RIGHT MENU BUTTON --- */
+        .menu-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 200;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            pointer-events: auto;
+        }
+        .menu-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1) rotate(-10deg);
+        }
+
+        /* Animations */
+        @keyframes sun-pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+        @keyframes drift { from { left: -150px; } to { left: 100%; } }
+        @keyframes wave-flow { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        @keyframes monkey-swing { 0% { transform: rotate(10deg) translateY(0); } 100% { transform: rotate(-10deg) translateY(-20px); } }
+        @keyframes twinkle { 0% { opacity: 0.3; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1.2); } }
+        @keyframes float-up { 0% { transform: translateY(110vh) rotate(0deg); opacity: 0; } 100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; } }
+
+        .success-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 100; display: flex;
+            justify-content: center; align-items: center; flex-direction: column;
+            color: white; opacity: 0; pointer-events: none; transition: opacity 0.5s;
+        }
+        .success-overlay.active { opacity: 1; pointer-events: auto; }
+        .tick-icon { font-size: 80px; color: var(--accent-color); margin-bottom: 20px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+
+    </style>
+</head>
+<body>
+
+    <!-- SCENE BACKGROUND -->
+    <div id="scene" class="theme-village">
+        <!-- Village Elements -->
+        <div class="sun"></div>
+        <div class="cloud c1"></div>
+        <div class="cloud c2"></div>
+        <div class="hill hill-back"></div>
+        <div class="hill hill-front"></div>
+        <div class="village-container">
+            <div class="hut small"><div class="hut-roof"></div><div class="hut-body"><div class="hut-door"></div><div class="hut-window w-left"></div></div></div>
+            <div class="hut large"><div class="hut-roof" style="border-left-width: 60px; border-right-width: 60px; border-bottom-width: 80px;"></div><div class="hut-body" style="width: 90px; height: 70px;"><div class="hut-door" style="width: 25px; height: 40px;"></div><div class="hut-window w-left"></div><div class="hut-window w-right"></div></div></div>
+            <div class="hut small"><div class="hut-roof"></div><div class="hut-body"><div class="hut-door"></div><div class="hut-window w-right"></div></div></div>
+        </div>
+
+        <!-- Forest Elements -->
+        <div id="forest-elements" class="hidden">
+            <div class="tree" style="left: 10%;"></div>
+            <div class="tree" style="left: 30%; transform: scale(0.8);"></div>
+            <div class="tree" style="left: 50%;"></div>
+            <div class="tree" style="left: 70%; transform: scale(1.2);"></div>
+            <div class="tree" style="left: 90%; transform: scale(0.9);"></div>
+        </div>
+
+        <!-- Water, Monkey, Gold, Money Elements -->
+        <div id="water-elements" class="hidden"><div class="water-wave"></div><div class="water-wave" style="bottom: 20px; opacity: 0.5; animation-duration: 7s;"></div></div>
+        <div id="monkey-elements" class="hidden"></div>
+        <div id="gold-elements" class="hidden"></div>
+        <div id="money-elements" class="hidden"></div>
+    </div>
+
+    <!-- UI LAYER -->
+    <main id="ui-layer">
+        
+        <!-- TOP RIGHT MENU BUTTON -->
+        <div class="menu-btn" onclick="goToMenu()" title="Back to Menu">&lt;</div>
+
+        <!-- 1. INITIAL DASHBOARD -->
+        <section id="dashboard-panel" class="panel">
+            <div class="btn-group">
+                <button onclick="startTransaction()">Add New Transaction</button>
+            </div>
+            <div class="btn-group">
+                <button onclick="showView()">View</button>
+                <button onclick="showUpload()">Upload File</button>
+            </div>
+        </section>
+
+        <!-- 2. VIEW PANEL -->
+        <section id="view-panel" class="panel hidden">
+            <h2>Transaction History</h2>
+            <div style="max-height: 200px; overflow-y: auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Detail</th>
+                            <th>Amount</th>
+                            <th>Form</th>
+                            <th>Flow</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transaction-table-body"></tbody>
+                </table>
+                <p id="empty-msg" class="empty-msg">No transactions recorded yet.</p>
+            </div>
+            <br>
+            <button class="btn-back" onclick="goToDashboard()">Back</button>
+        </section>
+
+        <!-- 3. UPLOAD PANEL -->
+        <section id="upload-panel" class="panel hidden">
+            <h2>Upload File</h2>
+            <div class="upload-area">
+                <label for="file-upload" style="cursor: pointer;">Choose a file...</label>
+                <input type="file" id="file-upload">
+            </div>
+            <div class="btn-group">
+                <button class="btn-ok" onclick="finishUpload()">Upload</button>
+            </div>
+            <button class="btn-back" onclick="goToDashboard()">Back</button>
+        </section>
+
+        <!-- 4. TRANSACTION WIZARD CONTAINER -->
+        <section id="wizard-panel" class="panel hidden">
+            
+            <div id="summary-area" class="btn-group" style="margin-bottom: 20px; flex-wrap: wrap;"></div>
+
+            <!-- STEP 1: DETAIL -->
+            <div id="step-detail" class="input-group">
+                <label id="label-detail" for="input-detail">Enter Transaction Detail</label>
+                <input type="text" id="input-detail" placeholder="e.g. Sold Wood" autocomplete="off">
+            </div>
+
+            <!-- STEP 2: AMOUNT -->
+            <div id="step-amount" class="input-group">
+                <label id="label-amount" for="input-amount" class="pending-label">Enter Transaction Amount (Click here)</label>
+                <input type="number" id="input-amount" class="pending-field" placeholder="0.00" autocomplete="off">
+            </div>
+
+            <!-- STEP 3: FORM -->
+            <div id="step-form" class="input-group hidden">
+                <label id="label-form">Choose a Transaction Form</label>
+                <div class="btn-group">
+                    <button id="btn-cash" onclick="selectForm('Cash')">Cash</button>
+                    <button id="btn-credit" onclick="selectForm('Credit')">Credit</button>
+                    <button id="btn-bank" onclick="selectForm('Bank')">Bank</button>
+                </div>
+            </div>
+
+            <!-- STEP 4: FLOW -->
+            <div id="step-flow" class="input-group hidden">
+                <label id="label-flow">Transaction Flow</label>
+                <div class="btn-group">
+                    <button id="btn-in" onclick="selectFlow('In')">In</button>
+                    <button id="btn-out" onclick="selectFlow('Out')">Out</button>
+                </div>
+            </div>
+
+            <!-- STEP 5: FINAL -->
+            <div id="step-final" class="input-group hidden">
+                <h3>Ready to Record?</h3>
+                <div class="btn-group">
+                    <button class="btn-ok" onclick="finishTransaction()">OK</button>
+                </div>
+            </div>
+
+            <button class="btn-cancel" onclick="cancelTransaction()">Cancel</button>
+        </section>
+
+    </main>
+
+    <!-- SUCCESS OVERLAY -->
+    <div id="success-overlay" class="success-overlay">
+        <div class="tick-icon">✅</div>
+        <h2 id="success-text">Success!</h2>
+    </div>
+
+    <script>
         // --- DATA STORE ---
-        let transactionData = { detail: '', amount: '', form: '', flow: '', name: '' };
-        // We still keep local array for current session summary if needed, 
-        // but the main source of truth is now Firestore.
-        let transactions = []; 
+        let transactionData = { detail: '', amount: '', form: '', flow: '' };
+        let transactions = [];
 
         // --- DOM ELEMENTS ---
         const scene = document.getElementById('scene');
         const panels = {
             dashboard: document.getElementById('dashboard-panel'),
+            view: document.getElementById('view-panel'),
+            upload: document.getElementById('upload-panel'),
             wizard: document.getElementById('wizard-panel')
         };
         const summaryArea = document.getElementById('summary-area');
         const successOverlay = document.getElementById('success-overlay');
         const successText = document.getElementById('success-text');
-        const errorMsg = document.getElementById('error-msg');
 
         // Steps
         const stepDetail = document.getElementById('step-detail');
         const stepAmount = document.getElementById('step-amount');
         const stepForm = document.getElementById('step-form');
-        const stepName = document.getElementById('step-name'); 
         const stepFlow = document.getElementById('step-flow');
         const stepFinal = document.getElementById('step-final');
 
         // Inputs
         const inputDetail = document.getElementById('input-detail');
         const inputAmount = document.getElementById('input-amount');
-        const inputName = document.getElementById('input-name');
         const labelDetail = document.getElementById('label-detail');
         const labelAmount = document.getElementById('label-amount');
 
@@ -58,16 +479,19 @@
 
         // --- INITIALIZATION ---
         function initThemeElements() {
+            // Monkeys
             for(let i=0; i<5; i++) {
                 let m = document.createElement('div'); m.className = 'monkey'; m.textContent = '🐵';
                 m.style.left = Math.random() * 90 + '%'; m.style.top = (Math.random() * 50 + 10) + '%';
                 m.style.animationDelay = (Math.random() * 2) + 's'; monkeyEls.appendChild(m);
             }
+            // Gold
             for(let i=0; i<30; i++) {
                 let g = document.createElement('div'); g.className = 'gold-particle';
                 g.style.left = Math.random() * 100 + '%'; g.style.top = Math.random() * 100 + '%';
                 g.style.animationDelay = (Math.random() * 2) + 's'; goldEls.appendChild(g);
             }
+            // Money
             const moneySymbols = ['💵', '💰', '🪙', '💸'];
             for(let i=0; i<15; i++) {
                 let mon = document.createElement('div'); mon.className = 'money-item';
@@ -87,12 +511,25 @@
             hideAllPanels();
             panels.dashboard.classList.remove('hidden');
             setTheme('village');
-            errorMsg.classList.remove('visible');
         }
 
-        function goToBusinessFile() { window.location.href = 'business file.html'; }
-        function goToUploadFile() { window.location.href = 'upload file.html'; }
-        function goToMenu() { window.location.href = 'menu.html'; }
+        function showView() {
+            hideAllPanels();
+            panels.view.classList.remove('hidden');
+            renderTable();
+            setTheme('village');
+        }
+
+        function showUpload() {
+            hideAllPanels();
+            panels.upload.classList.remove('hidden');
+            setTheme('village');
+        }
+
+        function goToMenu() {
+            // Redirect to menu.html as requested
+            window.location.href = 'menu.html';
+        }
 
         function setTheme(themeName) {
             const villageEls = document.querySelectorAll('.sun, .cloud, .hill, .village-container');
@@ -114,23 +551,50 @@
             if (themeName === 'money') moneyEls.classList.remove('hidden');
         }
 
-        function showError(msg) {
-            errorMsg.textContent = msg;
-            errorMsg.classList.add('visible');
+        // --- VIEW PANEL LOGIC ---
+        function renderTable() {
+            const tbody = document.getElementById('transaction-table-body');
+            const emptyMsg = document.getElementById('empty-msg');
+            tbody.innerHTML = '';
+
+            if (transactions.length === 0) {
+                emptyMsg.style.display = 'block';
+            } else {
+                emptyMsg.style.display = 'none';
+                transactions.forEach(t => {
+                    const row = `<tr>
+                        <td>${t.detail}</td>
+                        <td>${t.amount}</td>
+                        <td>${t.form}</td>
+                        <td style="color:${t.flow === 'In' ? 'green' : 'red'}">${t.flow}</td>
+                    </tr>`;
+                    tbody.innerHTML += row;
+                });
+            }
+        }
+
+        function finishUpload() {
+            const fileInput = document.getElementById('file-upload');
+            if(fileInput.files.length > 0) {
+                showSuccess("File Uploaded Successfully");
+                setTimeout(() => { goToDashboard(); fileInput.value = ''; }, 1500);
+            } else {
+                alert("Please select a file first.");
+            }
         }
 
         // --- TRANSACTION WIZARD LOGIC ---
         function startTransaction() {
             hideAllPanels();
             panels.wizard.classList.remove('hidden');
-            transactionData = { detail: '', amount: '', form: '', flow: '', name: '' };
+            
+            transactionData = { detail: '', amount: '', form: '', flow: '' };
             summaryArea.innerHTML = '';
-            inputDetail.value = ''; inputAmount.value = ''; inputName.value = '';
-            errorMsg.classList.remove('visible');
+            inputDetail.value = ''; inputAmount.value = '';
             
             stepDetail.classList.remove('hidden');
             stepAmount.classList.remove('hidden'); stepForm.classList.add('hidden');
-            stepName.classList.add('hidden'); stepFlow.classList.add('hidden'); stepFinal.classList.add('hidden');
+            stepFlow.classList.add('hidden'); stepFinal.classList.add('hidden');
             
             labelDetail.classList.remove('hidden');
             labelAmount.classList.remove('hidden'); labelAmount.classList.add('pending-label');
@@ -140,9 +604,11 @@
             inputDetail.focus();
         }
 
-        function cancelTransaction() { goToDashboard(); }
+        function cancelTransaction() {
+            goToDashboard();
+        }
 
-        function addSummaryButton(text) {
+        function addSummaryButton(text, id) {
             const btn = document.createElement('button');
             btn.className = 'summary-btn'; btn.style.backgroundColor = '#95a5a6'; btn.style.fontSize = '0.9rem';
             btn.textContent = text; summaryArea.appendChild(btn);
@@ -151,10 +617,11 @@
         inputDetail.addEventListener('focus', function() { setTheme('waterflow'); });
 
         inputAmount.addEventListener('focus', function() {
-            if(inputDetail.value.trim() === "") { showError("Please enter a detail first."); inputDetail.focus(); return; }
-            transactionData.detail = inputDetail.value;
-            labelDetail.classList.add('hidden'); inputDetail.classList.add('hidden');
-            addSummaryButton("Detail: " + inputDetail.value);
+            if(inputDetail.value.trim() !== "") {
+                transactionData.detail = inputDetail.value;
+                labelDetail.classList.add('hidden'); inputDetail.classList.add('hidden');
+                addSummaryButton("Detail: " + inputDetail.value, 'detail');
+            }
             labelAmount.classList.remove('pending-label'); this.classList.remove('pending-field');
             stepForm.classList.remove('hidden');
             setTheme('monkeys');
@@ -162,32 +629,14 @@
 
         function selectForm(formType) {
             transactionData.form = formType;
-            if(inputAmount.value.trim() === "") { showError("Please enter an amount first."); return; }
-            transactionData.amount = inputAmount.value;
-            labelAmount.classList.add('hidden'); inputAmount.classList.add('hidden');
-            addSummaryButton("Amount: " + inputAmount.value);
-
+            if(inputAmount.value.trim() !== "") {
+                transactionData.amount = inputAmount.value;
+                labelAmount.classList.add('hidden'); inputAmount.classList.add('hidden');
+                addSummaryButton("Amount: " + inputAmount.value, 'amount');
+            }
             document.getElementById('label-form').classList.add('hidden');
             stepForm.classList.add('hidden');
-            addSummaryButton(formType);
-
-            if (formType === 'Credit') {
-                stepName.classList.remove('hidden');
-                inputName.focus();
-                setTheme('monkeys'); 
-            } else {
-                transactionData.name = 'N/A'; 
-                stepFlow.classList.remove('hidden');
-                setTheme('gold');
-            }
-        }
-
-        function confirmName() {
-            const nameVal = inputName.value.trim();
-            if(nameVal === "") { showError("Name is required for Credit transactions."); return; }
-            transactionData.name = nameVal;
-            stepName.classList.add('hidden');
-            addSummaryButton("Name: " + nameVal);
+            addSummaryButton(formType, 'form');
             stepFlow.classList.remove('hidden');
             setTheme('gold');
         }
@@ -196,39 +645,19 @@
             transactionData.flow = flowType;
             document.getElementById('label-flow').classList.add('hidden');
             stepFlow.classList.add('hidden');
-            addSummaryButton(flowType);
+            addSummaryButton(flowType, 'flow');
             stepFinal.classList.remove('hidden');
             setTheme('money');
         }
 
-        // --- SAVE TO FIRESTORE ---
-        async function finishTransaction() {
+        function finishTransaction() {
             if(!transactionData.detail || !transactionData.amount || !transactionData.form || !transactionData.flow) {
-                showError("Please complete all steps.");
+                alert("Please complete all steps.");
                 return;
             }
-
-            // Generate Date for display
-            const now = new Date();
-            const dateStr = now.toLocaleDateString() + ' ' + now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-
-            // Prepare data object
-            const dataToSave = {
-                ...transactionData,
-                date: dateStr,
-                createdAt: serverTimestamp() // Used for sorting in Firestore
-            };
-
-            try {
-                // ADD TO FIRESTORE
-                await addDoc(collection(db, "transactions"), dataToSave);
-                
-                showSuccess("Transaction Recorded & Sent to Database!");
-                setTimeout(() => { goToDashboard(); }, 1500);
-            } catch (error) {
-                console.error("Error adding document: ", error);
-                showError("Error saving data. Check connection.");
-            }
+            transactions.push({...transactionData});
+            showSuccess("Transaction Recorded Successfully");
+            setTimeout(() => { goToDashboard(); }, 1500);
         }
 
         function showSuccess(msg) {
@@ -236,4 +665,7 @@
             successOverlay.classList.add('active');
             setTimeout(() => { successOverlay.classList.remove('active'); }, 1200);
         }
+
     </script>
+</body>
+</html>
