@@ -398,13 +398,14 @@
     <!-- Firebase SDKs & Logic -->
     <script type="module">
         // ============================================================
-        // Firebase Configuration
+        // Firebase Configuration (From login.js)
         // ============================================================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import {
             getFirestore,
-            collection,
-            addDoc,
+            doc,
+            updateDoc,
+            arrayUnion,
             serverTimestamp
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -417,6 +418,7 @@
             appId: "1:167159607898:web:23ca11366b88868b085e63"
         };
 
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
@@ -466,7 +468,6 @@
 
         function updateUI() {
             // 1. Handle "OK" Button Visibility
-            // Only show in Step 6 (Confirmation). Hidden otherwise to force Enter/Click flow.
             if (state.step === 6) {
                 mainActionBtn.classList.remove('hidden');
                 mainActionBtn.textContent = "OK";
@@ -563,9 +564,11 @@
         window.selectFlowType = function(type, btnEl) {
             state.data.flowType = type;
             // Visual feedback
-            document.querySelectorAll('#step-3 .option-btn').forEach(b => b.style.borderColor = 'var(--border)');
-            document.querySelectorAll('#step-3 .option-btn').forEach(b => b.style.background = '#F9FAFB');
-            document.querySelectorAll('#step-3 .option-btn').forEach(b => b.style.color = 'var(--text-main)');
+            document.querySelectorAll('#step-3 .option-btn').forEach(b => {
+                b.style.borderColor = 'var(--border)';
+                b.style.background = '#F9FAFB';
+                b.style.color = 'var(--text-main)';
+            });
             
             btnEl.style.borderColor = 'var(--primary)';
             btnEl.style.background = 'var(--primary)';
@@ -581,8 +584,10 @@
             
             // Visual feedback
             const container = document.getElementById('step-4');
-            container.querySelectorAll('.option-btn').forEach(b => b.style.borderColor = 'var(--border)');
-            container.querySelectorAll('.option-btn').forEach(b => b.style.background = '#F9FAFB');
+            container.querySelectorAll('.option-btn').forEach(b => {
+                b.style.borderColor = 'var(--border)';
+                b.style.background = '#F9FAFB';
+            });
             
             btnEl.style.borderColor = 'var(--primary)';
             btnEl.style.background = 'var(--primary)';
@@ -609,40 +614,55 @@
             }
         });
 
-        // 6. Final: Save Data
+        // 6. Final: Save Data to Firestore (users/{email}/userDocuments)
         window.saveAndConfirm = async function() {
-            try {
-                // Get user email from session
-                const userSession = localStorage.getItem('userSession');
-                let userEmail = 'guest';
-                if(userSession) {
-                    try { userEmail = JSON.parse(userSession).email; } catch(e){}
-                }
+            // Check for user session
+            const userSession = localStorage.getItem('userSession');
+            if (!userSession) {
+                showToast("Session expired. Please login again.");
+                setTimeout(() => window.location.href = 'index.html', 2000);
+                return;
+            }
 
-                const docData = {
+            try {
+                const userData = JSON.parse(userSession);
+                const userEmail = userData.email;
+                
+                if(!userEmail) throw new Error("User email not found in session.");
+
+                // Reference the User Document (ID is email)
+                const userRef = doc(db, "users", userEmail);
+
+                // Construct the transaction object
+                const transactionPayload = {
                     detail: state.data.detail,
                     amount: parseFloat(state.data.amount),
                     flowType: state.data.flowType,
                     flowForm: state.data.flowForm,
                     creditName: state.data.flowForm === 'Credit' ? state.data.creditName : '',
-                    userEmail: userEmail,
                     createdAt: serverTimestamp()
                 };
 
-                await addDoc(collection(db, "transactions"), docData);
-                console.log("Transaction saved");
+                // Update the document using arrayUnion to append to userDocuments
+                await updateDoc(userRef, {
+                    userDocuments: arrayUnion(transactionPayload),
+                    lastVisit: serverTimestamp() // Update activity
+                });
+
+                console.log("Transaction saved to userDocuments:", transactionPayload);
 
                 // Go to final success screen
                 goToStep(7);
 
                 // Redirect after delay
                 setTimeout(() => {
-                    window.location.href = 'business.html';
+                    // You can change this to free.html or admin.html based on logic if needed
+                    window.location.href = 'business.html'; 
                 }, 2000);
 
             } catch (error) {
-                console.error(error);
-                showToast("Error saving data.");
+                console.error("Error saving transaction:", error);
+                showToast("Error saving data: " + error.message);
             }
         };
 
