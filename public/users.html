@@ -95,6 +95,8 @@
         /* Table Styles */
         .table-responsive {
             overflow-x: auto;
+            min-height: 200px; /* Reserve space for loading */
+            position: relative;
         }
 
         table {
@@ -152,6 +154,40 @@
             color: #9aa0a6;
             font-style: italic;
         }
+
+        /* Loading & Error States */
+        #loadingMessage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #777;
+            font-weight: 500;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #errorMessage {
+            display: none;
+            background: #fce8e6;
+            color: #c5221f;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #fad2cf;
+        }
     </style>
 </head>
 <body>
@@ -170,12 +206,16 @@
     </nav>
 
     <div class="container">
+        <!-- Error Message Box -->
+        <div id="errorMessage"></div>
+
         <div class="card">
             <div class="card-header">
                 <h2>Registered Users</h2>
             </div>
             
             <div class="table-responsive">
+                <div id="loadingMessage"><div class="spinner"></div> Loading data...</div>
                 <table id="usersTable">
                     <thead>
                         <tr>
@@ -210,10 +250,12 @@
         import { 
             getFirestore, 
             collection, 
-            onSnapshot 
+            onSnapshot,
+            query,
+            orderBy 
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // ── Firebase Config ──
+        // ── Firebase Config (Must match your login.js) ──
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
             authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -227,15 +269,28 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // DOM Elements
         const tableBody = document.getElementById("tableBody");
         const elTotalUsers = document.getElementById("totalUsers");
         const elTotalPayment = document.getElementById("totalPayment");
         const elTotalSpace = document.getElementById("totalSpace");
+        const loadingMsg = document.getElementById("loadingMessage");
+        const errorBox = document.getElementById("errorMessage");
 
         // ── Helpers ──
         function formatDate(timestamp) {
             if (!timestamp) return '<span class="badge-null">Never</span>';
-            const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+            
+            // Handle Firestore Timestamps vs ISO Strings
+            let date;
+            if (timestamp.toDate) {
+                date = timestamp.toDate();
+            } else {
+                date = new Date(timestamp);
+            }
+
+            if (isNaN(date.getTime())) return '<span class="badge-null">Invalid Date</span>';
+
             return new Intl.DateTimeFormat('en-US', {
                 year: 'numeric', month: 'short', day: 'numeric',
                 hour: '2-digit', minute: '2-digit'
@@ -254,10 +309,23 @@
             return num.toLocaleString();
         }
 
+        function showError(msg) {
+            errorBox.style.display = "block";
+            errorBox.textContent = "Error loading users: " + msg;
+            loadingMsg.style.display = "none";
+        }
+
         // ── Real-time Data Listener ──
+        // We create a query to order users by lastVisit (newest first) - optional, but good for UX
         const usersCollection = collection(db, "users"); 
 
-        onSnapshot(usersCollection, (snapshot) => {
+        onSnapshot(usersCollection, { 
+            // Include metadata to help with empty collections if needed
+            includeMetadataChanges: false 
+        }, (snapshot) => {
+            // Hide loading once we get a response
+            loadingMsg.style.display = "none";
+
             tableBody.innerHTML = "";
             
             let countUsers = 0;
@@ -265,36 +333,28 @@
             let sumSpace = 0;
 
             if (snapshot.empty) {
-                tableBody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding: 30px; color:#777;'>No users found.</td></tr>";
+                tableBody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding: 40px; color:#777;'>No users found in database.</td></tr>";
             }
 
             snapshot.forEach((doc) => {
                 const data = doc.data();
                 
                 countUsers++;
-                sumPayment += (data.lastPaymentAmount || 0);
-                sumSpace += (data.spaceUsed || 0);
+                // Ensure numbers are actually numbers for summation
+                sumPayment += (parseFloat(data.lastPaymentAmount) || 0);
+                sumSpace += (parseFloat(data.spaceUsed) || 0);
 
                 const row = document.createElement("tr");
+                
+                // Safe access to fields with fallbacks
+                const username = data.username || "Unknown User";
+                const email = data.email || doc.id; // Use doc ID if email missing
+                
                 row.innerHTML = `
                     <td>
-                        <strong>${data.username || "Unknown User"}</strong>
+                        <strong>${username}</strong>
                     </td>
-                    <td>${data.email || doc.id}</td>
+                    <td>${email}</td>
                     <td class="col-number">${formatSpace(data.spaceUsed)}</td>
                     <td class="col-number">${formatCurrency(data.lastPaymentAmount)}</td>
-                    <td class="col-date">${formatDate(data.lastPayment)}</td>
-                    <td class="col-date">${formatDate(data.lastVisit)}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-
-            // Update Footer
-            elTotalUsers.textContent = `${countUsers} Users`;
-            elTotalPayment.textContent = formatCurrency(sumPayment);
-            elTotalSpace.textContent = formatSpace(sumSpace);
-        });
-
-    </script>
-</body>
-</html>
+                    <td class="col-date">${formatDate(data.last
