@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Admin</title>
+    <style>
+        :root {
+            --primary-color: #4285F4;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --border-color: #e0e0e0;
+            --header-bg: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            color: var(--text-color);
+        }
+
+        /* Navigation Bar */
+        .top-nav {
+            background: var(--card-bg);
+            padding: 15px 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .back-btn {
+            text-decoration: none;
+            color: #5f6368;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 16px;
+            border: 1px solid #dadce0;
+            border-radius: 6px;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .back-btn:hover {
+            background: #f1f3f4;
+            color: #202124;
+            border-color: #dadcdf;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1280px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            overflow: hidden;
+            padding: 25px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-header h2 {
+            margin: 0;
+            font-size: 20px;
+            color: #202124;
+        }
+
+        /* Table Styles */
+        .table-responsive {
+            overflow-x: auto;
+            min-height: 200px; /* Reserve space for loading */
+            position: relative;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        thead {
+            background-color: var(--header-bg);
+        }
+
+        th, td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            font-weight: 600;
+            color: #5f6368;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.8px;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .col-number {
+            text-align: right;
+            font-family: 'Roboto Mono', monospace;
+            font-weight: 500;
+        }
+
+        .col-date {
+            color: #5f6368;
+            font-size: 0.9rem;
+        }
+
+        /* Footer Totals */
+        tfoot {
+            background-color: #e8f0fe;
+            font-weight: 700;
+            color: #1967d2;
+        }
+
+        tfoot td {
+            border-top: 2px solid #d2e3fc;
+            border-bottom: none;
+        }
+
+        .badge-null {
+            color: #9aa0a6;
+            font-style: italic;
+        }
+
+        /* Loading & Error States */
+        #loadingMessage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #777;
+            font-weight: 500;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #errorMessage {
+            display: none;
+            background: #fce8e6;
+            color: #c5221f;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #fad2cf;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="top-nav">
+        <div class="nav-title">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            User Database
+        </div>
+        <a href="admin.html" class="back-btn">← Back to Dashboard</a>
+    </nav>
+
+    <div class="container">
+        <!-- Error Message Box -->
+        <div id="errorMessage"></div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Registered Users</h2>
+            </div>
+            
+            <div class="table-responsive">
+                <div id="loadingMessage"><div class="spinner"></div> Loading data...</div>
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th class="col-number">Space Used</th>
+                            <th class="col-number">Last Payment</th>
+                            <th class="col-date">Payment Date</th>
+                            <th class="col-date">Last Visit</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Rows injected by JS -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2"><strong>TOTALS</strong></td>
+                            <td class="col-number" id="totalSpace">0</td>
+                            <td class="col-number" id="totalPayment">$0.00</td>
+                            <td></td>
+                            <td class="col-number" id="totalUsers">0 Users</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            onSnapshot,
+            query,
+            orderBy 
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // ── Firebase Config (Must match your login.js) ──
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
+
+        // ── Initialize ──
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // DOM Elements
+        const tableBody = document.getElementById("tableBody");
+        const elTotalUsers = document.getElementById("totalUsers");
+        const elTotalPayment = document.getElementById("totalPayment");
+        const elTotalSpace = document.getElementById("totalSpace");
+        const loadingMsg = document.getElementById("loadingMessage");
+        const errorBox = document.getElementById("errorMessage");
+
+        // ── Helpers ──
+        function formatDate(timestamp) {
+            if (!timestamp) return '<span class="badge-null">Never</span>';
+            
+            // Handle Firestore Timestamps vs ISO Strings
+            let date;
+            if (timestamp.toDate) {
+                date = timestamp.toDate();
+            } else {
+                date = new Date(timestamp);
+            }
+
+            if (isNaN(date.getTime())) return '<span class="badge-null">Invalid Date</span>';
+
+            return new Intl.DateTimeFormat('en-US', {
+                year: 'numeric', month: 'short', day: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            }).format(date);
+        }
+
+        function formatCurrency(amount) {
+            const num = parseFloat(amount) || 0;
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency', currency: 'USD'
+            }).format(num);
+        }
+
+        function formatSpace(bytes) {
+            const num = parseFloat(bytes) || 0;
+            return num.toLocaleString();
+        }
+
+        function showError(msg) {
+            errorBox.style.display = "block";
+            errorBox.textContent = "Error loading users: " + msg;
+            loadingMsg.style.display = "none";
+        }
+
+        // ── Real-time Data Listener ──
+        // We create a query to order users by lastVisit (newest first) - optional, but good for UX
+        const usersCollection = collection(db, "users"); 
+
+        onSnapshot(usersCollection, { 
+            // Include metadata to help with empty collections if needed
+            includeMetadataChanges: false 
+        }, (snapshot) => {
+            // Hide loading once we get a response
+            loadingMsg.style.display = "none";
+
+            tableBody.innerHTML = "";
+            
+            let countUsers = 0;
+            let sumPayment = 0;
+            let sumSpace = 0;
+
+            if (snapshot.empty) {
+                tableBody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding: 40px; color:#777;'>No users found in database.</td></tr>";
+            }
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                
+                countUsers++;
+                // Ensure numbers are actually numbers for summation
+                sumPayment += (parseFloat(data.lastPaymentAmount) || 0);
+                sumSpace += (parseFloat(data.spaceUsed) || 0);
+
+                const row = document.createElement("tr");
+                
+                // Safe access to fields with fallbacks
+                const username = data.username || "Unknown User";
+                const email = data.email || doc.id; // Use doc ID if email missing
+                
+                row.innerHTML = `
+                    <td>
+                        <strong>${username}</strong>
+                    </td>
+                    <td>${email}</td>
+                    <td class="col-number">${formatSpace(data.spaceUsed)}</td>
+                    <td class="col-number">${formatCurrency(data.lastPaymentAmount)}</td>
+                    <td class="col-date">${formatDate(data.last
