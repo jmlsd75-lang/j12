@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business Transaction Tool</title>
+    <title>Business Files Registry</title>
     <style>
-        /* --- RESET & BASE STYLES --- */
+        /* --- CSS Variables & Reset --- */
         :root {
-            --primary-color: #2c3e50;
-            --accent-color: #27ae60;
-            --danger-color: #c0392b;
-            --text-color: #333;
-            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --primary-color: #2e7d32; /* Professional Green */
+            --primary-light: #4caf50;
+            --accent-color: #ff7043; /* Soft Orange */
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #2c3e50;
+            --text-muted: #7f8c8d;
+            --border-radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --flower-petals: #e91e63;
+            --flower-center: #ffeb3b;
         }
 
         * {
@@ -21,651 +27,695 @@
         }
 
         body {
-            font-family: var(--font-family);
-            overflow: hidden;
-            width: 100vw;
-            height: 100vh;
-            color: var(--text-color);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 4rem;
         }
 
-        /* --- SCENE & THEMES --- */
-        #scene {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            transition: background 1s ease;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
-
-        /* Theme: Village (Advanced) */
-        .theme-village {
-            background: linear-gradient(to bottom, #87CEEB 0%, #B3E5FC 60%, #E0F7FA 100%);
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
             position: relative;
         }
 
-        /* Sun */
-        .sun {
+        /* --- Header & Hero Section --- */
+        header {
+            text-align: center;
+            padding: 4rem 0 2rem;
+            position: relative;
+        }
+
+        /* Back Button Style */
+        .back-btn {
             position: absolute;
-            top: 8%;
-            right: 15%;
-            width: 90px;
-            height: 90px;
-            background: #f1c40f;
+            top: 2rem;
+            left: 20px;
+            font-size: 2rem;
+            color: var(--text-main);
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            box-shadow: 0 0 40px #f39c12, 0 0 80px rgba(243, 156, 18, 0.4);
-            animation: sun-pulse 6s infinite alternate;
+            background-color: rgba(255,255,255,0.5);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-weight: bold;
+        }
+
+        .back-btn:hover {
+            transform: translateX(-5px);
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+        }
+
+        /* --- Pure CSS Flowers --- */
+        .flower-garden {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 2rem;
+            height: 100px;
+        }
+
+        .flower {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            background-color: var(--flower-center);
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px var(--flower-petals);
+            animation: bloom 3s infinite ease-in-out alternate;
+        }
+
+        .flower.daisy {
+            width: 30px;
+            height: 30px;
+            box-shadow: 
+                0 0 0 6px var(--flower-petals), 
+                0 0 0 12px #fff;
+        }
+
+        .flower.tulip {
+            background: var(--flower-petals);
+            box-shadow: none;
+            width: 20px;
+            height: 30px;
+            border-radius: 50% 50% 0 0;
+        }
+        .flower.tulip::before {
+            content: '';
+            position: absolute;
+            left: -15px;
+            width: 20px;
+            height: 30px;
+            background: var(--flower-petals);
+            border-radius: 50% 50% 0 0;
+            transform: rotate(-30deg);
+        }
+        .flower.tulip::after {
+            content: '';
+            position: absolute;
+            right: -15px;
+            width: 20px;
+            height: 30px;
+            background: var(--flower-petals);
+            border-radius: 50% 50% 0 0;
+            transform: rotate(30deg);
+        }
+
+        .flower.geometric {
+            background: transparent;
+            box-shadow: none;
+            width: 40px;
+            height: 40px;
+        }
+        .flower.geometric::before, .flower.geometric::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: var(--primary-light);
+            border-radius: 50%;
+            z-index: -1;
+        }
+        .flower.geometric::before { transform: rotate(45deg); }
+        .flower.geometric::after { transform: rotate(-45deg); opacity: 0.7; }
+        .flower.geometric span {
+            display: block;
+            width: 14px;
+            height: 14px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
             z-index: 1;
         }
 
-        /* Clouds */
-        .cloud {
-            position: absolute;
-            background: #fff;
-            border-radius: 50px;
-            opacity: 0.9;
-            z-index: 2;
-            animation: drift linear infinite;
-        }
-        .cloud::after, .cloud::before {
-            content: ''; position: absolute; background: inherit; border-radius: 50%;
-        }
-        .c1 { width: 120px; height: 40px; top: 15%; left: -150px; animation-duration: 25s; }
-        .c1::after { width: 50px; height: 50px; top: -25px; left: 15px; }
-        .c1::before { width: 40px; height: 40px; top: -15px; left: 50px; }
-        .c2 { width: 100px; height: 35px; top: 25%; left: -120px; animation-duration: 35s; animation-delay: 5s; transform: scale(0.8); }
-        .c2::after { width: 40px; height: 40px; top: -20px; left: 10px; }
-
-        /* Hills */
-        .hill {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            z-index: 3;
-        }
-        .hill-back {
-            height: 35%;
-            background: #81C784;
-            border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-            transform: scaleX(1.5);
-        }
-        .hill-front {
-            height: 25%;
-            background: #66BB6A;
-            border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-            transform: scaleX(1.2) translateY(20px);
-            z-index: 4;
+        @keyframes bloom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
         }
 
-        /* Huts */
-        .village-container {
-            position: absolute;
-            bottom: 18%;
-            width: 100%;
-            height: 150px;
-            z-index: 5;
+        /* --- Central List Button --- */
+        .btn-container {
             display: flex;
-            justify-content: space-around;
-            align-items: flex-end;
-            padding: 0 10%;
+            justify-content: center;
+            margin-bottom: 3rem;
         }
 
-        .hut {
-            position: relative;
+        .list-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 1.25rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(46, 125, 50, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .list-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 25px rgba(46, 125, 50, 0.4);
+        }
+
+        /* --- Grid Layout --- */
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.8s forwards 0.3s;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-left: 5px solid transparent;
             display: flex;
             flex-direction: column;
-            align-items: center;
-        }
-
-        .hut-roof {
-            width: 0; height: 0;
-            border-left: 45px solid transparent;
-            border-right: 45px solid transparent;
-            border-bottom: 60px solid #5D4037;
-            filter: drop-shadow(0 4px 2px rgba(0,0,0,0.2));
-            z-index: 6;
-        }
-        .hut-body {
-            width: 70px;
-            height: 60px;
-            background: #8D6E63;
-            border: 2px solid #5D4037;
+            justify-content: space-between;
             position: relative;
-            z-index: 5;
-            margin-top: -10px;
-        }
-        .hut-door {
-            width: 20px;
-            height: 35px;
-            background: #3E2723;
-            position: absolute;
-            bottom: 0; left: 50%;
-            transform: translateX(-50%);
-            border-radius: 10px 10px 0 0;
-        }
-        .hut-window {
-            width: 15px;
-            height: 15px;
-            background: #FFF9C4;
-            position: absolute;
-            top: 15px;
-            border: 2px solid #5D4037;
-        }
-        .w-left { left: 10px; }
-        .w-right { right: 10px; }
-
-        .hut.small { transform: scale(0.8); margin-bottom: 20px; z-index: 4; }
-        .hut.large { transform: scale(1.1); z-index: 6; }
-
-        /* Other Themes */
-        .theme-forest { background: linear-gradient(to bottom, #1a2f1a 0%, #2d5a27 100%); }
-        .tree {
-            position: absolute; bottom: 0;
-            width: 0; height: 0;
-            border-left: 30px solid transparent;
-            border-right: 30px solid transparent;
-            border-bottom: 150px solid #1b3d16;
-        }
-        .tree::after {
-            content: ''; position: absolute; top: 150px; left: -5px;
-            width: 10px; height: 20px; background: #3e2723;
+            overflow: hidden;
+            height: 100%;
         }
 
-        .theme-waterflow { background: linear-gradient(180deg, #2980b9, #6dd5fa, #ffffff); }
-        .water-wave {
-            position: absolute; bottom: 0; left: 0; width: 200%; height: 200px;
-            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" fill="%23ffffff" fill-opacity="0.4"/></svg>');
-            background-size: 50% 100%; animation: wave-flow 5s linear infinite;
+        /* Make the whole card clickable visually */
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+            border-left-color: var(--primary-color);
         }
 
-        .theme-monkeys { background: #2d5a27; }
-        .monkey {
-            position: absolute; font-size: 40px;
-            animation: monkey-swing 3s ease-in-out infinite alternate; z-index: 1;
-        }
-
-        .theme-gold { background: #1a1a1a; }
-        .gold-particle {
-            position: absolute; width: 6px; height: 6px; background: gold; border-radius: 50%;
-            box-shadow: 0 0 10px gold; animation: twinkle 1s infinite alternate;
-        }
-
-        .theme-money { background: #27ae60; }
-        .money-item {
-            position: absolute; font-size: 30px; opacity: 0.6;
-            animation: float-up 4s linear infinite;
-        }
-
-        /* --- UI CONTAINER --- */
-        #ui-layer {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; pointer-events: none;
-        }
-
-        .panel {
-            background: rgba(255, 255, 255, 0.95); padding: 2rem; border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center;
-            max-width: 600px; width: 90%; pointer-events: auto;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            max-height: 90vh; overflow-y: auto;
-        }
-
-        .hidden { display: none !important; }
-        
-        h1, h2, h3 { margin-bottom: 1.5rem; color: var(--primary-color); }
-
-        .btn-group { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem; }
-
-        button {
-            padding: 12px 24px; font-size: 1rem; border: none; border-radius: 8px;
-            cursor: pointer; transition: all 0.2s; background-color: var(--primary-color);
-            color: white; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        button:hover { transform: translateY(-2px); filter: brightness(1.1); }
-        button.btn-cancel { background-color: var(--danger-color); margin-top: 10px; }
-        button.btn-ok { background-color: var(--accent-color); }
-        button.btn-back { background-color: #7f8c8d; }
-
-        .input-group { margin-bottom: 20px; text-align: left; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; color: var(--primary-color); }
-
-        input[type="text"], input[type="number"], input[type="file"] {
-            width: 100%; padding: 12px; font-size: 1.1rem; border: 2px solid #ccc;
-            border-radius: 8px; outline: none; transition: border-color 0.3s, opacity 0.3s; background: #fff;
-        }
-        input:focus { border-color: var(--primary-color); }
-
-        .pending-field { opacity: 0.5; cursor: pointer; border-style: dashed; }
-        .pending-field:focus { opacity: 1; border-style: solid; }
-        .pending-label { color: #7f8c8d; }
-
-        /* Table Styles */
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .data-table th, .data-table td { text-align: left; padding: 10px; border-bottom: 1px solid #ddd; }
-        .data-table th { background-color: #f2f2f2; }
-        .empty-msg { color: #7f8c8d; font-style: italic; }
-
-        /* Upload Area */
-        .upload-area { border: 2px dashed #ccc; padding: 20px; border-radius: 8px; margin-bottom: 15px; }
-
-        /* --- TOP RIGHT MENU BUTTON --- */
-        .menu-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 200;
-            background: rgba(255, 255, 255, 0.9);
-            color: var(--primary-color);
+        /* Style for the first item (Master List) */
+        .card.first-item {
+            background: #e8f5e9;
             border: 2px solid var(--primary-color);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
+        }
+        
+        .card.first-item .icon-box {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 12px;
+            pointer-events: none; /* Let clicks pass through to the link */
+        }
+
+        .icon-box {
+            width: 40px;
+            height: 40px;
+            background-color: #e8f5e9;
+            color: var(--primary-color);
+            border-radius: 8px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            transition: all 0.3s ease;
-            pointer-events: auto;
+            font-size: 1.2rem;
+            flex-shrink: 0;
         }
-        .menu-btn:hover {
-            background: var(--primary-color);
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+
+        .card-action {
+            margin-top: auto;
+        }
+
+        /* Invisible link covering the whole card */
+        .card-link {
+            text-decoration: none;
+            display: block;
+            height: 100%;
+            width: 100%;
+            color: inherit;
+            position: absolute;
+            top: 0; left: 0;
+            z-index: 10;
+        }
+
+        .btn-open {
+            display: inline-block;
+            text-decoration: none;
+            background-color: white;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-align: center;
+            width: fit-content;
+            position: relative;
+            z-index: 20; /* Above the absolute link */
+        }
+
+        .btn-open:hover {
+            background-color: var(--primary-color);
             color: white;
-            transform: scale(1.1) rotate(-10deg);
         }
 
-        /* Animations */
-        @keyframes sun-pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
-        @keyframes drift { from { left: -150px; } to { left: 100%; } }
-        @keyframes wave-flow { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        @keyframes monkey-swing { 0% { transform: rotate(10deg) translateY(0); } 100% { transform: rotate(-10deg) translateY(-20px); } }
-        @keyframes twinkle { 0% { opacity: 0.3; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1.2); } }
-        @keyframes float-up { 0% { transform: translateY(110vh) rotate(0deg); opacity: 0; } 100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; } }
-
-        .success-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 100; display: flex;
-            justify-content: center; align-items: center; flex-direction: column;
-            color: white; opacity: 0; pointer-events: none; transition: opacity 0.5s;
+        /* --- Success Notification (Toast) --- */
+        .toast {
+            visibility: hidden;
+            min-width: 300px;
+            max-width: 450px;
+            background-color: #4caf50; /* Green */
+            color: #fff;
+            text-align: left;
+            border-radius: 8px;
+            padding: 16px 20px;
+            position: fixed;
+            z-index: 1000;
+            right: 30px;
+            top: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: opacity 0.5s, top 0.5s, visibility 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            font-size: 0.95rem;
         }
-        .success-overlay.active { opacity: 1; pointer-events: auto; }
-        .tick-icon { font-size: 80px; color: var(--accent-color); margin-bottom: 20px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            top: 50px; /* Slide down slightly */
+        }
+
+        .toast-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            line-height: 1;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .toast-close:hover {
+            opacity: 1;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 4rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 2rem;
+        }
 
     </style>
 </head>
 <body>
 
-    <!-- SCENE BACKGROUND -->
-    <div id="scene" class="theme-village">
-        <!-- Village Elements -->
-        <div class="sun"></div>
-        <div class="cloud c1"></div>
-        <div class="cloud c2"></div>
-        <div class="hill hill-back"></div>
-        <div class="hill hill-front"></div>
-        <div class="village-container">
-            <div class="hut small"><div class="hut-roof"></div><div class="hut-body"><div class="hut-door"></div><div class="hut-window w-left"></div></div></div>
-            <div class="hut large"><div class="hut-roof" style="border-left-width: 60px; border-right-width: 60px; border-bottom-width: 80px;"></div><div class="hut-body" style="width: 90px; height: 70px;"><div class="hut-door" style="width: 25px; height: 40px;"></div><div class="hut-window w-left"></div><div class="hut-window w-right"></div></div></div>
-            <div class="hut small"><div class="hut-roof"></div><div class="hut-body"><div class="hut-door"></div><div class="hut-window w-right"></div></div></div>
+    <!-- Success Toast Notification -->
+    <div id="success-toast" class="toast">
+        <div class="toast-content">
+            <span style="font-size: 1.2rem;">✅</span>
+            <span>Transaction record successfully send data to the master_file list.html</span>
         </div>
-
-        <!-- Forest Elements -->
-        <div id="forest-elements" class="hidden">
-            <div class="tree" style="left: 10%;"></div>
-            <div class="tree" style="left: 30%; transform: scale(0.8);"></div>
-            <div class="tree" style="left: 50%;"></div>
-            <div class="tree" style="left: 70%; transform: scale(1.2);"></div>
-            <div class="tree" style="left: 90%; transform: scale(0.9);"></div>
-        </div>
-
-        <!-- Water, Monkey, Gold, Money Elements -->
-        <div id="water-elements" class="hidden"><div class="water-wave"></div><div class="water-wave" style="bottom: 20px; opacity: 0.5; animation-duration: 7s;"></div></div>
-        <div id="monkey-elements" class="hidden"></div>
-        <div id="gold-elements" class="hidden"></div>
-        <div id="money-elements" class="hidden"></div>
+        <button class="toast-close" onclick="closeToast()">&times;</button>
     </div>
 
-    <!-- UI LAYER -->
-    <main id="ui-layer">
-        
-        <!-- TOP RIGHT MENU BUTTON -->
-        <div class="menu-btn" onclick="goToMenu()" title="Back to Menu">&lt;</div>
+    <header>
+        <!-- Back Button -->
+        <a href="business.html" class="back-btn" title="Back to Business Home">&lt;</a>
 
-        <!-- 1. INITIAL DASHBOARD -->
-        <section id="dashboard-panel" class="panel">
-            <div class="btn-group">
-                <button onclick="startTransaction()">Add New Transaction</button>
+        <div class="container">
+            <!-- CSS Flowers Decoration -->
+            <div class="flower-garden">
+                <div class="flower daisy" title="Daisy"></div>
+                <div class="flower tulip" title="Tulip"></div>
+                <div class="flower geometric"><span></span></div>
             </div>
-            <div class="btn-group">
-                <button onclick="showView()">View</button>
-                <button onclick="showUpload()">Upload File</button>
-            </div>
-        </section>
 
-        <!-- 2. VIEW PANEL -->
-        <section id="view-panel" class="panel hidden">
-            <h2>Transaction History</h2>
-            <div style="max-height: 200px; overflow-y: auto;">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Detail</th>
-                            <th>Amount</th>
-                            <th>Form</th>
-                            <th>Flow</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transaction-table-body"></tbody>
-                </table>
-                <p id="empty-msg" class="empty-msg">No transactions recorded yet.</p>
-            </div>
-            <br>
-            <button class="btn-back" onclick="goToDashboard()">Back</button>
-        </section>
+            <h1>Business Files Registry</h1>
+            <p class="subtitle">Manage your accounting books and financial records</p>
 
-        <!-- 3. UPLOAD PANEL -->
-        <section id="upload-panel" class="panel hidden">
-            <h2>Upload File</h2>
-            <div class="upload-area">
-                <label for="file-upload" style="cursor: pointer;">Choose a file...</label>
-                <input type="file" id="file-upload">
+            <!-- Centered List Button -->
+            <div class="btn-container">
+                <button class="list-btn" onclick="scrollToList()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="8" y1="6" x2="21" y2="6"></line>
+                        <line x1="8" y1="12" x2="21" y2="12"></line>
+                        <line x1="8" y1="18" x2="21" y2="18"></line>
+                        <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                        <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                        <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                    </svg>
+                    View File Types List
+                </button>
             </div>
-            <div class="btn-group">
-                <button class="btn-ok" onclick="finishUpload()">Upload</button>
-            </div>
-            <button class="btn-back" onclick="goToDashboard()">Back</button>
-        </section>
+        </div>
+    </header>
 
-        <!-- 4. TRANSACTION WIZARD CONTAINER -->
-        <section id="wizard-panel" class="panel hidden">
+    <main class="container" id="main-list">
+        <div class="files-grid">
             
-            <div id="summary-area" class="btn-group" style="margin-bottom: 20px; flex-wrap: wrap;"></div>
-
-            <!-- STEP 1: DETAIL -->
-            <div id="step-detail" class="input-group">
-                <label id="label-detail" for="input-detail">Enter Transaction Detail</label>
-                <input type="text" id="input-detail" placeholder="e.g. Sold Wood" autocomplete="off">
-            </div>
-
-            <!-- STEP 2: AMOUNT -->
-            <div id="step-amount" class="input-group">
-                <label id="label-amount" for="input-amount" class="pending-label">Enter Transaction Amount (Click here)</label>
-                <input type="number" id="input-amount" class="pending-field" placeholder="0.00" autocomplete="off">
-            </div>
-
-            <!-- STEP 3: FORM -->
-            <div id="step-form" class="input-group hidden">
-                <label id="label-form">Choose a Transaction Form</label>
-                <div class="btn-group">
-                    <button id="btn-cash" onclick="selectForm('Cash')">Cash</button>
-                    <button id="btn-credit" onclick="selectForm('Credit')">Credit</button>
-                    <button id="btn-bank" onclick="selectForm('Bank')">Bank</button>
+            <!-- ITEM 0: Master List (First) -->
+            <article class="card first-item">
+                <!-- Clicking anywhere on card redirects -->
+                <a href="master_list.html" class="card-link"></a>
+                
+                <div class="card-header">
+                    <div class="icon-box">📑</div>
+                    <div class="card-title">Master File List</div>
                 </div>
-            </div>
-
-            <!-- STEP 4: FLOW -->
-            <div id="step-flow" class="input-group hidden">
-                <label id="label-flow">Transaction Flow</label>
-                <div class="btn-group">
-                    <button id="btn-in" onclick="selectFlow('In')">In</button>
-                    <button id="btn-out" onclick="selectFlow('Out')">Out</button>
+                <div class="card-desc">The complete index of all business records.</div>
+                <div class="card-action">
+                    <span class="btn-open">Open List</span>
                 </div>
-            </div>
+            </article>
 
-            <!-- STEP 5: FINAL -->
-            <div id="step-final" class="input-group hidden">
-                <h3>Ready to Record?</h3>
-                <div class="btn-group">
-                    <button class="btn-ok" onclick="finishTransaction()">OK</button>
+            <!-- Item 1: Cash Book -->
+            <article class="card">
+                <a href="cash_book.html" class="card-link"></a>
+                <div class="card-header">
+                    <div class="icon-box">💵</div>
+                    <div class="card-title">Cash Book</div>
                 </div>
-            </div>
+                <div class="card-desc">Record all cash receipts and payments.</div>
+                <div class="card-action">
+                    <span class="btn-open">Open Cash Book</span>
+                </div>
+            </article>
 
-            <button class="btn-cancel" onclick="cancelTransaction()">Cancel</button>
-        </section>
+            <!-- Item 2: Petty Cash Book -->
+            <article class="card">
+                <a href="petty_cash_book.html" class="card-link"></a>
+                <div class="card-header">
+                    <div class="icon-box">🪙</div>
+                    <div class="card-title">Petty Cash Book</div>
+                </div>
+                <div class="card-desc">Track small, day-to-day expenses.</div>
+                <div class="card-action">
+                    <span class="btn-open">Open Petty Cash</span>
+                </div>
+            </article>
 
+            <!-- Item 3: Double Column Cash Book -->
+            <article class="card">
+                <a href="double_column_cash_book.html" class="card-link"></a>
+                <div class="card-header">
+                    <div class="icon-box">📒</div>
+                    <div class="card-title">Double Column Cash Book</div>
+                </div>
+                <div class="card-desc">Cash and discount columns included.</div>
+                <div class="card-action">
+                    <span class="btn-open">Open Double Column</span>
+                </div>
+            </article>
+
+            <!-- Item 4: Bank Book / BRS -->
+            <article class="card">
+                <a href="bank_book.html" class="card-link"></a>
+                <div class="card-header">
+                    <div class="icon-box">🏦</div>
+                    <div class="card-title">Bank Book / BRS</div>
+                </div>
+                <div class="card-desc">Bank transactions and Reconciliation Statement.</div>
+                <div class="card-action">
+                    <span class="btn-open">Open Bank Book</span>
+                </div>
+            </article>
+
+            <!-- Item 5: Sales Journal -->
+            <article class="card">
+                <a href="sales_journal.html" class="card-link"></a>
+                <div class="card-header">
+                    <div class="icon-box">🛒</div>
+                    <div class="card-title">Sales Journal</div>
+                </div>
+                <div class="card-desc">Record all credit sales of merchandise.</div>
+                <div class="card-action">
+                    <span class="btn-open">Open Sales Journal</span>
+                </div>
+            </article>
+
+            <!-- Item 6: Purchases Journal -->
+            <article class="card">
+                <a href="purchases_journal.html" class="card-link"></a>
+                <div class="card-header">
+                    <div class="icon-box">🛍️</div>
+                    <div class="card-title">Purchases Journal</div>
+                </div>
+                <div class="card-desc">Log all credit purchases of inventory.</div>
+                <div class="card-action">
+                    <span class="btn-open">Open Purchases</span>
+                </div>
+            </article>
+
+            <!-- Item 7: Sales Return Journal -->
+            <article class="card">
+                <a href="sales_return_journal.html" class="card-link"></a>
+                <div class="card-header">
+                    <div class="icon-box">↩️</div>
+                    <div class="card-title">Sales Return Journal</div>
+                </div>
+                <div class="card-desc">Returns Inwards Book for goods returned by customers.</div>
+                <div class="card-action">
+                    <span class="btn-open">Open Sales Returns</span>
+                </div>
+            </article>
+
+            <!-- Item 8: Purchases Return Journal -->
+            <article class="card">
+                <a href="purchases_return_journal.html" class="card-link"></a>
+                <div class="card-header">
+                    <div class="icon-box">📦</div>
+                    <div class="card-title">Purchases Return Journal</div>
+                </div>
+                <div class="card-desc">Returns Outwards Book for goods returned to suppliers.</div>
+                <div class="card-action">
+                    <span class="btn-open">Open Purch. Returns</span>
+                </div>
+            </article>
+
+            <!-- Item 9: Ledger Accounts -->
+            <article class="card">
+                <a href="ledger_accounts.html" class="card-link"></a>
+                <div class="card-header">
+                    <div class="icon-box">📂</div>
+                    <div class="card-title">Ledger Accounts</div>
+                </div>
+                <div class="card-desc">Individual ledgers for assets, liabilities, expenses, income, and capital.</div>
+                <div class="card-action">
+                    <span class="btn-open">Open Ledgers</span>
+                </div>
+            </article>
+
+            <!-- Item 10: General Journal -->
+            <article class="card">
+                <a href="general_journal.html" class="card-link"></a>
+                <div class="card-header">
+                    <div class="icon-box">📝</div>
+                    <div class="card-title">General Journal</div>
+                </div>
+                <div class="card-desc">For adjusting entries, closing entries, and rectifications.</div>
+                <div class="card-action">
+                    <span class="btn-open">Open Gen. Journal</span>
+                </div>
+            </article>
+
+            <!-- Item 11: Trial Balance -->
+            <article class="card">
+                <a href="trial_balance.html" class="card-link"></a>
+                <div class="card-header">
+                    <div class="icon-box">⚖️</div>
+                    <div class="card-title">Trial Balance</div>
+                </div>
+                <div class="card-desc">Verify arithmetical accuracy of ledger accounts.</div>
+                <div class="card-action">
+                    <span class="btn-open">Open Trial Balance</span>
+                </div>
+            </article>
+
+            <!-- Item 12: Income Statement / P&L -->
+            <article class="card">
+                <a href="income_statement.html" class="card-link"></a>
+                <div class="card-header">
+                    <div class="icon-box">📈</div>
+                    <div class="card-title">Income Statement / P&L</div>
+                </div>
+                <div class="card-desc">Profit & Loss Account to determine net profit or loss.</div>
+                <div class="card-action">
+                    <span class="btn-open">Open P&L</span>
+                </div>
+            </article>
+
+            <!-- Item 13: Balance Sheet -->
+            <article class="card">
+                <a href="balance_sheet.html" class="card-link"></a>
+                <div class="card-header">
+                    <div class="icon-box">🏛️</div>
+                    <div class="card-title">Balance Sheet</div>
+                </div>
+                <div class="card-desc">Statement of financial position at a specific date.</div>
+                <div class="card-action">
+                    <span class="btn-open">Open Balance Sheet</span>
+                </div>
+            </article>
+
+            <!-- Item 14: Stock / Inventory Book -->
+            <article class="card">
+                <a href="inventory_book.html" class="card-link"></a>
+                <div class="card-header">
+                    <div class="icon-box">📦</div>
+                    <div class="card-title">Stock / Inventory Book</div>
+                </div>
+                <div class="card-desc">Track inventory levels and valuation.</div>
+                <div class="card-action">
+                    <span class="btn-open">Open Inventory</span>
+                </div>
+            </article>
+
+            <!-- Item 15: Accounts Receivable -->
+            <article class="card">
+                <a href="accounts_receivable.html" class="card-link"></a>
+                <div class="card-header">
+                    <div class="icon-box">👥</div>
+                    <div class="card-title">Accounts Receivable</div>
+                </div>
+                <div class="card-desc">Debtors Ledger for money owed by customers.</div>
+                <div class="card-action">
+                    <span class="btn-open">Open Debtors</span>
+                </div>
+            </article>
+
+            <!-- Item 16: Accounts Payable -->
+            <article class="card">
+                <a href="accounts_payable.html" class="card-link"></a>
+                <div class="card-header">
+                    <div class="icon-box">🏭</div>
+                    <div class="card-title">Accounts Payable</div>
+                </div>
+                <div class="card-desc">Creditors Ledger for money owed to suppliers.</div>
+                <div class="card-action">
+                    <span class="btn-open">Open Creditors</span>
+                </div>
+            </article>
+
+            <!-- Item 17: Payroll / Salary Book -->
+            <article class="card">
+                <a href="payroll_book.html" class="card-link"></a>
+                <div class="card-header">
+                    <div class="icon-box">💳</div>
+                    <div class="card-title">Payroll / Salary Book</div>
+                </div>
+                <div class="card-desc">Employee wages, salaries, and deductions record.</div>
+                <div class="card-action">
+                    <span class="btn-open">Open Payroll</span>
+                </div>
+            </article>
+
+            <!-- Item 18: Fixed Assets Register -->
+            <article class="card">
+                <a href="fixed_assets_register.html" class="card-link"></a>
+                <div class="card-header">
+                    <div class="icon-box">🏗️</div>
+                    <div class="card-title">Fixed Assets Register</div>
+                </div>
+                <div class="card-desc">Record of long-term tangible assets and depreciation.</div>
+                <div class="card-action">
+                    <span class="btn-open">Open Assets Register</span>
+                </div>
+            </article>
+
+        </div>
     </main>
 
-    <!-- SUCCESS OVERLAY -->
-    <div id="success-overlay" class="success-overlay">
-        <div class="tick-icon">✅</div>
-        <h2 id="success-text">Success!</h2>
-    </div>
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Business File Management System. All Rights Reserved.</p>
+        </div>
+    </footer>
 
     <script>
-        // --- DATA STORE ---
-        let transactionData = { detail: '', amount: '', form: '', flow: '' };
-        let transactions = [];
+        // --- Scroll Function ---
+        function scrollToList() {
+            const listSection = document.getElementById('main-list');
+            listSection.scrollIntoView({ behavior: 'smooth' });
+        }
 
-        // --- DOM ELEMENTS ---
-        const scene = document.getElementById('scene');
-        const panels = {
-            dashboard: document.getElementById('dashboard-panel'),
-            view: document.getElementById('view-panel'),
-            upload: document.getElementById('upload-panel'),
-            wizard: document.getElementById('wizard-panel')
+        // --- Toast Notification Functions ---
+        function showToast() {
+            var x = document.getElementById("success-toast");
+            x.className = "toast show";
+            // Automatically hide after 5 seconds
+            setTimeout(function(){ 
+                x.className = x.className.replace("show", ""); 
+            }, 5000);
+        }
+
+        function closeToast() {
+            var x = document.getElementById("success-toast");
+            x.className = x.className.replace("show", "");
+        }
+
+        // --- Load Event ---
+        // When the window loads, show the success message
+        window.onload = function() {
+            showToast();
         };
-        const summaryArea = document.getElementById('summary-area');
-        const successOverlay = document.getElementById('success-overlay');
-        const successText = document.getElementById('success-text');
-
-        // Steps
-        const stepDetail = document.getElementById('step-detail');
-        const stepAmount = document.getElementById('step-amount');
-        const stepForm = document.getElementById('step-form');
-        const stepFlow = document.getElementById('step-flow');
-        const stepFinal = document.getElementById('step-final');
-
-        // Inputs
-        const inputDetail = document.getElementById('input-detail');
-        const inputAmount = document.getElementById('input-amount');
-        const labelDetail = document.getElementById('label-detail');
-        const labelAmount = document.getElementById('label-amount');
-
-        // Theme Containers
-        const forestEls = document.getElementById('forest-elements');
-        const waterEls = document.getElementById('water-elements');
-        const monkeyEls = document.getElementById('monkey-elements');
-        const goldEls = document.getElementById('gold-elements');
-        const moneyEls = document.getElementById('money-elements');
-
-        // --- INITIALIZATION ---
-        function initThemeElements() {
-            // Monkeys
-            for(let i=0; i<5; i++) {
-                let m = document.createElement('div'); m.className = 'monkey'; m.textContent = '🐵';
-                m.style.left = Math.random() * 90 + '%'; m.style.top = (Math.random() * 50 + 10) + '%';
-                m.style.animationDelay = (Math.random() * 2) + 's'; monkeyEls.appendChild(m);
-            }
-            // Gold
-            for(let i=0; i<30; i++) {
-                let g = document.createElement('div'); g.className = 'gold-particle';
-                g.style.left = Math.random() * 100 + '%'; g.style.top = Math.random() * 100 + '%';
-                g.style.animationDelay = (Math.random() * 2) + 's'; goldEls.appendChild(g);
-            }
-            // Money
-            const moneySymbols = ['💵', '💰', '🪙', '💸'];
-            for(let i=0; i<15; i++) {
-                let mon = document.createElement('div'); mon.className = 'money-item';
-                mon.textContent = moneySymbols[Math.floor(Math.random() * moneySymbols.length)];
-                mon.style.left = Math.random() * 100 + '%'; mon.style.animationDelay = (Math.random() * 5) + 's';
-                mon.style.animationDuration = (3 + Math.random() * 4) + 's'; moneyEls.appendChild(mon);
-            }
-        }
-        initThemeElements();
-
-        // --- NAVIGATION LOGIC ---
-        function hideAllPanels() {
-            Object.values(panels).forEach(p => p.classList.add('hidden'));
-        }
-
-        function goToDashboard() {
-            hideAllPanels();
-            panels.dashboard.classList.remove('hidden');
-            setTheme('village');
-        }
-
-        function showView() {
-            hideAllPanels();
-            panels.view.classList.remove('hidden');
-            renderTable();
-            setTheme('village');
-        }
-
-        function showUpload() {
-            hideAllPanels();
-            panels.upload.classList.remove('hidden');
-            setTheme('village');
-        }
-
-        function goToMenu() {
-            // Redirect to menu.html as requested
-            window.location.href = 'menu.html';
-        }
-
-        function setTheme(themeName) {
-            const villageEls = document.querySelectorAll('.sun, .cloud, .hill, .village-container');
-            villageEls.forEach(el => el.style.display = (themeName === 'village') ? 'block' : 'none');
-            const vContainer = document.querySelector('.village-container');
-            if(themeName !== 'village') vContainer.style.display = 'none';
-            else vContainer.style.display = 'flex';
-
-            scene.className = '';
-            forestEls.classList.add('hidden'); waterEls.classList.add('hidden');
-            monkeyEls.classList.add('hidden'); goldEls.classList.add('hidden');
-            moneyEls.classList.add('hidden');
-
-            scene.classList.add('theme-' + themeName);
-            if (themeName === 'forest') forestEls.classList.remove('hidden');
-            if (themeName === 'waterflow') waterEls.classList.remove('hidden');
-            if (themeName === 'monkeys') { forestEls.classList.remove('hidden'); monkeyEls.classList.remove('hidden'); }
-            if (themeName === 'gold') goldEls.classList.remove('hidden');
-            if (themeName === 'money') moneyEls.classList.remove('hidden');
-        }
-
-        // --- VIEW PANEL LOGIC ---
-        function renderTable() {
-            const tbody = document.getElementById('transaction-table-body');
-            const emptyMsg = document.getElementById('empty-msg');
-            tbody.innerHTML = '';
-
-            if (transactions.length === 0) {
-                emptyMsg.style.display = 'block';
-            } else {
-                emptyMsg.style.display = 'none';
-                transactions.forEach(t => {
-                    const row = `<tr>
-                        <td>${t.detail}</td>
-                        <td>${t.amount}</td>
-                        <td>${t.form}</td>
-                        <td style="color:${t.flow === 'In' ? 'green' : 'red'}">${t.flow}</td>
-                    </tr>`;
-                    tbody.innerHTML += row;
-                });
-            }
-        }
-
-        function finishUpload() {
-            const fileInput = document.getElementById('file-upload');
-            if(fileInput.files.length > 0) {
-                showSuccess("File Uploaded Successfully");
-                setTimeout(() => { goToDashboard(); fileInput.value = ''; }, 1500);
-            } else {
-                alert("Please select a file first.");
-            }
-        }
-
-        // --- TRANSACTION WIZARD LOGIC ---
-        function startTransaction() {
-            hideAllPanels();
-            panels.wizard.classList.remove('hidden');
-            
-            transactionData = { detail: '', amount: '', form: '', flow: '' };
-            summaryArea.innerHTML = '';
-            inputDetail.value = ''; inputAmount.value = '';
-            
-            stepDetail.classList.remove('hidden');
-            stepAmount.classList.remove('hidden'); stepForm.classList.add('hidden');
-            stepFlow.classList.add('hidden'); stepFinal.classList.add('hidden');
-            
-            labelDetail.classList.remove('hidden');
-            labelAmount.classList.remove('hidden'); labelAmount.classList.add('pending-label');
-            inputAmount.classList.add('pending-field');
-
-            setTheme('forest');
-            inputDetail.focus();
-        }
-
-        function cancelTransaction() {
-            goToDashboard();
-        }
-
-        function addSummaryButton(text, id) {
-            const btn = document.createElement('button');
-            btn.className = 'summary-btn'; btn.style.backgroundColor = '#95a5a6'; btn.style.fontSize = '0.9rem';
-            btn.textContent = text; summaryArea.appendChild(btn);
-        }
-
-        inputDetail.addEventListener('focus', function() { setTheme('waterflow'); });
-
-        inputAmount.addEventListener('focus', function() {
-            if(inputDetail.value.trim() !== "") {
-                transactionData.detail = inputDetail.value;
-                labelDetail.classList.add('hidden'); inputDetail.classList.add('hidden');
-                addSummaryButton("Detail: " + inputDetail.value, 'detail');
-            }
-            labelAmount.classList.remove('pending-label'); this.classList.remove('pending-field');
-            stepForm.classList.remove('hidden');
-            setTheme('monkeys');
-        });
-
-        function selectForm(formType) {
-            transactionData.form = formType;
-            if(inputAmount.value.trim() !== "") {
-                transactionData.amount = inputAmount.value;
-                labelAmount.classList.add('hidden'); inputAmount.classList.add('hidden');
-                addSummaryButton("Amount: " + inputAmount.value, 'amount');
-            }
-            document.getElementById('label-form').classList.add('hidden');
-            stepForm.classList.add('hidden');
-            addSummaryButton(formType, 'form');
-            stepFlow.classList.remove('hidden');
-            setTheme('gold');
-        }
-
-        function selectFlow(flowType) {
-            transactionData.flow = flowType;
-            document.getElementById('label-flow').classList.add('hidden');
-            stepFlow.classList.add('hidden');
-            addSummaryButton(flowType, 'flow');
-            stepFinal.classList.remove('hidden');
-            setTheme('money');
-        }
-
-        function finishTransaction() {
-            if(!transactionData.detail || !transactionData.amount || !transactionData.form || !transactionData.flow) {
-                alert("Please complete all steps.");
-                return;
-            }
-            transactions.push({...transactionData});
-            showSuccess("Transaction Recorded Successfully");
-            setTimeout(() => { goToDashboard(); }, 1500);
-        }
-
-        function showSuccess(msg) {
-            successText.textContent = msg;
-            successOverlay.classList.add('active');
-            setTimeout(() => { successOverlay.classList.remove('active'); }, 1200);
-        }
-
     </script>
 </body>
 </html>
