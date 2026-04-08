@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Center Layout</title>
+    <style>
+        /* Make the body fill the full screen height */
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh; /* 100% of Viewport Height */
+            font-family: sans-serif;
+            background-color: white;
+            
+            /* Flexbox to center the List button perfectly */
+            display: flex;
+            justify-content: center; /* Horizontal Center */
+            align-items: center;     /* Vertical Center */
+            overflow: hidden;        /* Prevent scrollbars */
+        }
+
+        /* 1. Lefty Button (<)
+           Positioned absolutely at the top-left, outside the center flow */
+        .lefty-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            text-decoration: none;
+            font-size: 32px;
+            color: #333;
+            font-weight: bold;
+            z-index: 10; /* Ensures it sits on top */
+        }
+
+        /* 2. List Button
+           Sits in the exact middle of the page */
+        .list-btn {
+            text-decoration: none;
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+            padding: 15px 40px;
+            border: 2px solid #007bff;
+            border-radius: 50px; /* Makes it pill-shaped */
+            transition: all 0.2s;
+        }
+
+        /* Hover effects */
+        .lefty-btn:hover { color: #000; }
+        
+        .list-btn:hover {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. Lefty < : Top-Left Corner, redirects to menu.html -->
+    <a href="menu.html" class="lefty-btn">&lt;</a>
+
+    <!-- 2. List Button : Actual Center of the screen, redirects to list.html -->
+    <a href="list.html" class="list-btn">list</a>
+
+</body>
+</html>
