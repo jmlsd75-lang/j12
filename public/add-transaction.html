@@ -384,13 +384,16 @@
     <!-- Firebase SDKs & Logic -->
     <script type="module">
         // ============================================================
-        // 1. Firebase Imports (Matches your previous working code)
+        // 1. Firebase Imports
         // ============================================================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { 
             getFirestore, 
             collection, 
-            addDoc 
+            addDoc,
+            doc,       // Added for user reference
+            updateDoc, // Added for updating spaceUsed
+            increment  // Added for atomic increment
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { 
             getAuth, 
@@ -434,7 +437,7 @@
         };
 
         // ============================================================
-        // 3. Navigation & UI Logic (Kept your design)
+        // 3. Navigation & UI Logic
         // ============================================================
 
         function goToStep(stepNumber) {
@@ -571,7 +574,7 @@
         });
 
         // ============================================================
-        // 5. SAVING LOGIC (Rewritten to match your previous code)
+        // 5. SAVING LOGIC (MODIFIED TO UPDATE SPACE USED)
         // ============================================================
         window.saveAndConfirm = async function() {
             const user = auth.currentUser;
@@ -583,24 +586,24 @@
                 return;
             }
 
-            // Prepare Detail: Append credit name to detail if exists (since DB structure is simple)
+            // Prepare Detail: Append credit name to detail if exists
             let finalDetail = state.data.detail;
             if (state.data.flowForm === 'Credit' && state.data.creditName) {
                 finalDetail += ` (${state.data.creditName})`;
             }
 
-            // Construct Payload (MATCHES PREVIOUS CODE STRUCTURE)
+            // Construct Payload
             const transaction = {
-                date: new Date().toLocaleString(), // Matches previous code
+                date: new Date().toLocaleString(),
                 detail: finalDetail,
                 type: state.data.flowType.toUpperCase(), // "IN" or "OUT"
                 method: state.data.flowForm.toUpperCase(), // "CASH", "CREDIT", "BANK"
                 amount: Number(state.data.amount),
-                createdAt: Date.now() // Matches previous code
+                createdAt: Date.now()
             };
 
             try {
-                // Save to Subcollection: users/{email}/transactions
+                // --- STEP A: Save Transaction to Subcollection ---
                 await addDoc(
                     collection(db, "users", user.email, "transactions"),
                     transaction
@@ -608,12 +611,24 @@
 
                 console.log("Transaction saved:", transaction);
 
+                // --- STEP B: Update User's spaceUsed (NEW LOGIC) ---
+                // We create a reference to the user's main document
+                const userRef = doc(db, "users", user.email);
+                
+                // We increment 'spaceUsed' by 1.
+                // This ensures that the dashboard sees the usage increase immediately.
+                await updateDoc(userRef, {
+                    spaceUsed: increment(1)
+                });
+
+                console.log("User spaceUsed updated (+1)");
+
                 // Show Success UI
                 goToStep(7);
 
                 // Redirect back to main business page
                 setTimeout(() => {
-                    window.location.href = 'business.html'; // Adjust filename if needed
+                    window.location.href = 'business.html'; 
                 }, 2000);
 
             } catch (error) {
