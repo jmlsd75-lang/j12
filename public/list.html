@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transaction List</title>
+  <style>
+    :root {
+      --primary: #4285F4;
+      --bg-body: #f4f6f9;
+      --bg-card: #ffffff;
+      --text-main: #2c3e50;
+      --text-muted: #7f8c8d;
+      --border-color: #e1e4e8;
+      --success: #27ae60;
+      --success-bg: #e8f5e9;
+      --danger: #c0392b;
+      --danger-bg: #fdeaea;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header / Nav ── */
+    header {
+      background: var(--bg-card);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--text-main);
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: background 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .back-btn:hover {
+      background-color: #f0f2f5;
+    }
+
+    .back-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--border-color);
+    }
+
+    /* ── Main Content ── */
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .page-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    /* ── Table Styles ── */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      min-width: 800px; /* Force scroll on small screens */
+    }
+
+    thead {
+      background-color: #f8fafc;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    th {
+      text-align: left;
+      padding: 14px 16px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover {
+      background-color: #fcfcfc;
+    }
+
+    /* Column Specifics */
+    .col-sn { width: 60px; text-align: center; font-variant-numeric: tabular-nums; color: var(--text-muted); }
+    .col-date { min-width: 120px; color: var(--text-muted); font-size: 0.85rem; }
+    .col-amount { font-family: 'Courier New', monospace; font-weight: 700; letter-spacing: -0.5px; }
+    .col-detail { font-weight: 500; }
+    .col-name { font-weight: 500; color: var(--text-main); }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-type-in {
+      background-color: var(--success-bg);
+      color: var(--success);
+    }
+
+    .badge-type-out {
+      background-color: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .badge-form {
+      background-color: #edf2f7;
+      color: #4a5568;
+    }
+
+    /* ── Loading & Empty States ── */
+    .loading-container, .empty-state {
+      padding: 4rem 2rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* Toast Notification */
+    #toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+    .toast {
+      background: #333;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 8px;
+      margin-top: 10px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.error { background: #e74c3c; }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      header { padding: 1rem; }
+      main { padding: 1rem; }
+      .user-info span { display: none; } /* Hide name on mobile */
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header with Back Button -->
+  <header>
+    <a href="menu.html" class="back-btn" aria-label="Go back to menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Menu
+    </a>
+    
+    <div class="user-info" id="userInfoDisplay">
+      <!-- Populated by JS -->
+    </div>
+  </header>
+
+  <main>
+    <div class="page-header">
+      <h1 class="page-title">Transactions</h1>
+    </div>
+
+    <div class="card">
+      <div class="table-container">
+        <table id="transactionsTable">
+          <thead>
+            <tr>
+              <th class="col-sn">S/N</th>
+              <th class="col-date">Date</th>
+              <th>Detail</th>
+              <th>Flow Type</th>
+              <th>Flow Form</th>
+              <th>Name</th>
+              <th class="col-amount">Amount</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <!-- Rows inserted here -->
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Loading State -->
+      <div id="loadingState" class="loading-container">
+        <div class="spinner"></div>
+        <p>Loading transaction data...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="empty-state" style="display: none;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="12" y1="18" x2="12" y2="12"></line>
+          <line x1="9" y1="15" x2="15" y2="15"></line>
+        </svg>
+        <p style="margin-top:10px;">No transactions found.</p>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast-container"></div>
+
+  <!-- Firebase Logic -->
+  <script type="module">
+    // ============================================================
+    // Imports & Config (From your login.js)
+    // ============================================================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+      authDomain: "my-project-66803-95cb3.firebaseapp.com",
+      projectId: "my-project-66803-95cb3",
+      storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+      messagingSenderId: "167159607898",
+      appId: "1:167159607898:web:23ca11366b88868b085e63"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // DOM Elements
+    const tableBody = document.getElementById('tableBody');
+    const loadingState = document.getElementById('loadingState');
+    const emptyState = document.getElementById('emptyState');
+    const userInfoDisplay = document.getElementById('userInfoDisplay');
+    const transactionsTable = document.getElementById('transactionsTable');
+
+    // ── Auth Check ──
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        // Not logged in, redirect to index
+        window.location.href = "index.html";
+        return;
+      }
+
+      // Update User Info in Header
+      const sessionData = localStorage.getItem("userSession");
+      if (sessionData) {
+        const parsed = JSON.parse(sessionData);
+        userInfoDisplay.innerHTML = `
+          <span>Hello, ${parsed.name || "User"}</span>
+          <img src="${parsed.photo || 'https://picsum.photos/seed/user/32/32'}" alt="Avatar" class="user-avatar">
+        `;
+      } else {
+        // Fallback if session is missing but auth exists
+        userInfoDisplay.innerHTML = `
+          <span>${user.displayName || "User"}</span>
+          <img src="${user.photoURL || 'https://picsum.photos/seed/user/32/32'}" alt="Avatar" class="user-avatar">
+        `;
+      }
+
+      // Load Data
+      fetchTransactions();
+    });
+
+    // ── Data Fetching ──
+    async function fetchTransactions() {
+      try {
+        // Assuming collection name is 'transactions'. 
+        // Adjust if your collection name is different.
+        const transactionsRef = collection(db, "transactions");
+        
+        // Query: Order by date descending (newest first)
+        // Note: This requires a Date index in Firestore if you scale, but works for small datasets.
+        const q = query(transactionsRef, orderBy("date", "desc"));
+        
+        const querySnapshot = await getDocs(q);
+        
+        // Hide loading, show table
+        loadingState.style.display = 'none';
+        transactionsTable.style.display = 'table';
+
+        if (querySnapshot.empty) {
+          emptyState.style.display = 'flex';
+          transactionsTable.style.display = 'none';
+          return;
+        }
+
+        let serialNumber = 1;
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const row = document.createElement('tr');
+          
+          // Format Date
+          let dateStr = "N/A";
+          if (data.date) {
+            const dateObj = data.date.toDate ? data.date.toDate() : new Date(data.date);
+            dateStr = dateObj.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+          }
+
+          // Format Amount
+          const amount = parseFloat(data.amount || 0);
+          const amountFormatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+          
+          // Flow Type Styling
+          const flowType = (data.flowType || "in").toLowerCase();
+          const typeBadgeClass = flowType === 'in' ? 'badge-type-in' : 'badge-type-out';
+          
+          // Flow Form
+          const flowForm = (data.flowForm || "cash").toUpperCase(); // Cash, Credit, Bank
+
+          row.innerHTML = `
+            <td class="col-sn">${serialNumber++}</td>
+            <td class="col-date">${dateStr}</td>
+            <td class="col-detail">${data.detail || "-"}</td>
+            <td><span class="badge ${typeBadgeClass}">${flowType}</span></td>
+            <td><span class="badge badge-form">${flowForm}</span></td>
+            <td class="col-name">${data.name || "-"}</td>
+            <td class="col-amount" style="color: ${flowType === 'out' ? '#c0392b' : '#27ae60'}">
+              ${flowType === 'out' ? '-' : '+'}${amountFormatted}
+            </td>
+          `;
+          
+          tableBody.appendChild(row);
+        });
+
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+        loadingState.style.display = 'none';
+        showToast("Failed to load transactions: " + error.message, true);
+      }
+    }
+
+    // ── Toast Notification Helper ──
+    function showToast(message, isError = false) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.textContent = message;
+      
+      container.appendChild(toast);
+      
+      // Trigger animation
+      requestAnimationFrame(() => {
+        toast.classList.add('show');
+      });
+
+      // Remove after 3 seconds
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
