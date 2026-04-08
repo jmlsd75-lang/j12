@@ -29,6 +29,7 @@
             height: 100%;
             z-index: 0;
             overflow: hidden;
+            pointer-events: none;
         }
 
         .bg-circle {
@@ -78,6 +79,17 @@
             flex-wrap: wrap;
             justify-content: center;
             padding: 20px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        /* New Layout Wrapper for Left Side */
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            align-items: center;
+            justify-content: center;
         }
 
         .illustrations {
@@ -96,6 +108,7 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.4s ease;
+            cursor: default;
         }
 
         .illustration-item:hover {
@@ -112,6 +125,53 @@
             text-transform: uppercase;
         }
 
+        /* Instruction Button Styles */
+        .instruction-btn {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 14px 32px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            border-radius: 50px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-decoration: none;
+            outline: none;
+        }
+
+        .instruction-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+            transition: transform 0.3s ease;
+        }
+
+        .instruction-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .instruction-btn:hover svg {
+            transform: rotate(10deg) scale(1.1);
+        }
+
+        .instruction-btn:active {
+            transform: translateY(-1px);
+        }
+
+        /* Icons CSS */
         .health-icon {
             position: relative;
             width: 80px;
@@ -475,6 +535,8 @@
             text-align: center;
             min-width: 350px;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
         }
 
         .login-card h1 {
@@ -595,26 +657,44 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
             .main-container {
                 flex-direction: column;
-                gap: 30px;
+                gap: 40px;
             }
-
-            .illustrations {
+            .left-panel {
                 flex-direction: row;
                 flex-wrap: wrap;
                 justify-content: center;
+                width: 100%;
             }
+            .instruction-btn {
+                width: 100%;
+                max-width: 300px;
+                order: 3; /* Move button to bottom of illustrations on tablet */
+            }
+        }
 
+        @media (max-width: 768px) {
+            .illustrations {
+                flex-direction: column;
+                align-items: center;
+            }
             .illustration-item {
                 flex-direction: column;
                 text-align: center;
+                width: 100%;
+                max-width: 280px;
             }
-
+            .left-panel {
+                flex-direction: column;
+                align-items: center;
+            }
             .login-card {
                 min-width: 300px;
                 padding: 35px 25px;
+                width: 100%;
+                max-width: 400px;
             }
         }
     </style>
@@ -629,54 +709,66 @@
 
     <div class="main-container">
 
-        <div class="illustrations">
-
-            <div class="illustration-item">
-                <div class="health-icon">
-                    <div class="heart"></div>
-                    <div class="health-cross"></div>
-                    <div class="pulse-line"></div>
+        <!-- Left Panel: Contains Illustrations and the New Instruction Button -->
+        <div class="left-panel">
+            
+            <div class="illustrations">
+                <div class="illustration-item">
+                    <div class="health-icon">
+                        <div class="heart"></div>
+                        <div class="health-cross"></div>
+                        <div class="pulse-line"></div>
+                    </div>
+                    <span class="illustration-label" style="color: #e74c3c;">Health</span>
                 </div>
-                <span class="illustration-label" style="color: #e74c3c;">Health</span>
-            </div>
 
-            <div class="illustration-item">
-                <div class="education-icon">
-                    <div class="grad-cap">
-                        <div class="cap-top"></div>
-                        <div class="cap-base"></div>
-                        <div class="tassel">
-                            <div class="tassel-line"></div>
-                            <div class="tassel-ball"></div>
+                <div class="illustration-item">
+                    <div class="education-icon">
+                        <div class="grad-cap">
+                            <div class="cap-top"></div>
+                            <div class="cap-base"></div>
+                            <div class="tassel">
+                                <div class="tassel-line"></div>
+                                <div class="tassel-ball"></div>
+                            </div>
+                        </div>
+                        <div class="edu-book">
+                            <div class="edu-book-page"></div>
+                            <div class="edu-book-page"></div>
+                            <div class="edu-book-page"></div>
+                            <div class="edu-book-spine"></div>
                         </div>
                     </div>
-                    <div class="edu-book">
-                        <div class="edu-book-page"></div>
-                        <div class="edu-book-page"></div>
-                        <div class="edu-book-page"></div>
-                        <div class="edu-book-spine"></div>
-                    </div>
+                    <span class="illustration-label" style="color: #3498db;">Education</span>
                 </div>
-                <span class="illustration-label" style="color: #3498db;">Education</span>
+
+                <div class="illustration-item">
+                    <div class="business-icon">
+                        <div class="briefcase">
+                            <div class="briefcase-handle"></div>
+                            <div class="briefcase-body"></div>
+                            <div class="briefcase-lock"></div>
+                        </div>
+                        <div class="trend-arrow"></div>
+                        <div class="chart-bars">
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                        </div>
+                    </div>
+                    <span class="illustration-label" style="color: #f39c12;">Business</span>
+                </div>
             </div>
 
-            <div class="illustration-item">
-                <div class="business-icon">
-                    <div class="briefcase">
-                        <div class="briefcase-handle"></div>
-                        <div class="briefcase-body"></div>
-                        <div class="briefcase-lock"></div>
-                    </div>
-                    <div class="trend-arrow"></div>
-                    <div class="chart-bars">
-                        <div class="bar"></div>
-                        <div class="bar"></div>
-                        <div class="bar"></div>
-                        <div class="bar"></div>
-                    </div>
-                </div>
-                <span class="illustration-label" style="color: #f39c12;">Business</span>
-            </div>
+            <!-- NEW INSTRUCTION BUTTON -->
+            <button class="instruction-btn" id="instructionBtn" onclick="goToInstructions()">
+                <!-- SVG Icon for Instructions/Guide -->
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+                </svg>
+                View Instructions
+            </button>
 
         </div>
 
@@ -716,7 +808,37 @@
 
     </div>
 
-    <!-- Added type="module" so ES6 imports in login.js work properly -->
-    <script type="module" src="login.js"></script>
+    <script type="module">
+        // Function to handle redirection to instruction.html
+        window.goToInstructions = function() {
+            // Visual feedback before redirect (optional smooth transition)
+            const btn = document.getElementById('instructionBtn');
+            btn.style.transform = "scale(0.95)";
+            setTimeout(() => {
+                window.location.href = 'instruction.html';
+            }, 150);
+        };
+
+        // Existing mock login function
+        window.handleGoogleLogin = function() {
+            const btn = document.getElementById('googleLoginBtn');
+            const originalText = btn.innerHTML;
+            
+            // UI Loading state
+            btn.disabled = true;
+            btn.innerHTML = 'Connecting...';
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                // Here you would integrate real Firebase/Auth logic
+                console.log("Google Login Clicked");
+                alert("This is a demo. In production, this would trigger the Google Auth flow.");
+                
+                // Reset button
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }, 1500);
+        };
+    </script>
 </body>
 </html>
