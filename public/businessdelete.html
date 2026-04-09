@@ -55,463 +55,16 @@
             margin-top: 8px;
         }
 
-        /* List Container */
-        #listContainer {
-            width: 100%;
-            max-width: 600px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        /* Row Styles - Converting Rows to Buttons */
-        .list-row {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 1px 2px rgba(60,64,67,0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Hover Effect for "Button" feel */
-        .list-row:hover {
-            background-color: #f1f3f4;
-            border-color: #c2c7c9;
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-sm);
-        }
-
-        /* Active/Click Effect */
-        .list-row:active {
-            background-color: #e8eaed;
-            transform: translateY(0);
-        }
-
-        .row-content {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .row-title {
-            font-weight: 600;
-            font-size: 1rem;
-            color: #202124;
-        }
-
-        .row-subtitle {
-            font-size: 0.85rem;
-            color: #5f6368;
-        }
-
-        /* Icon indicating clickability */
-        .click-icon {
-            color: #9aa0a6;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .list-row:hover .click-icon {
-            opacity: 1;
-        }
-
-        /* Loading & Empty States */
-        .status-message {
-            text-align: center;
-            padding: 40px;
-            color: #5f6368;
-            font-style: italic;
-        }
-
-        /* =========================================
-           MODAL (CONFIRMATION DIALOG)
-           ========================================= */
-        .modal-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(32, 33, 36, 0.6);
-            backdrop-filter: blur(2px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s ease;
-            z-index: 1000;
-        }
-
-        .modal-backdrop.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .modal {
-            background: var(--card-bg);
-            width: 90%;
-            max-width: 400px;
+        /* Permission Badge */
+        .role-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            padding: 2px 8px;
             border-radius: 12px;
-            padding: 24px;
-            box-shadow: var(--shadow-md);
-            transform: scale(0.95);
-            transition: transform 0.25s ease;
-        }
-
-        .modal-backdrop.active .modal {
-            transform: scale(1);
-        }
-
-        .modal-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: #202124;
-        }
-
-        .modal-body {
-            font-size: 1rem;
-            color: #5f6368;
-            margin-bottom: 24px;
-            line-height: 1.5;
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-        }
-
-        .btn {
-            padding: 10px 24px;
-            border-radius: 4px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            border: none;
-            transition: background 0.2s;
-        }
-
-        .btn-cancel {
-            background: transparent;
-            color: var(--primary-color);
-        }
-
-        .btn-cancel:hover {
-            background: rgba(66, 133, 244, 0.08);
-        }
-
-        .btn-confirm {
-            background: var(--danger-color);
-            color: white;
-        }
-
-        .btn-confirm:hover {
-            background: #d93025;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-
-        /* Spinner */
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary-color);
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <h1>Manage Transactions</h1>
-        <p class="subtitle">Select a transaction to delete it from the database.</p>
-    </header>
-
-    <main id="listContainer">
-        <!-- Content injected by JavaScript -->
-        <div class="spinner"></div>
-    </main>
-
-    <!-- Confirmation Modal -->
-    <div class="modal-backdrop" id="confirmModal">
-        <div class="modal">
-            <h2 class="modal-title">Delete Transaction?</h2>
-            <p class="modal-body">Are you sure you want to delete <strong id="modalItemName">this transaction</strong>? This action cannot be undone.</p>
-            <div class="modal-actions">
-                <button class="btn btn-cancel" id="cancelBtn">Cancel</button>
-                <button class="btn btn-confirm" id="confirmBtn">Confirm Deletion</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- JavaScript Module -->
-    <script type="module">
-        // ============================================================
-        // IMPORTS & CONFIG
-        // ============================================================
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import {
-            getAuth,
-            onAuthStateChanged
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import {
-            getFirestore,
-            collection,
-            getDocs,
-            doc,
-            deleteDoc,
-            query,
-            orderBy
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-        // ── Firebase Config ──
-        const firebaseConfig = {
-            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-            authDomain: "my-project-66803-95cb3.firebaseapp.com",
-            projectId: "my-project-66803-95cb3",
-            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-            messagingSenderId: "167159607898",
-            appId: "1:167159607898:web:23ca11366b88868b085e63"
-        };
-
-        // ── Initialize ──
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        // ── State ──
-        // Targeting the "transactions" collection as requested
-        const COLLECTION_NAME = "transactions"; 
-        let itemToDelete = null; // Stores the doc ID and name when a row is clicked
-
-        // ── DOM Elements ──
-        const listContainer = document.getElementById('listContainer');
-        const modal = document.getElementById('confirmModal');
-        const modalItemName = document.getElementById('modalItemName');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const confirmBtn = document.getElementById('confirmBtn');
-
-        // ============================================================
-        // LOGIC FLOW
-        // ============================================================
-
-        // 1. Auth Check: Ensure user is logged in before showing list
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                fetchAndDisplayList();
-            } else {
-                // Not logged in, redirect to index (or login)
-                console.log("User not authenticated. Redirecting...");
-                window.location.href = "index.html";
-            }
-        });
-
-        // 2. Fetch & Display List (Step 1: Display List)
-        async function fetchAndDisplayList() {
-            try {
-                // Query the 'transactions' collection
-                // Ordering by date descending is common for transactions, 
-                // but falls back to general order if 'date' field is missing.
-                const q = query(collection(db, COLLECTION_NAME)); 
-                const querySnapshot = await getDocs(q);
-
-                listContainer.innerHTML = ''; // Clear spinner
-
-                if (querySnapshot.empty) {
-                    listContainer.innerHTML = '<div class="status-message">No transactions found to delete.</div>';
-                    return;
-                }
-
-                // Step 2: Convert Rows to Buttons
-                querySnapshot.forEach((docSnapshot) => {
-                    const data = docSnapshot.data();
-                    const id = docSnapshot.id;
-
-                    // Create the row element
-                    const row = document.createElement('div');
-                    row.className = 'list-row';
-                    row.role = 'button'; // Accessibility
-                    row.tabIndex = 0;    // Accessibility (focusable)
-
-                    // --- Smart Display Logic for Transactions ---
-                    // Try to find a description, otherwise use type or ID
-                    let displayTitle = data.description || data.note || data.type || `Transaction ${id}`;
-                    
-                    // Try to find an amount/date for the subtitle
-                    let displaySub = `ID: ${id}`;
-                    
-                    if (data.amount) {
-                        // Basic currency formatting
-                        const formattedAmount = new Intl.NumberFormat('en-US', {
-                            style: 'currency',
-                            currency: 'USD' // Change this to your currency code if needed
-                        }).format(data.amount);
-                        displaySub = formattedAmount;
-                    }
-
-                    if (data.date) {
-                        // Append date if exists
-                        const dateObj = data.date.toDate ? data.date.toDate() : new Date(data.date);
-                        displaySub += ` • ${dateObj.toLocaleDateString()}`;
-                    }
-
-                    row.innerHTML = `
-                        <div class="row-content">
-                            <span class="row-title">${escapeHtml(displayTitle)}</span>
-                            <span class="row-subtitle">${escapeHtml(displaySub)}</span>
-                        </div>
-                        <svg class="click-icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
-                        </svg>
-                    `;
-
-                    // Step 3: Select Row (Click Event)
-                    row.addEventListener('click', () => handleRowClick(id, displayTitle));
-
-                    listContainer.appendChild(row);
-                });
-
-            } catch (error) {
-                console.error("Error fetching transaction list:", error);
-                listContainer.innerHTML = `<div class="status-message" style="color:var(--danger-color)">Error loading list: ${error.message}</div>`;
-            }
-        }
-
-        // Step 3: Handle Row Click -> Open Confirm Modal
-        function handleRowClick(id, name) {
-            itemToDelete = { id, name };
-            modalItemName.textContent = name;
-            modal.classList.add('active'); // Show modal
-        }
-
-        // Step 4: Cancel Action
-        cancelBtn.addEventListener('click', () => {
-            closeModal();
-            // Requirement: "On Cancel, return to list.html with no changes"
-            window.location.href = "list.html";
-        });
-
-        // Step 5: Confirm Deletion
-        confirmBtn.addEventListener('click', async () => {
-            if (!itemToDelete) return;
-
-            // Disable buttons to prevent double submission
-            confirmBtn.disabled = true;
-            cancelBtn.disabled = true;
-            confirmBtn.textContent = "Deleting...";
-
-            try {
-                // Delete from Firestore
-                const docRef = doc(db, COLLECTION_NAME, itemToDelete.id);
-                await deleteDoc(docRef);
-
-                console.log(`Transaction ${itemToDelete.id} successfully deleted.`);
-                
-                // Requirement: "After deletion, redirect back to list.html"
-                window.location.href = "list.html";
-
-            } catch (error) {
-                console.error("Error deleting transaction:", error);
-                alert("Failed to delete transaction. Check console for details.");
-                
-                // Reset buttons on error
-                confirmBtn.disabled = false;
-                cancelBtn.disabled = false;
-                confirmBtn.textContent = "Confirm Deletion";
-                closeModal();
-            }
-        });
-
-        // Helper: Close Modal
-        function closeModal() {
-            modal.classList.remove('active');
-            itemToDelete = null;
-        }
-
-        // Helper: Prevent XSS
-        function escapeHtml(text) {
-            if (!text) return text;
-            return text
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delete Transaction</title>
-    <style>
-        /* =========================================
-           CSS STYLES
-           ========================================= */
-        :root {
-            --primary-color: #4285F4;
-            --danger-color: #ea4335;
-            --text-color: #202124;
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --border-color: #dadce0;
-            --shadow-sm: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        header {
-            width: 100%;
-            max-width: 600px;
-            margin-bottom: 24px;
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 1.5rem;
-            font-weight: 500;
-            color: #3c4043;
-        }
-
-        .subtitle {
-            font-size: 0.9rem;
-            color: #5f6368;
             margin-top: 8px;
+            font-weight: 600;
+            background-color: #e8f0fe;
+            color: #1967d2;
         }
 
         /* List Container */
@@ -523,7 +76,7 @@
             gap: 12px;
         }
 
-        /* Row Styles - Converting Rows to Buttons */
+        /* Row Styles */
         .list-row {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -539,7 +92,6 @@
             overflow: hidden;
         }
 
-        /* Hover Effect for "Button" feel */
         .list-row:hover {
             background-color: #f1f3f4;
             border-color: #c2c7c9;
@@ -547,7 +99,6 @@
             box-shadow: var(--shadow-sm);
         }
 
-        /* Active/Click Effect */
         .list-row:active {
             background-color: #e8eaed;
             transform: translateY(0);
@@ -570,7 +121,6 @@
             color: #5f6368;
         }
 
-        /* Icon indicating clickability */
         .click-icon {
             color: #9aa0a6;
             opacity: 0;
@@ -581,7 +131,7 @@
             opacity: 1;
         }
 
-        /* Loading & Empty States */
+        /* Status Messages */
         .status-message {
             text-align: center;
             padding: 40px;
@@ -590,7 +140,7 @@
         }
 
         /* =========================================
-           MODAL (CONFIRMATION DIALOG)
+           MODAL
            ========================================= */
         .modal-backdrop {
             position: fixed;
@@ -677,7 +227,7 @@
             background: #d93025;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
-
+        
         /* Spinner */
         .spinner {
             border: 3px solid #f3f3f3;
@@ -700,6 +250,7 @@
     <header>
         <h1>Manage Transactions</h1>
         <p class="subtitle">Select a transaction to delete it from the database.</p>
+        <div id="userRoleBadge" class="role-badge" style="display:none;">Checking permissions...</div>
     </header>
 
     <main id="listContainer">
@@ -722,7 +273,7 @@
     <!-- JavaScript Module -->
     <script type="module">
         // ============================================================
-        // IMPORTS & CONFIG
+        // IMPORTS & CONFIG (Matches login.js)
         // ============================================================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import {
@@ -736,7 +287,7 @@
             doc,
             deleteDoc,
             query,
-            orderBy
+            where
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // ── Firebase Config ──
@@ -749,15 +300,26 @@
             appId: "1:167159607898:web:23ca11366b88868b085e63"
         };
 
+        // ── Admin Emails (Must match login.js) ──
+        const ADMIN_EMAILS = [
+            "jmlsd75@gmail.com",
+            "mohd.khamis18.mk@gmail.com"
+        ];
+
         // ── Initialize ──
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
         // ── State ──
-        // Targeting the "transactions" collection as requested
         const COLLECTION_NAME = "transactions"; 
-        let itemToDelete = null; // Stores the doc ID and name when a row is clicked
+        // Field name in the transaction doc that stores the user's email. 
+        // If your transactions use a different field (e.g., 'owner'), change this.
+        const USER_EMAIL_FIELD = "email"; 
+        
+        let currentUser = null; // Auth User
+        let sessionData = null; // LocalStorage Data
+        let itemToDelete = null;
 
         // ── DOM Elements ──
         const listContainer = document.getElementById('listContainer');
@@ -765,131 +327,191 @@
         const modalItemName = document.getElementById('modalItemName');
         const cancelBtn = document.getElementById('cancelBtn');
         const confirmBtn = document.getElementById('confirmBtn');
+        const roleBadge = document.getElementById('userRoleBadge');
 
         // ============================================================
         // LOGIC FLOW
         // ============================================================
 
-        // 1. Auth Check: Ensure user is logged in before showing list
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                fetchAndDisplayList();
-            } else {
-                // Not logged in, redirect to index (or login)
-                console.log("User not authenticated. Redirecting...");
+        // 1. Verify Session & Auth
+        function checkPermissions() {
+            // Check Local Storage (set by login.js)
+            const storedSession = localStorage.getItem("userSession");
+            
+            if (!storedSession) {
+                console.warn("No session found. Redirecting to login.");
                 window.location.href = "index.html";
+                return false;
             }
-        });
 
-        // 2. Fetch & Display List (Step 1: Display List)
+            sessionData = JSON.parse(storedSession);
+            
+            // Verify Firebase Auth
+            return new Promise((resolve) => {
+                onAuthStateChanged(auth, (user) => {
+                    if (!user) {
+                        console.warn("User not authenticated in Firebase. Redirecting.");
+                        window.location.href = "index.html";
+                        resolve(false);
+                    } else if (user.email !== sessionData.email) {
+                        // Security: Mismatch between Firebase and localStorage
+                        console.warn("Session mismatch. Redirecting.");
+                        window.location.href = "index.html";
+                        resolve(false);
+                    } else {
+                        currentUser = user;
+                        
+                        // Update UI based on role
+                        const isAdminUser = ADMIN_EMAILS.includes(user.email);
+                        roleBadge.textContent = isAdminUser ? "Admin Access" : "User Access";
+                        roleBadge.style.display = "inline-block";
+                        roleBadge.style.backgroundColor = isAdminUser ? "#e8f0fe" : "#e6f4ea";
+                        roleBadge.style.color = isAdminUser ? "#1967d2" : "#137333";
+
+                        resolve(true);
+                    }
+                });
+            });
+        }
+
+        // 2. Fetch & Display List with Permission Filter
         async function fetchAndDisplayList() {
-            try {
-                // Query the 'transactions' collection
-                // Ordering by date descending is common for transactions, 
-                // but falls back to general order if 'date' field is missing.
-                const q = query(collection(db, COLLECTION_NAME)); 
-                const querySnapshot = await getDocs(q);
+            const hasAccess = await checkPermissions();
+            if (!hasAccess) return;
 
+            try {
+                let q;
+                const isAdminUser = ADMIN_EMAILS.includes(currentUser.email);
+
+                if (isAdminUser) {
+                    // Admins see ALL transactions
+                    console.log("Fetching all transactions (Admin mode).");
+                    q = query(collection(db, COLLECTION_NAME));
+                } else {
+                    // Regular users ONLY see their own transactions
+                    console.log(`Fetching transactions for: ${currentUser.email}`);
+                    q = query(
+                        collection(db, COLLECTION_NAME), 
+                        where(USER_EMAIL_FIELD, "==", currentUser.email)
+                    );
+                }
+
+                const querySnapshot = await getDocs(q);
                 listContainer.innerHTML = ''; // Clear spinner
 
                 if (querySnapshot.empty) {
-                    listContainer.innerHTML = '<div class="status-message">No transactions found to delete.</div>';
+                    const msg = isAdminUser 
+                        ? "No transactions found in the database." 
+                        : "You have no transactions recorded.";
+                    listContainer.innerHTML = `<div class="status-message">${msg}</div>`;
                     return;
                 }
 
-                // Step 2: Convert Rows to Buttons
                 querySnapshot.forEach((docSnapshot) => {
                     const data = docSnapshot.data();
                     const id = docSnapshot.id;
 
-                    // Create the row element
-                    const row = document.createElement('div');
-                    row.className = 'list-row';
-                    row.role = 'button'; // Accessibility
-                    row.tabIndex = 0;    // Accessibility (focusable)
+                    // Double check ownership just in case
+                    const isOwner = data[USER_EMAIL_FIELD] === currentUser.email;
+                    if (!isAdminUser && !isOwner) return; 
 
-                    // --- Smart Display Logic for Transactions ---
-                    // Try to find a description, otherwise use type or ID
-                    let displayTitle = data.description || data.note || data.type || `Transaction ${id}`;
-                    
-                    // Try to find an amount/date for the subtitle
-                    let displaySub = `ID: ${id}`;
-                    
-                    if (data.amount) {
-                        // Basic currency formatting
-                        const formattedAmount = new Intl.NumberFormat('en-US', {
-                            style: 'currency',
-                            currency: 'USD' // Change this to your currency code if needed
-                        }).format(data.amount);
-                        displaySub = formattedAmount;
-                    }
-
-                    if (data.date) {
-                        // Append date if exists
-                        const dateObj = data.date.toDate ? data.date.toDate() : new Date(data.date);
-                        displaySub += ` • ${dateObj.toLocaleDateString()}`;
-                    }
-
-                    row.innerHTML = `
-                        <div class="row-content">
-                            <span class="row-title">${escapeHtml(displayTitle)}</span>
-                            <span class="row-subtitle">${escapeHtml(displaySub)}</span>
-                        </div>
-                        <svg class="click-icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
-                        </svg>
-                    `;
-
-                    // Step 3: Select Row (Click Event)
-                    row.addEventListener('click', () => handleRowClick(id, displayTitle));
-
-                    listContainer.appendChild(row);
+                    createRowElement(id, data);
                 });
 
             } catch (error) {
-                console.error("Error fetching transaction list:", error);
+                console.error("Error fetching list:", error);
                 listContainer.innerHTML = `<div class="status-message" style="color:var(--danger-color)">Error loading list: ${error.message}</div>`;
             }
         }
 
-        // Step 3: Handle Row Click -> Open Confirm Modal
-        function handleRowClick(id, name) {
-            itemToDelete = { id, name };
-            modalItemName.textContent = name;
-            modal.classList.add('active'); // Show modal
+        // Helper to create DOM elements
+        function createRowElement(id, data) {
+            const row = document.createElement('div');
+            row.className = 'list-row';
+            row.role = 'button';
+            row.tabIndex = 0;
+
+            // Smart Display
+            let displayTitle = data.description || data.note || data.type || `Transaction ${id}`;
+            let displaySub = `ID: ${id}`;
+
+            if (data.amount) {
+                const formattedAmount = new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD'
+                }).format(data.amount);
+                displaySub = formattedAmount;
+            }
+
+            if (data.date) {
+                const dateObj = data.date.toDate ? data.date.toDate() : new Date(data.date);
+                displaySub += ` • ${dateObj.toLocaleDateString()}`;
+            }
+
+            // If admin, show who owns the transaction
+            if (ADMIN_EMAILS.includes(currentUser.email) && data.email) {
+                displaySub += ` • ${data.email}`;
+            }
+
+            row.innerHTML = `
+                <div class="row-content">
+                    <span class="row-title">${escapeHtml(displayTitle)}</span>
+                    <span class="row-subtitle">${escapeHtml(displaySub)}</span>
+                </div>
+                <svg class="click-icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                </svg>
+            `;
+
+            row.addEventListener('click', () => handleRowClick(id, displayTitle, data));
+            listContainer.appendChild(row);
         }
 
-        // Step 4: Cancel Action
+        // 3. Handle Row Click -> Open Confirm Modal
+        function handleRowClick(id, name, data) {
+            // Final Permission Check on Click
+            const isAdminUser = ADMIN_EMAILS.includes(currentUser.email);
+            const isOwner = data[USER_EMAIL_FIELD] === currentUser.email;
+
+            if (!isAdminUser && !isOwner) {
+                alert("Security Error: You do not have permission to delete this item.");
+                return;
+            }
+
+            itemToDelete = { id, name, data };
+            modalItemName.textContent = name;
+            modal.classList.add('active');
+        }
+
+        // 4. Cancel Action -> Redirect to list.html
         cancelBtn.addEventListener('click', () => {
             closeModal();
-            // Requirement: "On Cancel, return to list.html with no changes"
             window.location.href = "list.html";
         });
 
-        // Step 5: Confirm Deletion
+        // 5. Confirm Deletion
         confirmBtn.addEventListener('click', async () => {
             if (!itemToDelete) return;
 
-            // Disable buttons to prevent double submission
+            // Disable buttons
             confirmBtn.disabled = true;
             cancelBtn.disabled = true;
             confirmBtn.textContent = "Deleting...";
 
             try {
-                // Delete from Firestore
                 const docRef = doc(db, COLLECTION_NAME, itemToDelete.id);
                 await deleteDoc(docRef);
 
                 console.log(`Transaction ${itemToDelete.id} successfully deleted.`);
                 
-                // Requirement: "After deletion, redirect back to list.html"
+                // Success -> Redirect to list.html
                 window.location.href = "list.html";
 
             } catch (error) {
                 console.error("Error deleting transaction:", error);
                 alert("Failed to delete transaction. Check console for details.");
                 
-                // Reset buttons on error
+                // Reset UI on error
                 confirmBtn.disabled = false;
                 cancelBtn.disabled = false;
                 confirmBtn.textContent = "Confirm Deletion";
@@ -897,13 +519,11 @@
             }
         });
 
-        // Helper: Close Modal
         function closeModal() {
             modal.classList.remove('active');
             itemToDelete = null;
         }
 
-        // Helper: Prevent XSS
         function escapeHtml(text) {
             if (!text) return text;
             return text
@@ -913,6 +533,9 @@
                 .replace(/"/g, "&quot;")
                 .replace(/'/g, "&#039;");
         }
+
+        // Start
+        fetchAndDisplayList();
 
     </script>
 </body>
