@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Portal - Welcome</title>
+    <style>
+        /* --- CSS Variables for Theme --- */
+        :root {
+            --primary-color: #00b894;       /* Medical Green */
+            --primary-hover: #019376;       /* Darker Green */
+            --text-dark: #2d3436;           /* Dark Grey */
+            --text-light: #636e72;          /* Light Grey */
+            --bg-color: #f0fdfa;            /* Very light mint background */
+            --white: #ffffff;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --radius: 12px;
+        }
+
+        /* --- Reset & Base Styles --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#d1fae5 1px, transparent 1px);
+            background-size: 20px 20px; /* Subtle pattern */
+            color: var(--text-dark);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Prevents scroll for this centered layout */
+        }
+
+        /* --- Header / Navigation --- */
+        header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        /* --- Main Centered Content --- */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .hero-card {
+            background: var(--white);
+            padding: 60px 40px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid rgba(0, 184, 148, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .hero-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .icon-placeholder {
+            width: 80px;
+            height: 80px;
+            background-color: #e6fffa;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 25px auto;
+            color: var(--primary-color);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            line-height: 1.2;
+            color: var(--text-dark);
+        }
+
+        p {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 35px;
+            line-height: 1.6;
+        }
+
+        /* --- Registration Button --- */
+        .btn-register {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: var(--white);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 16px 32px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
+            border: 2px solid transparent;
+        }
+
+        .btn-register:hover {
+            background-color: var(--primary-hover);
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 184, 148, 0.4);
+        }
+
+        .btn-register:active {
+            transform: scale(0.98);
+        }
+
+        .btn-register:focus {
+            outline: none;
+            border-color: var(--primary-hover);
+            box-shadow: 0 0 0 4px rgba(0, 184, 148, 0.2);
+        }
+
+        /* --- Footer --- */
+        footer {
+            padding: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        /* --- Responsive Tweaks --- */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .hero-card {
+                padding: 40px 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <header>
+        <a href="#" class="logo">
+            <!-- Simple SVG Health Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            HealthPlus
+        </a>
+    </header>
+
+    <!-- Main Content Area (Centered) -->
+    <main>
+        <div class="hero-card">
+            <div class="icon-placeholder">
+                <!-- Medical Cross Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+            </div>
+            
+            <h1>Start Your Journey</h1>
+            <p>Welcome to HealthPlus. Access your medical records, book appointments, and connect with top specialists today.</p>
+            
+            <!-- Registration Button: Redirects to registration.html -->
+            <a href="registration.html" class="btn-register">
+                Register Now
+            </a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        &copy; 2023 HealthPlus Portal. All rights reserved.
+    </footer>
+
+</body>
+</html>
