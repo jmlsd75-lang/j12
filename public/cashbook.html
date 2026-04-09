@@ -85,7 +85,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr; /* Two equal columns */
       gap: 2rem;
-      align-items: start; /* Align tops, allowing different heights */
+      align-items: start; /* Align tops */
     }
 
     .cash-book-side {
@@ -105,11 +105,11 @@
       font-weight: 700;
       text-transform: uppercase;
       font-size: 1.1rem;
-      border-bottom: 2px solid var(--border-color);
+      border-bottom: 2px solid transparent;
     }
 
-    .side-header.dr { color: var(--success); border-color: var(--success); }
-    .side-header.cr { color: var(--danger); border-color: var(--danger); }
+    .side-header.dr { color: var(--success); border-bottom-color: var(--success); }
+    .side-header.cr { color: var(--danger); border-bottom-color: var(--danger); }
 
     /* Tables */
     table {
@@ -128,7 +128,7 @@
       border-bottom: 1px solid var(--border-color);
     }
     
-    /* Specific column widths for accounting look */
+    /* Column Widths */
     .col-date { width: 25%; }
     .col-detail { width: 45%; }
     .col-folio { width: 15%; text-align: center; }
@@ -143,12 +143,19 @@
     tr:last-child td { border-bottom: none; }
 
     /* Special Rows */
-    .row-balance { font-style: italic; color: var(--text-muted); background-color: #fafafa; }
+    .row-balance { 
+      font-style: italic; 
+      color: var(--text-muted); 
+      background-color: #fafafa; 
+    }
+    
     .row-total { 
       background-color: #edf2f7; 
       font-weight: 700; 
-      border-top: 2px solid var(--border-color);
+      border-top: 2px solid #cbd5e0;
+      color: #2d3748;
     }
+    
     .row-total td { padding-top: 14px; padding-bottom: 14px; }
 
     /* Empty State */
@@ -283,8 +290,11 @@
       }
 
       // REAL-TIME LISTENER (onSnapshot)
+      // NOTE: Using user.email. If your DB uses UID, change to user.uid
       const transactionsRef = collection(db, "users", user.email, "transactions");
-      const q = query(transactionsRef, orderBy("date", "desc")); // Sorting by date descending
+      
+      // Order by date so newest appears at top
+      const q = query(transactionsRef, orderBy("date", "desc")); 
 
       onSnapshot(q, (snapshot) => {
         renderCashBook(snapshot.docs);
@@ -294,7 +304,7 @@
     });
 
     function renderCashBook(docs) {
-      // Clear previous data
+      // 1. Clear previous data
       drTableBody.innerHTML = "";
       crTableBody.innerHTML = "";
 
@@ -310,7 +320,7 @@
       let totalDr = 0;
       let totalCr = 0;
       
-      // Folio Logic: Map detail -> Number. If detail exists, reuse number. Else new number.
+      // Folio Logic: Assign sequential numbers to unique details
       let folioCounter = 1;
       const folioMap = {}; 
 
@@ -325,7 +335,7 @@
         }
       };
 
-      // 1. Process Transactions
+      // 2. Process Transactions
       docs.forEach((doc) => {
         const data = doc.data();
         const amount = parseFloat(data.amount || 0);
@@ -342,60 +352,70 @@
         const folio = getFolio(particulars);
         const dateStr = data.date || getTodayDate();
 
+        // Create Row HTML Template
+        const rowTemplate = `
+          <tr>
+            <td class="col-date">${dateStr}</td>
+            <td class="col-detail">${particulars}</td>
+            <td class="col-folio">${folio}</td>
+            <td class="col-amount">${formatCurrency(amount)}</td>
+          </tr>
+        `;
+
         if (type === 'IN') {
           totalDr += amount;
-          const row = `
-            <tr>
-              <td class="col-date">${dateStr}</td>
-              <td class="col-detail">${particulars}</td>
-              <td class="col-folio">${folio}</td>
-              <td class="col-amount">${formatCurrency(amount)}</td>
-            </tr>
-          `;
-          drTableBody.insertAdjacentHTML('beforeend', row);
+          drTableBody.insertAdjacentHTML('beforeend', rowTemplate);
         } else {
           totalCr += amount;
-          const row = `
-            <tr>
-              <td class="col-date">${dateStr}</td>
-              <td class="col-detail">${particulars}</td>
-              <td class="col-folio">${folio}</td>
-              <td class="col-amount">${formatCurrency(amount)}</td>
-            </tr>
-          `;
-          crTableBody.insertAdjacentHTML('beforeend', row);
+          crTableBody.insertAdjacentHTML('beforeend', rowTemplate);
         }
       });
 
-      // 2. Calculate Difference and Balances
+      // 3. Calculate Difference and Add Balance (c/d)
+      // This ensures both sides balance at the bottom
       let diff = Math.abs(totalDr - totalCr);
       const today = getTodayDate();
 
-      // 3. Add "Balance c/d" to the smaller side
       if (totalDr > totalCr) {
-        // Debit is larger, so add Balance c/d to Credit
+        // Debit is larger, so we add Balance c/d to Credit side to match it
         crTableBody.insertAdjacentHTML('beforeend', `
           <tr class="row-balance">
             <td class="col-date">${today}</td>
-            <td class="col-detail">Balance</td>
-            <td class="col-folio">c/d</td>
+            <td class="col-detail">Balance c/d</td>
+            <td class="col-folio">-</td>
             <td class="col-amount">${formatCurrency(diff)}</td>
           </tr>
         `);
-        totalCr += diff; // Update Credit total for the Total row
+        totalCr += diff; // Update running total for final calculation
       } else if (totalCr > totalDr) {
-        // Credit is larger, so add Balance c/d to Debit
+        // Credit is larger, so we add Balance c/d to Debit side to match it
         drTableBody.insertAdjacentHTML('beforeend', `
           <tr class="row-balance">
             <td class="col-date">${today}</td>
-            <td class="col-detail">Balance</td>
-            <td class="col-folio">c/d</td>
+            <td class="col-detail">Balance c/d</td>
+            <td class="col-folio">-</td>
             <td class="col-amount">${formatCurrency(diff)}</td>
           </tr>
         `);
-        totalDr += diff; // Update Debit total for the Total row
+        totalDr += diff; // Update running total for final calculation
       }
 
-      // 4. Add Total Row
-      const totalRowDr = `
-        <
+      // 4. Add Total Row to BOTH sides
+      // At this point, totalDr MUST equal totalCr
+      const finalTotal = formatCurrency(totalDr); // or totalCr, they are same now
+
+      const totalRowHTML = `
+        <tr class="row-total">
+          <td class="col-date"></td>
+          <td class="col-detail">Total</td>
+          <td class="col-folio"></td>
+          <td class="col-amount">${finalTotal}</td>
+        </tr>
+      `;
+
+      drTableBody.insertAdjacentHTML('beforeend', totalRowHTML);
+      crTableBody.insertAdjacentHTML('beforeend', totalRowHTML);
+    }
+  </script>
+</body>
+</html>
