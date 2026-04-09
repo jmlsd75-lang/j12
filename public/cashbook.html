@@ -95,6 +95,8 @@
       border-collapse: collapse;
       font-size: 0.9rem;
       min-width: 800px; /* Ensure columns don't squish too much */
+      /* KEY CHANGE: Enforce strict column widths for equal sizing */
+      table-layout: fixed;
     }
 
     /* ── Header Rows ── */
@@ -136,6 +138,10 @@
       border-bottom: 1px solid #f0f0f0;
       vertical-align: middle;
       height: var(--row-height); /* Constant Height */
+      /* Optional: Prevent text wrapping to keep rows perfectly aligned */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     /* Vertical border for cells in the middle column */
@@ -143,11 +149,14 @@
       border-left: 2px solid var(--border-color);
     }
 
-    /* Column Widths */
-    .col-date { width: 15%; }
-    .col-detail { width: 35%; }
-    .col-folio { width: 10%; text-align: center; }
-    .col-amount { width: 15%; text-align: right; font-family: 'Courier New', monospace; font-weight: 600; }
+    /* ── Column Widths (Revised for Equal 50/50 Split) ── */
+    /* Left Side (Debit) must equal Right Side (Credit) = 50% each */
+    /* Date: 12%, Detail: 25%, Folio: 3%, Amount: 10% => Total 50% */
+    
+    .col-date { width: 12%; }
+    .col-detail { width: 25%; }
+    .col-folio { width: 3%; text-align: center; }
+    .col-amount { width: 10%; text-align: right; font-family: 'Courier New', monospace; font-weight: 600; }
 
     /* ── Special Rows ── */
     .row-balance { 
@@ -163,9 +172,6 @@
       color: #2d3748;
       height: 50px; /* Slightly taller for total */
     }
-    
-    /* Remove bottom border for the very last row (Balance b/d usually) if desired, 
-       but keeping it is cleaner for separation. */
 
     /* Empty State */
     .empty-state {
