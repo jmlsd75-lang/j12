@@ -95,7 +95,7 @@
       border-collapse: collapse;
       font-size: 0.9rem;
       min-width: 800px; /* Ensure columns don't squish too much */
-      /* KEY CHANGE: Enforce strict column widths for equal sizing */
+      /* Enforce strict column widths for equal sizing */
       table-layout: fixed;
     }
 
@@ -127,7 +127,6 @@
     }
 
     /* Vertical Divider Line in Middle */
-    /* We apply a border-left to the first column of the Credit side (5th column effectively) */
     .divider-col {
       border-left: 2px solid var(--border-color) !important;
     }
@@ -138,7 +137,6 @@
       border-bottom: 1px solid #f0f0f0;
       vertical-align: middle;
       height: var(--row-height); /* Constant Height */
-      /* Optional: Prevent text wrapping to keep rows perfectly aligned */
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -150,9 +148,6 @@
     }
 
     /* ── Column Widths (Revised for Equal 50/50 Split) ── */
-    /* Left Side (Debit) must equal Right Side (Credit) = 50% each */
-    /* Date: 12%, Detail: 25%, Folio: 3%, Amount: 10% => Total 50% */
-    
     .col-date { width: 12%; }
     .col-detail { width: 25%; }
     .col-folio { width: 3%; text-align: center; }
@@ -268,6 +263,17 @@
       return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TZS' }).format(amount);
     };
 
+    // Helper: Format Date (YYYY-MM-DD only)
+    const formatDate = (dateVal) => {
+      if (!dateVal) return "";
+      const d = new Date(dateVal);
+      // Check if date is invalid
+      if (isNaN(d.getTime())) return dateVal;
+      
+      // Return ISO format YYYY-MM-DD (Date, Month, Year only)
+      return d.toISOString().split('T')[0];
+    };
+
     // Helper: Get Today's Date string
     const getTodayDate = () => {
       return new Date().toISOString().split('T')[0];
@@ -350,7 +356,8 @@
         }
 
         const folio = getFolio(particulars);
-        const dateStr = data.date || today;
+        // Apply formatDate to strip time
+        const dateStr = formatDate(data.date) || formatDate(today);
 
         const rowObj = {
           date: dateStr,
@@ -370,16 +377,13 @@
       });
 
       // 2. Calculate Difference & Insert "Balance c/d"
-      // Determine which side is smaller to add the balancing figure
       let diff = Math.abs(totalDr - totalCr);
       let balanceCdSide = null; // 'dr' or 'cr'
 
-      // c/d goes to the side with the SMALLER total to make them equal
       if (totalDr > totalCr) {
-        // Dr is bigger, add to Cr
         balanceCdSide = 'cr';
         crRows.push({
-          date: today,
+          date: formatDate(today), // Apply formatDate
           detail: "Balance",
           folio: "c/d",
           amount: diff,
@@ -387,10 +391,9 @@
         });
         totalCr += diff;
       } else if (totalCr > totalDr) {
-        // Cr is bigger, add to Dr
         balanceCdSide = 'dr';
         drRows.push({
-          date: today,
+          date: formatDate(today), // Apply formatDate
           detail: "Balance",
           folio: "c/d",
           amount: diff,
@@ -399,8 +402,7 @@
         totalDr += diff;
       }
 
-      // 3. Render Transaction Rows (with padding)
-      // We iterate up to the maximum length of the two arrays
+      // 3. Render Transaction Rows
       const maxRows = Math.max(drRows.length, crRows.length);
 
       for (let i = 0; i < maxRows; i++) {
@@ -418,7 +420,6 @@
             <td class="col-amount ${cellClass}">${formatCurrency(r.amount)}</td>
           `;
         } else {
-          // Empty Padding Cells
           rowHTML += `<td></td><td></td><td></td><td></td>`;
         }
 
@@ -427,7 +428,6 @@
           const r = crRows[i];
           const isBal = (r.type === 'bal_cd');
           const cellClass = isBal ? 'row-balance' : '';
-          // Add divider-col to the first cell of Credit side to maintain the vertical line
           rowHTML += `
             <td class="divider-col ${cellClass}">${r.date}</td>
             <td class="divider-col ${cellClass}">${r.detail}</td>
@@ -435,7 +435,6 @@
             <td class="col-amount divider-col ${cellClass}">${formatCurrency(r.amount)}</td>
           `;
         } else {
-          // Empty Padding Cells (with divider on first one)
           rowHTML += `<td class="divider-col"></td><td class="divider-col"></td><td class="divider-col"></td><td class="divider-col"></td>`;
         }
 
@@ -443,8 +442,8 @@
         tableBody.insertAdjacentHTML('beforeend', rowHTML);
       }
 
-      // 4. Render Total Row (Always on one line)
-      const finalTotal = formatCurrency(totalDr); // totals are equal now
+      // 4. Render Total Row
+      const finalTotal = formatCurrency(totalDr); 
       const totalRowHTML = `
         <tr class="row-total">
           <td></td>
@@ -461,8 +460,6 @@
       tableBody.insertAdjacentHTML('beforeend', totalRowHTML);
 
       // 5. Render Balance b/d (Brought Down)
-      // Rule: Show after totals, on side OPPOSITE to c/d. 
-      // If c/d was on Credit, b/d is on Debit.
       if (diff > 0) {
         let bdSide = (balanceCdSide === 'cr') ? 'dr' : 'cr';
         
@@ -471,7 +468,7 @@
         if (bdSide === 'dr') {
           // b/d on Left
           bdRowHTML += `
-            <td>${today}</td>
+            <td>${formatDate(today)}</td>
             <td>Balance</td>
             <td class="col-folio">b/d</td>
             <td class="col-amount">${formatCurrency(diff)}</td>
@@ -490,7 +487,7 @@
             <td></td>
             <td></td>
             <!-- Right side b/d -->
-            <td class="divider-col">${today}</td>
+            <td class="divider-col">${formatDate(today)}</td>
             <td class="divider-col">Balance</td>
             <td class="col-folio divider-col">b/d</td>
             <td class="col-amount divider-col">${formatCurrency(diff)}</td>
