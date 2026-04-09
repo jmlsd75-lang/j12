@@ -53,6 +53,25 @@
             background-color: #007bff;
             color: white;
         }
+        /* Container to hold both buttons side by side in center */
+.center-buttons {
+    display: flex;
+    gap: 20px; /* space between buttons */
+    justify-content: center;
+    align-items: center;
+}
+
+/* Reuse existing list-btn styling */
+.cash-btn {
+    /* Optional: different color for Cash Book */
+    border-color: #28a745;
+    color: #28a745;
+}
+
+.cash-btn:hover {
+    background-color: #28a745;
+    color: white;
+}
     </style>
 </head>
 <body>
@@ -60,8 +79,13 @@
     <!-- 1. Lefty < : Top-Left Corner, redirects to menu.html -->
     <a href="menu.html" class="lefty-btn">&lt;</a>
 
-    <!-- 2. List Button : Actual Center of the screen, redirects to list.html -->
-    <a href="list.html" class="list-btn">list</a>
+    <!-- 2. Center Buttons Container -->
+<div class="center-buttons">
+    <!-- List Button -->
+    <a href="list.html" class="list-btn">List</a>
 
+    <!-- Cash Book Button -->
+    <a href="cashbook.html" class="list-btn cash-btn">Cash Book</a>
+</div>
 </body>
 </html>
