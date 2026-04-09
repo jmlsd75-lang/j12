@@ -53,7 +53,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            max-height: 90vh; /* Prevent scrolling on body */
+            max-height: 90vh;
         }
 
         /* --- Header --- */
@@ -78,25 +78,15 @@
             flex: 1;
         }
 
-        .loading-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(255,255,255,0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 20;
-            flex-direction: column;
-            gap: 10px;
-        }
-
+        /* --- Spinner (Kept for Save Button) --- */
         .spinner {
-            width: 30px;
-            height: 30px;
-            border: 3px solid var(--border);
-            border-top-color: var(--primary);
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #ffffff;
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            display: inline-block;
         }
 
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -182,7 +172,7 @@
 
         /* --- Conditional Section --- */
         #credit-group {
-            display: none; /* Hidden by default */
+            display: none;
             animation: slideDown 0.3s ease;
         }
         
@@ -286,12 +276,6 @@
 <body>
 
     <div class="app-container">
-        <!-- Loading Overlay -->
-        <div id="loading" class="loading-overlay">
-            <div class="spinner"></div>
-            <p style="color:var(--text-muted); font-size:0.9rem;">Loading transaction...</p>
-        </div>
-
         <header>
             <h1>Edit Transaction</h1>
         </header>
@@ -399,7 +383,6 @@
             amount: document.getElementById('amountInput'),
             creditName: document.getElementById('creditNameInput'),
             creditGroup: document.getElementById('credit-group'),
-            loading: document.getElementById('loading'),
             saveBtn: document.getElementById('saveBtn')
         };
 
@@ -418,12 +401,13 @@
                 return;
             }
 
-            userDocRef = doc(db, "users", user.email, "transactions", transactionId);
-
             if (transactionId) {
-                await loadTransactionData();
+                userDocRef = doc(db, "users", user.email, "transactions", transactionId);
+                // Load data in background without blocking UI
+                loadTransactionData();
             } else {
-                els.loading.innerHTML = `<p style="color:var(--danger)">Error: No Transaction ID provided.</p>`;
+                showToast("Error: No Transaction ID found.", true);
+                setTimeout(() => window.location.href = 'businesslist.html', 2000);
             }
         });
 
@@ -442,25 +426,22 @@
                     editState.creditName = "";
 
                     // Heuristic: If method is CREDIT, check if detail has parentheses
-                    // The 'new' code saved data as: "Detail (CreditName)"
                     if (editState.form === 'CREDIT' && editState.detail.includes('(') && editState.detail.includes(')')) {
                         const parts = editState.detail.split('(');
                         if (parts.length === 2) {
                             editState.detail = parts[0].trim();
-                            // Remove trailing ')'
                             editState.creditName = parts[1].replace(')', '').trim();
                         }
                     }
 
-                    // Update UI
+                    // Update UI (Only if user hasn't potentially changed things, 
+                    // but for simple edit pages, usually safe to populate)
                     els.detail.value = editState.detail;
                     els.amount.value = editState.amount;
                     els.creditName.value = editState.creditName;
                     
                     updateButtonVisuals();
                     toggleCreditField();
-
-                    els.loading.classList.add('hidden'); // Hide loading
                 } else {
                     showToast("Transaction not found.");
                     setTimeout(() => window.location.href = 'businesslist.html', 2000);
@@ -468,7 +449,6 @@
             } catch (error) {
                 console.error("Error loading doc:", error);
                 showToast("Error loading data.");
-                els.loading.classList.add('hidden');
             }
         }
 
@@ -501,10 +481,14 @@
         function toggleCreditField() {
             if (editState.form === 'CREDIT') {
                 els.creditGroup.classList.add('visible');
-                setTimeout(() => els.creditName.focus(), 100);
+                // Only focus if user just clicked it, to avoid annoyance during load
+                // document.activeElement check helps here
+                if(document.activeElement.tagName !== 'INPUT') {
+                     setTimeout(() => els.creditName.focus(), 100);
+                }
             } else {
                 els.creditGroup.classList.remove('visible');
-                els.creditName.value = ""; // Clear if hidden
+                els.creditName.value = "";
                 editState.creditName = "";
             }
         }
@@ -526,10 +510,9 @@
             // 2. Lock UI
             const originalBtnText = els.saveBtn.innerHTML;
             els.saveBtn.disabled = true;
-            els.saveBtn.innerHTML = `<div class="spinner" style="width:16px; height:16px; border-width:2px;"></div> Saving...`;
+            els.saveBtn.innerHTML = `<span class="spinner"></span> Saving...`;
 
             // 3. Prepare Data
-            // Reconstruct detail string if Credit
             let finalDetail = detailVal;
             if (editState.form === 'CREDIT') {
                 finalDetail = `${detailVal} (${creditVal})`;
@@ -540,7 +523,6 @@
                 amount: amountVal,
                 type: editState.type,
                 method: editState.form
-                // Note: We don't update createdAt or date usually
             };
 
             try {
