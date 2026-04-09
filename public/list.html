@@ -183,20 +183,28 @@
       color: #4a5568;
     }
 
-    /* ── Empty States ── */
-    .empty-state {
+    /* ── Loading & Empty States ── */
+    .loading-container, .empty-state {
       padding: 4rem 2rem;
       text-align: center;
-      display: none; /* Hidden by default */
+      display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       color: var(--text-muted);
     }
-    
-    .empty-state.visible {
-      display: flex;
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
     }
+
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
     /* Toast Notification */
     #toast-container {
@@ -223,7 +231,7 @@
     @media (max-width: 600px) {
       header { padding: 1rem; }
       main { padding: 1rem; }
-      .user-info span { display: none; }
+      .user-info span { display: none; } /* Hide name on mobile */
     }
   </style>
 </head>
@@ -264,13 +272,19 @@
             </tr>
           </thead>
           <tbody id="tableBody">
-            <!-- Rows inserted here automatically -->
+            <!-- Rows inserted here -->
           </tbody>
         </table>
       </div>
       
-      <!-- Empty State (Shown if no data) -->
-      <div id="emptyState" class="empty-state">
+      <!-- Loading State -->
+      <div id="loadingState" class="loading-container">
+        <div class="spinner"></div>
+        <p>Loading transaction data...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="empty-state" style="display: none;">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
           <polyline points="14 2 14 8 20 8"></polyline>
@@ -287,7 +301,7 @@
   <!-- Firebase Logic -->
   <script type="module">
     // ============================================================
-    // Imports & Config
+    // Imports & Config (From your login.js)
     // ============================================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -309,11 +323,12 @@
 
     // DOM Elements
     const tableBody = document.getElementById('tableBody');
+    const loadingState = document.getElementById('loadingState');
     const emptyState = document.getElementById('emptyState');
     const userInfoDisplay = document.getElementById('userInfoDisplay');
     const transactionsTable = document.getElementById('transactionsTable');
 
-    // ── Auth Check & Auto Load ──
+    // ── Auth Check ──
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         // Not logged in, redirect to index
@@ -330,37 +345,38 @@
           <img src="${parsed.photo || 'https://picsum.photos/seed/user/32/32'}" alt="Avatar" class="user-avatar">
         `;
       } else {
+        // Fallback if session is missing but auth exists
         userInfoDisplay.innerHTML = `
           <span>${user.displayName || "User"}</span>
           <img src="${user.photoURL || 'https://picsum.photos/seed/user/32/32'}" alt="Avatar" class="user-avatar">
         `;
       }
 
-      // AUTO LOAD TRANSACTIONS
-      fetchTransactions(user.email);
+      // Load Data
+      fetchTransactions();
     });
 
     // ── Data Fetching ──
-    async function fetchTransactions(userEmail) {
+    async function fetchTransactions() {
       try {
-        // CRITICAL FIX: Query the specific user's subcollection, not the global 'transactions'
-        const transactionsRef = collection(db, "users", userEmail, "transactions");
+        // Assuming collection name is 'transactions'. 
+        // Adjust if your collection name is different.
+        const transactionsRef = collection(db, "transactions");
         
-        // Order by 'createdAt' (timestamp) descending to show newest first
-        const q = query(transactionsRef, orderBy("createdAt", "desc"));
+        // Query: Order by date descending (newest first)
+        // Note: This requires a Date index in Firestore if you scale, but works for small datasets.
+        const q = query(transactionsRef, orderBy("date", "desc"));
         
         const querySnapshot = await getDocs(q);
-
-        // Clear existing rows
-        tableBody.innerHTML = "";
+        
+        // Hide loading, show table
+        loadingState.style.display = 'none';
+        transactionsTable.style.display = 'table';
 
         if (querySnapshot.empty) {
-          emptyState.classList.add('visible');
+          emptyState.style.display = 'flex';
           transactionsTable.style.display = 'none';
           return;
-        } else {
-          emptyState.classList.remove('visible');
-          transactionsTable.style.display = 'table';
         }
 
         let serialNumber = 1;
@@ -369,48 +385,33 @@
           const data = doc.data();
           const row = document.createElement('tr');
           
-          // 1. Date Handling
-          // The save code stored a string date. We use that directly.
-          const dateStr = data.date || "N/A";
-
-          // 2. Amount Handling
-          const amount = parseFloat(data.amount || 0);
-          const amountFormatted = new Intl.NumberFormat('en-US', { 
-            style: 'currency', 
-            currency: 'TZS' // Using TZS as per your previous context, change to USD if needed
-          }).format(amount);
-          
-          // 3. Type Handling (IN vs OUT)
-          // The database saves 'type' (e.g., "IN" or "OUT")
-          const flowType = (data.type || "IN").toUpperCase();
-          const typeBadgeClass = flowType === 'IN' ? 'badge-type-in' : 'badge-type-out';
-          
-          // 4. Method Handling (Cash, Credit, Bank)
-          // The database saves 'method'
-          const flowForm = (data.method || "CASH").toUpperCase(); 
-
-          // 5. Detail & Name Extraction
-          // The save code appended name to detail like "Lunch (John)"
-          let displayName = "-";
-          let cleanDetail = data.detail || "-";
-
-          // Regex to find text inside parentheses at the end
-          const nameMatch = cleanDetail.match(/\(([^)]+)\)$/);
-          if (nameMatch) {
-            displayName = nameMatch[1];
-            // Remove the name part from the detail column to avoid duplication
-            cleanDetail = cleanDetail.replace(/\s*\([^)]+\)$/, ""); 
+          // Format Date
+          let dateStr = "N/A";
+          if (data.date) {
+            const dateObj = data.date.toDate ? data.date.toDate() : new Date(data.date);
+            dateStr = dateObj.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
           }
+
+          // Format Amount
+          const amount = parseFloat(data.amount || 0);
+          const amountFormatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+          
+          // Flow Type Styling
+          const flowType = (data.flowType || "in").toLowerCase();
+          const typeBadgeClass = flowType === 'in' ? 'badge-type-in' : 'badge-type-out';
+          
+          // Flow Form
+          const flowForm = (data.flowForm || "cash").toUpperCase(); // Cash, Credit, Bank
 
           row.innerHTML = `
             <td class="col-sn">${serialNumber++}</td>
             <td class="col-date">${dateStr}</td>
-            <td class="col-detail">${cleanDetail}</td>
+            <td class="col-detail">${data.detail || "-"}</td>
             <td><span class="badge ${typeBadgeClass}">${flowType}</span></td>
             <td><span class="badge badge-form">${flowForm}</span></td>
-            <td class="col-name">${displayName}</td>
-            <td class="col-amount" style="color: ${flowType === 'OUT' ? '#c0392b' : '#27ae60'}">
-              ${flowType === 'OUT' ? '-' : '+'}${amountFormatted}
+            <td class="col-name">${data.name || "-"}</td>
+            <td class="col-amount" style="color: ${flowType === 'out' ? '#c0392b' : '#27ae60'}">
+              ${flowType === 'out' ? '-' : '+'}${amountFormatted}
             </td>
           `;
           
@@ -419,7 +420,8 @@
 
       } catch (error) {
         console.error("Error fetching transactions:", error);
-        showToast("Failed to load data: " + error.message, true);
+        loadingState.style.display = 'none';
+        showToast("Failed to load transactions: " + error.message, true);
       }
     }
 
@@ -432,10 +434,12 @@
       
       container.appendChild(toast);
       
+      // Trigger animation
       requestAnimationFrame(() => {
         toast.classList.add('show');
       });
 
+      // Remove after 3 seconds
       setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 300);
