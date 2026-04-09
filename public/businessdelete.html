@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delete Transaction</title>
+    <title>Manage Transactions</title>
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -13,11 +13,8 @@
         :root {
             --primary: #4F46E5;
             --primary-hover: #4338CA;
-            --primary-light: #EEF2FF;
             --danger: #EF4444;
             --danger-hover: #DC2626;
-            --danger-light: #FEF2F2;
-            --success: #10B981;
             --bg-body: #F3F4F6;
             --bg-card: #FFFFFF;
             --text-main: #1F2937;
@@ -37,279 +34,235 @@
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-body);
             color: var(--text-main);
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
-            padding: 20px;
-        }
-
-        /* --- Main Container --- */
-        .app-container {
-            background: var(--bg-card);
-            width: 100%;
-            max-width: 480px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            max-height: 90vh;
+            padding-bottom: 100px; /* Space for floating bar */
         }
 
         /* --- Header --- */
         header {
+            background: var(--bg-card);
             padding: 20px;
             border-bottom: 1px solid var(--border);
-            text-align: center;
-            background: #fff;
-            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
 
-        header h1 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--danger); /* Red title for delete action */
-        }
-
-        /* --- Scrollable Content --- */
-        .delete-content {
-            padding: 24px;
-            overflow-y: auto;
-            flex: 1;
-        }
-
-        /* --- Form Elements (Read Only) --- */
-        .form-group {
-            margin-bottom: 24px;
-        }
-
-        label {
-            display: block;
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-main);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        input[type="text"],
-        input[type="number"] {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            font-size: 1.1rem;
-            transition: all 0.2s;
-            font-family: inherit;
-            background: #F9FAFB; /* Slightly darker to show disabled */
-            color: #6B7280; /* Muted text */
-            cursor: not-allowed;
-        }
-        
-        input:disabled {
-            border-color: transparent;
-        }
-
-        /* --- Selection Grids (Static Display) --- */
-        .grid-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .grid-options.three-col {
-            grid-template-columns: 1fr 1fr 1fr;
-        }
-
-        .option-btn {
-            background: #F9FAFB;
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            padding: 14px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 0.95rem;
-            color: var(--text-main);
-            /* No cursor pointer, it's just a display */
-            user-select: none;
-        }
-
-        /* Selected State */
-        .option-btn.selected {
-            border-color: var(--text-muted);
-            background: #E5E7EB;
-            color: var(--text-main);
-        }
-
-        /* --- Conditional Section --- */
-        #credit-group {
-            display: none;
-        }
-        
-        #credit-group.visible {
-            display: block;
-        }
-
-        /* --- Footer / Actions --- */
-        .action-bar {
-            padding: 16px 24px 24px 24px;
-            border-top: 1px solid var(--border);
-            background: #F9FAFB;
+        .header-content {
+            max-width: 600px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-shrink: 0;
         }
 
-        button {
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 0.95rem;
-            font-weight: 500;
-            padding: 12px 24px;
-            border-radius: 8px;
-            border: none;
-            transition: all 0.2s;
-        }
-
-        .btn-cancel {
-            background: transparent;
-            color: var(--text-muted);
+        h1 {
+            font-size: 1.25rem;
             font-weight: 600;
         }
 
-        .btn-cancel:hover {
-            color: var(--text-main);
-            background: #E5E7EB;
-        }
-
-        .btn-delete {
-            background: var(--danger);
-            color: white;
-            flex: 1;
-            margin-left: 12px;
-            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+        /* --- List Container --- */
+        .list-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0 16px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* --- List Item (Row) --- */
+        .list-row {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 16px;
+            transition: all 0.2s;
+            cursor: pointer;
+            user-select: none;
         }
 
-        .btn-delete:hover:not(:disabled) {
-            background: var(--danger-hover);
-            transform: translateY(-1px);
+        .list-row:hover {
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.1);
         }
 
-        .btn-delete:disabled {
-            background: #FCA5A5;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
+        .list-row.selected {
+            background-color: #EEF2FF;
+            border-color: var(--primary);
         }
 
-        /* --- Toast --- */
-        #toast {
-            visibility: hidden;
-            min-width: 280px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 8px;
-            padding: 14px;
+        /* Checkbox Styling */
+        .checkbox-wrapper {
+            position: relative;
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .custom-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--text-muted);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .list-row.selected .custom-checkbox {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .custom-checkbox::after {
+            content: '✓';
+            color: white;
+            font-size: 16px;
+            display: none;
+        }
+
+        .list-row.selected .custom-checkbox::after {
+            display: block;
+        }
+
+        /* Content */
+        .row-details {
+            flex: 1;
+        }
+
+        .row-title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .row-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.in { background: #D1FAE5; color: #065F46; }
+        .badge.out { background: #FEE2E2; color: #991B1B; }
+
+        /* --- Floating Action Bar --- */
+        .action-bar {
             position: fixed;
-            z-index: 1000;
+            bottom: 20px;
             left: 50%;
-            bottom: 30px;
-            transform: translateX(-50%) translateY(20px);
-            font-size: 0.9rem;
-            opacity: 0;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateX(-50%) translateY(150%); /* Hidden by default */
+            background: var(--bg-card);
+            padding: 12px 20px;
+            border-radius: 50px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border: 1px solid var(--border);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 100;
+            max-width: 90%;
         }
 
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
+        .action-bar.visible {
             transform: translateX(-50%) translateY(0);
         }
-        
-        #toast.error {
-            background-color: var(--danger);
+
+        .selection-count {
+            font-weight: 600;
+            color: var(--text-main);
+            white-space: nowrap;
         }
+
+        .btn-delete-bulk {
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 24px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+
+        .btn-delete-bulk:hover {
+            background-color: var(--danger-hover);
+        }
+
+        /* --- Loader --- */
+        .loader-container {
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+        }
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #E5E7EB;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- Empty State --- */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <header>
-            <h1>Delete Transaction</h1>
-        </header>
+    <header>
+        <div class="header-content">
+            <h1>Transactions</h1>
+            <div id="select-all-btn" style="font-size:0.9rem; color:var(--primary); cursor:pointer; font-weight:600; display:none;">Select All</div>
+        </div>
+    </header>
 
-        <main class="delete-content">
-            
-            <!-- Detail (Read Only) -->
-            <div class="form-group">
-                <label for="detailInput">Transaction Detail</label>
-                <input type="text" id="detailInput" disabled>
-            </div>
+    <main id="listContainer" class="list-container">
+        <div class="loader-container">
+            <div class="spinner"></div>
+        </div>
+    </main>
 
-            <!-- Amount (Read Only) -->
-            <div class="form-group">
-                <label for="amountInput">Amount</label>
-                <input type="number" id="amountInput" disabled>
-            </div>
-
-            <!-- Type (In/Out) -->
-            <div class="form-group">
-                <label>Type of Flow</label>
-                <div class="grid-options">
-                    <div class="option-btn" id="btn-in">In</div>
-                    <div class="option-btn" id="btn-out">Out</div>
-                </div>
-            </div>
-
-            <!-- Form (Cash/Credit/Bank) -->
-            <div class="form-group">
-                <label>Form of Flow</label>
-                <div class="grid-options three-col">
-                    <div class="option-btn" id="btn-cash">Cash</div>
-                    <div class="option-btn" id="btn-credit">Credit</div>
-                    <div class="option-btn" id="btn-bank">Bank</div>
-                </div>
-            </div>
-
-            <!-- Credit Name (Conditional, Read Only) -->
-            <div class="form-group" id="credit-group">
-                <label for="creditNameInput">Credit Name / Lender</label>
-                <input type="text" id="creditNameInput" disabled>
-            </div>
-
-        </main>
-
-        <footer class="action-bar">
-            <button class="btn-cancel" onclick="handleCancel()">Cancel</button>
-            <button id="deleteBtn" class="btn-delete" onclick="confirmDelete()">
-                <span>Delete Transaction</span>
-            </button>
-        </footer>
+    <!-- Floating Action Bar for Deletion -->
+    <div id="actionBar" class="action-bar">
+        <span class="selection-count" id="countText">0 Selected</span>
+        <button id="bulkDeleteBtn" class="btn-delete-bulk">Delete Selected</button>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toast"></div>
-
-    <!-- Firebase SDKs & Logic -->
+    <!-- Firebase SDKs -->
     <script type="module">
-        // ============================================================
-        // 1. Firebase Imports & Config
-        // ============================================================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { 
             getFirestore, 
-            doc, 
-            getDoc,
-            deleteDoc
+            collection, 
+            getDocs,
+            writeBatch,
+            doc
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { 
             getAuth, 
@@ -329,140 +282,167 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // ============================================================
-        // 2. State & DOM Elements
-        // ============================================================
-        
-        let transactionId = null;
-        let userDocRef = null;
+        // State
+        let transactions = []; // Store all fetched data
+        let selectedIds = new Set(); // Store IDs of selected items
+        let userPath = "";
 
-        const els = {
-            detail: document.getElementById('detailInput'),
-            amount: document.getElementById('amountInput'),
-            creditName: document.getElementById('creditNameInput'),
-            creditGroup: document.getElementById('credit-group'),
-            deleteBtn: document.getElementById('deleteBtn')
-        };
+        // DOM Elements
+        const listContainer = document.getElementById('listContainer');
+        const actionBar = document.getElementById('actionBar');
+        const countText = document.getElementById('countText');
+        const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+        const selectAllBtn = document.getElementById('select-all-btn');
 
-        // ============================================================
-        // 3. Initialization & Data Loading
-        // ============================================================
-
-        // Get Transaction ID from URL (e.g., delete.html?id=XYZ)
-        const urlParams = new URLSearchParams(window.location.search);
-        transactionId = urlParams.get('id');
-
+        // 1. Auth & Load
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = 'index.html';
                 return;
             }
-
-            if (transactionId) {
-                // Matches the structure of the Edit page: users/{email}/transactions/{id}
-                userDocRef = doc(db, "users", user.email, "transactions", transactionId);
-                loadTransactionData();
-            } else {
-                // No ID provided, go back to list
-                window.location.href = 'list.html';
-            }
+            userPath = user.email;
+            await loadTransactions();
         });
 
-        async function loadTransactionData() {
+        // 2. Fetch Transactions
+        async function loadTransactions() {
             try {
-                const docSnap = await getDoc(userDocRef);
+                // PATH: users/{email}/transactions (Matches Edit Page Structure)
+                const q = collection(db, "users", userPath, "transactions");
+                const querySnapshot = await getDocs(q);
                 
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    
-                    let displayDetail = data.detail || "";
-                    let displayCredit = "";
-                    let displayType = data.type || "OUT";
-                    let displayForm = data.method || "CASH";
-                    let displayAmount = data.amount || 0;
+                transactions = [];
+                querySnapshot.forEach((doc) => {
+                    transactions.push({ id: doc.id, ...doc.data() });
+                });
 
-                    // Parse credit name if it exists in the detail string
-                    if (displayForm === 'CREDIT' && displayDetail.includes('(') && displayDetail.includes(')')) {
-                        const parts = displayDetail.split('(');
-                        if (parts.length === 2) {
-                            displayDetail = parts[0].trim();
-                            displayCredit = parts[1].replace(')', '').trim();
-                        }
-                    }
+                renderList();
+            } catch (error) {
+                console.error("Error loading list:", error);
+                listContainer.innerHTML = `<div class="empty-state">Error loading data.</div>`;
+            }
+        }
 
-                    // Populate UI (Read Only)
-                    els.detail.value = displayDetail;
-                    els.amount.value = displayAmount;
-                    els.creditName.value = displayCredit;
-                    
-                    // Visual Selection
-                    document.getElementById('btn-in').classList.toggle('selected', displayType === 'IN');
-                    document.getElementById('btn-out').classList.toggle('selected', displayType === 'OUT');
-                    document.getElementById('btn-cash').classList.toggle('selected', displayForm === 'CASH');
-                    document.getElementById('btn-credit').classList.toggle('selected', displayForm === 'CREDIT');
-                    document.getElementById('btn-bank').classList.toggle('selected', displayForm === 'BANK');
+        // 3. Render List
+        function renderList() {
+            listContainer.innerHTML = '';
 
-                    // Show Credit Field if applicable
-                    if (displayForm === 'CREDIT') {
-                        els.creditGroup.classList.add('visible');
-                    }
+            if (transactions.length === 0) {
+                listContainer.innerHTML = `<div class="empty-state">No transactions found.</div>`;
+                return;
+            }
 
-                } else {
-                    // Doc doesn't exist
-                    window.location.href = 'list.html';
+            transactions.forEach(item => {
+                const row = document.createElement('div');
+                row.className = `list-row ${selectedIds.has(item.id) ? 'selected' : ''}`;
+                row.onclick = (e) => toggleSelection(item.id, row);
+
+                // Format Amount
+                const amount = new Intl.NumberFormat('en-US', {
+                    style: 'currency', 
+                    currency: 'USD'
+                }).format(item.amount || 0);
+
+                // Parse Detail (Handle Credit Name)
+                let title = item.detail;
+                let method = item.method || 'CASH';
+                if (method === 'CREDIT' && title.includes('(')) {
+                   // Keep full detail for title, logic is just display
                 }
-            } catch (error) {
-                console.error("Error loading doc:", error);
-                window.location.href = 'list.html';
+
+                row.innerHTML = `
+                    <div class="checkbox-wrapper">
+                        <div class="custom-checkbox"></div>
+                    </div>
+                    <div class="row-details">
+                        <div class="row-title">${title}</div>
+                        <div class="row-meta">
+                            <span class="badge ${item.type === 'IN' ? 'in' : 'out'}">${item.type}</span>
+                            <span>${amount}</span>
+                            <span>• ${method}</span>
+                        </div>
+                    </div>
+                `;
+                listContainer.appendChild(row);
+            });
+
+            updateUI();
+        }
+
+        // 4. Selection Logic
+        function toggleSelection(id, rowElement) {
+            if (selectedIds.has(id)) {
+                selectedIds.delete(id);
+                rowElement.classList.remove('selected');
+            } else {
+                selectedIds.add(id);
+                rowElement.classList.add('selected');
+            }
+            updateUI();
+        }
+
+        function updateUI() {
+            const count = selectedIds.size;
+            
+            // Show/Hide Action Bar
+            if (count > 0) {
+                actionBar.classList.add('visible');
+                countText.textContent = `${count} Selected`;
+                selectAllBtn.style.display = 'block';
+                selectAllBtn.textContent = count === transactions.length ? "Deselect All" : "Select All";
+            } else {
+                actionBar.classList.remove('visible');
+                selectAllBtn.style.display = 'none';
             }
         }
 
-        // ============================================================
-        // 4. Delete Logic
-        // ============================================================
-
-        window.confirmDelete = async function() {
-            // Native Confirmation
-            if (!confirm("Are you sure you want to delete this transaction? This cannot be undone.")) {
-                return; // User clicked Cancel on alert
+        // 5. Select All Logic
+        selectAllBtn.onclick = () => {
+            if (selectedIds.size === transactions.length) {
+                // Deselect all
+                selectedIds.clear();
+            } else {
+                // Select all
+                transactions.forEach(t => selectedIds.add(t.id));
             }
+            renderList(); // Re-render to show visuals
+        };
 
-            // Lock UI
-            const originalBtnText = els.deleteBtn.innerText;
-            els.deleteBtn.disabled = true;
-            els.deleteBtn.innerText = "Deleting...";
+        // 6. Bulk Delete Logic (Simultaneous)
+        bulkDeleteBtn.onclick = async () => {
+            if (!confirm(`Are you sure you want to delete ${selectedIds.size} transaction(s)?`)) return;
+
+            // Disable button
+            bulkDeleteBtn.textContent = "Deleting...";
+            bulkDeleteBtn.disabled = true;
 
             try {
-                await deleteDoc(userDocRef);
-                showToast("Transaction deleted.");
+                // Use Batch for simultaneous deletion
+                const batch = writeBatch(db);
+                selectedIds.forEach((id) => {
+                    const docRef = doc(db, "users", userPath, "transactions", id);
+                    batch.delete(docRef);
+                });
+
+                await batch.commit();
+
+                // Remove deleted items from local state
+                transactions = transactions.filter(t => !selectedIds.has(t.id));
+                selectedIds.clear();
                 
-                // Redirect after short delay
-                setTimeout(() => {
-                    window.location.href = 'list.html';
-                }, 800);
+                // Refresh UI
+                renderList();
 
             } catch (error) {
-                console.error("Delete Error:", error);
-                showToast("Failed to delete", true);
-                els.deleteBtn.disabled = false;
-                els.deleteBtn.innerText = originalBtnText;
+                console.error("Batch delete error:", error);
+                alert("Could not delete some items.");
+            } finally {
+                // Reset button (hidden via updateUI anyway)
+                bulkDeleteBtn.disabled = false;
+                bulkDeleteBtn.textContent = "Delete Selected";
             }
         };
 
-        window.handleCancel = function() {
-            // Simply go back to list
-            window.location.href = 'list.html';
-        };
-
-        // ============================================================
-        // 5. Utilities
-        // ============================================================
-        function showToast(msg, isError = false) {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.className = isError ? 'show error' : 'show';
-            setTimeout(() => t.className = t.className.replace('show', '').replace('error', ''), 3000);
-        }
     </script>
 </body>
 </html>
