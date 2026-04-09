@@ -356,6 +356,15 @@
         let transactionId = null;
         let userDocRef = null;
 
+        // Store original data to detect changes later
+        const originalData = {
+            detail: '',
+            amount: 0,
+            type: '', 
+            form: '', 
+            creditName: ''
+        };
+
         const editState = {
             detail: '',
             amount: 0,
@@ -381,19 +390,16 @@
         transactionId = urlParams.get('id');
 
         onAuthStateChanged(auth, async (user) => {
-            // Instant redirect without toast delay if not authenticated
             if (!user) {
-                window.location.href = 'index.html';
+                window.location.href = 'list.html';
                 return;
             }
 
             if (transactionId) {
                 userDocRef = doc(db, "users", user.email, "transactions", transactionId);
-                // Load data silently in background
                 loadTransactionData();
             } else {
-                // No ID provided, just go back
-                window.location.href = 'businesslist.html';
+                window.location.href = 'list.html';
             }
         });
 
@@ -404,21 +410,24 @@
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     
-                    // Populate State
-                    editState.detail = data.detail || "";
-                    editState.amount = data.amount || 0;
-                    editState.type = data.type || "OUT";
-                    editState.form = data.method || "CASH";
-                    editState.creditName = "";
-
-                    // Heuristic: If method is CREDIT, check if detail has parentheses
+                    // Populate State & Original Data
+                    editState.detail = originalData.detail = data.detail || "";
+                    editState.amount = originalData.amount = data.amount || 0;
+                    editState.type = originalData.type = data.type || "OUT";
+                    editState.form = originalData.form = data.method || "CASH";
+                    
+                    // Handle Credit Name extraction logic
+                    let extractedCreditName = "";
                     if (editState.form === 'CREDIT' && editState.detail.includes('(') && editState.detail.includes(')')) {
                         const parts = editState.detail.split('(');
                         if (parts.length === 2) {
+                            // Clean detail for display
                             editState.detail = parts[0].trim();
-                            editState.creditName = parts[1].replace(')', '').trim();
+                            extractedCreditName = parts[1].replace(')', '').trim();
                         }
                     }
+                    
+                    editState.creditName = originalData.creditName = extractedCreditName;
 
                     // Update UI
                     els.detail.value = editState.detail;
@@ -428,13 +437,11 @@
                     updateButtonVisuals();
                     toggleCreditField();
                 } else {
-                    // If doc doesn't exist, go back immediately
-                    window.location.href = 'businesslist.html';
+                    window.location.href = 'list.html';
                 }
             } catch (error) {
                 console.error("Error loading doc:", error);
-                // Silent fail or quick redirect to keep UX snappy
-                window.location.href = 'businesslist.html';
+                window.location.href = 'list.html';
             }
         }
 
@@ -479,25 +486,43 @@
         // ============================================================
 
         window.saveChanges = async function() {
-            // 1. Validation
             const detailVal = els.detail.value.trim();
             const amountVal = parseFloat(els.amount.value);
             let creditVal = els.creditName.value.trim();
 
+            // 1. Validation
             if (!detailVal) return showToast("Please enter a detail.", true);
             if (isNaN(amountVal) || amountVal <= 0) return showToast("Please enter a valid amount.", true);
             if (editState.form === 'CREDIT' && !creditVal) return showToast("Please enter a credit name.", true);
 
-            // 2. Lock UI (Simple text change, no spinner)
-            const originalBtnText = els.saveBtn.innerText;
-            els.saveBtn.disabled = true;
-            els.saveBtn.innerText = "Saving...";
-
-            // 3. Prepare Data
+            // 2. Prepare Data for Comparison
             let finalDetail = detailVal;
             if (editState.form === 'CREDIT') {
                 finalDetail = `${detailVal} (${creditVal})`;
             }
+
+            // 3. Check for changes
+            const isChanged = (
+                detailVal !== originalData.detail ||
+                amountVal !== originalData.amount ||
+                editState.type !== originalData.type ||
+                editState.form !== originalData.form ||
+                creditVal !== originalData.creditName
+            );
+
+            // If no changes, just show toast and redirect
+            if (!isChanged) {
+                showToast("No changes made to redirect.");
+                setTimeout(() => {
+                    window.location.href = 'list.html';
+                }, 1000);
+                return;
+            }
+
+            // 4. Lock UI & Save
+            const originalBtnText = els.saveBtn.innerText;
+            els.saveBtn.disabled = true;
+            els.saveBtn.innerText = "Saving...";
 
             const payload = {
                 detail: finalDetail,
@@ -508,12 +533,11 @@
 
             try {
                 await updateDoc(userDocRef, payload);
-                showToast("Saved successfully!");
+                showToast("Saved successfully! Redirecting...");
                 
-                // Minimal delay to allow success toast to register visually
                 setTimeout(() => {
-                    window.location.href = 'businesslist.html';
-                }, 500);
+                    window.location.href = 'list.html';
+                }, 800);
 
             } catch (error) {
                 console.error("Update Error:", error);
@@ -524,9 +548,11 @@
         };
 
         window.handleCancel = function() {
-            if (confirm("Discard changes and return to list?")) {
-                window.location.href = 'businesslist.html';
+            // Native confirm dialog
+            if (confirm("Are you sure you want to cancel and return to the list?")) {
+                window.location.href = 'list.html';
             }
+            // If they click Cancel, nothing happens, they stay on the page
         };
 
         // ============================================================
