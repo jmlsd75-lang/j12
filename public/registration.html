@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Entry</title>
+    <style>
+        /* =========================================
+           CSS: Theming, Water, Microscope & Layout
+           ========================================= */
+        
+        :root {
+            --primary-color: #0288d1; /* Medical Blue */
+            --accent-color: #4fc3f7;  /* Water Light Blue */
+            --bg-gradient: linear-gradient(135deg, #e0f7fa 0%, #80deea 100%);
+            --glass-bg: rgba(255, 255, 255, 0.9);
+            --text-color: #37474f;
+            --error-color: #d32f2f;
+            --success-color: #388e3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: var(--bg-gradient);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* --- Background Decorations: Water Drop & Microscope --- */
+        
+        /* 1. CSS Water Drop */
+        .bg-water-drop {
+            position: fixed;
+            top: -50px;
+            left: -50px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(2, 136, 209, 0.4));
+            border-radius: 0 50% 50% 50%;
+            transform: rotate(45deg);
+            box-shadow: 10px 10px 30px rgba(0,0,0,0.1);
+            z-index: 0;
+            animation: floatDrop 6s ease-in-out infinite;
+        }
+
+        /* 2. Microscope Icon (SVG) */
+        .bg-microscope {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 150px;
+            height: 150px;
+            opacity: 0.15;
+            z-index: 0;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+            animation: floatScope 7s ease-in-out infinite;
+        }
+
+        @keyframes floatDrop {
+            0%, 100% { transform: rotate(45deg) translateY(0); }
+            50% { transform: rotate(45deg) translateY(20px); }
+        }
+
+        @keyframes floatScope {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+
+        /* --- Main Container --- */
+        .app-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 500px;
+            background: var(--glass-bg);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 50, 70, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            margin: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            display: flex;
+            flex-direction: column;
+            min-height: 400px;
+        }
+
+        /* --- Header --- */
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e1f5fe;
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin: 0;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: #78909c;
+            margin-top: 5px;
+        }
+
+        /* --- Progress Bar --- */
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            height: 6px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        /* --- Form Steps --- */
+        .step-content {
+            display: none; /* Hidden by default */
+            flex-grow: 1;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .step-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #0277bd;
+            font-weight: 500;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            color: #546e7a;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 1rem;
+            border: 2px solid #b0bec5;
+            border-radius: 8px;
+            background: #fff;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            box-sizing: border-box; /* Fix padding overflow */
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(2, 136, 209, 0.2);
+        }
+
+        .optional-text {
+            font-size: 0.8rem;
+            color: #90a4ae;
+            margin-top: 4px;
+        }
+
+        /* --- Buttons --- */
+        .button-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto; /* Push to bottom */
+            gap: 15px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+        }
+
+        .btn-cancel {
+            background-color: #eceff1;
+            color: #546e7a;
+            flex: 1;
+        }
+
+        .btn-cancel:hover {
+            background-color: #cfd8dc;
+            color: #37474f;
+        }
+
+        .btn-next, .btn-save {
+            background-color: var(--primary-color);
+            color: white;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-next:hover, .btn-save:hover {
+            background-color: #01579b;
+            transform: translateY(-1px);
+        }
+
+        .btn-save {
+            background-color: var(--success-color);
+        }
+
+        .btn-save:hover {
+            background-color: #2e7d32;
+        }
+
+        /* --- Error/Feedback --- */
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+            animation: shake 0.3s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Spinner for loading */
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            display: none;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <!-- Decorative Background Elements -->
+    <div class="bg-water-drop"></div>
+    <!-- SVG Microscope -->
+    <svg class="bg-microscope" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12,2C12.55,2 13,2.45 13,3V5H14V3C14,1.9 13.1,1 12,1C10.9,1 10,1.9 10,3V5H11V3C11,2.45 11.45,2 12,2M6,6H18C19.1,6 20,6.9 20,8V20C20,21.1 19.1,22 18,22H6C4.9,22 4,21.1 4,20V8C4,6.9 4.9,6 6,6M12,9A2,2 0 0,0 10,11H14A2,2 0 0,0 12,9M7.5,12C6.67,12 6,12.67 6,13.5C6,14.33 6.67,15 7.5,15C8.33,15 9,14.33 9,13.5C9,12.67 8.33,12 7.5,12M16.5,12C15.67,12 15,12.67 15,13.5C15,14.33 15.67,15 16.5,15C17.33,15 18,14.33 18,13.5C18,12.67 17.33,12 16.5,12Z" />
+    </svg>
+
+    <div class="app-container">
+        <header>
+            <h1>Enter the patient’s details.</h1>
+            <div class="subtitle">Step <span id="currentStepNum">1</span> of 11</div>
+        </header>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <form id="patientForm" onsubmit="return false;">
+            
+            <!-- Step 1: Patient First Name -->
+            <div class="step-content active" data-step="1">
+                <h2 class="step-title">Patient First Name</h2>
+                <div class="input-group">
+                    <input type="text" id="pFirstName" placeholder="e.g. John" autocomplete="off">
+                    <div class="error-message">Please enter the first name.</div>
+                </div>
+                <div class="button-row">
+                    <button type="button" class="btn-cancel" onclick="cancelEntry()">Cancel</button>
+                    <button type="button" class="btn-next" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Patient Second Name -->
+            <div class="step-content" data-step="2">
+                <h2 class="step-title">Patient Second Name</h2>
+                <div class="input-group">
+                    <input type="text" id="pSecondName" placeholder="e.g. Kenneth" autocomplete="off">
+                    <div class="error-message">Please enter the second name.</div>
+                </div>
+                <div class="button-row">
+                    <button type="button" class="btn-cancel" onclick="cancelEntry()">Cancel</button>
+                    <button type="button" class="btn-next" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Patient Surname -->
+            <div class="step-content" data-step="3">
+                <h2 class="step-title">Patient Surname</h2>
+                <div class="input-group">
+                    <input type="text" id="pSurname" placeholder="e.g. Doe" autocomplete="off">
+                    <div class="error-message">Please enter the surname.</div>
+                </div>
+                <div class="button-row">
+                    <button type="button" class="btn-cancel" onclick="cancelEntry()">Cancel</button>
+                    <button type="button" class="btn-next" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Patient Age -->
+            <div class="step-content" data-step="4">
+                <h2 class="step-title">Patient Age</h2>
+                <div class="input-group">
+                    <input type="number" id="pAge" placeholder="e.g. 30" min="0" max="120">
+                    <div class="error-message">Please enter a valid age.</div>
+                </div>
+                <div class="button-row">
+                    <button type="button" class="btn-cancel" onclick="cancelEntry()">Cancel</button>
+                    <button type="button" class="btn-next" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 5: Patient Gender -->
+            <div class="step-content" data-step="5">
+                <h2 class="step-title">Patient Gender</h2>
+                <div class="input-group">
+                    <select id="pGender">
+                        <option value="" disabled selected>Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <div class="error-message">Please select a gender.</div>
+                </div>
+                <div class="button-row">
+                    <button type="button" class="btn-cancel" onclick="cancelEntry()">Cancel</button>
+                    <button type="button" class="btn-next" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 6: Patient Phone Number (Optional) -->
+            <div class="step-content" data-step="6">
+                <h2 class="step-title">Patient Phone Number <span style="font-size:0.8em; color:#90a4ae;">(Optional)</span></h2>
+                <div class="input-group">
+                    <input type="text" id="pPhone" placeholder="e.g. 0712345678">
+                    <div class="optional-text">You can skip this step.</div>
+                </div>
+                <div class="button-row">
+                    <button type="button" class="btn-cancel" onclick="cancelEntry()">Cancel</button>
+                    <button type="button" class="btn-next" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 7: Patient Tribe -->
+            <div class="step-content" data-step="7">
+                <h2 class="step-title">Patient Tribe</h2>
+                <div class="input-group">
+                    <input type="text" id="pTribe" placeholder="e.g. Luo, Kikuyu...">
+                    <div class="error-message">Please enter the tribe.</div>
+                </div>
+                <div class="button-row">
+                    <button type="button" class="btn-cancel" onclick="cancelEntry()">Cancel</button>
+                    <button type="button" class="btn-next" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 8: Partner First Name -->
+            <div class="step-content" data-step="8">
+                <h2 class="step-title">Partner First Name</h2>
+                <div class="input-group">
+                    <input type="text" id="partnerFirstName" placeholder="e.g. Jane">
+                    <div class="error-message">Please enter partner's first name.</div>
+                </div>
+                <div class="button-row">
+                    <button type="button" class="btn-cancel" onclick="cancelEntry()">Cancel</button>
+                    <button type="button" class="btn-next" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 9: Partner Second Name -->
+            <div class="step-content" data-step="9">
+                <h2 class="step-title">Partner Second Name</h2>
+                <div class="input-group">
+                    <input type="text" id="partnerSecondName" placeholder="e.g. Mary">
+                    <div class="error-message">Please enter partner's second name.</div>
+                </div>
+                <div class="button-row">
+                    <button type="button" class="btn-cancel" onclick="cancelEntry()">Cancel</button>
+                    <button type="button" class="btn-next" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 10: Partner Surname -->
+            <div class="step-content" data-step="10">
+                <h2 class="step-title">Partner Surname</h2>
+                <div class="input-group">
+                    <input type="text" id="partnerSurname" placeholder="e.g. Doe">
+                    <div class="error-message">Please enter partner's surname.</div>
+                </div>
+                <div class="button-row">
+                    <button type="button" class="btn-cancel" onclick="cancelEntry()">Cancel</button>
+                    <button type="button" class="btn-next" onclick="nextStep()">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 11: Partner Phone Number (Required) -->
+            <div class="step-content" data-step="11">
+                <h2 class="step-title">Partner Phone Number</h2>
+                <div class="input-group">
+                    <input type="text" id="partnerPhone" placeholder="e.g. 0712345678" required>
+                    <div class="error-message">Partner phone number is required.</div>
+                </div>
+                <div class="button-row">
+                    <button type="button" class="btn-cancel" onclick="cancelEntry()">Cancel</button>
+                    <button type="button" class="btn-save" id="saveBtn" onclick="saveData()">
+                        <span class="btn-text">OK / Save</span>
+                        <div class="spinner"></div>
+                    </button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- Firebase Logic -->
+    <script type="module">
+        // ============================================================
+        // Firebase Configuration & Initialization
+        // ============================================================
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import {
+            getAuth,
+            browserLocalPersistence,
+            setPersistence
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            setDoc,
+            serverTimestamp,
+            collection,
+            addDoc
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // ── Firebase Config ──
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
+
+        // ── Initialize ──
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        setPersistence(auth, browserLocalPersistence)
+            .then(() => console.log("Auth persistence: LOCAL"))
+            .catch((err) => console.error("Persistence error:", err));
+
+
+        // ============================================================
+        // Form Logic
+        // ============================================================
+        
+        let currentStep = 1;
+        const totalSteps = 11;
+
+        // Define required fields for each step
+        // Note: Step 6 is optional, so we skip validation for it.
+        const stepConfig = {
+            1: { id: 'pFirstName', required: true },
+            2: { id: 'pSecondName', required: true },
+            3: { id: 'pSurname', required: true },
+            4: { id: 'pAge', required: true },
+            5: { id: 'pGender', required: true },
+            6: { id: 'pPhone', required: false }, // Optional
+            7: { id: 'pTribe', required: true },
+            8: { id: 'partnerFirstName', required: true },
+            9: { id: 'partnerSecondName', required: true },
+            10: { id: 'partnerSurname', required: true },
+            11: { id: 'partnerPhone', required: true }
+        };
+
+        // --- Navigation Functions ---
+
+        window.nextStep = function() {
+            if (validateStep(currentStep)) {
+                // Hide current
+                document.querySelector(`.step-content[data-step="${currentStep}"]`).classList.remove('active');
+                
+                // Increment
+                currentStep++;
+                
+                // Show next
+                const nextStepEl = document.querySelector(`.step-content[data-step="${currentStep}"]`);
+                nextStepEl.classList.add('active');
+                
+                // Focus input for UX
+                const input = nextStepEl.querySelector('input, select');
+                if(input) input.focus();
+
+                updateUI();
+            }
+        };
+
+        window.cancelEntry = function() {
+            if(confirm("Are you sure you want to cancel? Unsaved data will be lost.")) {
+                window.location.href = "health.html";
+            }
+        };
+
+        window.saveData = async function() {
+            // Validate the final step before saving
+            if (!validateStep(currentStep)) return;
+
+            const saveBtn = document.getElementById('saveBtn');
+            const btnText = saveBtn.querySelector('.btn-text');
+            const spinner = saveBtn.querySelector('.spinner');
+
+            // UI Loading state
+            saveBtn.disabled = true;
+            btnText.style.display = 'none';
+            spinner.style.display = 'block';
+
+            try {
+                // Collect data
+                const patientData = {
+                    pFirstName: document.getElementById('pFirstName').value,
+                    pSecondName: document.getElementById('pSecondName').value,
+                    pSurname: document.getElementById('pSurname').value,
+                    pAge: parseInt(document.getElementById('pAge').value),
+                    pGender: document.getElementById('pGender').value,
+                    pPhone: document.getElementById('pPhone').value || null,
+                    pTribe: document.getElementById('pTribe').value,
+                    partnerFirstName: document.getElementById('partnerFirstName').value,
+                    partnerSecondName: document.getElementById('partnerSecondName').value,
+                    partnerSurname: document.getElementById('partnerSurname').value,
+                    partnerPhone: document.getElementById('partnerPhone').value,
+                    
+                    // Metadata
+                    createdAt: serverTimestamp(),
+                    createdByEmail: auth.currentUser ? auth.currentUser.email : 'anonymous'
+                };
+
+                // Save to Firestore (collection 'patients')
+                await addDoc(collection(db, "patients"), patientData);
+
+                console.log("Document successfully written!");
+                
+                // Redirect after short delay
+                setTimeout(() => {
+                    window.location.href = "health.html";
+                }, 1000);
+
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                alert("Error saving data: " + error.message);
+                
+                // Reset UI state
+                saveBtn.disabled = false;
+                btnText.style.display = 'block';
+                spinner.style.display = 'none';
+            }
+        };
+
+        // --- Helper Functions ---
+
+        function validateStep(step) {
+            const config = stepConfig[step];
+            const el = document.getElementById(config.id);
+            const errorEl = el.parentElement.querySelector('.error-message');
+
+            if (config.required && !el.value.trim()) {
+                // Show error
+                errorEl.style.display = 'block';
+                el.style.borderColor = 'var(--error-color)';
+                
+                // Shake animation reset
+                el.parentElement.style.animation = 'none';
+                el.parentElement.offsetHeight; /* trigger reflow */
+                el.parentElement.style.animation = 'shake 0.3s ease-in-out';
+                
+                return false;
+            } else {
+                // Clear error
+                errorEl.style.display = 'none';
+                el.style.borderColor = '#b0bec5'; // reset to default or success color
+                return true;
+            }
+        }
+
+        function updateUI() {
+            // Update step number text
+            document.getElementById('currentStepNum').textContent = currentStep;
+            
+            // Update Progress Bar
+            const percentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
+            document.getElementById('progressBar').style.width = percentage + '%';
+        }
+
+        // Initialize UI
+        updateUI();
+
+    </script>
+</body>
+</html>
