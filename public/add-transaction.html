@@ -63,6 +63,7 @@
             border-bottom: 1px solid var(--border);
             text-align: center;
             background: #fff;
+            z-index: 10;
         }
 
         header h1 {
@@ -102,9 +103,9 @@
             background: #FFFFFF;
             border: 1px solid #D1D5DB;
             color: var(--text-main);
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 500;
             cursor: default;
             display: inline-flex;
@@ -113,14 +114,9 @@
             transition: transform 0.1s;
         }
         
-        .trail-btn:hover {
-            border-color: var(--primary);
-            transform: translateY(-1px);
-        }
-
         .trail-label {
             color: var(--text-muted);
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             text-transform: uppercase;
             margin-right: 6px;
             letter-spacing: 0.5px;
@@ -144,6 +140,13 @@
             font-size: 1.1rem;
             transition: all 0.2s;
             font-family: inherit;
+            -moz-appearance: textfield; /* Remove Firefox arrows */
+        }
+        
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0; /* Remove Chrome arrows */
         }
 
         input:focus {
@@ -234,13 +237,16 @@
             box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             background: var(--primary-hover);
             transform: translateY(-1px);
         }
 
-        .btn-primary:active {
-            transform: translateY(0);
+        .btn-primary:disabled {
+            background: #A5B4FC; /* Lighter Indigo */
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         .hidden {
@@ -263,6 +269,12 @@
             align-items: center;
             justify-content: center;
             margin: 0 auto 16px auto;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
         }
 
         .success-title {
@@ -391,9 +403,9 @@
             getFirestore, 
             collection, 
             addDoc,
-            doc,       // Added for user reference
-            updateDoc, // Added for updating spaceUsed
-            increment  // Added for atomic increment
+            doc,       
+            updateDoc, 
+            increment  
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { 
             getAuth, 
@@ -450,15 +462,17 @@
             state.step = stepNumber;
             updateUI();
             
-            if(stepNumber === 1) inputs.detail.focus();
-            if(stepNumber === 2) inputs.amount.focus();
-            if(stepNumber === 5) inputs.creditName.focus();
+            // Auto-focus inputs for better UX
+            if(stepNumber === 1) setTimeout(() => inputs.detail.focus(), 50);
+            if(stepNumber === 2) setTimeout(() => inputs.amount.focus(), 50);
+            if(stepNumber === 5) setTimeout(() => inputs.creditName.focus(), 50);
         }
 
         function updateUI() {
             if (state.step === 6) {
                 mainActionBtn.classList.remove('hidden');
                 mainActionBtn.textContent = "OK";
+                mainActionBtn.disabled = false; // Ensure it's enabled when we arrive here
             } else {
                 mainActionBtn.classList.add('hidden');
             }
@@ -533,7 +547,9 @@
 
         window.selectFlowType = function(type, btnEl) {
             state.data.flowType = type;
-            document.querySelectorAll('#step-3 .option-btn').forEach(b => {
+            // Visual selection logic
+            const container = document.getElementById('step-3');
+            container.querySelectorAll('.option-btn').forEach(b => {
                 b.style.borderColor = 'var(--border)';
                 b.style.background = '#F9FAFB';
                 b.style.color = 'var(--text-main)';
@@ -574,19 +590,31 @@
         });
 
         // ============================================================
-        // 5. SAVING LOGIC (MODIFIED TO UPDATE SPACE USED)
+        // 5. SAVING LOGIC (UPDATED TO PREVENT MULTIPLE SAVES)
         // ============================================================
+        let isSaving = false; // Guard flag
+
         window.saveAndConfirm = async function() {
+            // 1. Prevent multiple clicks / re-entry
+            if (isSaving) return;
+            isSaving = true;
+
+            // 2. Lock the UI
+            mainActionBtn.disabled = true;
+            mainActionBtn.textContent = "Saving...";
+
             const user = auth.currentUser;
 
-            // Check Auth
+            // 3. Check Auth
             if (!user) {
                 showToast("Not logged in. Redirecting...");
                 setTimeout(() => window.location.href = 'index.html', 1500);
+                // Reset guard so button works if they come back (though unlikely with redirect)
+                isSaving = false; 
                 return;
             }
 
-            // Prepare Detail: Append credit name to detail if exists
+            // Prepare Detail
             let finalDetail = state.data.detail;
             if (state.data.flowForm === 'Credit' && state.data.creditName) {
                 finalDetail += ` (${state.data.creditName})`;
@@ -596,37 +624,31 @@
             const transaction = {
                 date: new Date().toLocaleString(),
                 detail: finalDetail,
-                type: state.data.flowType.toUpperCase(), // "IN" or "OUT"
-                method: state.data.flowForm.toUpperCase(), // "CASH", "CREDIT", "BANK"
+                type: state.data.flowType.toUpperCase(), 
+                method: state.data.flowForm.toUpperCase(), 
                 amount: Number(state.data.amount),
                 createdAt: Date.now()
             };
 
             try {
-                // --- STEP A: Save Transaction to Subcollection ---
+                // --- STEP A: Save Transaction ---
                 await addDoc(
                     collection(db, "users", user.email, "transactions"),
                     transaction
                 );
+                console.log("Transaction saved once:", transaction);
 
-                console.log("Transaction saved:", transaction);
-
-                // --- STEP B: Update User's spaceUsed (NEW LOGIC) ---
-                // We create a reference to the user's main document
+                // --- STEP B: Update spaceUsed ---
                 const userRef = doc(db, "users", user.email);
-                
-                // We increment 'spaceUsed' by 1.
-                // This ensures that the dashboard sees the usage increase immediately.
                 await updateDoc(userRef, {
                     spaceUsed: increment(1)
                 });
-
                 console.log("User spaceUsed updated (+1)");
 
-                // Show Success UI
+                // --- STEP C: Success & Redirect ---
                 goToStep(7);
 
-                // Redirect back to main business page
+                // Wait 2 seconds then redirect
                 setTimeout(() => {
                     window.location.href = 'business.html'; 
                 }, 2000);
@@ -634,6 +656,11 @@
             } catch (error) {
                 console.error("Error saving transaction:", error);
                 showToast("Error: " + error.message);
+                
+                // Reset UI on error so user can try again
+                isSaving = false;
+                mainActionBtn.disabled = false;
+                mainActionBtn.textContent = "OK";
             }
         };
 
