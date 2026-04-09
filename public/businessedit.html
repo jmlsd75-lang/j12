@@ -78,19 +78,6 @@
             flex: 1;
         }
 
-        /* --- Spinner (Kept for Save Button) --- */
-        .spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-top-color: #ffffff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
         /* --- Form Elements --- */
         .form-group {
             margin-bottom: 24px;
@@ -369,12 +356,11 @@
         let transactionId = null;
         let userDocRef = null;
 
-        // State holding current values
         const editState = {
             detail: '',
             amount: 0,
-            type: '', // IN or OUT
-            form: '', // CASH, CREDIT, BANK
+            type: '', 
+            form: '', 
             creditName: ''
         };
 
@@ -395,19 +381,19 @@
         transactionId = urlParams.get('id');
 
         onAuthStateChanged(auth, async (user) => {
+            // Instant redirect without toast delay if not authenticated
             if (!user) {
-                showToast("Not authenticated. Redirecting...");
-                setTimeout(() => window.location.href = 'index.html', 2000);
+                window.location.href = 'index.html';
                 return;
             }
 
             if (transactionId) {
                 userDocRef = doc(db, "users", user.email, "transactions", transactionId);
-                // Load data in background without blocking UI
+                // Load data silently in background
                 loadTransactionData();
             } else {
-                showToast("Error: No Transaction ID found.", true);
-                setTimeout(() => window.location.href = 'businesslist.html', 2000);
+                // No ID provided, just go back
+                window.location.href = 'businesslist.html';
             }
         });
 
@@ -434,8 +420,7 @@
                         }
                     }
 
-                    // Update UI (Only if user hasn't potentially changed things, 
-                    // but for simple edit pages, usually safe to populate)
+                    // Update UI
                     els.detail.value = editState.detail;
                     els.amount.value = editState.amount;
                     els.creditName.value = editState.creditName;
@@ -443,12 +428,13 @@
                     updateButtonVisuals();
                     toggleCreditField();
                 } else {
-                    showToast("Transaction not found.");
-                    setTimeout(() => window.location.href = 'businesslist.html', 2000);
+                    // If doc doesn't exist, go back immediately
+                    window.location.href = 'businesslist.html';
                 }
             } catch (error) {
                 console.error("Error loading doc:", error);
-                showToast("Error loading data.");
+                // Silent fail or quick redirect to keep UX snappy
+                window.location.href = 'businesslist.html';
             }
         }
 
@@ -468,11 +454,8 @@
         };
 
         function updateButtonVisuals() {
-            // Type Buttons
             document.getElementById('btn-in').classList.toggle('selected', editState.type === 'IN');
             document.getElementById('btn-out').classList.toggle('selected', editState.type === 'OUT');
-
-            // Form Buttons
             document.getElementById('btn-cash').classList.toggle('selected', editState.form === 'CASH');
             document.getElementById('btn-credit').classList.toggle('selected', editState.form === 'CREDIT');
             document.getElementById('btn-bank').classList.toggle('selected', editState.form === 'BANK');
@@ -481,8 +464,6 @@
         function toggleCreditField() {
             if (editState.form === 'CREDIT') {
                 els.creditGroup.classList.add('visible');
-                // Only focus if user just clicked it, to avoid annoyance during load
-                // document.activeElement check helps here
                 if(document.activeElement.tagName !== 'INPUT') {
                      setTimeout(() => els.creditName.focus(), 100);
                 }
@@ -507,10 +488,10 @@
             if (isNaN(amountVal) || amountVal <= 0) return showToast("Please enter a valid amount.", true);
             if (editState.form === 'CREDIT' && !creditVal) return showToast("Please enter a credit name.", true);
 
-            // 2. Lock UI
-            const originalBtnText = els.saveBtn.innerHTML;
+            // 2. Lock UI (Simple text change, no spinner)
+            const originalBtnText = els.saveBtn.innerText;
             els.saveBtn.disabled = true;
-            els.saveBtn.innerHTML = `<span class="spinner"></span> Saving...`;
+            els.saveBtn.innerText = "Saving...";
 
             // 3. Prepare Data
             let finalDetail = detailVal;
@@ -529,16 +510,16 @@
                 await updateDoc(userDocRef, payload);
                 showToast("Saved successfully!");
                 
-                // Delay redirect slightly to show success
+                // Minimal delay to allow success toast to register visually
                 setTimeout(() => {
                     window.location.href = 'businesslist.html';
-                }, 800);
+                }, 500);
 
             } catch (error) {
                 console.error("Update Error:", error);
-                showToast("Failed to save: " + error.message, true);
+                showToast("Failed to save", true);
                 els.saveBtn.disabled = false;
-                els.saveBtn.innerHTML = originalBtnText;
+                els.saveBtn.innerText = originalBtnText;
             }
         };
 
