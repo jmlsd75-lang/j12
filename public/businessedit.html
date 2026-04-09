@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Transaction</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- CSS Reset & Base Styles --- */
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --primary-light: #EEF2FF;
+            --danger: #EF4444;
+            --danger-hover: #DC2626;
+            --success: #10B981;
+            --bg-body: #F3F4F6;
+            --bg-card: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --border: #E5E7EB;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* --- Main Container --- */
+        .app-container {
+            background: var(--bg-card);
+            width: 100%;
+            max-width: 480px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh; /* Prevent scrolling on body */
+        }
+
+        /* --- Header --- */
+        header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+            background: #fff;
+            flex-shrink: 0;
+        }
+
+        header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* --- Scrollable Content --- */
+        .edit-content {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- Form Elements --- */
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+            font-family: inherit;
+            background: #fff;
+        }
+        
+        /* Remove spin buttons */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        /* --- Selection Grids --- */
+        .grid-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .grid-options.three-col {
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .option-btn {
+            background: #F9FAFB;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            user-select: none;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        /* Active State for Buttons */
+        .option-btn.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+        }
+
+        /* --- Conditional Section --- */
+        #credit-group {
+            display: none; /* Hidden by default */
+            animation: slideDown 0.3s ease;
+        }
+        
+        #credit-group.visible {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Footer / Actions --- */
+        .action-bar {
+            padding: 16px 24px 24px 24px;
+            border-top: 1px solid var(--border);
+            background: #F9FAFB;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        button {
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 500;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel {
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .btn-cancel:hover {
+            color: var(--danger);
+            background: #FEF2F2;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            flex: 1;
+            margin-left: 12px;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            background: #A5B4FC;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* --- Toast --- */
+        #toast {
+            visibility: hidden;
+            min-width: 280px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 14px;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%) translateY(20px);
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        #toast.error {
+            background-color: var(--danger);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Loading Overlay -->
+        <div id="loading" class="loading-overlay">
+            <div class="spinner"></div>
+            <p style="color:var(--text-muted); font-size:0.9rem;">Loading transaction...</p>
+        </div>
+
+        <header>
+            <h1>Edit Transaction</h1>
+        </header>
+
+        <main class="edit-content">
+            
+            <!-- Detail -->
+            <div class="form-group">
+                <label for="detailInput">Transaction Detail</label>
+                <input type="text" id="detailInput" placeholder="e.g. Office Supplies">
+            </div>
+
+            <!-- Amount -->
+            <div class="form-group">
+                <label for="amountInput">Amount</label>
+                <input type="number" id="amountInput" placeholder="0.00" inputmode="decimal" step="0.01">
+            </div>
+
+            <!-- Type (In/Out) -->
+            <div class="form-group">
+                <label>Type of Flow</label>
+                <div class="grid-options">
+                    <div class="option-btn" id="btn-in" onclick="selectType('IN')">In</div>
+                    <div class="option-btn" id="btn-out" onclick="selectType('OUT')">Out</div>
+                </div>
+            </div>
+
+            <!-- Form (Cash/Credit/Bank) -->
+            <div class="form-group">
+                <label>Form of Flow</label>
+                <div class="grid-options three-col">
+                    <div class="option-btn" id="btn-cash" onclick="selectForm('CASH')">Cash</div>
+                    <div class="option-btn" id="btn-credit" onclick="selectForm('CREDIT')">Credit</div>
+                    <div class="option-btn" id="btn-bank" onclick="selectForm('BANK')">Bank</div>
+                </div>
+            </div>
+
+            <!-- Credit Name (Conditional) -->
+            <div class="form-group" id="credit-group">
+                <label for="creditNameInput">Credit Name / Lender</label>
+                <input type="text" id="creditNameInput" placeholder="e.g. Visa, MasterCard">
+            </div>
+
+        </main>
+
+        <footer class="action-bar">
+            <button class="btn-cancel" onclick="handleCancel()">Cancel</button>
+            <button id="saveBtn" class="btn-primary" onclick="saveChanges()">
+                <span>Save Changes</span>
+            </button>
+        </footer>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast"></div>
+
+    <!-- Firebase SDKs & Logic -->
+    <script type="module">
+        // ============================================================
+        // 1. Firebase Imports & Config
+        // ============================================================
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc,
+            updateDoc
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // ============================================================
+        // 2. State & DOM Elements
+        // ============================================================
+        
+        let transactionId = null;
+        let userDocRef = null;
+
+        // State holding current values
+        const editState = {
+            detail: '',
+            amount: 0,
+            type: '', // IN or OUT
+            form: '', // CASH, CREDIT, BANK
+            creditName: ''
+        };
+
+        const els = {
+            detail: document.getElementById('detailInput'),
+            amount: document.getElementById('amountInput'),
+            creditName: document.getElementById('creditNameInput'),
+            creditGroup: document.getElementById('credit-group'),
+            loading: document.getElementById('loading'),
+            saveBtn: document.getElementById('saveBtn')
+        };
+
+        // ============================================================
+        // 3. Initialization & Data Loading
+        // ============================================================
+
+        // Get Transaction ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        transactionId = urlParams.get('id');
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                showToast("Not authenticated. Redirecting...");
+                setTimeout(() => window.location.href = 'index.html', 2000);
+                return;
+            }
+
+            userDocRef = doc(db, "users", user.email, "transactions", transactionId);
+
+            if (transactionId) {
+                await loadTransactionData();
+            } else {
+                els.loading.innerHTML = `<p style="color:var(--danger)">Error: No Transaction ID provided.</p>`;
+            }
+        });
+
+        async function loadTransactionData() {
+            try {
+                const docSnap = await getDoc(userDocRef);
+                
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    // Populate State
+                    editState.detail = data.detail || "";
+                    editState.amount = data.amount || 0;
+                    editState.type = data.type || "OUT";
+                    editState.form = data.method || "CASH";
+                    editState.creditName = "";
+
+                    // Heuristic: If method is CREDIT, check if detail has parentheses
+                    // The 'new' code saved data as: "Detail (CreditName)"
+                    if (editState.form === 'CREDIT' && editState.detail.includes('(') && editState.detail.includes(')')) {
+                        const parts = editState.detail.split('(');
+                        if (parts.length === 2) {
+                            editState.detail = parts[0].trim();
+                            // Remove trailing ')'
+                            editState.creditName = parts[1].replace(')', '').trim();
+                        }
+                    }
+
+                    // Update UI
+                    els.detail.value = editState.detail;
+                    els.amount.value = editState.amount;
+                    els.creditName.value = editState.creditName;
+                    
+                    updateButtonVisuals();
+                    toggleCreditField();
+
+                    els.loading.classList.add('hidden'); // Hide loading
+                } else {
+                    showToast("Transaction not found.");
+                    setTimeout(() => window.location.href = 'businesslist.html', 2000);
+                }
+            } catch (error) {
+                console.error("Error loading doc:", error);
+                showToast("Error loading data.");
+                els.loading.classList.add('hidden');
+            }
+        }
+
+        // ============================================================
+        // 4. UI Interaction Logic
+        // ============================================================
+
+        window.selectType = function(type) {
+            editState.type = type;
+            updateButtonVisuals();
+        };
+
+        window.selectForm = function(form) {
+            editState.form = form;
+            updateButtonVisuals();
+            toggleCreditField();
+        };
+
+        function updateButtonVisuals() {
+            // Type Buttons
+            document.getElementById('btn-in').classList.toggle('selected', editState.type === 'IN');
+            document.getElementById('btn-out').classList.toggle('selected', editState.type === 'OUT');
+
+            // Form Buttons
+            document.getElementById('btn-cash').classList.toggle('selected', editState.form === 'CASH');
+            document.getElementById('btn-credit').classList.toggle('selected', editState.form === 'CREDIT');
+            document.getElementById('btn-bank').classList.toggle('selected', editState.form === 'BANK');
+        }
+
+        function toggleCreditField() {
+            if (editState.form === 'CREDIT') {
+                els.creditGroup.classList.add('visible');
+                setTimeout(() => els.creditName.focus(), 100);
+            } else {
+                els.creditGroup.classList.remove('visible');
+                els.creditName.value = ""; // Clear if hidden
+                editState.creditName = "";
+            }
+        }
+
+        // ============================================================
+        // 5. Saving Logic
+        // ============================================================
+
+        window.saveChanges = async function() {
+            // 1. Validation
+            const detailVal = els.detail.value.trim();
+            const amountVal = parseFloat(els.amount.value);
+            let creditVal = els.creditName.value.trim();
+
+            if (!detailVal) return showToast("Please enter a detail.", true);
+            if (isNaN(amountVal) || amountVal <= 0) return showToast("Please enter a valid amount.", true);
+            if (editState.form === 'CREDIT' && !creditVal) return showToast("Please enter a credit name.", true);
+
+            // 2. Lock UI
+            const originalBtnText = els.saveBtn.innerHTML;
+            els.saveBtn.disabled = true;
+            els.saveBtn.innerHTML = `<div class="spinner" style="width:16px; height:16px; border-width:2px;"></div> Saving...`;
+
+            // 3. Prepare Data
+            // Reconstruct detail string if Credit
+            let finalDetail = detailVal;
+            if (editState.form === 'CREDIT') {
+                finalDetail = `${detailVal} (${creditVal})`;
+            }
+
+            const payload = {
+                detail: finalDetail,
+                amount: amountVal,
+                type: editState.type,
+                method: editState.form
+                // Note: We don't update createdAt or date usually
+            };
+
+            try {
+                await updateDoc(userDocRef, payload);
+                showToast("Saved successfully!");
+                
+                // Delay redirect slightly to show success
+                setTimeout(() => {
+                    window.location.href = 'businesslist.html';
+                }, 800);
+
+            } catch (error) {
+                console.error("Update Error:", error);
+                showToast("Failed to save: " + error.message, true);
+                els.saveBtn.disabled = false;
+                els.saveBtn.innerHTML = originalBtnText;
+            }
+        };
+
+        window.handleCancel = function() {
+            if (confirm("Discard changes and return to list?")) {
+                window.location.href = 'businesslist.html';
+            }
+        };
+
+        // ============================================================
+        // 6. Utilities
+        // ============================================================
+        function showToast(msg, isError = false) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = isError ? 'show error' : 'show';
+            setTimeout(() => t.className = t.className.replace('show', '').replace('error', ''), 3000);
+        }
+    </script>
+</body>
+</html>
