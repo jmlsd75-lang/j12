@@ -1,797 +1,722 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jamal Said Kazembe Multisystem Management</title>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-<style>
-  body{ margin:0; font-family:Arial, sans-serif; background:#f4f4f4; display:flex; flex-direction:column; justify-content:flex-start; align-items:center; min-height:100vh; text-align:center; padding-top:50px; }
-  h1{ font-size:28px; color:blue; margin:0; }
-  h2{ color:red; margin-top:5px; font-size:16px; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Health | Education | Business</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  .login-btn, .logout-btn, .pay-btn, .access-btn {
-    position: fixed; left: 50%; transform: translateX(-50%); border:none; cursor:pointer; display: none; 
-  }
-  .big-btn {
-  padding: 18px 40px;
-  font-size: 20px;
-  border: none;
-  border-radius: 8px;
-  color: white;
-  cursor: pointer;
-}
-#typeButtons button,
-#methodButtons button,
-#finalButtons button {
-  padding: 15px 30px;
-  font-size: 18px;
-  border-radius: 8px;
-}
-.green {
-  background: #28a745;
-}
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
 
-.purple {
-  background: #6f42c1;
-}
-  .login-btn{ bottom: 30px; padding:15px 40px; font-size:20px; background:#28a745; color:white; border-radius:6px; }
-  .pay-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #28a745; color:white; border-radius:8px; }
-  .access-btn{ top: 50%; left: 50%; transform: translate(-50%, -50%); padding:18px 50px; font-size:22px; background-color: #007bff; color:white; border-radius:8px; }
-  .logout-btn{ bottom: 30px; background:#dc3545; color:white; padding:10px 25px; border-radius:6px; font-size:16px; }
-  
-  #userDisplay { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); font-size: 18px; font-weight: bold; color: #333; display: none; }
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
 
-  #payPage{ position: fixed; top:0; left:0; width:100%; height:100%; background:#ffffff; display:none; flex-direction:column; justify-content:center; align-items:center; text-align:center; z-index: 10; }
-  .pay-info p{ margin:10px; font-size:18px; }
-  .mix{ color:green; } .airtel{ color:red; } .crdb{ color:blue; } .name{ color:black; font-weight:bold; }
-  .pay-actions{ position: fixed; bottom: 30px; display:flex; gap:20px; }
-  .back-btn{ padding:12px 25px; background:gray; color:white; border:none; border-radius:6px; cursor: pointer; }
-  .next-btn{ padding:12px 25px; background:green; color:white; border:none; border-radius:6px; cursor: pointer; }
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: bgPulse 8s ease-in-out infinite;
+        }
 
-  #cameraMenuPage { position: fixed; top:0; left:0; width:100%; height:100%; background: #ffffff; display:none; flex-direction: column; justify-content: center; align-items: center; gap: 20px; z-index: 20; }
-  #openCameraBtn { padding: 15px 40px; font-size: 20px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; }
-  #openPhotosBtn { padding: 15px 40px; font-size: 20px; background: #17a2b8; color: white; border: none; border-radius: 6px; cursor: pointer; }
-  #backFromCameraBtn { padding: 15px 40px; font-size: 20px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; }
+        .bg-circle:nth-child(1) {
+            width: 400px;
+            height: 400px;
+            background: #e74c3c;
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
 
-  #previewPage { position: fixed; top:0; left:0; width:100%; height:100%; background: white; display:none; flex-direction: column; justify-content: center; align-items: center; z-index: 30; }
-  #previewImage { max-width: 90%; max-height: 60%; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-  .preview-actions { display: flex; gap: 20px; }
-  #submitBtn { padding: 12px 25px; background: green; color: white; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; }
-  #cancelBtn { padding: 12px 25px; background: red; color: white; border: none; border-radius: 6px; font-size: 18px; cursor: pointer; }
-#transactionPage {
-  display:none;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  gap:20px;
-  text-align:center;
-}
-  #timerPage { position: fixed; top:0; left:0; width:100%; height:100%; background: #f4f4f4; display:none; flex-direction: column; justify-content: center; align-items: center; z-index: 40; }
-  #timerDisplay { font-size: 60px; font-weight: bold; color: #333; }
-  #timerStatus { margin-top: 20px; font-size: 20px; color: #666; }
-  #timerButtons { margin-top: 30px; display: none; gap: 20px; }
-  .timer-action-btn { padding: 15px 30px; font-size: 18px; color: white; border: none; border-radius: 6px; cursor: pointer; }
-  #businessBtn { background: #007bff; }
-  #exitBtn { background: #dc3545; }
+        .bg-circle:nth-child(2) {
+            width: 300px;
+            height: 300px;
+            background: #3498db;
+            top: 50%;
+            right: -80px;
+            animation-delay: 2s;
+        }
 
-  #loadingOverlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9); display:none; justify-content: center; align-items: center; flex-direction: column; z-index: 100; }
-  .loader { border: 8px solid #f3f3f3; border-top: 8px solid #3498db; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; }
-  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-</style>
+        .bg-circle:nth-child(3) {
+            width: 350px;
+            height: 350px;
+            background: #2ecc71;
+            bottom: -100px;
+            left: 30%;
+            animation-delay: 4s;
+        }
+
+        @keyframes bgPulse {
+            0%, 100% { transform: scale(1); opacity: 0.1; }
+            50% { transform: scale(1.2); opacity: 0.15; }
+        }
+
+        .main-container {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            z-index: 1;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .illustrations {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .illustration-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s ease;
+        }
+
+        .illustration-item:hover {
+            transform: translateX(10px);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .illustration-label {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .health-icon {
+            position: relative;
+            width: 80px;
+            height: 70px;
+        }
+
+        .heart {
+            position: absolute;
+            width: 50px;
+            height: 45px;
+            top: 5px;
+            left: 15px;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        .heart::before,
+        .heart::after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 40px;
+            background: #e74c3c;
+            border-radius: 25px 25px 0 0;
+        }
+
+        .heart::before {
+            left: 25px;
+            transform: rotate(-45deg);
+            transform-origin: 0 100%;
+        }
+
+        .heart::after {
+            left: 0;
+            transform: rotate(45deg);
+            transform-origin: 100% 100%;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            15% { transform: scale(1.15); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.1); }
+        }
+
+        .pulse-line {
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            width: 80px;
+            height: 20px;
+        }
+
+        .pulse-line::before {
+            content: '';
+            position: absolute;
+            bottom: 8px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #e74c3c;
+        }
+
+        .pulse-line::after {
+            content: '';
+            position: absolute;
+            bottom: 8px;
+            left: 30px;
+            width: 15px;
+            height: 15px;
+            border-left: 2px solid #e74c3c;
+            border-top: 2px solid #e74c3c;
+            background: transparent;
+            transform: rotate(45deg);
+        }
+
+        .health-cross {
+            position: absolute;
+            top: 18px;
+            left: 32px;
+            z-index: 2;
+        }
+
+        .health-cross::before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 4px;
+            background: #fff;
+            top: 4px;
+            left: -1px;
+            border-radius: 2px;
+        }
+
+        .health-cross::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            height: 12px;
+            background: #fff;
+            top: 0;
+            left: 3px;
+            border-radius: 2px;
+        }
+
+        .education-icon {
+            position: relative;
+            width: 80px;
+            height: 70px;
+        }
+
+        .grad-cap {
+            position: absolute;
+            top: 8px;
+            left: 10px;
+        }
+
+        .cap-top {
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            background: #3498db;
+            transform: rotate(45deg);
+            top: 0;
+            left: 5px;
+            border-radius: 3px;
+        }
+
+        .cap-top::after {
+            content: '';
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #5dade2, #2e86c1);
+            transform: rotate(0deg);
+            border-radius: 3px;
+        }
+
+        .cap-base {
+            position: absolute;
+            width: 35px;
+            height: 10px;
+            background: #2c3e50;
+            top: 28px;
+            left: 10px;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .tassel {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+
+        .tassel-line {
+            position: absolute;
+            width: 2px;
+            height: 25px;
+            background: #f1c40f;
+            top: 0;
+            left: 0;
+            transform-origin: top;
+            animation: tasselSwing 2s ease-in-out infinite;
+        }
+
+        .tassel-ball {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #f1c40f;
+            border-radius: 50%;
+            top: 23px;
+            left: -3px;
+            animation: tasselSwing 2s ease-in-out infinite;
+        }
+
+        @keyframes tasselSwing {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        .edu-book {
+            position: absolute;
+            bottom: 5px;
+            left: 8px;
+        }
+
+        .edu-book-page {
+            position: absolute;
+            width: 40px;
+            height: 8px;
+            border-radius: 2px;
+        }
+
+        .edu-book-page:nth-child(1) {
+            background: #ecf0f1;
+            bottom: 0;
+            left: 0;
+        }
+
+        .edu-book-page:nth-child(2) {
+            background: #bdc3c7;
+            bottom: 3px;
+            left: 2px;
+        }
+
+        .edu-book-page:nth-child(3) {
+            background: #3498db;
+            bottom: 6px;
+            left: 4px;
+            width: 36px;
+        }
+
+        .edu-book-spine {
+            position: absolute;
+            width: 5px;
+            height: 20px;
+            background: #2980b9;
+            bottom: 0;
+            left: 0;
+            border-radius: 2px 0 0 2px;
+        }
+
+        .business-icon {
+            position: relative;
+            width: 80px;
+            height: 70px;
+        }
+
+        .briefcase {
+            position: absolute;
+            top: 15px;
+            left: 5px;
+        }
+
+        .briefcase-body {
+            width: 50px;
+            height: 35px;
+            background: linear-gradient(180deg, #f39c12, #e67e22);
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .briefcase-body::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 8px;
+            background: #d35400;
+            top: 13px;
+        }
+
+        .briefcase-body::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #f1c40f;
+            border-radius: 50%;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 2px solid #d35400;
+        }
+
+        .briefcase-handle {
+            position: absolute;
+            width: 20px;
+            height: 12px;
+            border: 3px solid #d35400;
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: transparent;
+        }
+
+        .briefcase-lock {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .briefcase-lock::before {
+            content: '';
+            width: 12px;
+            height: 6px;
+            background: #d35400;
+            display: block;
+            border-radius: 0 0 3px 3px;
+        }
+
+        .chart-bars {
+            position: absolute;
+            bottom: 5px;
+            right: 0;
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .bar {
+            width: 8px;
+            border-radius: 2px 2px 0 0;
+            animation: barGrow 2s ease-in-out infinite;
+        }
+
+        .bar:nth-child(1) {
+            height: 15px;
+            background: #2ecc71;
+            animation-delay: 0s;
+        }
+
+        .bar:nth-child(2) {
+            height: 25px;
+            background: #27ae60;
+            animation-delay: 0.2s;
+        }
+
+        .bar:nth-child(3) {
+            height: 20px;
+            background: #2ecc71;
+            animation-delay: 0.4s;
+        }
+
+        .bar:nth-child(4) {
+            height: 30px;
+            background: #27ae60;
+            animation-delay: 0.6s;
+        }
+
+        @keyframes barGrow {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.7); }
+        }
+
+        .trend-arrow {
+            position: absolute;
+            top: 8px;
+            right: 5px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 12px solid #2ecc71;
+            animation: trendPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes trendPulse {
+            0%, 100% { opacity: 1; transform: translateY(0); }
+            50% { opacity: 0.6; transform: translateY(-3px); }
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 50px 40px;
+            border-radius: 24px;
+            text-align: center;
+            min-width: 350px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-card h1 {
+            color: #ffffff;
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .login-card p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            margin-bottom: 35px;
+            line-height: 1.6;
+        }
+
+        .google-login-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            padding: 14px 28px;
+            background-color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #3c4043;
+            transition: all 0.3s ease;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .google-login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            background-color: #f8f9fa;
+        }
+
+        .google-login-btn:active {
+            transform: translateY(0);
+        }
+
+        .google-login-btn:disabled {
+            cursor: wait;
+            transform: none !important;
+            opacity: 0.7;
+        }
+
+        .google-icon {
+            width: 22px;
+            height: 22px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .divider span {
+            padding: 0 15px;
+        }
+
+        .features-list {
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+        }
+
+        .feature-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .feature-dot.health { background: #e74c3c; }
+        .feature-dot.education { background: #3498db; }
+        .feature-dot.business { background: #f39c12; }
+
+        .login-error {
+            color: #ff6b6b;
+            font-size: 13px;
+            margin-top: 14px;
+            padding: 10px 14px;
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.25);
+            border-radius: 8px;
+            text-align: center;
+            animation: errorIn 0.3s ease;
+        }
+
+        @keyframes errorIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .illustrations {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .illustration-item {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .login-card {
+                min-width: 300px;
+                padding: 35px 25px;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<div id="userDisplay"></div>
-<h1>JAMAL SAID KAZEMBE</h1>
-<h2>MULTISYSTEM MANAGEMENT</h2>
-  
-<button class="login-btn">LOGIN</button>
-<button class="pay-btn">PAY</button>
-<button class="access-btn">ACCESS</button>
-<button class="logout-btn">LOGOUT</button>
-
-<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none;">
-<input type="file" id="photosInput" accept="image/*" style="display:none;">
-
-<div id="payPage">
-  <div class="pay-info">
-    <p>Pay through:</p>
-    <p class="mix">Mix by Yas:</p>
-    <p class="mix">+255 655 510 714</p>
-    <p class="airtel">Airtel Money:</p>
-    <p class="airtel">+255 780 526 437</p>
-    <p class="name">JAMALI SAIDI KAZEMBE</p>
-  </div>
-  <div class="pay-actions">
-    <button class="back-btn">BACK</button>
-    <button class="next-btn">NEXT</button>
-  </div>
-</div>
-
-<div id="cameraMenuPage">
-  <button id="openCameraBtn">CAMERA</button>
-  <button id="openPhotosBtn">PHOTOS</button>
-  <button id="backFromCameraBtn">BACK</button>
-</div>
-
-<div id="previewPage">
-  <img id="previewImage" src="" alt="Payment Preview">
-  <div class="preview-actions">
-    <button id="submitBtn">SUBMIT</button>
-    <button id="cancelBtn">CANCEL</button>
-  </div>
-</div>
-
-<div id="timerPage">
-  <div id="userDisplayTimer" style="margin-bottom:20px; font-size:24px; font-weight:bold;"></div>
-  <div id="timerDisplay">00:00:00</div>
-  <div id="timerStatus">Session Active</div>
-  <div id="timerButtons">
-    <button id="businessBtn" class="timer-action-btn">BUSINESS</button>
-    <button id="exitBtn" class="timer-action-btn">EXIT</button>
-  </div>
-</div>
-<div id="businessPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:20px;">
-<button id="addTransactionBtn" 
-style="background:#28a745; color:white; padding:12px 25px; border:none; border-radius:6px;">
-ADD NEW TRANSACTION
-</button>
-<button id="viewBtn" style="background:#6f42c1;color:white;padding:12px 25px;border:none;border-radius:6px;">
-VIEW
-</button>
-  <button onclick="showPage('timer')">BACK</button>
-</div>
-
-<div id="viewPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
-<button id="listBtn" style="background:#0d6efd;color:white;">LIST</button>
-
-<button style="background:#20c997;color:white;" disabled>CASH BOOK</button>
-
-<button style="background:#6610f2;color:white;" disabled>LEDGERS</button>
-
-<button style="background:#fd7e14;color:white;" disabled>TRIAL BALANCE</button>
-
-<button style="background:#dc3545;color:white;" disabled>INCOME STATEMENT</button>
-
-<button style="background:#198754;color:white;" disabled>BALANCE SHEET</button>
-
-<button onclick="showPage('business')">BACK</button>
-
-<!-- TABLE -->
-<div id="listTableContainer" style="display:none; width:90%; overflow:auto;">
-  <table border="1" style="border-collapse:collapse; width:100%; margin-top:20px;">
-    <thead style="background:#333; color:white;">
-      <tr>
-        <th>S/N</th>
-        <th>DATE</th>
-        <th>DETAIL</th>
-        <th>TYPE</th>
-        <th>METHOD</th>
-        <th>AMOUNT</th>
-      </tr>
-    </thead>
-    <tbody id="listTableBody"></tbody>
-  </table>
-</div>
-
-</button>
-</div>
-<div id="transactionPage" style="display:none; flex-direction:column; justify-content:center; align-items:center; height:100vh; gap:15px;">
-<input id="detailInput" placeholder="Enter detail"
-style="padding:15px; font-size:20px; text-align:center; width:250px;">
-
-<input id="amountInput" placeholder="Enter amount" type="number"
-style="padding:15px; font-size:20px; text-align:center; width:250px; display:none;">
-  <!-- BUTTON DISPLAY AREA -->
-  <div id="selectedButtons" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;"></div>
-
-  <!-- IN / OUT -->
-  <div id="typeButtons" style="display:none; gap:10px;">
-    <button id="inBtn" class="big-btn green">IN</button>
-<button id="outBtn" class="big-btn purple">OUT</button>
-  </div>
-
-  <!-- PAYMENT -->
-  <div id="methodButtons" style="display:none; gap:10px;">
-    <button style="background:#20c997;color:white;" id="cashBtn">CASH</button>
-    <button style="background:#6610f2;color:white;" id="creditBtn">CREDIT</button>
-    <button style="background:#0d6efd;color:white;" id="bankBtn">BANK</button>
-  </div>
-
-  <!-- FINAL -->
-  <div id="finalButtons" style="display:none; gap:10px;">
-    <button id="okBtn" style="background:#198754;color:white;">OK</button>
-    <button id="cancelTransBtn" style="background:#dc3545;color:white;">CANCEL</button>
-  </div>
-
-</div>
-<div id="loadingOverlay">
-  <div class="loader"></div>
-  <p id="loadingText" style="margin-top:20px;">Processing Payment...</p>
-</div>
-
-<!-- BACK BUTTON -->
-<button onclick="showPage('business')" 
-style="background:gray;color:white;padding:12px 25px;border:none;border-radius:6px;">
-BACK
-</button>
-<script type="module">
-  import { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  getDocs, 
-  query, 
-  orderBy 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-  authDomain: "my-project-66803-95cb3.firebaseapp.com",
-  projectId: "my-project-66803-95cb3",
-  storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-  messagingSenderId: "167159607898",
-  appId: "1:167159607898:web:23ca11366b88868b085e63"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
-const ADMIN_EMAIL = "camelkazembe1@gmail.com";
-let isAdmin = false;
-
-// --- DOM Elements ---
-const loginBtn = document.querySelector(".login-btn");
-const logoutBtn = document.querySelector(".logout-btn");
-const payBtn = document.querySelector(".pay-btn");
-const accessBtn = document.querySelector(".access-btn");
-const userDisplay = document.getElementById("userDisplay");
-const payPage = document.getElementById("payPage");
-const backBtn = document.querySelector(".back-btn");
-const nextBtn = document.querySelector(".next-btn");
-const cameraMenuPage = document.getElementById("cameraMenuPage");
-const openCameraBtn = document.getElementById("openCameraBtn");
-const openPhotosBtn = document.getElementById("openPhotosBtn");
-const backFromCameraBtn = document.getElementById("backFromCameraBtn");
-const cameraInput = document.getElementById("cameraInput");
-const photosInput = document.getElementById("photosInput");
-const previewPage = document.getElementById("previewPage");
-const previewImage = document.getElementById("previewImage");
-const submitBtn = document.getElementById("submitBtn");
-const cancelBtn = document.getElementById("cancelBtn");
-const timerPage = document.getElementById("timerPage");
-const timerDisplay = document.getElementById("timerDisplay");
-const userDisplayTimer = document.getElementById("userDisplayTimer");
-const timerStatus = document.getElementById("timerStatus");
-const timerButtons = document.getElementById("timerButtons");
-const businessBtn = document.getElementById("businessBtn");
-const exitBtn = document.getElementById("exitBtn");
-const loadingOverlay = document.getElementById("loadingOverlay");
-const loadingText = document.getElementById("loadingText");
-const businessPage = document.getElementById("businessPage");
-const detailInput = document.getElementById("detailInput");
-const amountInput = document.getElementById("amountInput");
-const selectedButtons = document.getElementById("selectedButtons");
-document.getElementById("addTransactionBtn").onclick = () => {
-  showPage('transaction');
-};
-const typeButtons = document.getElementById("typeButtons");
-const methodButtons = document.getElementById("methodButtons");
-const finalButtons = document.getElementById("finalButtons");
-
-let detail = "";
-let amount = "";
-let type = "";
-let method = "";
-let transactions = [];
-
-// STEP 1 → DETAIL
-detailInput.oninput = () => {
-  if (detailInput.value.trim().length > 0) {
-    amountInput.style.display = "block";
-  }
-};
-
-// STEP 2 → AMOUNT
-amountInput.oninput = () => {
-  if (amountInput.value.trim().length > 0) {
-    typeButtons.style.display = "flex";
-  }
-};
-
-// STEP 3 → IN / OUT
-document.getElementById("inBtn").onclick = () => selectType("IN");
-document.getElementById("outBtn").onclick = () => selectType("OUT");
-document.getElementById("viewBtn").onclick = () => {
-  showPage('view');
-};
-function selectType(t) {
-  detail = detailInput.value;
-  amount = amountInput.value;
-  type = t;
-
-  updateButtons();
-
-  typeButtons.style.display = "none";
-  methodButtons.style.display = "flex";
-}
-
-// STEP 4 → PAYMENT
-document.getElementById("cashBtn").onclick = () => selectMethod("CASH");
-document.getElementById("creditBtn").onclick = () => selectMethod("CREDIT");
-document.getElementById("bankBtn").onclick = () => selectMethod("BANK");
-
-function selectMethod(m) {
-  method = m;
-
-  updateButtons();
-
-  methodButtons.style.display = "none";
-  finalButtons.style.display = "flex";
-}
-
-// SHOW BUTTONS
-function updateButtons() {
-  selectedButtons.innerHTML = "";
-
-  if (detail) {
-    selectedButtons.innerHTML += `<button style="background:#007bff;color:white;">${detail}</button>`;
-    detailInput.style.display = "none";
-  }
-
-  if (amount) {
-    selectedButtons.innerHTML += `<button style="background:#6f42c1;color:white;">${amount}</button>`;
-    amountInput.style.display = "none";
-  }
-
-  if (type) {
-    selectedButtons.innerHTML += `<button style="background:${type==="IN"?"#28a745":"#fd7e14"};color:white;">${type}</button>`;
-  }
-
-  if (method) {
-    selectedButtons.innerHTML += `<button style="background:#20c997;color:white;">${method}</button>`;
-  }
-}
-
-// FINAL ACTIONS
-  document.getElementById("okBtn").onclick = async () => {
-  const user = auth.currentUser;
-  if (!user) return;
-
-  const transaction = {
-    date: new Date().toLocaleString(),
-    detail,
-    type,
-    method,
-    amount: Number(amount),
-    createdAt: Date.now()
-  };
-
-  await addDoc(
-    collection(db, "users", user.email, "transactions"),
-    transaction
-  );
-
-  alert("Saved!");
-  showPage("business");
-};
-document.getElementById("cancelTransBtn").onclick = () => {
-  showPage("business");
-};
-let selectedFile = null;
-let timerInterval = null;
-
-// --- Auth Logic ---
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    isAdmin = user.email === ADMIN_EMAIL;
-
-    userDisplay.textContent = user.displayName;
-if (isAdmin) {
-  userDisplay.style.display = "block";
-
-  showPage('timer'); // same page as normal user
-  timerDisplay.textContent = "UNLIMITED";
-  timerStatus.textContent = "Admin Access";
-
-  timerButtons.style.display = "flex"; // same buttons
-} else {
-      showPage('main');
-    }
-
-  } else {
-    isAdmin = false;
-    userDisplay.style.display = "none";
-    loginBtn.style.display = "block";
-    payBtn.style.display = "none";
-    accessBtn.style.display = "none";
-    logoutBtn.style.display = "none";
-  }
-});
-loginBtn.onclick = async () => { try { await signInWithPopup(auth, provider); } catch (e) { alert("Login failed"); } };
-logoutBtn.onclick = async () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); await signOut(auth); showPage('main'); };
-accessBtn.onclick = () => { startTimerFromStorage(); showPage('timer'); };
-
-// --- Navigation Logic ---
-function showPage(page) {
-  document.getElementById("viewPage").style.display = "none";
-  document.getElementById("transactionPage").style.display = "none";
-  payPage.style.display = "none"; 
-  cameraMenuPage.style.display = "none"; 
-  previewPage.style.display = "none"; 
-  timerPage.style.display = "none";
-  businessPage.style.display = "none";
-  if(page === 'main' && auth.currentUser) {
-    userDisplay.style.display = "block"; logoutBtn.style.display = "block";
-    const endTime = localStorage.getItem("sessionEnd");
-    if (endTime && Date.now() < parseInt(endTime)) { accessBtn.style.display = "block"; } 
-    else { payBtn.style.display = "block"; }
-  }
-  else if (page === 'view') {
-  const vp = document.getElementById("viewPage");
-
-  vp.style.display = "flex";
-  vp.style.flexDirection = "column";
-  vp.style.justifyContent = "center";
-  vp.style.alignItems = "center";
-}
-  else if (page === 'pay') { payPage.style.display = "flex"; } 
-  else if (page === 'camera') { cameraMenuPage.style.display = "flex"; } 
-  else if (page === 'transaction') {
-  document.getElementById("transactionPage").style.display = "flex";
-document.getElementById("viewPage").style.display = "none";
-  // RESET EVERYTHING
-  detailInput.value = "";
-  amountInput.value = "";
-  selectedButtons.innerHTML = "";
-
-  detailInput.style.display = "block";
-  amountInput.style.display = "none";
-
-  typeButtons.style.display = "none";
-  methodButtons.style.display = "none";
-  finalButtons.style.display = "none";
-
-  detail = "";
-  amount = "";
-  type = "";
-  method = "";
-}
-  else if (page === 'preview') { previewPage.style.display = "flex"; } 
-  else if (page === 'timer') { timerPage.style.display = "flex"; userDisplayTimer.textContent = auth.currentUser ? auth.currentUser.displayName : "User"; }
-else if (page === 'business') { 
-  businessPage.style.display = "flex"; 
-}
-}
-
-payBtn.onclick = () => showPage('pay');
-backBtn.onclick = () => showPage('main');
-nextBtn.onclick = () => showPage('camera');
-backFromCameraBtn.onclick = () => showPage('main');
-
-// --- Camera & Photos Logic ---
-openCameraBtn.onclick = () => cameraInput.click();
-openPhotosBtn.onclick = () => photosInput.click();
-
-function handleFile(file) {
-  if (!file) { showPage('main'); return; }
-  selectedFile = file;
-  const reader = new FileReader();
-  reader.onload = (e) => { previewImage.src = e.target.result; showPage('preview'); };
-  reader.readAsDataURL(file);
-  cameraInput.value = ""; photosInput.value = "";
-}
-
-cameraInput.onchange = (e) => handleFile(e.target.files[0]);
-photosInput.onchange = (e) => handleFile(e.target.files[0]);
-cancelBtn.onclick = () => { selectedFile = null; previewImage.src = ""; showPage('camera'); };
-
-// --- Timer Logic ---
-function startTimer(seconds) {
-  if (isAdmin) return;
-  clearInterval(timerInterval);
-  const endTime = Date.now() + seconds * 1000;
-  localStorage.setItem("sessionEnd", String(endTime));
-  timerInterval = setInterval(() => {
-    const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
-    if (remaining <= 0) {
-      clearInterval(timerInterval); timerDisplay.textContent = "00:00:00"; timerStatus.textContent = "Session Expired";
-      localStorage.removeItem("sessionEnd"); setTimeout(() => { showPage('main'); timerButtons.style.display = "none"; }, 2000);
-      return;
-    }
-    const hrs = Math.floor(remaining / 3600);
-const mins = Math.floor((remaining % 3600) / 60);
-const secs = remaining % 60;
-timerDisplay.textContent =
-  String(hrs).padStart(2, '0') + ":" +
-  String(mins).padStart(2, '0') + ":" +
-  String(secs).padStart(2, '0');
-  }, 1000);
-}
-
-function startTimerFromStorage() {
-  if (isAdmin) return;
-  const endTime = parseInt(localStorage.getItem("sessionEnd")); if(!endTime) return;
-  timerButtons.style.display = "flex"; clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    const rem = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
-    if(rem <= 0){ clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); showPage('main'); return; }
-const hrs = Math.floor(rem / 3600);
-const mins = Math.floor((rem % 3600) / 60);
-const secs = rem % 60;
-timerDisplay.textContent =
-  String(hrs).padStart(2, '0') + ":" +
-  String(mins).padStart(2, '0') + ":" +
-  String(secs).padStart(2, '0');
-  }, 1000);
-}
-exitBtn.onclick = () => { clearInterval(timerInterval); localStorage.removeItem("sessionEnd"); timerButtons.style.display = "none"; showPage('main'); };
-businessBtn.onclick = () => {
-  showPage('business');
-};
-function preprocessImage(canvas) {
-  const ctx = canvas.getContext('2d');
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const data = imageData.data;
-  let totalBrightness = 0;
-  for (let i = 0; i < data.length; i += 4) {
-    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-    data[i] = avg; data[i + 1] = avg; data[i + 2] = avg;
-    totalBrightness += avg;
-  }
-  const avgBrightness = totalBrightness / (data.length / 4);
-  for (let i = 0; i < data.length; i += 4) {
-    let val = data[i];
-    if (avgBrightness < 128) val = 255 - val;
-    if (val > 140) val = 255; else if (val < 120) val = 0;
-    data[i] = val; data[i+1] = val; data[i+2] = val;
-  }
-  ctx.putImageData(imageData, 0, 0);
-  return canvas;
-}
-
-// -------------------------------------------------------
-// VALIDATION NAMES
-// -------------------------------------------------------
-const VALID_NAMES = [
-  "JAMAL SAID KAZEMBE",
-  "JAMAL SAID",
-  "JAMAL KAZEMBE"
-];
-const VALID_NUMBERS = [
-  "655510714",
-  "780526437"
-];
-// -------------------------------------------------------
-// SUBMIT LOGIC
-// -------------------------------------------------------
-submitBtn.onclick = async () => {
-  if (!selectedFile) { alert("No file selected."); return; }
-
-  loadingOverlay.style.display = "flex";
-  loadingText.textContent = "Verifying Account...";
-  let objectUrl = null;
-
-  try {
-    const img = new Image();
-    objectUrl = URL.createObjectURL(selectedFile);
-    img.src = objectUrl;
-
-    await new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error("Timeout")), 5000);
-      img.onload = () => { clearTimeout(timer); resolve(); };
-      img.onerror = () => reject(new Error("Invalid image"));
-    });
-
-    const MAX_W = 1500;
-    const scale = Math.min(1, MAX_W / img.width);
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    canvas.width = Math.floor(img.width * scale);
-    canvas.height = Math.floor(img.height * scale);
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-    let detectedText = "";
-    let isQR = false;
-
-    // Check QR first
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const qr = jsQR(imageData.data, canvas.width, canvas.height);
-    
-    if (qr && qr.data) {
-      detectedText = qr.data;
-      isQR = true;
-      console.log("✅ QR Found:", detectedText);
-    } else {
-      loadingText.textContent = "Reading text...";
-      preprocessImage(canvas);
-      
-      const { data } = await Tesseract.recognize(canvas, "eng", {
-        tessedit_pageseg_mode: 6
-      });
-      detectedText = (data.text || "").replace(/\s+/g, " ").trim();
-      console.log("✅ OCR Found:", detectedText);
-    }
-
-    // -------------------------------------------------------
-    // NAME CHECK LOGIC
-    // -------------------------------------------------------
-    
-    // Convert detected text to uppercase for matching
-    const upperText = detectedText.toUpperCase();
-    // Remove extra spaces to handle "Jamal  Said" -> "JAMAL SAID"
-    const cleanSearchText = upperText.replace(/\s+/g, " ");
-    let timeValid = isTimeValidFromText(cleanSearchText);
-    let nameFound = false;
-
-    // Check if any of the valid names exist in the text
-    for (const name of VALID_NAMES) {
-      if (cleanSearchText.includes(name)) {
-        nameFound = true;
-        console.log("✅ Name Matched:", name);
-        break; 
-      }
-    }
-// --------------------
-// NUMBER CHECK
-// --------------------
-let numberFound = false;
-
-if (nameFound) {
-  for (const num of VALID_NUMBERS) {
-    if (cleanSearchText.includes(num)) {
-      numberFound = true;
-      console.log("✅ Number Matched:", num);
-      break;
-    }
-  }
-}
-const { currency, amount } = detectCurrency(cleanSearchText);
-
-const tzsAmount = await convertToTZS(amount, currency);
-
-// formula
-const seconds = Math.floor((tzsAmount / 300) * 3600);
-
-if (nameFound && numberFound && timeValid && seconds > 0) {
-  startTimer(seconds);
-  timerButtons.style.display = "flex";
-  showPage("timer");
-} else {
-  alert("Invalid payment");
-  showPage("pay");
-}
- } catch (error) {
-    console.error(error);
-    alert("Error processing image. Please try again.");
-    showPage("pay");
-  } finally {
-    if (objectUrl) URL.revokeObjectURL(objectUrl);
-    loadingOverlay.style.display = "none";
-  }
-};
-function isTimeValidFromText(text) {
-  const clean = text.toUpperCase().replace(/\s+/g, " ");
-
-  // Match time
-  const match = clean.match(/\b(\d{1,2})[:. ](\d{2})([:. ](\d{2}))?\s?(AM|PM)?\b/);
-
-  if (!match) {
-    console.log("❌ No time found");
-    return false;
-  }
-
-  let hours = parseInt(match[1]);
-  const minutes = parseInt(match[2]);
-  const ampm = match[5];
-
-  // Convert AM/PM → 24h
-  if (ampm) {
-    if (ampm === "PM" && hours < 12) hours += 12;
-    if (ampm === "AM" && hours === 12) hours = 0;
-  }
-
-  const now = new Date();
-
-  // Create receipt time (TODAY first)
-  const receipt = new Date();
-  receipt.setHours(hours);
-  receipt.setMinutes(minutes);
-  receipt.setSeconds(0);
-
-  // 🔴 FIX: If receipt time is in future → assume it's from yesterday
-  if (receipt > now) {
-    receipt.setDate(receipt.getDate() - 1)
-  }
-
-  const diff = Math.abs((now - receipt) / 60000);
-
-  console.log("⏱ Now:", now);
-  console.log("⏱ Receipt:", receipt);
-  console.log("⏱ Diff (mins):", diff);
-
-  return diff <= 10;
-}
-function detectCurrency(text) {
-  const match = text.match(/([A-Z]{3}|[$€£¥₦₵₱₴])\s?([\d,]+)/i);
-
-  if (match) {
-    return {
-      currency: match[1].toUpperCase(),
-      amount: parseInt(match[2].replace(/,/g, ""))
-    };
-  }
-
-  const nums = text.match(/\d{3,7}/g);
-  return {
-    currency: "TZS",
-    amount: nums ? Math.max(...nums.map(n => parseInt(n))) : 0
-  };
-}
-
-async function convertToTZS(amount, currency) {
-  if (currency === "TZS" || currency === "TSH") return amount;
-
-  try {
-    const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${currency}`);
-    const data = await res.json();
-    const rate = data.rates["TZS"];
-    return rate ? amount * rate : 0;
-  } catch {
-    return 0;
-  }
-}
-const listBtn = document.getElementById("listBtn");
-const listTableBody = document.getElementById("listTableBody");
-const listTableContainer = document.getElementById("listTableContainer");
-listBtn.onclick = async () => {
-  const user = auth.currentUser;
-  if (!user) return;
-
-  listTableBody.innerHTML = "";
-
-  const q = query(
-    collection(db, "users", user.email, "transactions"),
-    orderBy("createdAt", "desc")
-  );
-
-  const snapshot = await getDocs(q);
-
-  if (snapshot.empty) {
-    listTableBody.innerHTML = `
-      <tr>
-        <td colspan="6" style="text-align:center; padding:20px;">
-          No transactions found
-        </td>
-      </tr>
-    `;
-  } else {
-    let i = 1;
-
-    snapshot.forEach(doc => {
-      const tx = doc.data();
-
-      listTableBody.innerHTML += `
-        <tr>
-          <td>${i++}</td>
-          <td>${tx.date}</td>
-          <td>${tx.detail}</td>
-          <td>${tx.type}</td>
-          <td>${tx.method}</td>
-          <td>${tx.amount}</td>
-        </tr>
-      `;
-    });
-  }
-
-  listTableContainer.style.display = "block";
-};
-</script>
+    <div class="bg-animation">
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+    </div>
+
+    <div class="main-container">
+
+        <div class="illustrations">
+
+            <div class="illustration-item">
+                <div class="health-icon">
+                    <div class="heart"></div>
+                    <div class="health-cross"></div>
+                    <div class="pulse-line"></div>
+                </div>
+                <span class="illustration-label" style="color: #e74c3c;">Health</span>
+            </div>
+
+            <div class="illustration-item">
+                <div class="education-icon">
+                    <div class="grad-cap">
+                        <div class="cap-top"></div>
+                        <div class="cap-base"></div>
+                        <div class="tassel">
+                            <div class="tassel-line"></div>
+                            <div class="tassel-ball"></div>
+                        </div>
+                    </div>
+                    <div class="edu-book">
+                        <div class="edu-book-page"></div>
+                        <div class="edu-book-page"></div>
+                        <div class="edu-book-page"></div>
+                        <div class="edu-book-spine"></div>
+                    </div>
+                </div>
+                <span class="illustration-label" style="color: #3498db;">Education</span>
+            </div>
+
+            <div class="illustration-item">
+                <div class="business-icon">
+                    <div class="briefcase">
+                        <div class="briefcase-handle"></div>
+                        <div class="briefcase-body"></div>
+                        <div class="briefcase-lock"></div>
+                    </div>
+                    <div class="trend-arrow"></div>
+                    <div class="chart-bars">
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                    </div>
+                </div>
+                <span class="illustration-label" style="color: #f39c12;">Business</span>
+            </div>
+
+        </div>
+
+        <div class="login-card">
+            <h1>Welcome</h1>
+            <p>Access your dashboard for Health, Education & Business tools</p>
+
+            <button class="google-login-btn" id="googleLoginBtn" onclick="handleGoogleLogin()">
+                <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                </svg>
+                Sign in with Google
+            </button>
+
+            <div class="divider">
+                <span>Features</span>
+            </div>
+
+            <div class="features-list">
+                <div class="feature-item">
+                    <div class="feature-dot health"></div>
+                    Health tracking & wellness tools
+                </div>
+                <div class="feature-item">
+                    <div class="feature-dot education"></div>
+                    Learning courses & certifications
+                </div>
+                <div class="feature-item">
+                    <div class="feature-dot business"></div>
+                    Analytics & growth insights
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Added type="module" so ES6 imports in login.js work properly -->
+    <script type="module" src="login.js"></script>
 </body>
 </html>
