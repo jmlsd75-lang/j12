@@ -12,8 +12,9 @@
       --text-main: #2c3e50;
       --text-muted: #7f8c8d;
       --border-color: #e1e4e8;
-      --success: #27ae60;
-      --danger: #c0392b;
+      --success: #27ae60; /* Dr Color */
+      --danger: #c0392b;  /* Cr Color */
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }
 
@@ -28,7 +29,7 @@
       flex-direction: column;
     }
 
-    /* ── Header ── */
+    /* ── Header / Nav ── */
     header {
       background: var(--bg-card);
       padding: 1rem 2rem;
@@ -51,9 +52,14 @@
       padding: 8px 16px;
       border-radius: 6px;
       transition: background 0.2s;
+      border: 1px solid transparent;
     }
 
     .back-btn:hover { background-color: #f0f2f5; }
+    .back-btn svg { width: 20px; height: 20px; }
+
+    .user-info { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--text-muted); }
+    .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); }
 
     /* ── Main Content ── */
     main {
@@ -64,149 +70,102 @@
       width: 100%;
     }
 
-    h1.page-title {
+    .page-title {
       text-align: center;
-      margin-bottom: 1.5rem;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
       color: var(--text-main);
-      font-size: 1.8rem;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
 
-    /* ── Add Transaction Form (Simple) ── */
-    .input-card {
+    /* ── Cash Book Layout (Split View) ── */
+    .cash-book-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr; /* Two equal columns */
+      gap: 2rem;
+      align-items: start; /* Align tops, allowing different heights */
+    }
+
+    .cash-book-side {
       background: var(--bg-card);
-      padding: 1.5rem;
       border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
       border: 1px solid var(--border-color);
-    }
-
-    .form-row {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      align-items: flex-end;
-    }
-
-    .form-group {
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      gap: 5px;
-      flex: 1;
-      min-width: 150px;
     }
 
-    label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
-    
-    input, select {
-      padding: 10px;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      font-size: 0.95rem;
-      outline: none;
+    .side-header {
+      background: #f8fafc;
+      padding: 12px;
+      text-align: center;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 1.1rem;
+      border-bottom: 2px solid var(--border-color);
     }
 
-    input:focus, select:focus { border-color: var(--primary); }
+    .side-header.dr { color: var(--success); border-color: var(--success); }
+    .side-header.cr { color: var(--danger); border-color: var(--danger); }
 
-    .btn-add {
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      height: 42px;
-    }
-    .btn-add:hover { opacity: 0.9; }
-
-    /* ── Cash Book Table Layout ── */
-    .cashbook-container {
-      background: var(--bg-card);
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      overflow-x: auto;
-      border: 1px solid var(--border-color);
-      padding: 20px;
-    }
-
-    table.cashbook-table {
+    /* Tables */
+    table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 800px;
-    }
-
-    /* Layout: Split into Debit and Credit Sides */
-    .side-header {
-      background-color: #f8fafc;
-      border-bottom: 2px solid #333;
-    }
-    
-    .side-header th {
-      padding: 12px;
-      text-align: left;
       font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--text-main);
-      border-right: 1px solid #ddd;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 12px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background-color: #fcfcfc;
+      border-bottom: 1px solid var(--border-color);
     }
     
-    .side-header th:last-child { border-right: none; }
-
-    .col-date { width: 15%; }
-    .col-detail { width: 40%; }
+    /* Specific column widths for accounting look */
+    .col-date { width: 25%; }
+    .col-detail { width: 45%; }
     .col-folio { width: 15%; text-align: center; }
-    .col-amount { width: 30%; text-align: right; }
+    .col-amount { width: 15%; text-align: right; font-family: 'Courier New', monospace; font-weight: 600; }
 
     td {
       padding: 10px 12px;
       border-bottom: 1px solid var(--border-color);
-      border-right: 1px solid #eee;
-      color: #444;
-      font-size: 0.9rem;
-    }
-    td:last-child { border-right: none; }
-
-    /* Center the folio column specifically */
-    td.col-folio { text-align: center; }
-
-    /* Totals Row Styling */
-    tr.totals-row td {
-      font-weight: 800;
-      background-color: #f1f3f5;
-      border-top: 2px double #333;
-      border-bottom: 2px double #333;
-      font-size: 1rem;
+      vertical-align: middle;
     }
 
-    /* Balance Rows */
-    .balance-text { font-weight: 600; color: var(--text-muted); font-style: italic; }
+    tr:last-child td { border-bottom: none; }
+
+    /* Special Rows */
+    .row-balance { font-style: italic; color: var(--text-muted); background-color: #fafafa; }
+    .row-total { 
+      background-color: #edf2f7; 
+      font-weight: 700; 
+      border-top: 2px solid var(--border-color);
+    }
+    .row-total td { padding-top: 14px; padding-bottom: 14px; }
 
     /* Empty State */
     .empty-state {
+      grid-column: 1 / -1;
       text-align: center;
       padding: 3rem;
       color: var(--text-muted);
+      display: none;
     }
+    .empty-state.visible { display: block; }
 
-    /* Toast */
-    #toast-container {
-      position: fixed; bottom: 20px; right: 20px; z-index: 1000;
-    }
-    .toast {
-      background: #333; color: #fff; padding: 12px 24px; border-radius: 8px;
-      margin-top: 10px; opacity: 0; transform: translateY(20px);
-      transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-    .toast.show { opacity: 1; transform: translateY(0); }
-    .toast.error { background: #e74c3c; }
-
+    /* Responsive */
     @media (max-width: 768px) {
+      .cash-book-container { grid-template-columns: 1fr; }
+      header { padding: 1rem; }
       main { padding: 1rem; }
-      .form-row { flex-direction: column; align-items: stretch; }
-      .btn-add { width: 100%; }
     }
   </style>
 </head>
@@ -214,7 +173,7 @@
 
   <header>
     <a href="menu.html" class="back-btn">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="19" y1="12" x2="5" y2="12"></line>
         <polyline points="12 19 5 12 12 5"></polyline>
       </svg>
@@ -226,65 +185,56 @@
   <main>
     <h1 class="page-title">Cash Book</h1>
 
-    <!-- Entry Form -->
-    <div class="input-card">
-      <div class="form-row">
-        <div class="form-group">
-          <label>Date</label>
-          <input type="date" id="inputDate">
-        </div>
-        <div class="form-group">
-          <label>Particulars (Detail)</label>
-          <input type="text" id="inputDetail" placeholder="e.g. Sales, Rent" required>
-        </div>
-        <div class="form-group">
-          <label>Type</label>
-          <select id="inputType">
-            <option value="IN">Receive (Debit)</option>
-            <option value="OUT">Payment (Credit)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Amount</label>
-          <input type="number" id="inputAmount" placeholder="0.00" min="0" step="0.01" required>
-        </div>
-        <button class="btn-add" id="btnSave">Save Entry</button>
-      </div>
+    <div class="empty-state" id="emptyState">
+      <p>No transactions found to generate Cash Book.</p>
     </div>
 
-    <!-- Cash Book Table -->
-    <div class="cashbook-container">
-      <table class="cashbook-table">
-        <thead>
-          <tr class="side-header">
-            <!-- Debit Side Headers -->
-            <th class="col-date">Date</th>
-            <th class="col-detail">Particulars</th>
-            <th class="col-folio">Folio</th>
-            <th class="col-amount">Amount</th>
-            
-            <!-- Credit Side Headers -->
-            <th class="col-date">Date</th>
-            <th class="col-detail">Particulars</th>
-            <th class="col-folio">Folio</th>
-            <th class="col-amount">Amount</th>
-          </tr>
-        </thead>
-        <tbody id="cashbookBody">
-          <!-- Rows generated by JS -->
-        </tbody>
-      </table>
-      <div id="emptyState" class="empty-state">No Cash transactions found.</div>
+    <div class="cash-book-container" id="cashBookContainer">
+      
+      <!-- LEFT SIDE: DEBIT (Dr) -->
+      <div class="cash-book-side">
+        <div class="side-header dr">Debit (Cash In)</div>
+        <table>
+          <thead>
+            <tr>
+              <th class="col-date">Date</th>
+              <th class="col-detail">Particulars</th>
+              <th class="col-folio">Folio</th>
+              <th class="col-amount">Amount</th>
+            </tr>
+          </thead>
+          <tbody id="drTableBody">
+            <!-- Dr Rows Here -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- RIGHT SIDE: CREDIT (Cr) -->
+      <div class="cash-book-side">
+        <div class="side-header cr">Credit (Cash Out)</div>
+        <table>
+          <thead>
+            <tr>
+              <th class="col-date">Date</th>
+              <th class="col-detail">Particulars</th>
+              <th class="col-folio">Folio</th>
+              <th class="col-amount">Amount</th>
+            </tr>
+          </thead>
+          <tbody id="crTableBody">
+            <!-- Cr Rows Here -->
+          </tbody>
+        </table>
+      </div>
+
     </div>
   </main>
-
-  <div id="toast-container"></div>
 
   <!-- Firebase Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
@@ -299,296 +249,153 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // DOM Elements
-    const cashbookBody = document.getElementById('cashbookBody');
+    const drTableBody = document.getElementById('drTableBody');
+    const crTableBody = document.getElementById('crTableBody');
     const emptyState = document.getElementById('emptyState');
-    const btnSave = document.getElementById('btnSave');
+    const cashBookContainer = document.getElementById('cashBookContainer');
     const userInfoDisplay = document.getElementById('userInfoDisplay');
 
-    // Input Elements
-    const inputDate = document.getElementById('inputDate');
-    const inputDetail = document.getElementById('inputDetail');
-    const inputType = document.getElementById('inputType');
-    const inputAmount = document.getElementById('inputAmount');
+    // Helper: Format Currency
+    const formatCurrency = (amount) => {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TZS' }).format(amount);
+    };
 
-    // Set default date to today
-    inputDate.valueAsDate = new Date();
+    // Helper: Get Today's Date string
+    const getTodayDate = () => {
+      return new Date().toISOString().split('T')[0];
+    };
 
-    let currentUserEmail = null;
-
-    // ── Auth Check ──
+    // Auth Check
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         window.location.href = "index.html";
         return;
       }
-      currentUserEmail = user.email;
-      
-      // Update Header
+
+      // Update Header User
       const sessionData = localStorage.getItem("userSession");
-      let name = user.displayName || "User";
-      let photo = user.photoURL || 'https://picsum.photos/seed/user/32/32';
-      
       if (sessionData) {
         const parsed = JSON.parse(sessionData);
-        name = parsed.name || name;
-        photo = parsed.photo || photo;
-      }
-      
-      userInfoDisplay.innerHTML = `
-        <span>${name}</span>
-        <img src="${photo}" class="user-avatar" style="width:32px; height:32px; border-radius:50%; border:1px solid #ddd;">
-      `;
-
-      fetchAndRenderCashBook();
-    });
-
-    // ── Save Transaction Logic ──
-    btnSave.addEventListener('click', async () => {
-      if (!currentUserEmail) return;
-      
-      const detail = inputDetail.value.trim();
-      const amount = parseFloat(inputAmount.value);
-      const dateVal = inputDate.value;
-      const type = inputType.value;
-
-      if (!detail || isNaN(amount) || amount <= 0 || !dateVal) {
-        showToast("Please fill in all fields correctly.", true);
-        return;
-      }
-
-      try {
-        const docRef = await addDoc(collection(db, "users", currentUserEmail, "transactions"), {
-          detail: detail,
-          amount: amount,
-          type: type, // 'IN' or 'OUT'
-          method: "CASH", // Strictly Cash Book
-          date: dateVal,
-          createdAt: new Date()
-        });
-
-        showToast("Transaction saved successfully!");
-        inputDetail.value = "";
-        inputAmount.value = "";
-        inputDetail.focus();
-        
-        // Re-render
-        fetchAndRenderCashBook();
-      } catch (error) {
-        console.error("Error saving:", error);
-        showToast("Error saving: " + error.message, true);
-      }
-    });
-
-    // ── Main Cash Book Logic ──
-    async function fetchAndRenderCashBook() {
-      if (!currentUserEmail) return;
-
-      try {
-        // 1. Fetch Cash Only Transactions
-        const q = query(
-          collection(db, "users", currentUserEmail, "transactions"),
-          where("method", "==", "CASH"),
-          orderBy("date", "asc") // Chronological order for Cash Book
-        );
-        
-        const querySnapshot = await getDocs(q);
-        const transactions = [];
-        querySnapshot.forEach((doc) => transactions.push(doc.data()));
-
-        if (transactions.length === 0) {
-          cashbookBody.innerHTML = '';
-          emptyState.style.display = 'block';
-          return;
-        }
-        emptyState.style.display = 'none';
-
-        // 2. Process Data: Assign Folios
-        // Rule: Auto-increment for new details, reuse if repeated
-        const folioMap = {}; 
-        let nextFolio = 1;
-
-        const processedRows = transactions.map(tx => {
-          let folio = folioMap[tx.detail];
-          if (folio === undefined) {
-            folio = nextFolio++;
-            folioMap[tx.detail] = folio;
-          }
-          
-          // Determine side
-          const isDebit = tx.type === 'IN';
-          
-          return {
-            date: tx.date,
-            detail: tx.detail,
-            folio: folio,
-            amount: tx.amount,
-            isDebit: isDebit
-          };
-        });
-
-        // 3. Calculate Raw Totals
-        let totalDr = 0;
-        let totalCr = 0;
-        
-        processedRows.forEach(row => {
-          if (row.isDebit) totalDr += row.amount;
-          else totalCr += row.amount;
-        });
-
-        // 4. Determine Balances
-        let diff = 0;
-        let drIsLarger = false;
-
-        if (totalDr > totalCr) {
-          diff = totalDr - totalCr;
-          drIsLarger = true;
-        } else if (totalCr > totalDr) {
-          diff = totalCr - totalDr;
-          drIsLarger = false;
-        }
-
-        // 5. Render Table
-        let html = '';
-        const todayStr = new Date().toISOString().split('T')[0];
-
-        // A. Render Normal Transactions
-        // We iterate chronologically. We need to decide how to interleave them.
-        // For a simple Cash Book view, we often just list them sequentially. 
-        // If dates match, we try to put them on the same row. If not, empty cells.
-        
-        // Simple sequential approach for stability:
-        // (In a complex accounting system, you would merge rows by date, but here we list entries as they happen)
-        processedRows.forEach(row => {
-          if (row.isDebit) {
-            html += `
-              <tr>
-                <td>${row.date}</td>
-                <td>${row.detail}</td>
-                <td class="col-folio">${row.folio}</td>
-                <td class="col-amount">${formatCurrency(row.amount)}</td>
-                <td></td><td></td><td></td><td></td>
-              </tr>
-            `;
-          } else {
-            html += `
-              <tr>
-                <td></td><td></td><td></td><td></td>
-                <td>${row.date}</td>
-                <td>${row.detail}</td>
-                <td class="col-folio">${row.folio}</td>
-                <td class="col-amount">${formatCurrency(row.amount)}</td>
-              </tr>
-            `;
-          }
-        });
-
-        // B. Add "Balance c/d" (Carried Down) on the SMALLER side
-        // Instruction: "Before the total row, add: Date: Current date, Details: 'Balance', Folio: 'c/d', Amount: Difference"
-        
-        if (diff > 0) {
-          if (drIsLarger) {
-            // Credit is smaller, add Balance c/d to Credit
-            html += `
-              <tr>
-                <td></td><td></td><td></td><td></td>
-                <td>${todayStr}</td>
-                <td class="balance-text">Balance</td>
-                <td class="col-folio">c/d</td>
-                <td class="col-amount">${formatCurrency(diff)}</td>
-              </tr>
-            `;
-          } else {
-            // Debit is smaller, add Balance c/d to Debit
-            html += `
-              <tr>
-                <td>${todayStr}</td>
-                <td class="balance-text">Balance</td>
-                <td class="col-folio">c/d</td>
-                <td class="col-amount">${formatCurrency(diff)}</td>
-                <td></td><td></td><td></td><td></td>
-              </tr>
-            `;
-          }
-        }
-
-        // C. Add Totals Row
-        // The displayed total must be equal on both sides now.
-        const grandTotal = Math.max(totalDr, totalCr);
-        
-        html += `
-          <tr class="totals-row">
-            <td></td>
-            <td style="text-align:right; padding-right:15px;">Total</td>
-            <td></td>
-            <td class="col-amount">${formatCurrency(grandTotal)}</td>
-            <td></td>
-            <td style="text-align:right; padding-right:15px;">Total</td>
-            <td></td>
-            <td class="col-amount">${formatCurrency(grandTotal)}</td>
-          </tr>
+        userInfoDisplay.innerHTML = `
+          <span>Hello, ${parsed.name || "User"}</span>
+          <img src="${parsed.photo || 'https://picsum.photos/seed/user/32/32'}" class="user-avatar">
         `;
+      }
 
-        // D. Add "Balance b/d" (Brought Down) on the LARGER side
-        // Instruction: "After the total row... Folio: b/d"
-        if (diff > 0) {
-          if (drIsLarger) {
-            // Debit is larger, add Balance b/d to Debit
-            html += `
-              <tr>
-                <td>${todayStr}</td>
-                <td class="balance-text">Balance</td>
-                <td class="col-folio">b/d</td>
-                <td class="col-amount">${formatCurrency(diff)}</td>
-                <td></td><td></td><td></td><td></td>
-              </tr>
-            `;
-          } else {
-            // Credit is larger, add Balance b/d to Credit
-            html += `
-              <tr>
-                <td></td><td></td><td></td><td></td>
-                <td>${todayStr}</td>
-                <td class="balance-text">Balance</td>
-                <td class="col-folio">b/d</td>
-                <td class="col-amount">${formatCurrency(diff)}</td>
-              </tr>
-            `;
-          }
+      // REAL-TIME LISTENER (onSnapshot)
+      const transactionsRef = collection(db, "users", user.email, "transactions");
+      const q = query(transactionsRef, orderBy("date", "desc")); // Sorting by date descending
+
+      onSnapshot(q, (snapshot) => {
+        renderCashBook(snapshot.docs);
+      }, (error) => {
+        console.error("Error listening to changes:", error);
+      });
+    });
+
+    function renderCashBook(docs) {
+      // Clear previous data
+      drTableBody.innerHTML = "";
+      crTableBody.innerHTML = "";
+
+      if (docs.length === 0) {
+        emptyState.classList.add('visible');
+        cashBookContainer.style.display = 'none';
+        return;
+      } else {
+        emptyState.classList.remove('visible');
+        cashBookContainer.style.display = 'grid';
+      }
+
+      let totalDr = 0;
+      let totalCr = 0;
+      
+      // Folio Logic: Map detail -> Number. If detail exists, reuse number. Else new number.
+      let folioCounter = 1;
+      const folioMap = {}; 
+
+      const getFolio = (detail) => {
+        // Normalize detail (lowercase, trim) to check for repeats
+        const key = detail.toLowerCase().trim();
+        if (folioMap[key] !== undefined) {
+          return folioMap[key];
+        } else {
+          folioMap[key] = folioCounter++;
+          return folioMap[key];
+        }
+      };
+
+      // 1. Process Transactions
+      docs.forEach((doc) => {
+        const data = doc.data();
+        const amount = parseFloat(data.amount || 0);
+        const type = (data.type || "IN").toUpperCase();
+        
+        // Extract Name from Detail if present (e.g., "Lunch (John)")
+        let detail = data.detail || "-";
+        const nameMatch = detail.match(/\(([^)]+)\)$/);
+        let particulars = detail;
+        if (nameMatch) {
+          particulars = detail.replace(/\s*\([^)]+\)$/, ""); // Remove name for particulars column
         }
 
-        cashbookBody.innerHTML = html;
+        const folio = getFolio(particulars);
+        const dateStr = data.date || getTodayDate();
 
-      } catch (error) {
-        console.error("Error fetching cashbook:", error);
-        showToast("Error loading data: " + error.message, true);
+        if (type === 'IN') {
+          totalDr += amount;
+          const row = `
+            <tr>
+              <td class="col-date">${dateStr}</td>
+              <td class="col-detail">${particulars}</td>
+              <td class="col-folio">${folio}</td>
+              <td class="col-amount">${formatCurrency(amount)}</td>
+            </tr>
+          `;
+          drTableBody.insertAdjacentHTML('beforeend', row);
+        } else {
+          totalCr += amount;
+          const row = `
+            <tr>
+              <td class="col-date">${dateStr}</td>
+              <td class="col-detail">${particulars}</td>
+              <td class="col-folio">${folio}</td>
+              <td class="col-amount">${formatCurrency(amount)}</td>
+            </tr>
+          `;
+          crTableBody.insertAdjacentHTML('beforeend', row);
+        }
+      });
+
+      // 2. Calculate Difference and Balances
+      let diff = Math.abs(totalDr - totalCr);
+      const today = getTodayDate();
+
+      // 3. Add "Balance c/d" to the smaller side
+      if (totalDr > totalCr) {
+        // Debit is larger, so add Balance c/d to Credit
+        crTableBody.insertAdjacentHTML('beforeend', `
+          <tr class="row-balance">
+            <td class="col-date">${today}</td>
+            <td class="col-detail">Balance</td>
+            <td class="col-folio">c/d</td>
+            <td class="col-amount">${formatCurrency(diff)}</td>
+          </tr>
+        `);
+        totalCr += diff; // Update Credit total for the Total row
+      } else if (totalCr > totalDr) {
+        // Credit is larger, so add Balance c/d to Debit
+        drTableBody.insertAdjacentHTML('beforeend', `
+          <tr class="row-balance">
+            <td class="col-date">${today}</td>
+            <td class="col-detail">Balance</td>
+            <td class="col-folio">c/d</td>
+            <td class="col-amount">${formatCurrency(diff)}</td>
+          </tr>
+        `);
+        totalDr += diff; // Update Debit total for the Total row
       }
-    }
 
-    // Helper: Format Currency (TZS)
-    function formatCurrency(amount) {
-      return new Intl.NumberFormat('en-TZ', { 
-        style: 'currency', 
-        currency: 'TZS',
-        minimumFractionDigits: 0 
-      }).format(amount);
-    }
-
-    // Helper: Toast
-    function showToast(message, isError = false) {
-      const container = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-      toast.className = `toast ${isError ? 'error' : ''}`;
-      toast.textContent = message;
-      container.appendChild(toast);
-      
-      requestAnimationFrame(() => toast.classList.add('show'));
-      
-      setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
-      }, 3000);
-    }
-  </script>
-</body>
-</html>
+      // 4. Add Total Row
+      const totalRowDr = `
+        <
