@@ -24,11 +24,7 @@
             --radius: 12px;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -61,31 +57,20 @@
             text-align: center;
             background: #fff;
         }
-
-        header h1 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--text-main);
-        }
+        header h1 { font-size: 1.25rem; font-weight: 600; color: var(--text-main); }
 
         /* --- Steps & Content --- */
         .step-content {
             padding: 24px;
             flex: 1;
-            display: none; /* Hidden by default */
+            display: none; 
             flex-direction: column;
             animation: slideUp 0.3s ease-out;
         }
-
-        .step-content.active {
-            display: flex;
-        }
-
-        /* Helper to center content vertically in steps like Step 1 */
-        .step-content.centered-content {
-            justify-content: center;
-            align-items: center;
-        }
+        .step-content.active { display: flex; }
+        
+        /* Center content for Step 1 */
+        .centered-content { justify-content: center; align-items: center; }
 
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(10px); }
@@ -100,7 +85,6 @@
             margin-bottom: 24px;
             justify-content: flex-start;
         }
-
         .trail-btn {
             background: #F9FAFB;
             border: 1px solid #D1D5DB;
@@ -112,7 +96,6 @@
             display: inline-flex;
             align-items: center;
         }
-        
         .trail-label {
             color: var(--text-muted);
             font-size: 0.65rem;
@@ -122,138 +105,54 @@
         }
 
         /* --- Inputs --- */
-        label {
-            display: block;
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-main);
-        }
-
-        input[type="text"],
-        input[type="number"] {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            font-size: 1.1rem;
-            transition: all 0.2s;
-            font-family: inherit;
-            -moz-appearance: textfield;
-        }
+        label { display: block; font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
         
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
+        input[type="text"], input[type="number"] {
+            width: 100%; padding: 14px 16px; border: 2px solid var(--border);
+            border-radius: 10px; font-size: 1.1rem; transition: all 0.2s;
+            font-family: inherit; -moz-appearance: textfield;
         }
-
-        input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
-        }
-
-        .hint {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: 6px;
-        }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
+        .hint { font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; }
 
         /* --- Selection Grids (Cash/Bank) --- */
         .grid-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 12px;
-            margin-top: 10px;
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 10px;
         }
-
         .option-btn {
-            background: #F9FAFB;
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            padding: 18px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 600;
-            font-size: 1rem;
-            color: var(--text-main);
+            background: #F9FAFB; border: 2px solid var(--border); border-radius: 10px;
+            padding: 18px; text-align: center; cursor: pointer; transition: all 0.2s;
+            font-weight: 600; font-size: 1rem; color: var(--text-main);
         }
+        .option-btn:hover { border-color: var(--primary); background: #EEF2FF; color: var(--primary); }
 
-        .option-btn:hover {
-            border-color: var(--primary);
-            background: #EEF2FF;
-            color: var(--primary);
-        }
-
-        /* --- SPECIAL BUTTON STYLES (Sales/Purchases) --- */
-        .btn-container-wrapper {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            width: 100%;
-        }
-
+        /* --- SPECIAL BUTTON STYLES --- */
+        .btn-container-wrapper { display: flex; gap: 20px; justify-content: center; width: 100%; }
         .btn {
-            padding: 15px 40px;
-            font-size: 18px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            color: white;
-            transition: 0.3s;
-            font-weight: 500;
-            font-family: 'Inter', sans-serif;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            white-space: nowrap;
+            padding: 15px 40px; font-size: 18px; border: none; border-radius: 8px;
+            cursor: pointer; color: white; transition: 0.3s; font-weight: 500;
+            font-family: 'Inter', sans-serif; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-
-        .sales {
-            background-color: #28a745;
-        }
+        .sales { background-color: #28a745; }
         .sales:hover { background-color: #218838; }
-
-        .purchases {
-            background-color: #007bff;
-        }
+        .purchases { background-color: #007bff; }
         .purchases:hover { background-color: #0056b3; }
 
         /* --- Footer --- */
         .action-bar {
-            padding: 16px 24px 24px 24px;
-            margin-top: auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid var(--border);
-            background: #F9FAFB;
+            padding: 16px 24px 24px 24px; margin-top: auto; display: flex;
+            justify-content: space-between; align-items: center;
+            border-top: 1px solid var(--border); background: #F9FAFB;
         }
-
-        button.action-cancel {
-            background: transparent;
-            color: var(--text-muted);
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            padding: 10px;
+        .action-cancel { background: transparent; color: var(--text-muted); font-weight: 600; border: none; cursor: pointer; padding: 10px; }
+        .action-cancel:hover { color: var(--danger); }
+        .action-primary {
+            background: var(--primary); color: white; border: none; padding: 12px 24px;
+            border-radius: 8px; cursor: pointer; font-weight: 500; flex: 1; margin-left: 12px;
         }
-        button.action-cancel:hover { color: var(--danger); }
-
-        button.action-primary {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            flex: 1;
-            margin-left: 12px;
-        }
-        button.action-primary:hover:not(:disabled) { background: var(--primary-hover); }
-        button.action-primary:disabled { background: #A5B4FC; cursor: not-allowed; }
-
+        .action-primary:hover:not(:disabled) { background: var(--primary-hover); }
+        .action-primary:disabled { background: #A5B4FC; cursor: not-allowed; }
         .hidden { display: none !important; }
 
         /* --- Success View --- */
@@ -283,22 +182,22 @@
         </header>
 
         <main>
-            <!-- Step 1: Type Selection (New First Step) -->
+            <!-- Step 1: Type Selection (Buttons define logic) -->
             <section id="step-1" class="step-content active centered-content">
                 <label style="text-align: center; margin-bottom: 30px; width: 100%;">Select Transaction Type</label>
                 
                 <div class="btn-container-wrapper">
-                    <!-- Logic passed here: 'IN'/'OUT' is the flow, 'Sales'/'Purchases' is the detail -->
-                    <button class="btn sales" onclick="selectType('IN', 'Sales')">
+                    <!-- Logic is in the HTML: data-flow and innerText -->
+                    <button class="btn sales" data-flow="IN" onclick="handleTypeClick(this)">
                         Sales
                     </button>
-                    <button class="btn purchases" onclick="selectType('OUT', 'Purchases')">
+                    <button class="btn purchases" data-flow="OUT" onclick="handleTypeClick(this)">
                         Purchases
                     </button>
                 </div>
             </section>
 
-            <!-- Step 2: Amount (New Second Step) -->
+            <!-- Step 2: Amount -->
             <section id="step-2" class="step-content">
                 <div class="trail-container" id="trail-2"></div>
                 <label for="amountInput">Enter Amount</label>
@@ -306,7 +205,7 @@
                 <div class="hint">Press <b>Enter</b> to continue</div>
             </section>
 
-            <!-- Step 3: Form (Cash/Credit/Bank) -->
+            <!-- Step 3: Form -->
             <section id="step-3" class="step-content">
                 <div class="trail-container" id="trail-3"></div>
                 <label>Form of Flow</label>
@@ -317,7 +216,7 @@
                 </div>
             </section>
 
-            <!-- Step 4: Credit Name (Conditional) -->
+            <!-- Step 4: Credit Name -->
             <section id="step-4" class="step-content">
                 <div class="trail-container" id="trail-4"></div>
                 <label for="creditNameInput">Credit Name / Lender</label>
@@ -358,22 +257,9 @@
 
     <!-- Firebase & Logic -->
     <script type="module">
-        // ============================================================
-        // 1. Firebase Imports & Config
-        // ============================================================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { 
-            getFirestore, 
-            collection, 
-            addDoc,
-            doc,       
-            updateDoc, 
-            increment  
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import { 
-            getAuth, 
-            onAuthStateChanged 
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, addDoc, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
@@ -384,19 +270,16 @@
             appId: "1:167159607898:web:23ca11366b88868b085e63"
         };
 
-        // Initialize
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // ============================================================
-        // 2. State Management
-        // ============================================================
+        // State is now empty initially, filled by page interactions
         const state = {
             step: 1,
             data: {
-                flowType: '',   // IN or OUT (Logic from button)
-                detail: '',     // Sales or Purchases (Button Name)
+                flowType: '',   
+                detail: '',     
                 amount: 0,
                 flowForm: '', 
                 creditName: ''
@@ -409,27 +292,18 @@
         };
         const mainActionBtn = document.getElementById('mainActionBtn');
 
-        // ============================================================
-        // 3. Navigation Logic
-        // ============================================================
+        // --- Navigation ---
         function goToStep(stepNumber) {
-            // Hide current
             document.querySelector('.step-content.active')?.classList.remove('active');
-            
-            // Show next
             const next = document.getElementById(`step-${stepNumber}`);
             if(next) next.classList.add('active');
-
             state.step = stepNumber;
             updateUI();
-
-            // Auto focus
             if(stepNumber === 2) setTimeout(() => inputs.amount.focus(), 50);
             if(stepNumber === 4) setTimeout(() => inputs.creditName.focus(), 50);
         }
 
         function updateUI() {
-            // Show/Hide Confirm Button
             if (state.step === 5) {
                 mainActionBtn.classList.remove('hidden');
                 mainActionBtn.textContent = "Save";
@@ -440,42 +314,32 @@
             renderHistory();
         }
 
-        // ============================================================
-        // 4. History Trail Logic (Order: Type -> Amount -> Form)
-        // ============================================================
+        // --- Dynamic History ---
         function createHistoryButton(label, value) {
-            return `
-                <div class="trail-btn">
-                    <span class="trail-label">${label}</span> ${value}
-                </div>
-            `;
+            return `<div class="trail-btn"><span class="trail-label">${label}</span> ${value}</div>`;
         }
 
         function renderHistory() {
-            // Step 2 (Amount Input) Trail (Shows Type)
+            // Logic to render history based on current data from state
             if (state.step >= 2) {
                 document.getElementById('trail-2').innerHTML = createHistoryButton('Type', state.data.detail);
             }
-            // Step 3 (Form) Trail (Shows Type + Amount)
             if (state.step >= 3) {
                 document.getElementById('trail-3').innerHTML = 
                     createHistoryButton('Type', state.data.detail) + 
                     createHistoryButton('Amount', state.data.amount);
             }
-            // Step 4 (Credit) Trail (Shows Type + Amount + Form)
             if (state.step >= 4) {
                 document.getElementById('trail-4').innerHTML = 
                     createHistoryButton('Type', state.data.detail) + 
                     createHistoryButton('Amount', state.data.amount) +
                     createHistoryButton('Form', state.data.flowForm);
             }
-            // Step 5 (Confirm) Trail (Shows Everything)
             if (state.step === 5) {
                 let html = 
                     createHistoryButton('Type', state.data.detail) + 
                     createHistoryButton('Amount', state.data.amount) +
                     createHistoryButton('Form', state.data.flowForm);
-                
                 if (state.data.flowForm === 'Credit') {
                     html += createHistoryButton('Credit', state.data.creditName);
                 }
@@ -483,65 +347,57 @@
             }
         }
 
-        // ============================================================
-        // 5. Event Listeners & Logic
-        // ============================================================
+        // --- Event Handlers ---
 
-        // Step 1: Type Selection (Logic driven)
-        window.selectType = function(flow, display) {
-            // Logic: The button click sets both the hidden "IN/OUT" type and the visible "Sales/Purchases" detail
-            state.data.flowType = flow;          // 'IN' or 'OUT'
-            state.data.detail = display;         // 'Sales' or 'Purchases'
+        // 1. Logic connects to Page: Reads attributes from the clicked button element
+        window.handleTypeClick = function(btnElement) {
+            // Get Logic FROM the page element
+            const flowType = btnElement.getAttribute('data-flow'); // 'IN' or 'OUT'
+            const detailText = btnElement.innerText;               // 'Sales' or 'Purchases'
             
-            goToStep(2); // Go to Amount
+            // Update state
+            state.data.flowType = flowType;
+            state.data.detail = detailText;
+            
+            goToStep(2);
         };
 
-        // Step 2: Amount Input
+        // 2. Amount Logic
         inputs.amount.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const val = parseFloat(inputs.amount.value);
                 if (!val || val <= 0) return showToast("Please enter a valid amount.");
                 state.data.amount = val;
-                goToStep(3); // Go to Form
+                goToStep(3);
             }
         });
 
-        // Step 3: Form Selection
+        // 3. Form Logic
         window.selectForm = function(form, btnEl) {
             state.data.flowForm = form;
-            
-            // Visual Feedback
             const container = document.getElementById('step-3');
             container.querySelectorAll('.option-btn').forEach(b => {
-                b.style.borderColor = 'var(--border)';
-                b.style.background = '#F9FAFB';
+                b.style.borderColor = 'var(--border)'; b.style.background = '#F9FAFB';
             });
-            btnEl.style.borderColor = 'var(--primary)';
-            btnEl.style.background = 'var(--primary)';
-            btnEl.style.color = '#fff';
+            btnEl.style.borderColor = 'var(--primary)'; btnEl.style.background = 'var(--primary)'; btnEl.style.color = '#fff';
 
             setTimeout(() => {
-                if (form === 'Credit') {
-                    goToStep(4); // Go to Credit Name
-                } else {
-                    goToStep(5); // Go to Confirm
-                }
+                if (form === 'Credit') goToStep(4);
+                else goToStep(5);
             }, 150);
         };
 
-        // Step 4: Credit Name Input
+        // 4. Credit Logic
         inputs.creditName.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const val = inputs.creditName.value.trim();
                 if (!val) return showToast("Please enter a name for the credit.");
                 state.data.creditName = val;
-                goToStep(5); // Go to Confirm
+                goToStep(5);
             }
         });
 
-        // ============================================================
-        // 6. Save Logic
-        // ============================================================
+        // --- Save Logic ---
         let isSaving = false;
 
         window.saveTransaction = async function() {
@@ -559,11 +415,8 @@
                 return;
             }
 
-            // Prepare Data
-            // Detail is already set to "Sales" or "Purchases" from Step 1
+            // Construct object directly from the dynamic state
             let finalDetail = state.data.detail;
-            
-            // If credit, append lender name to detail for clarity
             if (state.data.flowForm === 'Credit' && state.data.creditName) {
                 finalDetail += ` (${state.data.creditName})`;
             }
@@ -571,33 +424,21 @@
             const transaction = {
                 date: new Date().toLocaleString(),
                 detail: finalDetail,
-                type: state.data.flowType,       // "IN" or "OUT" (Hidden logic)
-                displayType: state.data.detail,  // "Sales" or "Purchases" (Button Name)
+                type: state.data.flowType,       // IN or OUT (from button data-flow)
+                displayType: state.data.detail,  // Sales or Purchases (from button text)
                 method: state.data.flowForm.toUpperCase(), 
                 amount: Number(state.data.amount),
                 createdAt: Date.now()
             };
 
             try {
-                // 1. Save Transaction
-                await addDoc(
-                    collection(db, "users", user.email, "transactions"),
-                    transaction
-                );
-
-                // 2. Update spaceUsed
+                await addDoc(collection(db, "users", user.email, "transactions"), transaction);
                 const userRef = doc(db, "users", user.email);
-                await updateDoc(userRef, {
-                    spaceUsed: increment(1)
-                });
+                await updateDoc(userRef, { spaceUsed: increment(1) });
 
                 console.log("Transaction Saved:", transaction);
-
-                // 3. Success
                 goToStep(6);
-                setTimeout(() => {
-                    window.location.href = 'business.html'; 
-                }, 2000);
+                setTimeout(() => { window.location.href = 'business.html'; }, 2000);
 
             } catch (error) {
                 console.error("Error:", error);
@@ -609,26 +450,18 @@
         };
 
         window.handleCancel = function() {
-            if(confirm("Cancel transaction?")) {
-                window.location.href = 'business.html';
-            }
+            if(confirm("Cancel transaction?")) window.location.href = 'business.html';
         };
 
         function showToast(msg) {
             const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.className = 'show';
+            t.textContent = msg; t.className = 'show';
             setTimeout(() => t.className = t.className.replace('show', ''), 3000);
         }
 
-        // Init Check
         onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                window.location.href = 'index.html';
-            }
-            // No focus needed for Step 1 (Buttons)
+            if (!user) window.location.href = 'index.html';
         });
-
     </script>
 </body>
 </html>
