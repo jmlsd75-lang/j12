@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Entry</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --danger: #dc2626;
+            --danger-hover: #b91c1c;
+            --success: #16a34a;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text: #1f2937;
+            --border: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: var(--text);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            box-sizing: border-box; /* Ensures padding doesn't increase width */
+            transition: border-color 0.2s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Method Buttons (Step 2) */
+        .method-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            visibility: hidden;
+            height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .method-options.visible {
+            opacity: 1;
+            visibility: visible;
+            height: auto;
+            margin-bottom: 1.5rem;
+        }
+
+        .method-btn {
+            padding: 10px;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            color: var(--text);
+        }
+
+        .method-btn:hover {
+            background-color: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        .method-btn.selected {
+            border-color: var(--primary);
+            background-color: #eff6ff;
+            color: var(--primary);
+        }
+
+        /* Action Buttons (Step 3) */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            opacity: 0;
+            visibility: hidden;
+            height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .action-buttons.visible {
+            opacity: 1;
+            visibility: visible;
+            height: auto;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn-cancel {
+            background-color: white;
+            border: 2px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-cancel:hover {
+            background-color: #f3f4f6;
+            border-color: #d1d5db;
+        }
+
+        .btn-danger {
+            background-color: white;
+            border: 2px solid var(--danger);
+            color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: #fef2f2;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Transaction History (To show saved data) */
+        .history {
+            margin-top: 2rem;
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .history-amount {
+            font-weight: bold;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--text);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="card">
+            <h2>New Transaction</h2>
+
+            <!-- Step 1: Enter Amount -->
+            <div class="form-group">
+                <label for="amount">Enter Amount</label>
+                <input type="number" id="amount" placeholder="0.00" step="0.01">
+            </div>
+
+            <!-- Step 1 Cancel Button (Goes to business.html) -->
+            <div id="step1-actions" style="display: flex; justify-content: flex-end;">
+                <button class="btn btn-danger" id="cancel-main">Cancel</button>
+            </div>
+
+            <!-- Step 2: Choose Method (Hidden initially) -->
+            <div class="method-options" id="method-options">
+                <button class="method-btn" data-method="Cash">Cash</button>
+                <button class="method-btn" data-method="Credit">Credit</button>
+                <button class="method-btn" data-method="Bank">Bank</button>
+            </div>
+
+            <!-- Step 3: Confirm (Hidden initially) -->
+            <div class="action-buttons" id="confirm-actions">
+                <button class="btn btn-cancel" id="cancel-step">Cancel</button>
+                <button class="btn btn-primary" id="save-btn">OK</button>
+            </div>
+
+        </div>
+
+        <!-- List to show saved items -->
+        <div class="history" id="history-container">
+            <label>Recent Saved Transactions:</label>
+            <div id="history-list">
+                <!-- Items will appear here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast">Transaction Saved!</div>
+
+    <script>
+        // Elements
+        const amountInput = document.getElementById('amount');
+        const methodOptions = document.getElementById('method-options');
+        const methodBtns = document.querySelectorAll('.method-btn');
+        const confirmActions = document.getElementById('confirm-actions');
+        const cancelMainBtn = document.getElementById('cancel-main'); // Step 1 Cancel
+        const cancelStepBtn = document.getElementById('cancel-step'); // Step 3 Cancel
+        const saveBtn = document.getElementById('save-btn');
+        const step1Actions = document.getElementById('step1-actions');
+        const historyList = document.getElementById('history-list');
+        const toast = document.getElementById('toast');
+
+        // State
+        let selectedMethod = null;
+
+        // 1. On Page Load: Input is visible. 
+        // "on start ente amount show the 3 button"
+        amountInput.addEventListener('input', function() {
+            // If there is a value, show the method buttons
+            if (this.value.length > 0) {
+                methodOptions.classList.add('visible');
+                // Hide the Step 1 Cancel button to make space for the flow
+                step1Actions.style.display = 'none'; 
+            } else {
+                // If input is cleared, hide everything and reset
+                methodOptions.classList.remove('visible');
+                confirmActions.classList.remove('visible');
+                step1Actions.style.display = 'flex';
+                resetSelection();
+            }
+        });
+
+        // 2. Handle Method Selection
+        methodBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all
+                methodBtns.forEach(b => b.classList.remove('selected'));
+                // Add to clicked
+                this.classList.add('selected');
+                selectedMethod = this.getAttribute('data-method');
+                
+                // Show OK and Cancel buttons
+                confirmActions.classList.add('visible');
+            });
+        });
+
+        // 3. Handle Step 3 Cancel (Abort selection, return to selection step)
+        cancelStepBtn.addEventListener('click', function() {
+            confirmActions.classList.remove('visible');
+            resetSelection();
+        });
+
+        // 4. Handle Step 1 Cancel (Return to business.html without save)
+        cancelMainBtn.addEventListener('click', function() {
+            // Requirement: return to business.html without save
+            window.location.href = 'business.html';
+        });
+
+        // 5. Handle OK (Save and return to same page)
+        saveBtn.addEventListener('click', function() {
+            const amount = parseFloat(amountInput.value);
+            
+            if (amount && selectedMethod) {
+                // Save Logic (Visual only for this demo)
+                addToHistory(amount, selectedMethod);
+
+                // Show Feedback
+                showToast();
+
+                // Reset Form (Return to initial state on same page)
+                amountInput.value = '';
+                methodOptions.classList.remove('visible');
+                confirmActions.classList.remove('visible');
+                step1Actions.style.display = 'flex';
+                resetSelection();
+            }
+        });
+
+        // Helper: Reset button selection
+        function resetSelection() {
+            selectedMethod = null;
+            methodBtns.forEach(b => b.classList.remove('selected'));
+        }
+
+        // Helper: Add item to the history list
+        function addToHistory(amount, method) {
+            const item = document.createElement('div');
+            item.className = 'history-item';
+            
+            // Format currency
+            const formattedAmount = new Intl.NumberFormat('en-US', {
+                style: 'currency', 
+                currency: 'USD'
+            }).format(amount);
+
+            item.innerHTML = `
+                <span>${method}</span>
+                <span class="history-amount">${formattedAmount}</span>
+            `;
+            
+            // Insert at the top
+            historyList.insertBefore(item, historyList.firstChild);
+        }
+
+        // Helper: Show Toast
+        function showToast() {
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
