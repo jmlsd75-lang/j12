@@ -526,15 +526,15 @@
         // ============================================================
         // 4. Interaction Handlers
         // ============================================================
-inputs.detail.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-        const val = inputs.detail.value.trim();
-        if (!val) return showToast("Please enter a detail.");
 
-        // open detail.html with value
-        window.location.href = "detail.html?detail=" + encodeURIComponent(val);
-    }
-});
+        inputs.detail.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const val = inputs.detail.value.trim();
+                if (!val) return showToast("Please enter a detail.");
+                state.data.detail = val;
+                goToStep(2);
+            }
+        });
 
         inputs.amount.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
