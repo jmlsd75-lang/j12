@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
-        /* --- Base Styles (from your original code) --- */
+        /* --- Base Styles --- */
         :root {
             --primary: #4F46E5;
             --primary-hover: #4338CA;
@@ -79,6 +79,12 @@
 
         .step-content.active {
             display: flex;
+        }
+
+        /* Helper to center content vertically in steps like Step 1 */
+        .step-content.centered-content {
+            justify-content: center;
+            align-items: center;
         }
 
         @keyframes slideUp {
@@ -181,12 +187,12 @@
             color: var(--primary);
         }
 
-        /* --- SPECIAL BUTTON STYLES (From your snippet) --- */
+        /* --- SPECIAL BUTTON STYLES (Sales/Purchases) --- */
         .btn-container-wrapper {
             display: flex;
             gap: 20px;
             justify-content: center;
-            margin-top: 10px;
+            width: 100%;
         }
 
         .btn {
@@ -200,6 +206,7 @@
             font-weight: 500;
             font-family: 'Inter', sans-serif;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            white-space: nowrap;
         }
 
         .sales {
@@ -276,19 +283,12 @@
         </header>
 
         <main>
-            <!-- Step 1: Amount (New Start) -->
-            <section id="step-1" class="step-content active">
-                <label for="amountInput">Enter Amount</label>
-                <input type="number" id="amountInput" placeholder="0.00" inputmode="decimal">
-                <div class="hint">Press <b>Enter</b> to continue</div>
-            </section>
-
-            <!-- Step 2: Type (Sales/Purchases Buttons) -->
-            <section id="step-2" class="step-content">
-                <div class="trail-container" id="trail-2"></div>
-                <label style="text-align: center; margin-bottom: 20px;">Select Type</label>
+            <!-- Step 1: Type Selection (New First Step) -->
+            <section id="step-1" class="step-content active centered-content">
+                <label style="text-align: center; margin-bottom: 30px; width: 100%;">Select Transaction Type</label>
                 
                 <div class="btn-container-wrapper">
+                    <!-- Logic passed here: 'IN'/'OUT' is the flow, 'Sales'/'Purchases' is the detail -->
                     <button class="btn sales" onclick="selectType('IN', 'Sales')">
                         Sales
                     </button>
@@ -298,17 +298,17 @@
                 </div>
             </section>
 
-            <!-- Step 3: Detail -->
-            <section id="step-3" class="step-content">
-                <div class="trail-container" id="trail-3"></div>
-                <label for="detailInput">Transaction Detail</label>
-                <input type="text" id="detailInput" placeholder="e.g. Lunch with Client" autocomplete="off">
+            <!-- Step 2: Amount (New Second Step) -->
+            <section id="step-2" class="step-content">
+                <div class="trail-container" id="trail-2"></div>
+                <label for="amountInput">Enter Amount</label>
+                <input type="number" id="amountInput" placeholder="0.00" inputmode="decimal">
                 <div class="hint">Press <b>Enter</b> to continue</div>
             </section>
 
-            <!-- Step 4: Form (Cash/Credit/Bank) -->
-            <section id="step-4" class="step-content">
-                <div class="trail-container" id="trail-4"></div>
+            <!-- Step 3: Form (Cash/Credit/Bank) -->
+            <section id="step-3" class="step-content">
+                <div class="trail-container" id="trail-3"></div>
                 <label>Form of Flow</label>
                 <div class="grid-options">
                     <div class="option-btn" onclick="selectForm('Cash', this)">Cash</div>
@@ -317,24 +317,24 @@
                 </div>
             </section>
 
-            <!-- Step 5: Credit Name (Conditional) -->
-            <section id="step-5" class="step-content">
-                <div class="trail-container" id="trail-5"></div>
+            <!-- Step 4: Credit Name (Conditional) -->
+            <section id="step-4" class="step-content">
+                <div class="trail-container" id="trail-4"></div>
                 <label for="creditNameInput">Credit Name / Lender</label>
                 <input type="text" id="creditNameInput" placeholder="Enter name..." autocomplete="off">
                 <div class="hint">Press <b>Enter</b> to continue</div>
             </section>
 
-            <!-- Step 6: Confirmation -->
-            <section id="step-6" class="step-content">
-                <div class="trail-container" id="trail-6" style="justify-content: center; margin-bottom: 30px;"></div>
+            <!-- Step 5: Confirmation -->
+            <section id="step-5" class="step-content">
+                <div class="trail-container" id="trail-5" style="justify-content: center; margin-bottom: 30px;"></div>
                 <div style="text-align: center; color: var(--text-muted);">
                     Please verify the transaction details above.
                 </div>
             </section>
 
-            <!-- Step 7: Success -->
-            <section id="step-7" class="step-content">
+            <!-- Step 6: Success -->
+            <section id="step-6" class="step-content">
                 <div class="success-view">
                     <div class="success-icon">
                         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -359,7 +359,7 @@
     <!-- Firebase & Logic -->
     <script type="module">
         // ============================================================
-        // 1. Firebase Imports & Config (From your login.js)
+        // 1. Firebase Imports & Config
         // ============================================================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { 
@@ -395,10 +395,9 @@
         const state = {
             step: 1,
             data: {
+                flowType: '',   // IN or OUT (Logic from button)
+                detail: '',     // Sales or Purchases (Button Name)
                 amount: 0,
-                flowType: '', // IN or OUT
-                flowDisplay: '', // Sales or Purchases (for display)
-                detail: '', 
                 flowForm: '', 
                 creditName: ''
             }
@@ -406,7 +405,6 @@
 
         const inputs = {
             amount: document.getElementById('amountInput'),
-            detail: document.getElementById('detailInput'),
             creditName: document.getElementById('creditNameInput')
         };
         const mainActionBtn = document.getElementById('mainActionBtn');
@@ -426,14 +424,13 @@
             updateUI();
 
             // Auto focus
-            if(stepNumber === 1) setTimeout(() => inputs.amount.focus(), 50);
-            if(stepNumber === 3) setTimeout(() => inputs.detail.focus(), 50);
-            if(stepNumber === 5) setTimeout(() => inputs.creditName.focus(), 50);
+            if(stepNumber === 2) setTimeout(() => inputs.amount.focus(), 50);
+            if(stepNumber === 4) setTimeout(() => inputs.creditName.focus(), 50);
         }
 
         function updateUI() {
             // Show/Hide Confirm Button
-            if (state.step === 6) {
+            if (state.step === 5) {
                 mainActionBtn.classList.remove('hidden');
                 mainActionBtn.textContent = "Save";
                 mainActionBtn.disabled = false;
@@ -444,7 +441,7 @@
         }
 
         // ============================================================
-        // 4. History Trail Logic (Re-ordered)
+        // 4. History Trail Logic (Order: Type -> Amount -> Form)
         // ============================================================
         function createHistoryButton(label, value) {
             return `
@@ -455,83 +452,66 @@
         }
 
         function renderHistory() {
-            // Step 2 Trail (Amount)
+            // Step 2 (Amount Input) Trail (Shows Type)
             if (state.step >= 2) {
-                document.getElementById('trail-2').innerHTML = createHistoryButton('Amount', state.data.amount);
+                document.getElementById('trail-2').innerHTML = createHistoryButton('Type', state.data.detail);
             }
-            // Step 3 Trail (Amount + Type)
+            // Step 3 (Form) Trail (Shows Type + Amount)
             if (state.step >= 3) {
                 document.getElementById('trail-3').innerHTML = 
-                    createHistoryButton('Amount', state.data.amount) + 
-                    createHistoryButton('Type', state.data.flowDisplay);
+                    createHistoryButton('Type', state.data.detail) + 
+                    createHistoryButton('Amount', state.data.amount);
             }
-            // Step 4 Trail (Amount + Type + Detail)
+            // Step 4 (Credit) Trail (Shows Type + Amount + Form)
             if (state.step >= 4) {
                 document.getElementById('trail-4').innerHTML = 
-                    createHistoryButton('Amount', state.data.amount) + 
-                    createHistoryButton('Type', state.data.flowDisplay) +
-                    createHistoryButton('Detail', state.data.detail);
-            }
-            // Step 5 Trail (Amount + Type + Detail + Form)
-            if (state.step >= 5) {
-                document.getElementById('trail-5').innerHTML = 
-                    createHistoryButton('Amount', state.data.amount) + 
-                    createHistoryButton('Type', state.data.flowDisplay) +
-                    createHistoryButton('Detail', state.data.detail) +
+                    createHistoryButton('Type', state.data.detail) + 
+                    createHistoryButton('Amount', state.data.amount) +
                     createHistoryButton('Form', state.data.flowForm);
             }
-            // Step 6 Trail (Everything)
-            if (state.step === 6) {
+            // Step 5 (Confirm) Trail (Shows Everything)
+            if (state.step === 5) {
                 let html = 
-                    createHistoryButton('Amount', state.data.amount) + 
-                    createHistoryButton('Type', state.data.flowDisplay) +
-                    createHistoryButton('Detail', state.data.detail) +
+                    createHistoryButton('Type', state.data.detail) + 
+                    createHistoryButton('Amount', state.data.amount) +
                     createHistoryButton('Form', state.data.flowForm);
                 
                 if (state.data.flowForm === 'Credit') {
                     html += createHistoryButton('Credit', state.data.creditName);
                 }
-                document.getElementById('trail-6').innerHTML = html;
+                document.getElementById('trail-5').innerHTML = html;
             }
         }
 
         // ============================================================
-        // 5. Event Listeners
+        // 5. Event Listeners & Logic
         // ============================================================
 
-        // Step 1: Amount
+        // Step 1: Type Selection (Logic driven)
+        window.selectType = function(flow, display) {
+            // Logic: The button click sets both the hidden "IN/OUT" type and the visible "Sales/Purchases" detail
+            state.data.flowType = flow;          // 'IN' or 'OUT'
+            state.data.detail = display;         // 'Sales' or 'Purchases'
+            
+            goToStep(2); // Go to Amount
+        };
+
+        // Step 2: Amount Input
         inputs.amount.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const val = parseFloat(inputs.amount.value);
                 if (!val || val <= 0) return showToast("Please enter a valid amount.");
                 state.data.amount = val;
-                goToStep(2);
+                goToStep(3); // Go to Form
             }
         });
 
-        // Step 2: Type Selection (Exposed to Window)
-        window.selectType = function(flow, display) {
-            state.data.flowType = flow;
-            state.data.flowDisplay = display;
-            goToStep(3);
-        };
-
-        // Step 3: Detail
-        inputs.detail.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const val = inputs.detail.value.trim();
-                if (!val) return showToast("Please enter a detail.");
-                state.data.detail = val;
-                goToStep(4);
-            }
-        });
-
-        // Step 4: Form Selection
+        // Step 3: Form Selection
         window.selectForm = function(form, btnEl) {
             state.data.flowForm = form;
             
             // Visual Feedback
-            const container = document.getElementById('step-4');
+            const container = document.getElementById('step-3');
             container.querySelectorAll('.option-btn').forEach(b => {
                 b.style.borderColor = 'var(--border)';
                 b.style.background = '#F9FAFB';
@@ -542,20 +522,20 @@
 
             setTimeout(() => {
                 if (form === 'Credit') {
-                    goToStep(5);
+                    goToStep(4); // Go to Credit Name
                 } else {
-                    goToStep(6);
+                    goToStep(5); // Go to Confirm
                 }
             }, 150);
         };
 
-        // Step 5: Credit Name
+        // Step 4: Credit Name Input
         inputs.creditName.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const val = inputs.creditName.value.trim();
                 if (!val) return showToast("Please enter a name for the credit.");
                 state.data.creditName = val;
-                goToStep(6);
+                goToStep(5); // Go to Confirm
             }
         });
 
@@ -580,7 +560,10 @@
             }
 
             // Prepare Data
+            // Detail is already set to "Sales" or "Purchases" from Step 1
             let finalDetail = state.data.detail;
+            
+            // If credit, append lender name to detail for clarity
             if (state.data.flowForm === 'Credit' && state.data.creditName) {
                 finalDetail += ` (${state.data.creditName})`;
             }
@@ -588,21 +571,21 @@
             const transaction = {
                 date: new Date().toLocaleString(),
                 detail: finalDetail,
-                type: state.data.flowType,       // "IN" or "OUT"
-                displayType: state.data.flowDisplay, // "Sales" or "Purchases"
+                type: state.data.flowType,       // "IN" or "OUT" (Hidden logic)
+                displayType: state.data.detail,  // "Sales" or "Purchases" (Button Name)
                 method: state.data.flowForm.toUpperCase(), 
                 amount: Number(state.data.amount),
                 createdAt: Date.now()
             };
 
             try {
-                // 1. Save Transaction to Sub-collection
+                // 1. Save Transaction
                 await addDoc(
                     collection(db, "users", user.email, "transactions"),
                     transaction
                 );
 
-                // 2. Update spaceUsed on User Doc
+                // 2. Update spaceUsed
                 const userRef = doc(db, "users", user.email);
                 await updateDoc(userRef, {
                     spaceUsed: increment(1)
@@ -610,10 +593,10 @@
 
                 console.log("Transaction Saved:", transaction);
 
-                // 3. Success View
-                goToStep(7);
+                // 3. Success
+                goToStep(6);
                 setTimeout(() => {
-                    window.location.href = 'business.html'; // Redirect back
+                    window.location.href = 'business.html'; 
                 }, 2000);
 
             } catch (error) {
@@ -638,13 +621,12 @@
             setTimeout(() => t.className = t.className.replace('show', ''), 3000);
         }
 
-        // Check Auth on Load
+        // Init Check
         onAuthStateChanged(auth, (user) => {
             if (!user) {
                 window.location.href = 'index.html';
-            } else {
-                inputs.amount.focus();
             }
+            // No focus needed for Step 1 (Buttons)
         });
 
     </script>
