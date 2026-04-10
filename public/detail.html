@@ -3,53 +3,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buttons Only</title>
+    <title>Transaction Flow</title>
     <style>
+        :root {
+            --bg-color: #f4f4f4;
+            --text-color: #333;
+            --sales-color: #28a745; /* Green */
+            --sales-hover: #218838;
+            --purchase-color: #007bff; /* Blue */
+            --purchase-hover: #0056b3;
+            --card-bg: #ffffff;
+        }
+
         body {
-            /* Centers the buttons vertically and horizontally */
             height: 100vh;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px; /* Space between buttons */
-            background-color: #f4f4f4;
-            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden; /* Prevent scrollbars during transition */
         }
 
+        /* Container for the Views */
+        .view-container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* View Management (Page 1 vs Page 2) */
+        .page {
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            color: #666;
+            margin-top: 0;
+        }
+
+        /* Common Button Styles */
         button {
             padding: 15px 40px;
             font-size: 18px;
             font-weight: bold;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: opacity 0.3s;
+            transition: all 0.2s ease;
+            min-width: 200px;
         }
 
         button:hover {
-            opacity: 0.8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
         }
 
-        /* Button Colors */
-        .sales-btn {
-            background-color: #28a745; /* Green */
+        button:active {
+            transform: translateY(0);
         }
 
-        .purchases-btn {
-            background-color: #007bff; /* Blue */
+        /* Specific Button Styles */
+        .btn-sales {
+            background-color: var(--sales-color);
+        }
+        .btn-sales:hover {
+            background-color: var(--sales-hover);
+        }
+
+        .btn-purchases {
+            background-color: var(--purchase-color);
+        }
+        .btn-purchases:hover {
+            background-color: var(--purchase-hover);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            font-size: 16px;
+            padding: 12px 30px;
+            min-width: auto;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        /* Card for the Transaction Detail */
+        .card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Toast Notification */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 16px;
+        }
+
+        #toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein {
+            from {bottom: 0; opacity: 0;}
+            to {bottom: 30px; opacity: 1;}
+        }
+
+        @keyframes fadeout {
+            from {bottom: 30px; opacity: 1;}
+            to {bottom: 0; opacity: 0;}
         }
     </style>
 </head>
 <body>
 
-    <!-- Sales redirects with type=in -->
-    <button class="sales-btn" onclick="window.location.href='add-transaction.html?type=in'">Sales</button>
+    <div class="view-container">
+        
+        <!-- PAGE 1: Selection Screen -->
+        <div id="page-1" class="page active">
+            <h1>Select Flow</h1>
+            <p class="subtitle">Choose the type of transaction to process</p>
+            
+            <!-- Sales Button: Sends type='in' -->
+            <button class="btn-sales" onclick="goToDetailPage('in', 'Sales')">
+                Sales
+            </button>
 
-    <!-- Purchases redirects with type=out -->
-    <button class="purchases-btn" onclick="window.location.href='add-transaction.html?type=out'">Purchases</button>
+            <!-- Purchases Button: Sends type='out' -->
+            <button class="btn-purchases" onclick="goToDetailPage('out', 'Purchases')">
+                Purchases
+            </button>
+        </div>
 
+        <!-- PAGE 2: Detail/Logic Screen -->
+        <div id="page-2" class="page">
+            <div class="card">
+                <!-- Dynamic Title -->
+                <h1 id="detail-title">Transaction Detail</h1>
+                <p id="detail-subtitle">Processing flow logic...</p>
+                
+                <div style="margin: 30px 0; height: 2px; background: #eee;"></div>
+
+                <!-- Dynamic Buttons based on Flow -->
+                <div id="dynamic-actions" style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    
+                    <!-- Button 1: The Main Action (Changes color/text based on flow) -->
+                    <button id="main-action-btn" onclick="processTransaction()">
+                        Submit
+                    </button>
+
+                    <!-- Button 2: Back Button -->
+                    <button class="btn-secondary" onclick="goBack()">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Toast Notification Element -->
+    <div id="toast">Message here</div>
+
+    <script>
+        // State variables to store the flow information
+        let currentFlowType = '';
+        let currentFlowName = '';
+
+        /**
+         * Simulates navigating to the second page.
+         * Receives the type ('in' or 'out') and the label ('Sales' or 'Purchases').
+         */
+        function goToDetailPage(type, name) {
+            // 1. Store the data
+            currentFlowType = type;
+            currentFlowName = name;
+
+            // 2. Update the UI on Page 2 based on the clicked button
+            const titleEl = document.getElementById('detail-title');
+            const subEl = document.getElementById('detail-subtitle');
+            const mainBtn = document.getElementById('main-action-btn');
+
+            // Set Text
+            titleEl.innerText = `${name} Transaction`;
+            subEl.innerText = `Flow Logic: ${type.toUpperCase()} (Defined as ${name})`;
+            mainBtn.innerText = `Confirm ${name}`;
+
+            // 3. Apply Logic for Button Appearance
+            // Reset classes
+            mainBtn.classList.remove('btn-sales', 'btn-purchases');
+
+            // Apply specific color class based on flow type
+            if (type === 'in') {
+                mainBtn.classList.add('btn-sales'); // Green for Sales
+            } else {
+                mainBtn.classList.add('btn-purchases'); // Blue for Purchases
+            }
+
+            // 4. Switch Views
+            document.getElementById('page-1').classList.remove('active');
+            document.getElementById('page-2').classList.add('active');
+        }
+
+        /**
+         * Simulates the transaction processing logic.
+         */
+        function processTransaction() {
+            // Here you would normally send data to a backend
+            console.log(`Processing ${currentFlowName} with type ${currentFlowType}`);
+            
+            // Show feedback
+            showToast(`${currentFlowName} recorded successfully!`);
+            
+            // Optional: Return to home after a delay
+            setTimeout(() => {
+                goBack();
+            }, 1500);
+        }
+
+        /**
+         * Returns to the main selection screen.
+         */
+        function goBack() {
+            document.getElementById('page-2').classList.remove('active');
+            document.getElementById('page-1').classList.add('active');
+        }
+
+        /**
+         * Utility to show a toast message instead of alert()
+         */
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.innerText = message;
+            toast.className = "show";
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+    </script>
 </body>
 </html>
