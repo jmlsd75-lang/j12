@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cash Book</title>
+  <title>Cash Book (Cash Only)</title>
   <style>
     :root {
       --primary: #4285F4;
@@ -16,7 +16,7 @@
       --danger: #c0392b;  /* Cr Color */
       --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      --row-height: 45px; /* Constant row height */
+      --row-height: 45px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -71,14 +71,24 @@
       width: 100%;
     }
 
-    .page-title {
+    .header-group {
       text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .page-title {
       font-size: 2rem;
       font-weight: 700;
-      margin-bottom: 2rem;
       color: var(--text-main);
       text-transform: uppercase;
       letter-spacing: 1px;
+    }
+
+    .page-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: 5px;
+      font-weight: 500;
     }
 
     /* ── Cash Book Layout (Single Table) ── */
@@ -87,15 +97,14 @@
       border-radius: 8px;
       box-shadow: var(--shadow);
       border: 1px solid var(--border-color);
-      overflow-x: auto; /* Handle small screens */
+      overflow-x: auto;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.9rem;
-      min-width: 800px; /* Ensure columns don't squish too much */
-      /* Enforce strict column widths for equal sizing */
+      min-width: 800px;
       table-layout: fixed;
     }
 
@@ -105,7 +114,6 @@
       padding: 0;
     }
 
-    /* Top Headers (Debit / Credit) */
     .main-header th {
       padding: 12px;
       font-size: 1.1rem;
@@ -117,7 +125,6 @@
     .main-header.dr-side { color: var(--success); border-right: 2px solid var(--border-color); }
     .main-header.cr-side { color: var(--danger); }
 
-    /* Sub Headers (Date, Particulars, etc.) */
     .sub-header th {
       padding: 10px 12px;
       font-size: 0.75rem;
@@ -126,7 +133,6 @@
       background-color: #fcfcfc;
     }
 
-    /* Vertical Divider Line in Middle */
     .divider-col {
       border-left: 2px solid var(--border-color) !important;
     }
@@ -136,18 +142,17 @@
       padding: 8px 12px;
       border-bottom: 1px solid #f0f0f0;
       vertical-align: middle;
-      height: var(--row-height); /* Constant Height */
+      height: var(--row-height);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    /* Vertical border for cells in the middle column */
     td.divider-col {
       border-left: 2px solid var(--border-color);
     }
 
-    /* ── Column Widths (Revised for Equal 50/50 Split) ── */
+    /* ── Column Widths ── */
     .col-date { width: 12%; }
     .col-detail { width: 25%; }
     .col-folio { width: 3%; text-align: center; }
@@ -165,7 +170,7 @@
       font-weight: 700; 
       border-top: 2px solid #cbd5e0;
       color: #2d3748;
-      height: 50px; /* Slightly taller for total */
+      height: 50px;
     }
 
     /* Empty State */
@@ -174,6 +179,9 @@
       padding: 3rem;
       color: var(--text-muted);
       display: none;
+      background: white;
+      border-radius: 8px;
+      border: 1px dashed var(--border-color);
     }
     .empty-state.visible { display: block; }
 
@@ -199,10 +207,13 @@
   </header>
 
   <main>
-    <h1 class="page-title">Cash Book</h1>
+    <div class="header-group">
+      <h1 class="page-title">Cash Book</h1>
+      <p class="page-subtitle">Showing only Cash transactions</p>
+    </div>
 
     <div class="empty-state" id="emptyState">
-      <p>No transactions found to generate Cash Book.</p>
+      <p>No Cash transactions found.</p>
     </div>
 
     <div class="cash-book-wrapper" id="cashBookWrapper">
@@ -210,8 +221,8 @@
         <thead>
           <!-- Main Headers -->
           <tr class="main-header">
-            <th colspan="4" class="dr-side">Debit</th>
-            <th colspan="4" class="cr-side">Credit</th>
+            <th colspan="4" class="dr-side">Debit (Receipts)</th>
+            <th colspan="4" class="cr-side">Credit (Payments)</th>
           </tr>
           <!-- Sub Headers -->
           <tr class="sub-header">
@@ -220,7 +231,6 @@
             <th class="col-folio">Folio</th>
             <th class="col-amount">Amount</th>
             
-            <!-- Middle Column -->
             <th class="col-date divider-col">Date</th>
             <th class="col-detail divider-col">Particulars</th>
             <th class="col-folio divider-col">Folio</th>
@@ -228,7 +238,7 @@
           </tr>
         </thead>
         <tbody id="cashBookBody">
-          <!-- Rows will be injected here via JS -->
+          <!-- Rows injected via JS -->
         </tbody>
       </table>
     </div>
@@ -258,35 +268,32 @@
     const cashBookWrapper = document.getElementById('cashBookWrapper');
     const userInfoDisplay = document.getElementById('userInfoDisplay');
 
-    // Helper: Format Currency
+    // Configuration: Which field identifies "Cash" in your database?
+    // Options: 'category', 'paymentMethod', 'account', 'type'
+    const CASH_IDENTIFIER_FIELD = 'category'; 
+    const CASH_IDENTIFIER_VALUE = 'Cash';
+
     const formatCurrency = (amount) => {
       return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TZS' }).format(amount);
     };
 
-    // Helper: Format Date (YYYY-MM-DD only)
     const formatDate = (dateVal) => {
       if (!dateVal) return "";
       const d = new Date(dateVal);
-      // Check if date is invalid
       if (isNaN(d.getTime())) return dateVal;
-      
-      // Return ISO format YYYY-MM-DD (Date, Month, Year only)
       return d.toISOString().split('T')[0];
     };
 
-    // Helper: Get Today's Date string
     const getTodayDate = () => {
       return new Date().toISOString().split('T')[0];
     };
 
-    // Auth Check
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         window.location.href = "index.html";
         return;
       }
 
-      // Update Header User
       const sessionData = localStorage.getItem("userSession");
       if (sessionData) {
         const parsed = JSON.parse(sessionData);
@@ -296,7 +303,6 @@
         `;
       }
 
-      // REAL-TIME LISTENER
       const transactionsRef = collection(db, "users", user.email, "transactions");
       const q = query(transactionsRef, orderBy("date", "desc")); 
 
@@ -310,7 +316,18 @@
     function renderCashBook(docs) {
       tableBody.innerHTML = "";
 
-      if (docs.length === 0) {
+      // 1. Filter Data immediately
+      // We create a new array containing ONLY the cash transactions
+      const cashDocs = docs.filter(doc => {
+        const data = doc.data();
+        // --- FILTERING LOGIC START ---
+        // We check if the specified field matches 'Cash'
+        // Note: We use optional chaining (?.) just in case the field is missing
+        return data[CASH_IDENTIFIER_FIELD] === CASH_IDENTIFIER_VALUE;
+        // --- FILTERING LOGIC END ---
+      });
+
+      if (cashDocs.length === 0) {
         emptyState.classList.add('visible');
         cashBookWrapper.style.display = 'none';
         return;
@@ -321,8 +338,6 @@
 
       let totalDr = 0;
       let totalCr = 0;
-      
-      // Arrays to hold row objects
       let drRows = [];
       let crRows = [];
 
@@ -341,14 +356,13 @@
 
       const today = getTodayDate();
 
-      // 1. Process Transactions into separate arrays
-      docs.forEach((doc) => {
+      // 2. Process ONLY the filtered cash transactions
+      cashDocs.forEach((doc) => {
         const data = doc.data();
         const amount = parseFloat(data.amount || 0);
         const type = (data.type || "IN").toUpperCase();
         
         let detail = data.detail || "-";
-        // Clean name from detail for the particulars column
         const nameMatch = detail.match(/\(([^)]+)\)$/);
         let particulars = detail;
         if (nameMatch) {
@@ -356,7 +370,6 @@
         }
 
         const folio = getFolio(particulars);
-        // Apply formatDate to strip time
         const dateStr = formatDate(data.date) || formatDate(today);
 
         const rowObj = {
@@ -364,7 +377,7 @@
           detail: particulars,
           folio: folio,
           amount: amount,
-          type: 'trans' // marker for normal transaction
+          type: 'trans'
         };
 
         if (type === 'IN') {
@@ -376,14 +389,14 @@
         }
       });
 
-      // 2. Calculate Difference & Insert "Balance c/d"
+      // 3. Calculate Difference & Insert "Balance c/d"
       let diff = Math.abs(totalDr - totalCr);
-      let balanceCdSide = null; // 'dr' or 'cr'
+      let balanceCdSide = null;
 
       if (totalDr > totalCr) {
         balanceCdSide = 'cr';
         crRows.push({
-          date: formatDate(today), // Apply formatDate
+          date: formatDate(today),
           detail: "Balance",
           folio: "c/d",
           amount: diff,
@@ -393,7 +406,7 @@
       } else if (totalCr > totalDr) {
         balanceCdSide = 'dr';
         drRows.push({
-          date: formatDate(today), // Apply formatDate
+          date: formatDate(today),
           detail: "Balance",
           folio: "c/d",
           amount: diff,
@@ -402,13 +415,13 @@
         totalDr += diff;
       }
 
-      // 3. Render Transaction Rows
+      // 4. Render Rows
       const maxRows = Math.max(drRows.length, crRows.length);
 
       for (let i = 0; i < maxRows; i++) {
         let rowHTML = "<tr>";
 
-        // --- DEBIT SIDE CELLS ---
+        // DEBIT SIDE
         if (i < drRows.length) {
           const r = drRows[i];
           const isBal = (r.type === 'bal_cd');
@@ -423,7 +436,7 @@
           rowHTML += `<td></td><td></td><td></td><td></td>`;
         }
 
-        // --- CREDIT SIDE CELLS ---
+        // CREDIT SIDE
         if (i < crRows.length) {
           const r = crRows[i];
           const isBal = (r.type === 'bal_cd');
@@ -442,7 +455,7 @@
         tableBody.insertAdjacentHTML('beforeend', rowHTML);
       }
 
-      // 4. Render Total Row
+      // 5. Total Row
       const finalTotal = formatCurrency(totalDr); 
       const totalRowHTML = `
         <tr class="row-total">
@@ -459,34 +472,28 @@
       `;
       tableBody.insertAdjacentHTML('beforeend', totalRowHTML);
 
-      // 5. Render Balance b/d (Brought Down)
+      // 6. Balance b/d
       if (diff > 0) {
         let bdSide = (balanceCdSide === 'cr') ? 'dr' : 'cr';
-        
         let bdRowHTML = "<tr>";
         
         if (bdSide === 'dr') {
-          // b/d on Left
           bdRowHTML += `
             <td>${formatDate(today)}</td>
             <td>Balance</td>
             <td class="col-folio">b/d</td>
             <td class="col-amount">${formatCurrency(diff)}</td>
-            <!-- Right side empty -->
             <td class="divider-col"></td>
             <td class="divider-col"></td>
             <td class="divider-col"></td>
             <td class="divider-col"></td>
           `;
         } else {
-          // b/d on Right
           bdRowHTML += `
-            <!-- Left side empty -->
             <td></td>
             <td></td>
             <td></td>
             <td></td>
-            <!-- Right side b/d -->
             <td class="divider-col">${formatDate(today)}</td>
             <td class="divider-col">Balance</td>
             <td class="col-folio divider-col">b/d</td>
