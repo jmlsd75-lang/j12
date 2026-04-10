@@ -45,9 +45,11 @@
 </head>
 <body>
 
-    <!-- Appearance is the same, but internal logic is 'in' and 'out' -->
-    <button class="sales-btn" onclick="alert('in')">Sales</button>
-    <button class="purchases-btn" onclick="alert('out')">Purchases</button>
+    <!-- Sales redirects with type=in -->
+    <button class="sales-btn" onclick="window.location.href='add-transaction.html?type=in'">Sales</button>
+
+    <!-- Purchases redirects with type=out -->
+    <button class="purchases-btn" onclick="window.location.href='add-transaction.html?type=out'">Purchases</button>
 
 </body>
 </html>
