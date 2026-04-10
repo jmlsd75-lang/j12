@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transaction Entry Flow</title>
+    <title>Transaction Entry</title>
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
-        /* --- CSS Reset & Base Styles --- */
+        /* --- Base Styles (from your original code) --- */
         :root {
             --primary: #4F46E5;
             --primary-hover: #4338CA;
             --danger: #EF4444;
-            --danger-hover: #DC2626;
             --success: #10B981;
             --bg-body: #F3F4F6;
             --bg-card: #FFFFFF;
@@ -52,18 +51,15 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            min-height: 520px;
+            min-height: 500px;
             position: relative;
-            transition: height 0.3s ease;
         }
 
-        /* --- Header --- */
         header {
             padding: 20px;
             border-bottom: 1px solid var(--border);
             text-align: center;
             background: #fff;
-            z-index: 10;
         }
 
         header h1 {
@@ -72,11 +68,11 @@
             color: var(--text-main);
         }
 
-        /* --- Content Area --- */
+        /* --- Steps & Content --- */
         .step-content {
             padding: 24px;
             flex: 1;
-            display: none;
+            display: none; /* Hidden by default */
             flex-direction: column;
             animation: slideUp 0.3s ease-out;
         }
@@ -90,7 +86,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* --- Trail (History Buttons) --- */
+        /* --- Trail (History) --- */
         .trail-container {
             display: flex;
             flex-wrap: wrap;
@@ -100,18 +96,15 @@
         }
 
         .trail-btn {
-            background: #FFFFFF;
+            background: #F9FAFB;
             border: 1px solid #D1D5DB;
             color: var(--text-main);
             padding: 6px 12px;
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 500;
-            cursor: default;
             display: inline-flex;
             align-items: center;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            transition: transform 0.1s;
         }
         
         .trail-label {
@@ -122,7 +115,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* --- Forms & Inputs --- */
+        /* --- Inputs --- */
         label {
             display: block;
             font-size: 0.95rem;
@@ -140,13 +133,13 @@
             font-size: 1.1rem;
             transition: all 0.2s;
             font-family: inherit;
-            -moz-appearance: textfield; /* Remove Firefox arrows */
+            -moz-appearance: textfield;
         }
         
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
             -webkit-appearance: none;
-            margin: 0; /* Remove Chrome arrows */
+            margin: 0;
         }
 
         input:focus {
@@ -161,15 +154,12 @@
             margin-top: 6px;
         }
 
-        /* --- Selection Grids --- */
+        /* --- Selection Grids (Cash/Bank) --- */
         .grid-options {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .grid-options.three-col {
             grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-top: 10px;
         }
 
         .option-btn {
@@ -183,7 +173,6 @@
             font-weight: 600;
             font-size: 1rem;
             color: var(--text-main);
-            user-select: none;
         }
 
         .option-btn:hover {
@@ -192,11 +181,38 @@
             color: var(--primary);
         }
 
-        .option-btn:active {
-            transform: scale(0.98);
+        /* --- SPECIAL BUTTON STYLES (From your snippet) --- */
+        .btn-container-wrapper {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 10px;
         }
 
-        /* --- Footer / Actions --- */
+        .btn {
+            padding: 15px 40px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+            transition: 0.3s;
+            font-weight: 500;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .sales {
+            background-color: #28a745;
+        }
+        .sales:hover { background-color: #218838; }
+
+        .purchases {
+            background-color: #007bff;
+        }
+        .purchases:hover { background-color: #0056b3; }
+
+        /* --- Footer --- */
         .action-bar {
             padding: 16px 24px 24px 24px;
             margin-top: auto;
@@ -207,107 +223,49 @@
             background: #F9FAFB;
         }
 
-        button {
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 0.95rem;
-            font-weight: 500;
-            padding: 12px 24px;
-            border-radius: 8px;
-            border: none;
-            transition: all 0.2s;
-        }
-
-        .btn-cancel {
+        button.action-cancel {
             background: transparent;
             color: var(--text-muted);
             font-weight: 600;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
         }
+        button.action-cancel:hover { color: var(--danger); }
 
-        .btn-cancel:hover {
-            color: var(--danger);
-            background: #FEF2F2;
-        }
-
-        .btn-primary {
+        button.action-primary {
             background: var(--primary);
             color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
             flex: 1;
             margin-left: 12px;
-            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
         }
+        button.action-primary:hover:not(:disabled) { background: var(--primary-hover); }
+        button.action-primary:disabled { background: #A5B4FC; cursor: not-allowed; }
 
-        .btn-primary:hover:not(:disabled) {
-            background: var(--primary-hover);
-            transform: translateY(-1px);
-        }
-
-        .btn-primary:disabled {
-            background: #A5B4FC; /* Lighter Indigo */
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .hidden {
-            display: none !important;
-        }
+        .hidden { display: none !important; }
 
         /* --- Success View --- */
-        .success-view {
-            text-align: center;
-            padding-top: 40px;
-        }
-
+        .success-view { text-align: center; padding-top: 40px; }
         .success-icon {
-            width: 64px;
-            height: 64px;
-            background: #D1FAE5;
-            color: var(--success);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 16px auto;
-            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 64px; height: 64px; background: #D1FAE5; color: var(--success);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 16px auto; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
-        @keyframes popIn {
-            from { transform: scale(0); }
-            to { transform: scale(1); }
-        }
-
-        .success-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
 
         /* --- Toast --- */
         #toast {
-            visibility: hidden;
-            min-width: 280px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 8px;
-            padding: 14px;
-            position: fixed;
-            z-index: 1000;
-            left: 50%;
-            bottom: 30px;
-            transform: translateX(-50%) translateY(20px);
-            font-size: 0.9rem;
-            opacity: 0;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            visibility: hidden; min-width: 280px; background-color: #333; color: #fff;
+            text-align: center; border-radius: 8px; padding: 14px; position: fixed;
+            z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%) translateY(20px);
+            font-size: 0.9rem; opacity: 0; transition: all 0.3s;
         }
-
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
+        #toast.show { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body>
@@ -318,43 +276,48 @@
         </header>
 
         <main>
-            <!-- Step 1: Enter Detail -->
+            <!-- Step 1: Amount (New Start) -->
             <section id="step-1" class="step-content active">
-                <label for="detailInput">Transaction Detail</label>
-                <input type="text" id="detailInput" placeholder="e.g. Lunch with Client" autocomplete="off">
-                <div class="hint">Press <b>Enter</b> to continue</div>
-            </section>
-
-            <!-- Step 2: Enter Amount -->
-            <section id="step-2" class="step-content">
-                <div class="trail-container" id="trail-2"></div>
                 <label for="amountInput">Enter Amount</label>
                 <input type="number" id="amountInput" placeholder="0.00" inputmode="decimal">
                 <div class="hint">Press <b>Enter</b> to continue</div>
             </section>
 
-            <!-- Step 3: Select Flow Type -->
-            <section id="step-3" class="step-content">
-                <div class="trail-container" id="trail-3"></div>
-                <label>Type of Flow</label>
-                <div class="grid-options">
-                    <div class="option-btn" onclick="selectFlowType('In', this)">In</div>
-                    <div class="option-btn" onclick="selectFlowType('Out', this)">Out</div>
+            <!-- Step 2: Type (Sales/Purchases Buttons) -->
+            <section id="step-2" class="step-content">
+                <div class="trail-container" id="trail-2"></div>
+                <label style="text-align: center; margin-bottom: 20px;">Select Type</label>
+                
+                <div class="btn-container-wrapper">
+                    <button class="btn sales" onclick="selectType('IN', 'Sales')">
+                        Sales
+                    </button>
+                    <button class="btn purchases" onclick="selectType('OUT', 'Purchases')">
+                        Purchases
+                    </button>
                 </div>
             </section>
 
-            <!-- Step 4: Select Form of Flow -->
+            <!-- Step 3: Detail -->
+            <section id="step-3" class="step-content">
+                <div class="trail-container" id="trail-3"></div>
+                <label for="detailInput">Transaction Detail</label>
+                <input type="text" id="detailInput" placeholder="e.g. Lunch with Client" autocomplete="off">
+                <div class="hint">Press <b>Enter</b> to continue</div>
+            </section>
+
+            <!-- Step 4: Form (Cash/Credit/Bank) -->
             <section id="step-4" class="step-content">
                 <div class="trail-container" id="trail-4"></div>
                 <label>Form of Flow</label>
-                <div class="grid-options three-col">
-                    <div class="option-btn" onclick="selectFlowForm('Cash', this)">Cash</div>
-                    <div class="option-btn" onclick="selectFlowForm('Credit', this)">Credit</div>
-                    <div class="option-btn" onclick="selectFlowForm('Bank', this)">Bank</div>
+                <div class="grid-options">
+                    <div class="option-btn" onclick="selectForm('Cash', this)">Cash</div>
+                    <div class="option-btn" onclick="selectForm('Credit', this)">Credit</div>
+                    <div class="option-btn" onclick="selectForm('Bank', this)">Bank</div>
                 </div>
             </section>
 
-            <!-- Step 5: Credit Name -->
+            <!-- Step 5: Credit Name (Conditional) -->
             <section id="step-5" class="step-content">
                 <div class="trail-container" id="trail-5"></div>
                 <label for="creditNameInput">Credit Name / Lender</label>
@@ -370,7 +333,7 @@
                 </div>
             </section>
 
-            <!-- Step 7: Final Success -->
+            <!-- Step 7: Success -->
             <section id="step-7" class="step-content">
                 <div class="success-view">
                     <div class="success-icon">
@@ -385,18 +348,18 @@
         </main>
 
         <footer class="action-bar">
-            <button class="btn-cancel" onclick="handleCancel()">Cancel</button>
-            <button id="mainActionBtn" class="btn-primary hidden" onclick="saveAndConfirm()">OK</button>
+            <button class="action-cancel" onclick="handleCancel()">Cancel</button>
+            <button id="mainActionBtn" class="action-primary hidden" onclick="saveTransaction()">Save</button>
         </footer>
     </div>
 
     <!-- Toast Notification -->
     <div id="toast"></div>
 
-    <!-- Firebase SDKs & Logic -->
+    <!-- Firebase & Logic -->
     <script type="module">
         // ============================================================
-        // 1. Firebase Imports
+        // 1. Firebase Imports & Config (From your login.js)
         // ============================================================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { 
@@ -421,7 +384,7 @@
             appId: "1:167159607898:web:23ca11366b88868b085e63"
         };
 
-        // Initialize Firebase
+        // Initialize
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
@@ -432,53 +395,57 @@
         const state = {
             step: 1,
             data: {
-                detail: '',
                 amount: 0,
-                flowType: '', 
+                flowType: '', // IN or OUT
+                flowDisplay: '', // Sales or Purchases (for display)
+                detail: '', 
                 flowForm: '', 
                 creditName: ''
             }
         };
 
-        // DOM Elements
-        const mainActionBtn = document.getElementById('mainActionBtn');
         const inputs = {
-            detail: document.getElementById('detailInput'),
             amount: document.getElementById('amountInput'),
+            detail: document.getElementById('detailInput'),
             creditName: document.getElementById('creditNameInput')
         };
+        const mainActionBtn = document.getElementById('mainActionBtn');
 
         // ============================================================
-        // 3. Navigation & UI Logic
+        // 3. Navigation Logic
         // ============================================================
-
         function goToStep(stepNumber) {
-            const current = document.querySelector(`.step-content.active`);
-            if(current) current.classList.remove('active');
-
+            // Hide current
+            document.querySelector('.step-content.active')?.classList.remove('active');
+            
+            // Show next
             const next = document.getElementById(`step-${stepNumber}`);
             if(next) next.classList.add('active');
 
             state.step = stepNumber;
             updateUI();
-            
-            // Auto-focus inputs for better UX
-            if(stepNumber === 1) setTimeout(() => inputs.detail.focus(), 50);
-            if(stepNumber === 2) setTimeout(() => inputs.amount.focus(), 50);
+
+            // Auto focus
+            if(stepNumber === 1) setTimeout(() => inputs.amount.focus(), 50);
+            if(stepNumber === 3) setTimeout(() => inputs.detail.focus(), 50);
             if(stepNumber === 5) setTimeout(() => inputs.creditName.focus(), 50);
         }
 
         function updateUI() {
+            // Show/Hide Confirm Button
             if (state.step === 6) {
                 mainActionBtn.classList.remove('hidden');
-                mainActionBtn.textContent = "OK";
-                mainActionBtn.disabled = false; // Ensure it's enabled when we arrive here
+                mainActionBtn.textContent = "Save";
+                mainActionBtn.disabled = false;
             } else {
                 mainActionBtn.classList.add('hidden');
             }
             renderHistory();
         }
 
+        // ============================================================
+        // 4. History Trail Logic (Re-ordered)
+        // ============================================================
         function createHistoryButton(label, value) {
             return `
                 <div class="trail-btn">
@@ -488,32 +455,37 @@
         }
 
         function renderHistory() {
+            // Step 2 Trail (Amount)
             if (state.step >= 2) {
-                document.getElementById('trail-2').innerHTML = createHistoryButton('Detail', state.data.detail);
+                document.getElementById('trail-2').innerHTML = createHistoryButton('Amount', state.data.amount);
             }
+            // Step 3 Trail (Amount + Type)
             if (state.step >= 3) {
                 document.getElementById('trail-3').innerHTML = 
-                    createHistoryButton('Detail', state.data.detail) + 
-                    createHistoryButton('Amount', state.data.amount);
+                    createHistoryButton('Amount', state.data.amount) + 
+                    createHistoryButton('Type', state.data.flowDisplay);
             }
+            // Step 4 Trail (Amount + Type + Detail)
             if (state.step >= 4) {
                 document.getElementById('trail-4').innerHTML = 
-                    createHistoryButton('Detail', state.data.detail) + 
-                    createHistoryButton('Amount', state.data.amount) +
-                    createHistoryButton('Type', state.data.flowType);
+                    createHistoryButton('Amount', state.data.amount) + 
+                    createHistoryButton('Type', state.data.flowDisplay) +
+                    createHistoryButton('Detail', state.data.detail);
             }
+            // Step 5 Trail (Amount + Type + Detail + Form)
             if (state.step >= 5) {
                 document.getElementById('trail-5').innerHTML = 
-                    createHistoryButton('Detail', state.data.detail) + 
-                    createHistoryButton('Amount', state.data.amount) +
-                    createHistoryButton('Type', state.data.flowType) +
+                    createHistoryButton('Amount', state.data.amount) + 
+                    createHistoryButton('Type', state.data.flowDisplay) +
+                    createHistoryButton('Detail', state.data.detail) +
                     createHistoryButton('Form', state.data.flowForm);
             }
+            // Step 6 Trail (Everything)
             if (state.step === 6) {
                 let html = 
-                    createHistoryButton('Detail', state.data.detail) + 
-                    createHistoryButton('Amount', state.data.amount) +
-                    createHistoryButton('Type', state.data.flowType) +
+                    createHistoryButton('Amount', state.data.amount) + 
+                    createHistoryButton('Type', state.data.flowDisplay) +
+                    createHistoryButton('Detail', state.data.detail) +
                     createHistoryButton('Form', state.data.flowForm);
                 
                 if (state.data.flowForm === 'Credit') {
@@ -524,44 +496,41 @@
         }
 
         // ============================================================
-        // 4. Interaction Handlers
+        // 5. Event Listeners
         // ============================================================
 
-        inputs.detail.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const val = inputs.detail.value.trim();
-                if (!val) return showToast("Please enter a detail.");
-                state.data.detail = val;
-                goToStep(2);
-            }
-        });
-
+        // Step 1: Amount
         inputs.amount.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const val = parseFloat(inputs.amount.value);
                 if (!val || val <= 0) return showToast("Please enter a valid amount.");
                 state.data.amount = val;
-                goToStep(3);
+                goToStep(2);
             }
         });
 
-        window.selectFlowType = function(type, btnEl) {
-            state.data.flowType = type;
-            // Visual selection logic
-            const container = document.getElementById('step-3');
-            container.querySelectorAll('.option-btn').forEach(b => {
-                b.style.borderColor = 'var(--border)';
-                b.style.background = '#F9FAFB';
-                b.style.color = 'var(--text-main)';
-            });
-            btnEl.style.borderColor = 'var(--primary)';
-            btnEl.style.background = 'var(--primary)';
-            btnEl.style.color = '#fff';
-            setTimeout(() => goToStep(4), 150);
+        // Step 2: Type Selection (Exposed to Window)
+        window.selectType = function(flow, display) {
+            state.data.flowType = flow;
+            state.data.flowDisplay = display;
+            goToStep(3);
         };
 
-        window.selectFlowForm = function(form, btnEl) {
+        // Step 3: Detail
+        inputs.detail.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const val = inputs.detail.value.trim();
+                if (!val) return showToast("Please enter a detail.");
+                state.data.detail = val;
+                goToStep(4);
+            }
+        });
+
+        // Step 4: Form Selection
+        window.selectForm = function(form, btnEl) {
             state.data.flowForm = form;
+            
+            // Visual Feedback
             const container = document.getElementById('step-4');
             container.querySelectorAll('.option-btn').forEach(b => {
                 b.style.borderColor = 'var(--border)';
@@ -580,6 +549,7 @@
             }, 150);
         };
 
+        // Step 5: Credit Name
         inputs.creditName.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const val = inputs.creditName.value.trim();
@@ -590,77 +560,68 @@
         });
 
         // ============================================================
-        // 5. SAVING LOGIC (UPDATED TO PREVENT MULTIPLE SAVES)
+        // 6. Save Logic
         // ============================================================
-        let isSaving = false; // Guard flag
+        let isSaving = false;
 
-        window.saveAndConfirm = async function() {
-            // 1. Prevent multiple clicks / re-entry
+        window.saveTransaction = async function() {
             if (isSaving) return;
             isSaving = true;
-
-            // 2. Lock the UI
             mainActionBtn.disabled = true;
             mainActionBtn.textContent = "Saving...";
 
             const user = auth.currentUser;
 
-            // 3. Check Auth
             if (!user) {
                 showToast("Not logged in. Redirecting...");
                 setTimeout(() => window.location.href = 'index.html', 1500);
-                // Reset guard so button works if they come back (though unlikely with redirect)
-                isSaving = false; 
+                isSaving = false;
                 return;
             }
 
-            // Prepare Detail
+            // Prepare Data
             let finalDetail = state.data.detail;
             if (state.data.flowForm === 'Credit' && state.data.creditName) {
                 finalDetail += ` (${state.data.creditName})`;
             }
 
-            // Construct Payload
             const transaction = {
                 date: new Date().toLocaleString(),
                 detail: finalDetail,
-                type: state.data.flowType.toUpperCase(), 
+                type: state.data.flowType,       // "IN" or "OUT"
+                displayType: state.data.flowDisplay, // "Sales" or "Purchases"
                 method: state.data.flowForm.toUpperCase(), 
                 amount: Number(state.data.amount),
                 createdAt: Date.now()
             };
 
             try {
-                // --- STEP A: Save Transaction ---
+                // 1. Save Transaction to Sub-collection
                 await addDoc(
                     collection(db, "users", user.email, "transactions"),
                     transaction
                 );
-                console.log("Transaction saved once:", transaction);
 
-                // --- STEP B: Update spaceUsed ---
+                // 2. Update spaceUsed on User Doc
                 const userRef = doc(db, "users", user.email);
                 await updateDoc(userRef, {
                     spaceUsed: increment(1)
                 });
-                console.log("User spaceUsed updated (+1)");
 
-                // --- STEP C: Success & Redirect ---
+                console.log("Transaction Saved:", transaction);
+
+                // 3. Success View
                 goToStep(7);
-
-                // Wait 2 seconds then redirect
                 setTimeout(() => {
-                    window.location.href = 'business.html'; 
+                    window.location.href = 'business.html'; // Redirect back
                 }, 2000);
 
             } catch (error) {
-                console.error("Error saving transaction:", error);
+                console.error("Error:", error);
                 showToast("Error: " + error.message);
-                
-                // Reset UI on error so user can try again
                 isSaving = false;
                 mainActionBtn.disabled = false;
-                mainActionBtn.textContent = "OK";
+                mainActionBtn.textContent = "Save";
             }
         };
 
@@ -677,8 +638,15 @@
             setTimeout(() => t.className = t.className.replace('show', ''), 3000);
         }
 
-        // Init
-        inputs.detail.focus();
+        // Check Auth on Load
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+            } else {
+                inputs.amount.focus();
+            }
+        });
+
     </script>
 </body>
 </html>
