@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buttons Only</title>
+    <style>
+        body {
+            /* Centers the buttons vertically and horizontally */
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px; /* Space between buttons */
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: opacity 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        /* Button Colors */
+        .sales-btn {
+            background-color: #28a745; /* Green */
+        }
+
+        .purchases-btn {
+            background-color: #007bff; /* Blue */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Appearance is the same, but internal logic is 'in' and 'out' -->
+    <button class="sales-btn" onclick="alert('in')">Sales</button>
+    <button class="purchases-btn" onclick="alert('out')">Purchases</button>
+
+</body>
+</html>
