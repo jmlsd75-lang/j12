@@ -65,7 +65,7 @@
             font-size: 1.1rem;
             border: 2px solid var(--border);
             border-radius: 8px;
-            box-sizing: border-box; /* Ensures padding doesn't increase width */
+            box-sizing: border-box;
             transition: border-color 0.2s;
         }
 
@@ -142,6 +142,15 @@
             cursor: pointer;
             font-size: 1rem;
             transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .btn-cancel {
@@ -174,26 +183,23 @@
             background-color: var(--primary-hover);
         }
 
-        /* Transaction History (To show saved data) */
-        .history {
-            margin-top: 2rem;
-            border-top: 1px solid var(--border);
-            padding-top: 1rem;
+        /* Spinner for loading state */
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
         }
 
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px;
-            background: #f8fafc;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            animation: slideDown 0.3s ease-out;
+        .btn.loading .spinner {
+            display: block;
         }
 
-        .history-amount {
-            font-weight: bold;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* Toast Notification */
@@ -201,25 +207,20 @@
             position: fixed;
             bottom: 20px;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translateX(-50%) translateY(100px);
             background-color: var(--text);
             color: white;
             padding: 12px 24px;
             border-radius: 50px;
             font-size: 0.9rem;
-            opacity: 0;
-            transition: opacity 0.3s;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             pointer-events: none;
             z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
         .toast.show {
-            opacity: 1;
-        }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            transform: translateX(-50%) translateY(0);
         }
     </style>
 </head>
@@ -250,24 +251,43 @@
             <!-- Step 3: Confirm (Hidden initially) -->
             <div class="action-buttons" id="confirm-actions">
                 <button class="btn btn-cancel" id="cancel-step">Cancel</button>
-                <button class="btn btn-primary" id="save-btn">OK</button>
+                <button class="btn btn-primary" id="save-btn">
+                    <span class="spinner"></span>
+                    <span class="btn-text">OK</span>
+                </button>
             </div>
 
-        </div>
-
-        <!-- List to show saved items -->
-        <div class="history" id="history-container">
-            <label>Recent Saved Transactions:</label>
-            <div id="history-list">
-                <!-- Items will appear here -->
-            </div>
         </div>
     </div>
 
     <!-- Notification Toast -->
     <div id="toast" class="toast">Transaction Saved!</div>
 
-    <script>
+    <!-- Firebase Module Script -->
+    <script type="module">
+        // ============================================================
+        // IMPORTS & CONFIGURATION (From provided login.js)
+        // ============================================================
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // ============================================================
+        // UI LOGIC
+        // ============================================================
+        
         // Elements
         const amountInput = document.getElementById('amount');
         const methodOptions = document.getElementById('method-options');
@@ -277,22 +297,24 @@
         const cancelStepBtn = document.getElementById('cancel-step'); // Step 3 Cancel
         const saveBtn = document.getElementById('save-btn');
         const step1Actions = document.getElementById('step1-actions');
-        const historyList = document.getElementById('history-list');
         const toast = document.getElementById('toast');
+        const btnText = saveBtn.querySelector('.btn-text');
 
         // State
         let selectedMethod = null;
 
-        // 1. On Page Load: Input is visible. 
-        // "on start ente amount show the 3 button"
+        // Helper: Navigate away
+        const navigateToBusiness = () => {
+            window.location.href = 'business.html';
+        };
+
+        // 1. On Page Load / Input Change
         amountInput.addEventListener('input', function() {
-            // If there is a value, show the method buttons
             if (this.value.length > 0) {
                 methodOptions.classList.add('visible');
-                // Hide the Step 1 Cancel button to make space for the flow
                 step1Actions.style.display = 'none'; 
             } else {
-                // If input is cleared, hide everything and reset
+                // Reset if input cleared
                 methodOptions.classList.remove('visible');
                 confirmActions.classList.remove('visible');
                 step1Actions.style.display = 'flex';
@@ -303,46 +325,75 @@
         // 2. Handle Method Selection
         methodBtns.forEach(btn => {
             btn.addEventListener('click', function() {
-                // Remove active class from all
                 methodBtns.forEach(b => b.classList.remove('selected'));
-                // Add to clicked
                 this.classList.add('selected');
                 selectedMethod = this.getAttribute('data-method');
-                
-                // Show OK and Cancel buttons
                 confirmActions.classList.add('visible');
             });
         });
 
-        // 3. Handle Step 3 Cancel (Abort selection, return to selection step)
-        cancelStepBtn.addEventListener('click', function() {
-            confirmActions.classList.remove('visible');
-            resetSelection();
-        });
+        // 3. Handle Step 3 Cancel (Abort -> Return to business.html)
+        cancelStepBtn.addEventListener('click', navigateToBusiness);
 
-        // 4. Handle Step 1 Cancel (Return to business.html without save)
-        cancelMainBtn.addEventListener('click', function() {
-            // Requirement: return to business.html without save
-            window.location.href = 'business.html';
-        });
+        // 4. Handle Step 1 Cancel (Abort -> Return to business.html)
+        cancelMainBtn.addEventListener('click', navigateToBusiness);
 
-        // 5. Handle OK (Save and return to same page)
-        saveBtn.addEventListener('click', function() {
-            const amount = parseFloat(amountInput.value);
+        // 5. Handle OK (Save to Firestore -> Return to business.html)
+        saveBtn.addEventListener('click', async function() {
+            const amountVal = parseFloat(amountInput.value);
             
-            if (amount && selectedMethod) {
-                // Save Logic (Visual only for this demo)
-                addToHistory(amount, selectedMethod);
+            if (!amountVal || !selectedMethod) {
+                showToast("Please enter amount and select method");
+                return;
+            }
 
-                // Show Feedback
-                showToast();
+            // --- START SAVE LOGIC ---
 
-                // Reset Form (Return to initial state on same page)
-                amountInput.value = '';
-                methodOptions.classList.remove('visible');
-                confirmActions.classList.remove('visible');
-                step1Actions.style.display = 'flex';
-                resetSelection();
+            // Get user email from session (created by your login.js)
+            const sessionStr = localStorage.getItem("userSession");
+            if (!sessionStr) {
+                showToast("Error: No user session found.");
+                console.error("User not logged in.");
+                // Optional: Redirect to login or stay here
+                return;
+            }
+
+            const userSession = JSON.parse(sessionStr);
+            const userEmail = userSession.email;
+
+            // UI Loading State
+            saveBtn.classList.add('loading');
+            saveBtn.disabled = true;
+            btnText.textContent = "Saving...";
+
+            try {
+                // Save to Firestore 'transactions' collection
+                const docRef = await addDoc(collection(db, "transactions"), {
+                    amount: amountVal,
+                    method: selectedMethod,
+                    userEmail: userEmail, // Links transaction to user
+                    createdAt: serverTimestamp()
+                });
+
+                console.log("Transaction written with ID: ", docRef.id);
+                
+                // Show success
+                showToast("Transaction Saved Successfully!");
+
+                // Slight delay to let the user see the success message
+                setTimeout(() => {
+                    // Redirect to business.html
+                    window.location.href = 'business.html';
+                }, 1000);
+
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                showToast("Error saving transaction. Please try again.");
+                
+                // Reset UI state on error
+                saveBtn.classList.remove('loading');
+                saveBtn.disabled = false;
+                btnText.textContent = "OK";
             }
         });
 
@@ -352,28 +403,9 @@
             methodBtns.forEach(b => b.classList.remove('selected'));
         }
 
-        // Helper: Add item to the history list
-        function addToHistory(amount, method) {
-            const item = document.createElement('div');
-            item.className = 'history-item';
-            
-            // Format currency
-            const formattedAmount = new Intl.NumberFormat('en-US', {
-                style: 'currency', 
-                currency: 'USD'
-            }).format(amount);
-
-            item.innerHTML = `
-                <span>${method}</span>
-                <span class="history-amount">${formattedAmount}</span>
-            `;
-            
-            // Insert at the top
-            historyList.insertBefore(item, historyList.firstChild);
-        }
-
         // Helper: Show Toast
-        function showToast() {
+        function showToast(message) {
+            toast.textContent = message;
             toast.classList.add('show');
             setTimeout(() => {
                 toast.classList.remove('show');
