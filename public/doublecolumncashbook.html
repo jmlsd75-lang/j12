@@ -16,7 +16,7 @@
       --danger: #c0392b;  /* Cr Color */
       --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      --row-height: 45px; /* Constant row height */
+      --row-height: 45px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -66,7 +66,7 @@
     main {
       flex: 1;
       padding: 2rem;
-      max-width: 1400px; /* Wider for double columns */
+      max-width: 1400px;
       margin: 0 auto;
       width: 100%;
     }
@@ -81,20 +81,20 @@
       letter-spacing: 1px;
     }
 
-    /* ── Cash Book Layout (Single Table) ── */
+    /* ── Cash Book Layout ── */
     .cash-book-wrapper {
       background: var(--bg-card);
       border-radius: 8px;
       box-shadow: var(--shadow);
       border: 1px solid var(--border-color);
-      overflow-x: auto; /* Handle small screens */
+      overflow-x: auto;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.9rem;
-      min-width: 1000px; /* Ensure columns don't squish */
+      min-width: 1000px;
       table-layout: fixed;
     }
 
@@ -104,7 +104,6 @@
       padding: 0;
     }
 
-    /* Top Headers (Debit / Credit) */
     .main-header th {
       padding: 12px;
       font-size: 1.1rem;
@@ -116,7 +115,6 @@
     .main-header.dr-side { color: var(--success); border-right: 2px solid var(--border-color); }
     .main-header.cr-side { color: var(--danger); }
 
-    /* Sub Headers (Date, Particulars, etc.) */
     .sub-header th {
       padding: 10px 12px;
       font-size: 0.75rem;
@@ -125,7 +123,6 @@
       background-color: #fcfcfc;
     }
 
-    /* Vertical Divider Line in Middle */
     .divider-col {
       border-left: 2px solid var(--border-color) !important;
     }
@@ -145,14 +142,14 @@
       border-left: 2px solid var(--border-color);
     }
 
-    /* ── Column Widths for Double Column ── */
+    /* ── Column Widths ── */
     .col-date { width: 12%; }
-    .col-detail { width: 26%; }
+    .col-detail { width: 28%; }
     .col-folio { width: 5%; text-align: center; }
     .col-cash { width: 12%; text-align: right; font-family: 'Courier New', monospace; font-weight: 600; color: #555; }
     .col-bank { width: 12%; text-align: right; font-family: 'Courier New', monospace; font-weight: 600; color: #333; }
 
-    /* ── Special Rows ── */
+    /* ── Special Row Styles ── */
     .row-balance { 
       font-style: italic; 
       color: var(--text-muted); 
@@ -167,7 +164,6 @@
       height: 50px;
     }
 
-    /* Empty State */
     .empty-state {
       text-align: center;
       padding: 3rem;
@@ -207,7 +203,7 @@
     <div class="cash-book-wrapper" id="cashBookWrapper">
       <table>
         <thead>
-          <!-- Main Headers: Changed colspan to 5 for Double Column -->
+          <!-- Main Headers -->
           <tr class="main-header">
             <th colspan="5" class="dr-side">Debit (Receipts)</th>
             <th colspan="5" class="cr-side">Credit (Payments)</th>
@@ -220,7 +216,6 @@
             <th class="col-cash">Cash</th>
             <th class="col-bank">Bank</th>
             
-            <!-- Middle Column (Start of Credit Side) -->
             <th class="col-date divider-col">Date</th>
             <th class="col-detail divider-col">Particulars</th>
             <th class="col-folio divider-col">Folio</th>
@@ -229,7 +224,7 @@
           </tr>
         </thead>
         <tbody id="cashBookBody">
-          <!-- Rows will be injected here via JS -->
+          <!-- Rows injected via JS -->
         </tbody>
       </table>
     </div>
@@ -266,7 +261,7 @@
       return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TZS' }).format(amount);
     };
 
-    // Helper: Format Date (YYYY-MM-DD)
+    // Helper: Format Date
     const formatDate = (dateVal) => {
       if (!dateVal) return "";
       const d = new Date(dateVal);
@@ -296,18 +291,17 @@
       }
 
       // Firestore Listener
-      // Path: users/{email}/transactions
       const transactionsRef = collection(db, "users", user.email, "transactions");
-      const q = query(transactionsRef, orderBy("date", "asc")); // Ascending for Cash Book (Oldest top)
+      const q = query(transactionsRef, orderBy("date", "asc"));
 
       onSnapshot(q, (snapshot) => {
-        renderDoubleColumnCashBook(snapshot.docs);
+        renderCashBook(snapshot.docs);
       }, (error) => {
         console.error("Error listening to changes:", error);
       });
     });
 
-    function renderDoubleColumnCashBook(docs) {
+    function renderCashBook(docs) {
       tableBody.innerHTML = "";
 
       if (docs.length === 0) {
@@ -319,12 +313,13 @@
         cashBookWrapper.style.display = 'block';
       }
 
-      // ── 1. Initialize Accumulators ──
-      let drRows = [];
-      let crRows = [];
+      // ── 1. Separate Data Structures for Debit and Credit sides ──
+      // We will treat Cash and Bank independently, but store rows in these arrays for rendering.
+      let leftRows = [];  // Debit Side
+      let rightRows = []; // Credit Side
 
-      // Totals for calculating balance
-      let sums = {
+      // Raw Totals (excluding balances)
+      let totals = {
         drCash: 0, drBank: 0,
         crCash: 0, crBank: 0
       };
@@ -347,105 +342,117 @@
       docs.forEach((doc) => {
         const data = doc.data();
         const amount = parseFloat(data.amount || 0);
-        const type = (data.type || "IN").toUpperCase(); // IN = Dr, OUT = Cr
-        const method = (data.method || "cash").toLowerCase(); // cash or bank
+        const type = (data.type || "IN").toUpperCase(); 
+        const method = (data.method || "cash").toLowerCase(); 
         
         let detail = data.detail || "-";
-        // Clean name from detail
         const nameMatch = detail.match(/\(([^)]+)\)$/);
-        let particulars = detail;
         if (nameMatch) {
-          particulars = detail.replace(/\s*\([^)]+\)$/, ""); 
+          detail = detail.replace(/\s*\([^)]+\)$/, ""); 
         }
 
         const rowObj = {
           date: formatDate(data.date) || formatDate(today),
-          detail: particulars,
-          folio: getFolio(particulars),
+          detail: detail,
+          folio: getFolio(detail),
           cash: (method === 'cash') ? amount : 0,
           bank: (method === 'bank') ? amount : 0,
           type: 'trans'
         };
 
-        // Distribute to Debit or Credit side
+        // Distribute to sides
         if (type === 'IN') {
-          drRows.push(rowObj);
-          sums.drCash += rowObj.cash;
-          sums.drBank += rowObj.bank;
+          leftRows.push(rowObj);
+          totals.drCash += rowObj.cash;
+          totals.drBank += rowObj.bank;
         } else {
-          crRows.push(rowObj);
-          sums.crCash += rowObj.cash;
-          sums.crBank += rowObj.bank;
+          rightRows.push(rowObj);
+          totals.crCash += rowObj.cash;
+          totals.crBank += rowObj.bank;
         }
       });
 
-      // ── 3. Calculate Differences & Insert "Balance c/d" ──
+      // ── 3. Calculate Independent Balances (c/d) ──
+      // The key correction: Cash and Bank are balanced separately.
       
-      // Cash Difference
-      let cashDiff = sums.drCash - sums.crCash; 
-      // Bank Difference
-      let bankDiff = sums.drBank - sums.crBank;
+      let balanceBdData = {
+        left: { cash: 0, bank: 0, hasData: false },
+        right: { cash: 0, bank: 0, hasData: false }
+      };
 
-      // We need to track where balances are placed to correctly place Balance b/d later
-      let cashBalCdSide = null; // 'dr' or 'cr'
-      let bankBalCdSide = null;
-
-      // Logic: If Dr > Cr, put Bal c/d on Cr side. If Cr > Dr, put Bal c/d on Dr side.
-      
-      // --- Handling Cash Balance ---
-      if (Math.abs(cashDiff) > 0.01) { // Check if not zero (float tolerance)
+      // --- CASH LEDGER BALANCING ---
+      let cashDiff = totals.drCash - totals.crCash;
+      if (Math.abs(cashDiff) > 0.01) {
         if (cashDiff > 0) {
-          // Dr > Cr, need Cr balance
-          crRows.push({
-            date: formatDate(today), detail: "Balance", folio: "c/d", 
-            cash: cashDiff, bank: 0, type: 'bal_cd'
+          // Dr > Cr, need Balance c/d on CREDIT side
+          rightRows.push({
+            date: formatDate(today),
+            detail: "Balance c/d",
+            folio: "",
+            cash: cashDiff,
+            bank: 0,
+            type: 'bal_cd'
           });
-          sums.crCash += cashDiff;
-          cashBalCdSide = 'cr';
+          totals.crCash += cashDiff; // Update total for matching
+          balanceBdData.left.cash = cashDiff; // Next period starts on Left
+          balanceBdData.left.hasData = true;
         } else {
-          // Cr > Dr, need Dr balance
-          drRows.push({
-            date: formatDate(today), detail: "Balance", folio: "c/d", 
-            cash: Math.abs(cashDiff), bank: 0, type: 'bal_cd'
+          // Cr > Dr, need Balance c/d on DEBIT side
+          leftRows.push({
+            date: formatDate(today),
+            detail: "Balance c/d",
+            folio: "",
+            cash: Math.abs(cashDiff),
+            bank: 0,
+            type: 'bal_cd'
           });
-          sums.drCash += Math.abs(cashDiff);
-          cashBalCdSide = 'dr';
+          totals.drCash += Math.abs(cashDiff);
+          balanceBdData.right.cash = Math.abs(cashDiff); // Next period starts on Right
+          balanceBdData.right.hasData = true;
         }
       }
 
-      // --- Handling Bank Balance ---
+      // --- BANK LEDGER BALANCING ---
+      let bankDiff = totals.drBank - totals.crBank;
       if (Math.abs(bankDiff) > 0.01) {
         if (bankDiff > 0) {
-          // Dr > Cr, need Cr balance
-          // Note: We check if a Bal c/d row already exists on Cr side from Cash to merge them?
-          // For simplicity in double column, we often just add another row or merge.
-          // Let's add a new row to keep logic distinct.
-          crRows.push({
-            date: formatDate(today), detail: "Balance", folio: "c/d", 
-            cash: 0, bank: bankDiff, type: 'bal_cd'
+          // Dr > Cr, need Balance c/d on CREDIT side
+          rightRows.push({
+            date: formatDate(today),
+            detail: "Balance c/d",
+            folio: "",
+            cash: 0,
+            bank: bankDiff,
+            type: 'bal_cd'
           });
-          sums.crBank += bankDiff;
-          bankBalCdSide = 'cr';
+          totals.crBank += bankDiff;
+          balanceBdData.left.bank = bankDiff;
+          balanceBdData.left.hasData = true;
         } else {
-          // Cr > Dr, need Dr balance
-          drRows.push({
-            date: formatDate(today), detail: "Balance", folio: "c/d", 
-            cash: 0, bank: Math.abs(bankDiff), type: 'bal_cd'
+          // Cr > Dr, need Balance c/d on DEBIT side
+          leftRows.push({
+            date: formatDate(today),
+            detail: "Balance c/d",
+            folio: "",
+            cash: 0,
+            bank: Math.abs(bankDiff),
+            type: 'bal_cd'
           });
-          sums.drBank += Math.abs(bankDiff);
-          bankBalCdSide = 'dr';
+          totals.drBank += Math.abs(bankDiff);
+          balanceBdData.right.bank = Math.abs(bankDiff);
+          balanceBdData.right.hasData = true;
         }
       }
 
-      // ── 4. Render Rows ──
-      const maxRows = Math.max(drRows.length, crRows.length);
+      // ── 4. Render Rows (Transactions + c/d) ──
+      const maxRows = Math.max(leftRows.length, rightRows.length);
 
       for (let i = 0; i < maxRows; i++) {
         let rowHTML = "<tr>";
 
-        // --- DEBIT SIDE (Date, Detail, Folio, Cash, Bank) ---
-        if (i < drRows.length) {
-          const r = drRows[i];
+        // --- DEBIT SIDE RENDER ---
+        if (i < leftRows.length) {
+          const r = leftRows[i];
           const isBal = (r.type === 'bal_cd');
           const cellClass = isBal ? 'row-balance' : '';
           
@@ -460,9 +467,9 @@
           rowHTML += `<td></td><td></td><td></td><td></td><td></td>`;
         }
 
-        // --- CREDIT SIDE (Date, Detail, Folio, Cash, Bank) ---
-        if (i < crRows.length) {
-          const r = crRows[i];
+        // --- CREDIT SIDE RENDER ---
+        if (i < rightRows.length) {
+          const r = rightRows[i];
           const isBal = (r.type === 'bal_cd');
           const cellClass = isBal ? 'row-balance' : '';
 
@@ -487,64 +494,52 @@
           <td></td>
           <td>Total</td>
           <td></td>
-          <td class="col-cash">${formatCurrency(sums.drCash)}</td>
-          <td class="col-bank">${formatCurrency(sums.drBank)}</td>
+          <td class="col-cash">${formatCurrency(totals.drCash)}</td>
+          <td class="col-bank">${formatCurrency(totals.drBank)}</td>
           
           <td class="divider-col"></td>
           <td class="divider-col">Total</td>
           <td class="divider-col"></td>
-          <td class="col-cash divider-col">${formatCurrency(sums.crCash)}</td>
-          <td class="col-bank divider-col">${formatCurrency(sums.crBank)}</td>
+          <td class="col-cash divider-col">${formatCurrency(totals.crCash)}</td>
+          <td class="col-bank divider-col">${formatCurrency(totals.crBank)}</td>
         </tr>
       `;
       tableBody.insertAdjacentHTML('beforeend', totalRowHTML);
 
       // ── 6. Render Balance b/d (Brought Down) ──
-      // Rule: If c/d was on Cr, b/d is on Dr.
-      // Note: We render one row. If one side needs a b/d and the other doesn't, the other side is empty.
+      // This row appears AFTER the totals.
+      // We combine cash and bank b/d onto one side if they both belong there.
       
-      let needsBd_Dr = false;
-      let bdCashDr = 0;
-      let bdBankDr = 0;
+      const needsBdLeft = balanceBdData.left.hasData;
+      const needsBdRight = balanceBdData.right.hasData;
 
-      let needsBd_Cr = false;
-      let bdCashCr = 0;
-      let bdBankCr = 0;
-
-      if (cashBalCdSide === 'cr') { needsBd_Dr = true; bdCashDr = Math.abs(cashDiff); }
-      else if (cashBalCdSide === 'dr') { needsBd_Cr = true; bdCashCr = Math.abs(cashDiff); }
-
-      if (bankBalCdSide === 'cr') { needsBd_Dr = true; bdBankDr = Math.abs(bankDiff); }
-      else if (bankBalCdSide === 'dr') { needsBd_Cr = true; bdBankCr = Math.abs(bankDiff); }
-
-      // Only render if there is a balance to bring down
-      if (needsBd_Dr || needsBd_Cr) {
+      if (needsBdLeft || needsBdRight) {
         let bdRowHTML = "<tr>";
         
-        // Left Side
-        if (needsBd_Dr) {
+        // Left Side (Debit)
+        if (needsBdLeft) {
           bdRowHTML += `
             <td>${formatDate(today)}</td>
-            <td>Balance</td>
-            <td class="col-folio">b/d</td>
-            <td class="col-cash">${formatCurrency(bdCashDr)}</td>
-            <td class="col-bank">${formatCurrency(bdBankDr)}</td>
+            <td>Balance b/d</td>
+            <td></td>
+            <td class="col-cash">${formatCurrency(balanceBdData.left.cash)}</td>
+            <td class="col-bank">${formatCurrency(balanceBdData.left.bank)}</td>
           `;
         } else {
           bdRowHTML += `<td></td><td></td><td></td><td></td><td></td>`;
         }
 
-        // Right Side
-        if (needsBd_Cr) {
+        // Right Side (Credit)
+        if (needsBdRight) {
           bdRowHTML += `
             <td class="divider-col">${formatDate(today)}</td>
-            <td class="divider-col">Balance</td>
-            <td class="col-folio divider-col">b/d</td>
-            <td class="col-cash divider-col">${formatCurrency(bdCashCr)}</td>
-            <td class="col-bank divider-col">${formatCurrency(bdBankCr)}</td>
+            <td class="divider-col">Balance b/d</td>
+            <td></td>
+            <td class="col-cash divider-col">${formatCurrency(balanceBdData.right.cash)}</td>
+            <td class="col-bank divider-col">${formatCurrency(balanceBdData.right.bank)}</td>
           `;
         } else {
-          bdRowHTML += `<td class="divider-col"></td><td class="divider-col"></td><td class="divider-col"></td><td class="divider-col"></td><td class="divider-col"></td>`;
+          bdRowHTML += `<td class="divider-col"></td><td class="divider-col"></td><td></td><td class="divider-col"></td><td class="divider-col"></td>`;
         }
 
         bdRowHTML += "</tr>";
