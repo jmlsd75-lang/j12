@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cash Book (Cash Only)</title>
+  <title>Cash Book</title>
   <style>
     :root {
       --primary: #4285F4;
@@ -16,7 +16,7 @@
       --danger: #c0392b;  /* Cr Color */
       --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      --row-height: 45px; /* Constant row height */
+      --row-height: 45px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -94,14 +94,14 @@
       border-radius: 8px;
       box-shadow: var(--shadow);
       border: 1px solid var(--border-color);
-      overflow-x: auto; /* Handle small screens */
+      overflow-x: auto;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.9rem;
-      min-width: 800px; /* Ensure columns don't squish too much */
+      min-width: 800px;
     }
 
     /* ── Header Rows ── */
@@ -110,7 +110,6 @@
       padding: 0;
     }
 
-    /* Top Headers (Debit / Credit) */
     .main-header th {
       padding: 12px;
       font-size: 1.1rem;
@@ -122,7 +121,6 @@
     .main-header.dr-side { color: var(--success); border-right: 2px solid var(--border-color); }
     .main-header.cr-side { color: var(--danger); }
 
-    /* Sub Headers (Date, Particulars, etc.) */
     .sub-header th {
       padding: 10px 12px;
       font-size: 0.75rem;
@@ -131,7 +129,6 @@
       background-color: #fcfcfc;
     }
 
-    /* Vertical Divider Line in Middle */
     .divider-col {
       border-left: 2px solid var(--border-color) !important;
     }
@@ -141,7 +138,7 @@
       padding: 8px 12px;
       border-bottom: 1px solid #f0f0f0;
       vertical-align: middle;
-      height: var(--row-height); /* Constant Height */
+      height: var(--row-height);
     }
 
     td.divider-col {
@@ -201,28 +198,25 @@
 
   <main>
     <h1 class="page-title">Cash Book</h1>
-    <p class="subtitle">Recording only Cash Payments and Receipts</p>
+    <p class="subtitle">Filtering by Flow Type: Cash</p>
 
     <div class="empty-state" id="emptyState">
-      <p>No cash transactions found to generate Cash Book.</p>
+      <p>No Cash flow transactions found.</p>
     </div>
 
     <div class="cash-book-wrapper" id="cashBookWrapper">
       <table>
         <thead>
-          <!-- Main Headers -->
           <tr class="main-header">
-            <th colspan="4" class="dr-side">Debit (Receipts)</th>
-            <th colspan="4" class="cr-side">Credit (Payments)</th>
+            <th colspan="4" class="dr-side">Debit</th>
+            <th colspan="4" class="cr-side">Credit</th>
           </tr>
-          <!-- Sub Headers -->
           <tr class="sub-header">
             <th class="col-date">Date</th>
             <th class="col-detail">Particulars</th>
             <th class="col-folio">Folio</th>
             <th class="col-amount">Amount</th>
             
-            <!-- Middle Column -->
             <th class="col-date divider-col">Date</th>
             <th class="col-detail divider-col">Particulars</th>
             <th class="col-folio divider-col">Folio</th>
@@ -329,13 +323,12 @@
         const data = doc.data();
 
         // ==========================================================
-        // IMPORTANT: CASH ONLY FILTER
-        // We check if the payment method is 'Cash'. 
-        // If your database uses a different field name (e.g., 'accountType', 'mode'),
-        // change 'paymentMethod' below to match your database field.
+        // FILTER LOGIC: ONLY CASH FLOW
+        // We check if the field 'flow' equals 'Cash'.
+        // This skips 'Bank' and 'Credit' transactions.
         // ==========================================================
-        if (data.paymentMethod !== 'Cash') {
-          return; // Skip this transaction if it is NOT cash
+        if (data.flow !== 'Cash') {
+          return; 
         }
 
         const amount = parseFloat(data.amount || 0);
@@ -357,7 +350,7 @@
           detail: particulars,
           folio: folio,
           amount: amount,
-          type: 'trans' // marker for normal transaction
+          type: 'trans'
         };
 
         if (type === 'IN') {
@@ -380,13 +373,10 @@
       }
 
       // 2. Calculate Difference & Insert "Balance c/d"
-      // Determine which side is smaller to add the balancing figure
       let diff = Math.abs(totalDr - totalCr);
-      let balanceCdSide = null; // 'dr' or 'cr'
+      let balanceCdSide = null; 
 
-      // c/d goes to the side with the SMALLER total to make them equal
       if (totalDr > totalCr) {
-        // Dr is bigger, add to Cr
         balanceCdSide = 'cr';
         crRows.push({
           date: today,
@@ -397,7 +387,6 @@
         });
         totalCr += diff;
       } else if (totalCr > totalDr) {
-        // Cr is bigger, add to Dr
         balanceCdSide = 'dr';
         drRows.push({
           date: today,
@@ -409,14 +398,13 @@
         totalDr += diff;
       }
 
-      // 3. Render Transaction Rows (with padding)
-      // We iterate up to the maximum length of the two arrays
+      // 3. Render Transaction Rows
       const maxRows = Math.max(drRows.length, crRows.length);
 
       for (let i = 0; i < maxRows; i++) {
         let rowHTML = "<tr>";
 
-        // --- DEBIT SIDE CELLS ---
+        // --- DEBIT SIDE ---
         if (i < drRows.length) {
           const r = drRows[i];
           const isBal = (r.type === 'bal_cd');
@@ -428,16 +416,14 @@
             <td class="col-amount ${cellClass}">${formatCurrency(r.amount)}</td>
           `;
         } else {
-          // Empty Padding Cells
           rowHTML += `<td></td><td></td><td></td><td></td>`;
         }
 
-        // --- CREDIT SIDE CELLS ---
+        // --- CREDIT SIDE ---
         if (i < crRows.length) {
           const r = crRows[i];
           const isBal = (r.type === 'bal_cd');
           const cellClass = isBal ? 'row-balance' : '';
-          // Add divider-col to the first cell of Credit side to maintain the vertical line
           rowHTML += `
             <td class="divider-col ${cellClass}">${r.date}</td>
             <td class="divider-col ${cellClass}">${r.detail}</td>
@@ -445,7 +431,6 @@
             <td class="col-amount divider-col ${cellClass}">${formatCurrency(r.amount)}</td>
           `;
         } else {
-          // Empty Padding Cells (with divider on first one)
           rowHTML += `<td class="divider-col"></td><td class="divider-col"></td><td class="divider-col"></td><td class="divider-col"></td>`;
         }
 
@@ -453,8 +438,8 @@
         tableBody.insertAdjacentHTML('beforeend', rowHTML);
       }
 
-      // 4. Render Total Row (Always on one line)
-      const finalTotal = formatCurrency(totalDr); // totals are equal now
+      // 4. Render Total Row
+      const finalTotal = formatCurrency(totalDr); 
       const totalRowHTML = `
         <tr class="row-total">
           <td></td>
@@ -470,36 +455,26 @@
       `;
       tableBody.insertAdjacentHTML('beforeend', totalRowHTML);
 
-      // 5. Render Balance b/d (Brought Down)
-      // Rule: Show after totals, on side OPPOSITE to c/d. 
-      // If c/d was on Credit, b/d is on Debit.
+      // 5. Render Balance b/d
       if (diff > 0) {
         let bdSide = (balanceCdSide === 'cr') ? 'dr' : 'cr';
         
         let bdRowHTML = "<tr>";
         
         if (bdSide === 'dr') {
-          // b/d on Left
           bdRowHTML += `
             <td>${today}</td>
             <td>Balance</td>
             <td class="col-folio">b/d</td>
             <td class="col-amount">${formatCurrency(diff)}</td>
-            <!-- Right side empty -->
             <td class="divider-col"></td>
             <td class="divider-col"></td>
             <td class="divider-col"></td>
             <td class="divider-col"></td>
           `;
         } else {
-          // b/d on Right
           bdRowHTML += `
-            <!-- Left side empty -->
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <!-- Right side b/d -->
+            <td></td><td></td><td></td><td></td>
             <td class="divider-col">${today}</td>
             <td class="divider-col">Balance</td>
             <td class="col-folio divider-col">b/d</td>
