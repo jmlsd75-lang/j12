@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cash Book</title>
+  <title>Cash Book (Cash Only)</title>
   <style>
     :root {
       --primary: #4285F4;
@@ -75,10 +75,17 @@
       text-align: center;
       font-size: 2rem;
       font-weight: 700;
-      margin-bottom: 2rem;
+      margin-bottom: 0.5rem;
       color: var(--text-main);
       text-transform: uppercase;
       letter-spacing: 1px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
     }
 
     /* ── Cash Book Layout (Single Table) ── */
@@ -125,7 +132,6 @@
     }
 
     /* Vertical Divider Line in Middle */
-    /* We apply a border-left to the first column of the Credit side (5th column effectively) */
     .divider-col {
       border-left: 2px solid var(--border-color) !important;
     }
@@ -138,7 +144,6 @@
       height: var(--row-height); /* Constant Height */
     }
 
-    /* Vertical border for cells in the middle column */
     td.divider-col {
       border-left: 2px solid var(--border-color);
     }
@@ -161,11 +166,8 @@
       font-weight: 700; 
       border-top: 2px solid #cbd5e0;
       color: #2d3748;
-      height: 50px; /* Slightly taller for total */
+      height: 50px;
     }
-    
-    /* Remove bottom border for the very last row (Balance b/d usually) if desired, 
-       but keeping it is cleaner for separation. */
 
     /* Empty State */
     .empty-state {
@@ -199,9 +201,10 @@
 
   <main>
     <h1 class="page-title">Cash Book</h1>
+    <p class="subtitle">Recording only Cash Payments and Receipts</p>
 
     <div class="empty-state" id="emptyState">
-      <p>No transactions found to generate Cash Book.</p>
+      <p>No cash transactions found to generate Cash Book.</p>
     </div>
 
     <div class="cash-book-wrapper" id="cashBookWrapper">
@@ -209,8 +212,8 @@
         <thead>
           <!-- Main Headers -->
           <tr class="main-header">
-            <th colspan="4" class="dr-side">Debit</th>
-            <th colspan="4" class="cr-side">Credit</th>
+            <th colspan="4" class="dr-side">Debit (Receipts)</th>
+            <th colspan="4" class="cr-side">Credit (Payments)</th>
           </tr>
           <!-- Sub Headers -->
           <tr class="sub-header">
@@ -239,6 +242,7 @@
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+    // --- FIREBASE CONFIGURATION ---
     const firebaseConfig = {
       apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
       authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -298,15 +302,6 @@
     function renderCashBook(docs) {
       tableBody.innerHTML = "";
 
-      if (docs.length === 0) {
-        emptyState.classList.add('visible');
-        cashBookWrapper.style.display = 'none';
-        return;
-      } else {
-        emptyState.classList.remove('visible');
-        cashBookWrapper.style.display = 'block';
-      }
-
       let totalDr = 0;
       let totalCr = 0;
       
@@ -332,6 +327,17 @@
       // 1. Process Transactions into separate arrays
       docs.forEach((doc) => {
         const data = doc.data();
+
+        // ==========================================================
+        // IMPORTANT: CASH ONLY FILTER
+        // We check if the payment method is 'Cash'. 
+        // If your database uses a different field name (e.g., 'accountType', 'mode'),
+        // change 'paymentMethod' below to match your database field.
+        // ==========================================================
+        if (data.paymentMethod !== 'Cash') {
+          return; // Skip this transaction if it is NOT cash
+        }
+
         const amount = parseFloat(data.amount || 0);
         const type = (data.type || "IN").toUpperCase();
         
@@ -362,6 +368,16 @@
           crRows.push(rowObj);
         }
       });
+
+      // Check for Empty State based on FILTERED rows
+      if (drRows.length === 0 && crRows.length === 0) {
+        emptyState.classList.add('visible');
+        cashBookWrapper.style.display = 'none';
+        return;
+      } else {
+        emptyState.classList.remove('visible');
+        cashBookWrapper.style.display = 'block';
+      }
 
       // 2. Calculate Difference & Insert "Balance c/d"
       // Determine which side is smaller to add the balancing figure
