@@ -30,6 +30,7 @@
       flex-direction: column;
     }
 
+    /* ── Header / Nav ── */
     header {
       background: var(--bg-card);
       padding: 1rem 2rem;
@@ -61,6 +62,7 @@
     .user-info { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--text-muted); }
     .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); }
 
+    /* ── Main Content ── */
     main {
       flex: 1;
       padding: 2rem;
@@ -86,6 +88,7 @@
       font-size: 0.9rem;
     }
 
+    /* ── Cash Book Layout (Single Table) ── */
     .cash-book-wrapper {
       background: var(--bg-card);
       border-radius: 8px;
@@ -101,6 +104,7 @@
       min-width: 800px;
     }
 
+    /* ── Header Rows ── */
     th {
       border-bottom: 1px solid var(--border-color);
       padding: 0;
@@ -129,6 +133,7 @@
       border-left: 2px solid var(--border-color) !important;
     }
 
+    /* ── Table Cells ── */
     td {
       padding: 8px 12px;
       border-bottom: 1px solid #f0f0f0;
@@ -140,11 +145,13 @@
       border-left: 2px solid var(--border-color);
     }
 
+    /* Column Widths */
     .col-date { width: 15%; }
     .col-detail { width: 35%; }
     .col-folio { width: 10%; text-align: center; }
     .col-amount { width: 15%; text-align: right; font-family: 'Courier New', monospace; font-weight: 600; }
 
+    /* ── Special Rows ── */
     .row-balance { 
       font-style: italic; 
       color: var(--text-muted); 
@@ -159,6 +166,7 @@
       height: 50px;
     }
 
+    /* Empty State */
     .empty-state {
       text-align: center;
       padding: 3rem;
@@ -167,6 +175,7 @@
     }
     .empty-state.visible { display: block; }
 
+    /* Responsive */
     @media (max-width: 768px) {
       header { padding: 1rem; }
       main { padding: 1rem; }
@@ -177,8 +186,7 @@
 <body>
 
   <header>
-    <!-- Changed href to point to detail.html (Menu) or list.html -->
-    <a href="detail.html" class="back-btn">
+    <a href="menu.html" class="back-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="19" y1="12" x2="5" y2="12"></line>
         <polyline points="12 19 5 12 12 5"></polyline>
@@ -190,7 +198,7 @@
 
   <main>
     <h1 class="page-title">Cash Book</h1>
-    <p class="subtitle">Filtering by Method: Cash</p>
+    <p class="subtitle">Filtering by Flow Type: Cash</p>
 
     <div class="empty-state" id="emptyState">
       <p>No Cash flow transactions found.</p>
@@ -222,11 +230,13 @@
     </div>
   </main>
 
+  <!-- Firebase Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+    // --- FIREBASE CONFIGURATION ---
     const firebaseConfig = {
       apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
       authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -245,20 +255,24 @@
     const cashBookWrapper = document.getElementById('cashBookWrapper');
     const userInfoDisplay = document.getElementById('userInfoDisplay');
 
+    // Helper: Format Currency
     const formatCurrency = (amount) => {
       return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TZS' }).format(amount);
     };
 
+    // Helper: Get Today's Date string
     const getTodayDate = () => {
       return new Date().toISOString().split('T')[0];
     };
 
+    // Auth Check
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         window.location.href = "index.html";
         return;
       }
 
+      // Update Header User
       const sessionData = localStorage.getItem("userSession");
       if (sessionData) {
         const parsed = JSON.parse(sessionData);
@@ -268,9 +282,9 @@
         `;
       }
 
+      // REAL-TIME LISTENER
       const transactionsRef = collection(db, "users", user.email, "transactions");
-      // Order by date ascending for Cash Book logic
-      const q = query(transactionsRef, orderBy("date", "asc")); 
+      const q = query(transactionsRef, orderBy("date", "desc")); 
 
       onSnapshot(q, (snapshot) => {
         renderCashBook(snapshot.docs);
@@ -285,9 +299,11 @@
       let totalDr = 0;
       let totalCr = 0;
       
+      // Arrays to hold row objects
       let drRows = [];
       let crRows = [];
 
+      // Folio Logic
       let folioCounter = 1;
       const folioMap = {}; 
       const getFolio = (detail) => {
@@ -302,14 +318,16 @@
 
       const today = getTodayDate();
 
+      // 1. Process Transactions into separate arrays
       docs.forEach((doc) => {
         const data = doc.data();
 
         // ==========================================================
-        // CRITICAL FIX: Filter by 'method' equals 'CASH'
-        // This matches the data saved in add-transaction.html
+        // FILTER LOGIC: ONLY CASH FLOW
+        // We check if the field 'flow' equals 'Cash'.
+        // This skips 'Bank' and 'Credit' transactions.
         // ==========================================================
-        if (data.method !== 'CASH') {
+        if (data.flow !== 'Cash') {
           return; 
         }
 
@@ -317,6 +335,7 @@
         const type = (data.type || "IN").toUpperCase();
         
         let detail = data.detail || "-";
+        // Clean name from detail for the particulars column
         const nameMatch = detail.match(/\(([^)]+)\)$/);
         let particulars = detail;
         if (nameMatch) {
@@ -343,6 +362,7 @@
         }
       });
 
+      // Check for Empty State based on FILTERED rows
       if (drRows.length === 0 && crRows.length === 0) {
         emptyState.classList.add('visible');
         cashBookWrapper.style.display = 'none';
@@ -352,6 +372,7 @@
         cashBookWrapper.style.display = 'block';
       }
 
+      // 2. Calculate Difference & Insert "Balance c/d"
       let diff = Math.abs(totalDr - totalCr);
       let balanceCdSide = null; 
 
@@ -377,11 +398,13 @@
         totalDr += diff;
       }
 
+      // 3. Render Transaction Rows
       const maxRows = Math.max(drRows.length, crRows.length);
 
       for (let i = 0; i < maxRows; i++) {
         let rowHTML = "<tr>";
 
+        // --- DEBIT SIDE ---
         if (i < drRows.length) {
           const r = drRows[i];
           const isBal = (r.type === 'bal_cd');
@@ -396,6 +419,7 @@
           rowHTML += `<td></td><td></td><td></td><td></td>`;
         }
 
+        // --- CREDIT SIDE ---
         if (i < crRows.length) {
           const r = crRows[i];
           const isBal = (r.type === 'bal_cd');
@@ -414,6 +438,7 @@
         tableBody.insertAdjacentHTML('beforeend', rowHTML);
       }
 
+      // 4. Render Total Row
       const finalTotal = formatCurrency(totalDr); 
       const totalRowHTML = `
         <tr class="row-total">
@@ -430,6 +455,7 @@
       `;
       tableBody.insertAdjacentHTML('beforeend', totalRowHTML);
 
+      // 5. Render Balance b/d
       if (diff > 0) {
         let bdSide = (balanceCdSide === 'cr') ? 'dr' : 'cr';
         
