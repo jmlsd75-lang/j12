@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sales Journal (Functional)</title>
+    <title>Credit Sales Journal</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -233,6 +233,20 @@
         .action-link.delete-link:hover { background-color: var(--danger-bg); color: var(--danger); }
         .action-link svg { width: 16px; height: 16px; }
 
+        /* --- Badge for Credit --- */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-credit {
+            background-color: #e0e7ff;
+            color: var(--primary);
+        }
+
         /* --- States --- */
         .loading-container {
             display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem;
@@ -273,8 +287,8 @@
     <!-- Header -->
     <header>
         <a href="detail.html" class="brand">
-            <i class="fa-solid fa-book-open"></i>
-            <span>SalesJournal</span>
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+            <span>Credit Sales Journal</span>
         </a>
 
         <div class="user-menu">
@@ -295,10 +309,10 @@
     <main>
         <div class="page-header">
             <div class="page-title">
-                <h1>Sales Journal</h1>
-                <p>Overview of recorded transactions.</p>
+                <h1>Credit Sales Journal</h1>
+                <p>Recorded sales where Payment Method is Credit.</p>
             </div>
-            <!-- Added Add Button to match List functionality -->
+            <!-- Optional: You might want to link to a specific 'Add Credit Sale' form if you have one -->
             <a href="add-transaction.html" class="add-btn">
                 <i class="fa-solid fa-plus"></i> New Sale
             </a>
@@ -325,13 +339,14 @@
             <!-- Loading State -->
             <div id="loadingState" class="loading-container">
                 <div class="spinner"></div>
-                <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;">Fetching transactions...</p>
+                <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;">Filtering credit transactions...</p>
             </div>
 
             <!-- Empty State -->
             <div id="emptyState" class="empty-state">
                 <i class="fa-regular fa-folder-open"></i>
-                <p>No transactions found.</p>
+                <p>No credit sales transactions found.</p>
+                <p style="font-size: 0.8rem; margin-top: 0.5rem;">(Only items with 'Credit' payment method and 'Sales' in details are shown)</p>
             </div>
         </div>
     </main>
@@ -405,10 +420,9 @@
             fetchTransactions(user.email);
         });
 
-        // ── Data Fetching (Mirroring Transaction List Logic) ──
+        // ── Data Fetching & Filtering Logic ──
         async function fetchTransactions(userEmail) {
             try {
-                // Target the same collection as the list: users/{email}/transactions
                 const transactionsRef = collection(db, "users", userEmail, "transactions");
                 const q = query(transactionsRef, orderBy("createdAt", "desc"));
                 
@@ -417,18 +431,30 @@
                 tableBody.innerHTML = "";
                 loadingState.style.display = "none";
 
-                if (querySnapshot.empty) {
-                    emptyState.classList.add('visible');
-                    salesTable.style.display = 'none';
-                    return;
-                } else {
-                    emptyState.classList.remove('visible');
-                    salesTable.style.display = 'table';
-                }
+                let hasVisibleRows = false;
 
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
                     const docId = doc.id;
+
+                    // ── CRITICAL FILTER LOGIC ──
+                    
+                    // 1. Check Payment Method: Must be 'credit'
+                    // We normalize to lowercase to handle variations like 'Credit', 'CREDIT', 'credit'
+                    const paymentMethod = (data.paymentMethod || "").toLowerCase().trim();
+                    
+                    // 2. Check Detail: Must contain 'sales'
+                    // We normalize to lowercase to handle variations like 'Sales', 'SALES', 'sales of item'
+                    const detailText = (data.detail || "").toLowerCase();
+
+                    // STRICT FILTER: Only proceed if BOTH conditions are met
+                    if (paymentMethod !== 'credit' || !detailText.includes('sales')) {
+                        return; // Ignore this transaction completely
+                    }
+
+                    // ── END FILTER LOGIC ──
+
+                    hasVisibleRows = true;
 
                     // 1. Handle Date
                     const dateStr = data.date || "N/A";
@@ -439,28 +465,33 @@
                         style: 'currency', currency: 'TZS' 
                     }).format(amount);
 
-                    // 3. Parse Detail and Name (Regex Logic from List)
+                    // 3. Parse Detail and Name
                     let displayName = "-";
                     let cleanDetail = data.detail || "-";
 
+                    // Attempt to find customer name in parentheses, e.g., "Sales Item (John Doe)"
                     const nameMatch = cleanDetail.match(/\(([^)]+)\)$/);
                     if (nameMatch) {
                         displayName = nameMatch[1];
+                        // Remove the name from the detail string for a cleaner look
                         cleanDetail = cleanDetail.replace(/\s*\([^)]+\)$/, ""); 
                     }
 
-                    // 4. Determine Color based on Type (Optional, keeps visual consistency)
-                    const flowType = (data.type || "IN").toUpperCase();
-                    const colorStyle = flowType === 'OUT' ? '#ef4444' : '#10b981';
+                    // 4. Color Logic (Green for Sales)
+                    // Since we filtered strictly for credit sales, we assume positive revenue
+                    const colorStyle = '#10b981'; 
 
                     const row = document.createElement('tr');
                     
                     row.innerHTML = `
                         <td style="color: var(--text-muted); font-size: 0.85rem;">${dateStr}</td>
-                        <td style="font-weight: 500;">${cleanDetail}</td>
+                        <td>
+                            <div style="font-weight: 500;">${cleanDetail}</div>
+                            <span class="badge badge-credit" style="margin-top: 4px;">Credit</span>
+                        </td>
                         <td>${displayName}</td>
                         <td class="amount-cell" style="color: ${colorStyle}">
-                            ${flowType === 'OUT' ? '-' : '+'}${amountFormatted}
+                            +${amountFormatted}
                         </td>
                         <td class="col-actions">
                             <a href="businessedit.html?id=${docId}" class="action-link" title="Edit">
@@ -480,6 +511,15 @@
                     
                     tableBody.appendChild(row);
                 });
+
+                // Handle Empty State after filtering
+                if (!hasVisibleRows) {
+                    emptyState.classList.add('visible');
+                    salesTable.style.display = 'none';
+                } else {
+                    emptyState.classList.remove('visible');
+                    salesTable.style.display = 'table';
+                }
 
             } catch (error) {
                 console.error("Error fetching transactions:", error);
@@ -510,7 +550,7 @@
             container.appendChild(toast);
             
             requestAnimationFrame(() => {
-                toast.classList.add('show'); // Assuming class triggers animation or just exists
+                toast.classList.add('show');
             });
 
             setTimeout(() => {
