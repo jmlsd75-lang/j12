@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>General Ledger View</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --bg-color: #f4f7f6;
+            --table-border: #000;
+            --cell-padding: 8px 12px;
+            --header-bg: #e8e8e8;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--primary-color);
+        }
+
+        p.subtitle {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Controls */
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--accent-color);
+        }
+
+        /* Ledger Container */
+        #ledger-container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px; /* Space between ledgers */
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Individual Ledger Section */
+        .ledger-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            page-break-inside: avoid; /* Prevent splitting when printing */
+        }
+
+        .account-title {
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-decoration: underline;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 4px;
+        }
+
+        /* Ledger Table Styling */
+        table.ledger-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid var(--table-border);
+            font-size: 14px;
+        }
+
+        .ledger-table th, .ledger-table td {
+            border: 1px solid var(--table-border);
+            padding: var(--cell-padding);
+        }
+
+        /* Column Widths */
+        .col-date { width: 15%; }
+        .col-particulars { width: 35%; }
+        .col-folio { width: 10%; text-align: center; }
+        .col-amount { width: 20%; text-align: right; }
+
+        .ledger-table th {
+            background-color: var(--header-bg);
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .ledger-table td {
+            vertical-align: top;
+        }
+
+        /* Alignment Overrides */
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        /* Specific Row Styling */
+        .row-total td {
+            font-weight: bold;
+            border-top: 2px solid var(--table-border); /* Double line effect or thicker line */
+            background-color: #fafafa;
+        }
+
+        .row-balance-cd td {
+            font-style: italic;
+            background-color: #fdfdfd;
+        }
+
+        .row-balance-bd td {
+            font-weight: bold;
+            background-color: #fff;
+        }
+
+        /* Status Message */
+        #status-msg {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+            color: green;
+            min-height: 24px;
+        }
+
+        @media print {
+            body { background-color: white; padding: 0; }
+            header, .controls, #status-msg { display: none; }
+            #ledger-container { gap: 20px; }
+            .ledger-section { box-shadow: none; padding: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>General Ledger</h1>
+        <p class="subtitle">Double Entry Accounting System</p>
+    </header>
+
+    <div class="controls">
+        <button onclick="generateLedgers()">Show All Ledgers</button>
+        <div id="status-msg"></div>
+    </div>
+
+    <main id="ledger-container">
+        <!-- Ledgers will be injected here -->
+        <div style="text-align: center; color: #888; margin-top: 50px;">
+            Click "Show All Ledgers" to process transactions from list.html
+        </div>
+    </main>
+
+    <script>
+        /**
+         * ------------------------------------------------------------------
+         * DATA SOURCE
+         * Simulating data from list.html
+         * Columns: Date, Detail, FlowType, FlowForm, Name, Amount
+         * ------------------------------------------------------------------
+         */
+        const MOCK_TRANSACTIONS = [
+            { date: '2023-10-01', detail: 'Cash', flowType: 'IN', flowForm: 'CASH', name: 'Capital A/c', amount: 10000 },
+            { date: '2023-10-02', detail: 'Bank', flowType: 'IN', flowForm: 'BANK', name: 'Cash', amount: 5000 },
+            { date: '2023-10-03', detail: 'Purchases', flowType: 'OUT', flowForm: 'CASH', name: 'Supplier A', amount: 2000 },
+            { date: '2023-10-04', detail: 'Sales', flowType: 'IN', flowForm: 'CASH', name: 'Customer B', amount: 1500 },
+            { date: '2023-10-05', detail: 'Rent', flowType: 'OUT', flowForm: 'BANK', name: 'Landlord', amount: 1000 },
+            { date: '2023-10-06', detail: 'Purchases', flowType: 'OUT', flowForm: 'CREDIT', name: 'Supplier C', amount: 3000 },
+            { date: '2023-10-07', detail: 'Cash', flowType: 'OUT', flowForm: 'CASH', name: 'Wages', amount: 500 },
+            { date: '2023-10-08', detail: 'Sales', flowType: 'IN', flowForm: 'CREDIT', name: 'Customer D', amount: 4000 },
+            { date: '2023-10-09', detail: 'Furniture', flowType: 'OUT', flowForm: 'BANK', name: 'Furniture Mart', amount: 2500 },
+        ];
+
+        /**
+         * ------------------------------------------------------------------
+         * UTILITY FUNCTIONS
+         * ------------------------------------------------------------------
+         */
+        
+        // Format currency
+        function formatMoney(amount) {
+            return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Create empty cell string
+        function emptyCell() {
+            return '<td>&nbsp;</td>';
+        }
+
+        /**
+         * ------------------------------------------------------------------
+         * CORE LOGIC
+         * ------------------------------------------------------------------
+         */
+
+        function generateLedgers() {
+            const container = document.getElementById('ledger-container');
+            const statusMsg = document.getElementById('status-msg');
+            
+            container.innerHTML = ''; // Clear previous
+            statusMsg.textContent = "Processing...";
+
+            // 1. GROUP BY DETAIL
+            const accounts = {};
+            
+            MOCK_TRANSACTIONS.forEach(tx => {
+                // Create account if not exists
+                if (!accounts[tx.detail]) {
+                    accounts[tx.detail] = [];
+                }
+                accounts[tx.detail].push(tx);
+            });
+
+            // 2. PROCESS EACH ACCOUNT
+            const accountNames = Object.keys(accounts).sort(); // Sort alphabetically
+            
+            accountNames.forEach(accName => {
+                const transactions = accounts[accName];
+                
+                // 3. CLASSIFY IN/OUT to DR/CR
+                // Rule: IN -> CREDIT, OUT -> DEBIT
+                let drEntries = [];
+                let crEntries = [];
+                let totalDr = 0;
+                let totalCr = 0;
+
+                transactions.forEach(tx => {
+                    const entry = {
+                        date: tx.date,
+                        particulars: tx.name, // Rule 5: Use Name or Flow Form. Using Name as primary.
+                        folio: '', // Empty for transactions
+                        amount: tx.amount
+                    };
+
+                    if (tx.flowType === 'OUT') {
+                        drEntries.push(entry);
+                        totalDr += tx.amount;
+                    } else if (tx.flowType === 'IN') {
+                        crEntries.push(entry);
+                        totalCr += tx.amount;
+                    }
+                });
+
+                // 4. BALANCING LOGIC (Rules 8, 9, 10, 11)
+                const diff = Math.abs(totalDr - totalCr);
+                
+                // We construct the final rows for the table.
+                // We need to handle the alignment of Debit and Credit columns.
+                // We will create a list of "Row Objects" containing both sides.
+                
+                let renderList = [];
+                let maxLen = Math.max(drEntries.length, crEntries.length);
+
+                // Step A: Add Transactions
+                for (let i = 0; i < maxLen; i++) {
+                    let dr = drEntries[i] || null;
+                    let cr = crEntries[i] || null;
+                    renderList.push({ type: 'tx', dr, cr });
+                }
+
+                // Step B: Determine Balance & Totals
+                let finalTotal = 0;
+                let balanceSide = null; // 'dr' or 'cr'
+
+                if (totalDr > totalCr) {
+                    // Debit is larger -> Credit needs Balance c/d
+                    finalTotal = totalDr;
+                    balanceSide = 'cr'; // Balance sits on Credit side
+                    renderList.push({ 
+                        type: 'balance_cd', 
+                        dr: null, 
+                        cr: { date: '', particulars: 'Balance', folio: 'c/d', amount: diff } 
+                    });
+                } else if (totalCr > totalDr) {
+                    // Credit is larger -> Debit needs Balance c/d
+                    finalTotal = totalCr;
+                    balanceSide = 'dr'; // Balance sits on Debit side
+                    renderList.push({ 
+                        type: 'balance_cd', 
+                        dr: { date: '', particulars: 'Balance', folio: 'c/d', amount: diff }, 
+                        cr: null 
+                    });
+                } else {
+                    // Equal
+                    finalTotal = totalDr;
+                    balanceSide = 'equal';
+                }
+
+                // Step C: Add Total Row (Rule 9)
+                renderList.push({
+                    type: 'total',
+                    dr: { date: '', particulars: 'Total', folio: '', amount: finalTotal },
+                    cr: { date: '', particulars: 'Total', folio: '', amount: finalTotal }
+                });
+
+                // Step D: Add Balance b/d (Rule 10 & 11)
+                // Must be OPPOSITE side of c/d
+                if (balanceSide === 'cr') {
+                    // c/d was on Credit, so b/d is on Debit
+                    renderList.push({
+                        type: 'balance_bd',
+                        dr: { date: '', particulars: 'Balance', folio: 'b/d', amount: diff },
+                        cr: null
+                    });
+                } else if (balanceSide === 'dr') {
+                    // c/d was on Debit, so b/d is on Credit
+                    renderList.push({
+                        type: 'balance_bd',
+                        dr: null,
+                        cr: { date: '', particulars: 'Balance', folio: 'b/d', amount: diff }
+                    });
+                }
+                // If equal, no b/d
+
+                // 5. RENDER HTML TABLE
+                const section = document.createElement('div');
+                section.className = 'ledger-section';
+
+                const tableHTML = buildTableHTML(accName, renderList);
+                section.innerHTML = tableHTML;
+                container.appendChild(section);
+            });
+
+            statusMsg.textContent = `Generated ${accountNames.length} Ledger Accounts`;
+            setTimeout(() => { statusMsg.textContent = ""; }, 3000);
+        }
+
+        function buildTableHTML(accountName, rows) {
+            let html = `
+                <div class="account-title">${accountName} Account</div>
+                <table class="ledger-table">
+                    <thead>
+                        <tr>
+                            <!-- Debit Side -->
+                            <th colspan="4" style="border-right:2px solid black;">Debit (DR)</th>
+                            <!-- Credit Side -->
+                            <th colspan="4">Credit (CR)</th>
+                        </tr>
+                        <tr>
+                            <th class="col-date">Date</th>
+                            <th class="col-particulars">Particulars</th>
+                            <th class="col-folio">Folio</th>
+                            <th class="col-amount">Amount</th>
+                            
+                            <th class="col-date">Date</th>
+                            <th class="col-particulars">Particulars</th>
+                            <th class="col-folio">Folio</th>
+                            <th class="col-amount">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            rows.forEach(row => {
+                html += '<tr>';
+                
+                // Debit Cells
+                if (row.dr) {
+                    let rowClass = row.type === 'total' ? 'row-total' : (row.type.includes('balance') ? 'row-'+row.type : '');
+                    html += `
+                        <td class="${rowClass}">${row.dr.date}</td>
+                        <td class="${rowClass}">${row.dr.particulars}</td>
+                        <td class="${rowClass} text-center">${row.dr.folio}</td>
+                        <td class="${rowClass} text-right">${formatMoney(row.dr.amount)}</td>
+                    `;
+                } else {
+                    html += emptyCell().repeat(4);
+                }
+
+                // Credit Cells
+                if (row.cr) {
+                    let rowClass = row.type === 'total' ? 'row-total' : (row.type.includes('balance') ? 'row-'+row.type : '');
+                    html += `
+                        <td class="${rowClass}">${row.cr.date}</td>
+                        <td class="${rowClass}">${row.cr.particulars}</td>
+                        <td class="${rowClass} text-center">${row.cr.folio}</td>
+                        <td class="${rowClass} text-right">${formatMoney(row.cr.amount)}</td>
+                    `;
+                } else {
+                    html += emptyCell().repeat(4);
+                }
+
+                html += '</tr>';
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            return html;
+        }
+
+    </script>
+</body>
+</html>
