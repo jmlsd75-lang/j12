@@ -1,67 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Transaction Buttons</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Type</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
-<style>
-    body {
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-family: Arial, sans-serif;
-        background: #f5f5f5;
-    }
+    <style>
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Inter', sans-serif;
+            background: #F3F4F6;
+            margin: 0;
+        }
 
-    .container {
-        display: flex;
-        gap: 20px;
-    }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 320px;
+            padding: 20px;
+        }
 
-    .btn {
-        padding: 15px 40px;
-        font-size: 18px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        color: white;
-        transition: 0.3s;
-    }
+        .title {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 20px;
+        }
 
-    .sales { background-color: #28a745; }
-    .sales:hover { background-color: #218838; }
+        .btn {
+            padding: 20px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            color: white;
+            transition: transform 0.1s, opacity 0.2s;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn:active { transform: scale(0.98); }
 
-    .purchases { background-color: #007bff; }
-    .purchases:hover { background-color: #0056b3; }
-</style>
+        /* Styles matching the main app */
+        .sales { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
+        .sales:hover { opacity: 0.9; }
+
+        .purchases { background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); }
+        .purchases:hover { opacity: 0.9; }
+
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+            color: #6B7280;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-link:hover { color: #1F2937; }
+    </style>
 </head>
 
 <body>
+    <div class="container">
+        <h1 class="title">Select Type</h1>
+        
+        <!-- Data attributes send logic to the next page -->
+        <button class="btn sales" onclick="goToAdd('IN', 'Sales')">
+            Sales (Income)
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
 
-<div class="container">
-    <!-- Data attributes are used for logic, URL params for passing to next page -->
-    <button class="btn sales" data-flow="IN" data-detail="Sales" onclick="goToAdd(this)">
-        Sales
-    </button>
+        <button class="btn purchases" onclick="goToAdd('OUT', 'Purchases')">
+            Purchases (Expense)
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </button>
 
-    <button class="btn purchases" data-flow="OUT" data-detail="Purchases" onclick="goToAdd(this)">
-        Purchases
-    </button>
-</div>
+        <!-- Optional link to go back to main dashboard -->
+        <a href="business.html" class="back-link">Back to Dashboard</a>
+    </div>
 
-<script>
-function goToAdd(btn) {
-    const flow = btn.getAttribute('data-flow');      // IN / OUT
-    const detail = btn.getAttribute('data-detail');  // Sales / Purchases
-    
-    // Construct URL with all necessary parameters
-    // We set method=none so the user is forced to select it in the next step
-    window.location.href = "add-transaction.html?flow=" + encodeURIComponent(flow) + 
-                          "&detail=" + encodeURIComponent(detail);
-}
-</script>
-
+    <script>
+        function goToAdd(flow, detail) {
+            // Redirect to the transaction form with parameters
+            const url = `add-transaction.html?flow=${encodeURIComponent(flow)}&detail=${encodeURIComponent(detail)}`;
+            window.location.href = url;
+        }
+    </script>
 </body>
 </html>
