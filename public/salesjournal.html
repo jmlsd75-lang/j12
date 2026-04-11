@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Journal (View Only)</title>
+    
+    <!-- Google Fonts for a professional look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338ca;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- Header / Navigation --- */
+        header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info {
+            text-align: right;
+            display: none; /* Hidden until loaded */
+        }
+
+        .user-info .name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .user-info .role {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #e0e7ff;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            object-fit: cover;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--border);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-logout:hover {
+            background: #fef2f2;
+            color: var(--danger);
+            border-color: #fecaca;
+        }
+
+        /* --- Main Content --- */
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .page-header {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .page-title p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .badge-credit {
+            background: #ecfdf5;
+            color: #059669;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid #d1fae5;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        /* --- Table Card --- */
+        .card {
+            background: var(--bg-card);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto; /* Scroll on mobile */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            min-width: 600px;
+        }
+
+        thead {
+            background-color: #f9fafb;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            padding: 0.875rem 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .amount-cell {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .empty-state {
+            padding: 4rem 2rem;
+            text-align: center;
+            color: var(--text-muted);
+        }
+        
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #d1d5db;
+        }
+
+        /* --- Loading Spinner --- */
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* --- Toast Notification --- */
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: #1f2937;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease-out forwards;
+            max-width: 300px;
+        }
+
+        .toast.error { background: var(--danger); }
+        .toast.success { background: var(--success); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @media (max-width: 640px) {
+            main { padding: 1rem; }
+            .page-header { flex-direction: column; align-items: flex-start; }
+            .user-info { display: none; } /* Hide name on very small screens, keep avatar */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <header>
+        <div class="brand">
+            <i class="fa-solid fa-book-open"></i>
+            <span>SalesJournal</span>
+        </div>
+
+        <div class="user-menu">
+            <div class="user-info" id="userInfo">
+                <div class="name" id="userName">User Name</div>
+                <div class="role" id="userRole">Viewer</div>
+            </div>
+            
+            <!-- Avatar placeholder -->
+            <img src="" alt="User" id="userAvatar" class="avatar" style="display:none;">
+
+            <button class="btn-logout" id="logoutBtn" onclick="handleLogout()" title="Sign Out">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="page-header">
+            <div class="page-title">
+                <h1>Credit Sales</h1>
+                <p>Overview of all recorded credit transactions.</p>
+            </div>
+            <div class="badge-credit">
+                <i class="fa-solid fa-ban"></i> Cash Sales Not Allowed
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Customer Name</th>
+                            <th>Amount</th>
+                            <th>Invoice / Detail</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesTableBody">
+                        <!-- Data injected via JS -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-container">
+                <div class="spinner"></div>
+                <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;">Fetching data...</p>
+            </div>
+
+            <!-- Empty State (Hidden by default) -->
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <i class="fa-regular fa-folder-open"></i>
+                <p>No sales records found.</p>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast-container"></div>
+
+    <!-- Firebase Logic -->
+    <script type="module">
+        // Import Firebase functions from v10.12.2 (matching your config)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import {
+            getAuth,
+            onAuthStateChanged,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import {
+            getFirestore,
+            collection,
+            query,
+            orderBy,
+            onSnapshot
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // ── Firebase Config (From your provided code) ──
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
+
+        // ── Initialize ──
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // ── DOM Elements ──
+        const tableBody = document.getElementById('salesTableBody');
+        const loadingState = document.getElementById('loadingState');
+        const emptyState = document.getElementById('emptyState');
+        const userNameEl = document.getElementById('userName');
+        const userAvatarEl = document.getElementById('userAvatar');
+        const userInfoEl = document.getElementById('userInfo');
+
+        // ── Auth State Check ──
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                // Not logged in, redirect to index.html
+                window.location.href = "index.html";
+                return;
+            }
+
+            // User is logged in, set up UI
+            console.log("User logged in:", user.email);
+            
+            // Update Header
+            userNameEl.textContent = user.displayName || "User";
+            userInfoEl.style.display = "block";
+            
+            if (user.photoURL) {
+                userAvatarEl.src = user.photoURL;
+                userAvatarEl.style.display = "flex";
+            } else {
+                // Generate initial avatar if no photo
+                userAvatarEl.textContent = (user.displayName || user.email)[0].toUpperCase();
+                userAvatarEl.style.display = "flex";
+            }
+
+            // Load Data
+            loadSalesData();
+        });
+
+        // ── Load Data from Firestore ──
+        function loadSalesData() {
+            // Assuming collection name is 'sales'. Change if your collection is named differently.
+            // We order by 'date' descending to show newest first.
+            const salesQuery = query(collection(db, "sales"), orderBy("date", "desc"));
+
+            // Real-time listener
+            onSnapshot(salesQuery, (snapshot) => {
+                // Clear existing rows
+                tableBody.innerHTML = "";
+                
+                // Hide loading
+                loadingState.style.display = "none";
+
+                if (snapshot.empty) {
+                    emptyState.style.display = "block";
+                    return;
+                } else {
+                    emptyState.style.display = "none";
+                }
+
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const row = document.createElement("tr");
+
+                    // Format Date safely
+                    let dateDisplay = "—";
+                    if (data.date) {
+                        // If it's a Firestore Timestamp, convert it
+                        if (data.date.toDate) {
+                            dateDisplay = data.date.toDate().toLocaleDateString();
+                        } else {
+                            // If it's a string, just display it
+                            dateDisplay = data.date;
+                        }
+                    }
+
+                    // Format Amount safely
+                    let amountDisplay = "0.00";
+                    if (data.amount !== undefined && data.amount !== null) {
+                        // Assuming amount is a number
+                        amountDisplay = parseFloat(data.amount).toFixed(2);
+                    }
+
+                    // Check Customer Name (Rule: Must exist, but handle missing data gracefully)
+                    const customerName = data.customerName || <span style="color:#ef4444; font-style:italic;">Unknown</span>;
+
+                    // Check Invoice/Detail (Rule: Optional)
+                    const invoiceRef = data.invoice || data.detail || <span style="color:#9ca3af;">—</span>;
+
+                    row.innerHTML = `
+                        <td>${dateDisplay}</td>
+                        <td style="font-weight: 500;">${customerName}</td>
+                        <td class="amount-cell">$${amountDisplay}</td>
+                        <td style="color: var(--text-muted); font-size: 0.85rem;">${invoiceRef}</td>
+                    `;
+
+                    tableBody.appendChild(row);
+                });
+            }, (error) => {
+                console.error("Error fetching sales:", error);
+                loadingState.style.display = "none";
+                showToast("Failed to load sales data.", "error");
+            });
+        }
+
+        // ── Logout Functionality ──
+        window.handleLogout = async () => {
+            try {
+                await signOut(auth);
+                localStorage.removeItem("userSession");
+                window.location.href = "index.html";
+            } catch (error) {
+                console.error("Logout error:", error);
+                showToast("Error signing out.", "error");
+            }
+        };
+
+        // ── Helper: Toast Notification ──
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icon = type === 'success' ? '<i class="fa-solid fa-check-circle"></i>' : '<i class="fa-solid fa-circle-exclamation"></i>';
+            
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = "slideIn 0.3s ease-in reverse forwards";
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
