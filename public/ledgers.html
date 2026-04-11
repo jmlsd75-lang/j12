@@ -3,158 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>General Ledger (Firestore)</title>
+    <title>General Ledger | Accounts View</title>
     <style>
         :root {
-            --primary-color: #2c3e50;
-            --accent-color: #3498db;
-            --bg-color: #f4f7f6;
-            --table-border: #000;
-            --header-bg: #e8e8e8;
+            --primary: #1a73e8;
+            --bg-body: #f0f2f5;
+            --surface: #ffffff;
+            --border: #dfe1e5;
+            --text-main: #202124;
+            --text-sub: #5f6368;
+            --dr-color: #1a73e8; /* Blue for Debit */
+            --cr-color: #d93025; /* Red for Credit */
+            --highlight: #e8f0fe;
         }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-
-        h1 { margin: 0; color: var(--primary-color); }
-        p.subtitle { color: #666; margin-top: 5px; font-size: 0.9rem; }
-
-        .controls { text-align: center; margin-bottom: 20px; }
-
-        button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        button:hover { background-color: var(--accent-color); }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
-
-        #ledger-container {
+            background: var(--bg-body);
+            color: var(--text-main);
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            gap: 40px;
-            max-width: 1000px;
-            margin: 0 auto;
         }
 
-        .ledger-section {
-            background: white;
-            padding: 20px;
+        /* --- Header --- */
+        header {
+            background: var(--surface);
+            padding: 0.8rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand { font-weight: 600; font-size: 1.2rem; color: var(--primary); }
+        
+        .nav-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        /* --- Layout --- */
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden; /* Prevent body scroll, handle inside panels */
+        }
+
+        /* --- Sidebar (Account List) --- */
+        aside {
+            width: 300px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            color: var(--text-sub);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .account-list {
+            flex: 1;
+            overflow-y: auto;
+            list-style: none;
+        }
+
+        .account-item {
+            padding: 1rem;
+            border-bottom: 1px solid #f1f3f4;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .account-item:hover { background: #f8f9fa; }
+        .account-item.active { background: var(--highlight); border-left: 4px solid var(--primary); }
+
+        .acc-name { font-weight: 500; display: block; }
+        .acc-type { font-size: 0.75rem; color: var(--text-sub); }
+        .acc-balance { font-weight: 600; font-family: monospace; font-size: 0.95rem; }
+
+        /* --- Main Ledger View --- */
+        main {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .ledger-card {
+            background: var(--surface);
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            page-break-inside: avoid;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
 
-        .account-title {
-            text-align: center;
-            font-size: 1.25rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-            text-decoration: underline;
-            text-underline-offset: 4px;
+        .ledger-header {
+            padding: 1.5rem;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        table.ledger-table {
+        .ledger-title { font-size: 1.4rem; font-weight: 700; }
+        .ledger-sub { color: var(--text-sub); font-size: 0.9rem; }
+
+        .ledger-table {
             width: 100%;
             border-collapse: collapse;
-            border: 2px solid var(--table-border);
-            font-size: 14px;
+            font-size: 0.95rem;
         }
-
-        .ledger-table th, .ledger-table td {
-            border: 1px solid var(--table-border);
-            padding: 8px 12px;
-        }
-
-        .col-date { width: 15%; }
-        .col-particulars { width: 35%; }
-        .col-folio { width: 10%; text-align: center; }
-        .col-amount { width: 20%; text-align: right; }
 
         .ledger-table th {
-            background-color: var(--header-bg);
-            font-weight: bold;
-            text-align: center;
+            text-align: left;
+            padding: 1rem 1.5rem;
+            background: #f8f9fa;
+            color: var(--text-sub);
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
         }
 
-        .ledger-table td { vertical-align: top; }
-        .text-right { text-align: right; }
-        .text-center { text-align: center; }
-
-        .row-total td {
-            font-weight: bold;
-            border-top: 2px solid var(--table-border);
-            background-color: #fafafa;
+        .ledger-table td {
+            padding: 0.8rem 1.5rem;
+            border-bottom: 1px solid #f1f3f4;
+            color: var(--text-main);
         }
 
-        .row-balance-cd td { font-style: italic; background-color: #fdfdfd; }
-        .row-balance-bd td { font-weight: bold; background-color: #fff; }
+        .amount-dr { color: var(--dr-color); font-weight: 600; text-align: right; }
+        .amount-cr { color: var(--cr-color); font-weight: 600; text-align: right; }
+        .balance-col { text-align: right; font-weight: 700; }
 
-        #status-msg {
-            text-align: center;
-            margin-top: 10px;
-            font-weight: bold;
-            min-height: 24px;
-            padding: 5px;
+        .rule-tag {
+            font-size: 0.7rem;
+            background: #eee;
+            padding: 2px 6px;
             border-radius: 4px;
+            color: #666;
+            margin-left: 8px;
+            vertical-align: middle;
         }
-        .msg-error { color: #c0392b; background: #fadbd8; }
-        .msg-success { color: #27ae60; background: #d4efdf; }
-        .msg-warn { color: #d35400; background: #fad7a0; }
 
-        @media print {
-            body { background-color: white; padding: 0; }
-            header, .controls, #status-msg { display: none; }
-            #ledger-container { gap: 20px; }
-            .ledger-section { box-shadow: none; padding: 0; }
+        .empty-ledger {
+            padding: 3rem;
+            text-align: center;
+            color: var(--text-sub);
+        }
+
+        /* --- Floating Rule Hint --- */
+        .rule-hint {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #323232;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            max-width: 300px;
+            line-height: 1.4;
+        }
+        
+        .loading-overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(255,255,255,0.8); display: flex; justify-content: center; align-items: center;
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>General Ledger</h1>
-        <p class="subtitle">Data Source: Firestore (Transaction Collection)</p>
+        <div class="brand">📘 General Ledger</div>
+        <div>
+            <a href="salesjournal.html" class="nav-btn">← Back to Sales Journal</a>
+        </div>
     </header>
 
-    <div class="controls">
-        <button id="loadBtn" onclick="generateLedgers()">Load Data from Firestore</button>
-        <div id="status-msg"></div>
+    <div class="container">
+        <!-- Sidebar: List of Accounts -->
+        <aside>
+            <div class="sidebar-header">Chart of Accounts (Auto-Generated)</div>
+            <ul class="account-list" id="accountList">
+                <!-- Accounts will be injected here -->
+            </ul>
+        </aside>
+
+        <!-- Main: Ledger Detail -->
+        <main>
+            <div id="ledgerView" class="ledger-card" style="display:none;">
+                <div class="ledger-header">
+                    <div>
+                        <div class="ledger-title" id="viewAccountName">Account Name</div>
+                        <div class="ledger-sub" id="viewAccountType">Type</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.8rem; color: #666;">Current Balance</div>
+                        <div style="font-size: 1.5rem; font-weight: 700;" id="viewTotalBalance">$0.00</div>
+                    </div>
+                </div>
+
+                <table class="ledger-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%">Date</th>
+                            <th style="width: 40%">Description / Particulars</th>
+                            <th style="width: 15%; text-align: right;">Debit</th>
+                            <th style="width: 15%; text-align: right;">Credit</th>
+                            <th style="width: 15%; text-align: right;">Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ledgerTableBody">
+                        <!-- Rows injected here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="emptyState" class="empty-ledger">
+                <h3>No Accounts Found</h3>
+                <p>Please go to the Sales Journal and add transactions to generate ledger accounts.</p>
+                <br>
+                <a href="salesjournal.html" class="nav-btn">Go to Sales Journal</a>
+            </div>
+        </main>
     </div>
 
-    <main id="ledger-container">
-        <div style="text-align: center; color: #888; margin-top: 50px;">
-            Click "Load Data" to fetch transactions from the database.
-        </div>
-    </main>
+    <div class="rule-hint">
+        <strong>Rule 7 Applied:</strong><br>
+        Credit Sales → Dr: Customer (Receivables), Cr: Sales Revenue.
+    </div>
 
-    <!-- Firebase SDKs (Modular) -->
+    <div id="loading" class="loading-overlay hidden">Loading Accounts...</div>
+
+    <!-- ============================================================
+       LOGIC: SALES JOURNAL TO LEDGER POSTING
+       ============================================================ -->
     <script type="module">
-        // ============================================================
-        // FIREBASE CONFIGURATION (Imported from your login.js)
-        // ============================================================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+        // Firebase Config (Same as login.js)
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
             authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -164,234 +271,191 @@
             appId: "1:167159607898:web:23ca11366b88868b085e63"
         };
 
-        // Initialize Firestore
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const auth = getAuth(app);
 
-        // ============================================================
-        // DATA FETCHING LOGIC
-        // ============================================================
-        
-        // Expose function to global scope so HTML button can call it
-        window.generateLedgers = async function() {
-            const container = document.getElementById('ledger-container');
-            const statusMsg = document.getElementById('status-msg');
-            const loadBtn = document.getElementById('loadBtn');
-            
-            container.innerHTML = ''; 
-            statusMsg.className = "msg-warn";
-            statusMsg.textContent = "Connecting to Firestore...";
-            loadBtn.disabled = true;
-
-            try {
-                // 1. FETCH from Firestore
-                // Assuming you have a collection named "transactions"
-                const q = query(collection(db, "transactions"), orderBy("date", "asc"));
-                const querySnapshot = await getDocs(q);
-                
-                const transactions = [];
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    
-                    // Map Firestore fields to the ledger logic
-                    // Ensure data exists before pushing to avoid errors
-                    if (data.detail && data.flowType) {
-                        transactions.push({
-                            date: data.date || new Date().toISOString().split('T')[0],
-                            detail: data.detail,
-                            flowType: data.flowType.toUpperCase(), // IN or OUT
-                            flowForm: data.flowForm || '',
-                            name: data.name || 'Unknown',
-                            amount: parseFloat(data.amount) || 0
-                        });
-                    }
-                });
-
-                if (transactions.length === 0) {
-                    statusMsg.className = "msg-warn";
-                    statusMsg.textContent = "No transactions found in Firestore 'transactions' collection.";
-                    loadBtn.disabled = false;
-                    return;
-                }
-
-                statusMsg.className = "msg-success";
-                statusMsg.textContent = `Successfully loaded ${transactions.length} transactions.`;
-
-                // 2. PROCESS LEDGERS
-                processLedgerData(transactions);
-
-            } catch (error) {
-                console.error("Firestore Error:", error);
-                statusMsg.className = "msg-error";
-                statusMsg.textContent = "Error fetching data: " + error.message;
-                loadBtn.disabled = false;
+        // Check Auth
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "index.html";
+            } else {
+                initApp();
             }
-        };
+        });
 
-        // ============================================================
-        // CORE LOGIC (Unchanged from previous working version)
-        // ============================================================
-
-        function processLedgerData(allTransactions) {
-            const container = document.getElementById('ledger-container');
-            const accounts = {};
+        // --- Core Application Logic ---
+        function initApp() {
+            // 1. Load Sales Journal Data (The Source)
+            const journalData = JSON.parse(localStorage.getItem('salesJournalEntries')) || [];
             
-            // 1. Group by Detail
-            allTransactions.forEach(tx => {
-                if (!accounts[tx.detail]) accounts[tx.detail] = [];
-                accounts[tx.detail].push(tx);
-            });
-
-            const accountNames = Object.keys(accounts).sort(); 
-            
-            if(accountNames.length === 0) {
-                container.innerHTML = '<div style="text-align:center">No transactions found.</div>';
+            if (journalData.length === 0) {
+                document.getElementById('emptyState').style.display = 'block';
+                document.getElementById('ledgerView').style.display = 'none';
                 return;
             }
 
-            accountNames.forEach(accName => {
-                const transactions = accounts[accName];
+            // 2. "Post" to Ledger (Apply Rules)
+            // We need to group data by Account Name
+            const ledger = {};
+
+            // Initialize Sales Account (Rule 7: Credit Side)
+            ledger['Sales Revenue'] = {
+                type: 'Revenue',
+                entries: [],
+                balance: 0
+            };
+
+            journalData.forEach(entry => {
+                // RULE 7: Dr Customer (Debtor)
+                const customerName = entry.customer;
                 
-                // 2. Classify IN/OUT to DR/CR
-                let drEntries = [];
-                let crEntries = [];
-                let totalDr = 0;
-                let totalCr = 0;
+                if (!ledger[customerName]) {
+                    ledger[customerName] = {
+                        type: 'Asset (Receivable)',
+                        entries: [],
+                        balance: 0
+                    };
+                }
 
-                transactions.forEach(tx => {
-                    // Particulars Logic
-                    let particulars = (tx.name && tx.name !== '') ? tx.name : tx.flowForm;
-                    const entry = { date: tx.date, particulars: particulars, folio: '', amount: tx.amount };
-
-                    if (tx.flowType === 'OUT') {
-                        drEntries.push(entry);
-                        totalDr += tx.amount;
-                    } else if (tx.flowType === 'IN') {
-                        crEntries.push(entry);
-                        totalCr += tx.amount;
-                    }
+                // Add to Customer Account (Debit)
+                ledger[customerName].entries.push({
+                    date: entry.date,
+                    ref: entry.invoice || 'N/A',
+                    desc: 'Sales', // What did they buy? Goods.
+                    amount: entry.amount,
+                    side: 'Dr' // Debit
                 });
+                ledger[customerName].balance += entry.amount;
 
-                // Filter: If no transactions, skip
-                if (drEntries.length === 0 && crEntries.length === 0) return;
-
-                // 3. Build Render List
-                let renderList = [];
-                let maxLen = Math.max(drEntries.length, crEntries.length);
-
-                // Add Transactions
-                for (let i = 0; i < maxLen; i++) {
-                    let dr = drEntries[i] || null;
-                    let cr = crEntries[i] || null;
-                    renderList.push({ type: 'tx', dr, cr });
-                }
-
-                // Balancing Logic
-                const diff = Math.abs(totalDr - totalCr);
-                let finalTotal = 0;
-                let balanceSide = null; 
-
-                if (totalDr > totalCr) {
-                    finalTotal = totalDr;
-                    balanceSide = 'cr';
-                    renderList.push({ type: 'balance_cd', dr: null, cr: { date: '', particulars: 'Balance', folio: 'c/d', amount: diff } });
-                } else if (totalCr > totalDr) {
-                    finalTotal = totalCr;
-                    balanceSide = 'dr';
-                    renderList.push({ type: 'balance_cd', dr: { date: '', particulars: 'Balance', folio: 'c/d', amount: diff }, cr: null });
-                } else {
-                    finalTotal = totalDr;
-                    balanceSide = 'equal';
-                }
-
-                // Add Total Row
-                renderList.push({
-                    type: 'total',
-                    dr: { date: '', particulars: 'Total', folio: '', amount: finalTotal },
-                    cr: { date: '', particulars: 'Total', folio: '', amount: finalTotal }
+                // Add to Sales Account (Credit)
+                ledger['Sales Revenue'].entries.push({
+                    date: entry.date,
+                    ref: entry.invoice || 'N/A',
+                    desc: `Credit Sale to ${customerName}`,
+                    amount: entry.amount,
+                    side: 'Cr' // Credit
                 });
-
-                // Add Balance b/d
-                if (balanceSide === 'cr') {
-                    renderList.push({ type: 'balance_bd', dr: { date: '', particulars: 'Balance', folio: 'b/d', amount: diff }, cr: null });
-                } else if (balanceSide === 'dr') {
-                    renderList.push({ type: 'balance_bd', dr: null, cr: { date: '', particulars: 'Balance', folio: 'b/d', amount: diff } });
-                }
-
-                // 4. Render
-                const section = document.createElement('div');
-                section.className = 'ledger-section';
-                section.innerHTML = buildTableHTML(accName, renderList);
-                container.appendChild(section);
+                // Sales is a revenue account, credits increase it. 
+                // For ledger display, we usually show absolute balances or specific sign logic.
+                // Here we will track the "Credit" total.
+                ledger['Sales Revenue'].balance += entry.amount; 
             });
+
+            // 3. Render Sidebar
+            renderSidebar(ledger);
             
-            // Re-enable button after processing
-            document.getElementById('loadBtn').disabled = false;
+            // 4. Default to first customer
+            const firstAccount = Object.keys(ledger).find(k => k !== 'Sales Revenue') || Object.keys(ledger)[0];
+            if (firstAccount) {
+                renderLedger(firstAccount, ledger[firstAccount]);
+            }
         }
 
-        function buildTableHTML(accountName, rows) {
-            let html = `
-                <div class="account-title">${accountName} Account</div>
-                <table class="ledger-table">
-                    <thead>
-                        <tr>
-                            <th colspan="4" style="border-right:2px solid black;">Debit (DR)</th>
-                            <th colspan="4">Credit (CR)</th>
-                        </tr>
-                        <tr>
-                            <th class="col-date">Date</th>
-                            <th class="col-particulars">Particulars</th>
-                            <th class="col-folio">Folio</th>
-                            <th class="col-amount">Amount</th>
-                            
-                            <th class="col-date">Date</th>
-                            <th class="col-particulars">Particulars</th>
-                            <th class="col-folio">Folio</th>
-                            <th class="col-amount">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
+        function renderSidebar(ledger) {
+            const list = document.getElementById('accountList');
+            list.innerHTML = '';
 
-            rows.forEach(row => {
-                html += '<tr>';
-                
-                // Debit Cells
-                if (row.dr) {
-                    let rowClass = row.type === 'total' ? 'row-total' : (row.type.includes('balance') ? 'row-'+row.type : '');
-                    html += `
-                        <td class="${rowClass}">${row.dr.date}</td>
-                        <td class="${rowClass}">${row.dr.particulars}</td>
-                        <td class="${rowClass} text-center">${row.dr.folio}</td>
-                        <td class="${rowClass} text-right">${formatMoney(row.dr.amount)}</td>
-                    `;
-                } else {
-                    html += '<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>';
-                }
-
-                // Credit Cells
-                if (row.cr) {
-                    let rowClass = row.type === 'total' ? 'row-total' : (row.type.includes('balance') ? 'row-'+row.type : '');
-                    html += `
-                        <td class="${rowClass}">${row.cr.date}</td>
-                        <td class="${rowClass}">${row.cr.particulars}</td>
-                        <td class="${rowClass} text-center">${row.cr.folio}</td>
-                        <td class="${rowClass} text-right">${formatMoney(row.cr.amount)}</td>
-                    `;
-                } else {
-                    html += '<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>';
-                }
-
-                html += '</tr>';
+            // Sort: Customers first, then Sales Revenue
+            const sortedKeys = Object.keys(ledger).sort((a, b) => {
+                if (a === 'Sales Revenue') return 1;
+                if (b === 'Sales Revenue') return -1;
+                return a.localeCompare(b);
             });
 
-            html += `</tbody></table>`;
-            return html;
+            sortedKeys.forEach(accName => {
+                const acc = ledger[accName];
+                const li = document.createElement('li');
+                li.className = 'account-item';
+                li.innerHTML = `
+                    <div>
+                        <span class="acc-name">${accName}</span>
+                        <span class="acc-type">${acc.type}</span>
+                    </div>
+                    <span class="acc-balance" style="color: ${accName === 'Sales Revenue' ? 'var(--cr-color)' : 'var(--dr-color)'}">
+                        ${formatMoney(acc.balance)}
+                    </span>
+                `;
+                
+                li.onclick = () => {
+                    // Remove active class from all
+                    document.querySelectorAll('.account-item').forEach(el => el.classList.remove('active'));
+                    li.classList.add('active');
+                    // Render main view
+                    renderLedger(accName, acc);
+                };
+
+                list.appendChild(li);
+            });
         }
 
-        function formatMoney(amount) {
-            return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        function renderLedger(name, data) {
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('ledgerView').style.display = 'block';
+
+            // Header Info
+            document.getElementById('viewAccountName').textContent = name;
+            document.getElementById('viewAccountType').textContent = data.type;
+            
+            const balanceEl = document.getElementById('viewTotalBalance');
+            balanceEl.textContent = formatMoney(data.balance);
+            balanceEl.style.color = (name === 'Sales Revenue') ? 'var(--cr-color)' : 'var(--dr-color)';
+
+            // Table Rows
+            const tbody = document.getElementById('ledgerTableBody');
+            tbody.innerHTML = '';
+
+            let runningBalance = 0;
+
+            // Sort entries by date
+            const sortedEntries = [...data.entries].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            sortedEntries.forEach(entry => {
+                const tr = document.createElement('tr');
+                
+                // Determine Debit/Credit display logic
+                let drDisplay = '';
+                let crDisplay = '';
+                let balClass = '';
+
+                if (entry.side === 'Dr') {
+                    drDisplay = formatMoney(entry.amount);
+                    runningBalance += entry.amount;
+                } else {
+                    crDisplay = formatMoney(entry.amount);
+                    runningBalance += entry.amount; // For Revenue, Credit increases balance
+                }
+
+                // Visual styling for balance
+                if (name === 'Sales Revenue') {
+                    balClass = 'amount-cr'; // Revenue is normally a Credit balance
+                } else {
+                    balClass = 'amount-dr'; // Receivables are Debit balances
+                }
+
+                tr.innerHTML = `
+                    <td>${formatDate(entry.date)}</td>
+                    <td>
+                        ${entry.desc}
+                        <br><span style="font-size:0.75rem; color:#999;">Ref: ${entry.ref}</span>
+                    </td>
+                    <td class="amount-dr">${drDisplay}</td>
+                    <td class="amount-cr">${crDisplay}</td>
+                    <td class="balance-col ${balClass}">${formatMoney(runningBalance)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
+
+        // --- Helpers ---
+        function formatMoney(num) {
+            return '$' + num.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        }
+
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('en-US', options);
+        }
+
     </script>
 </body>
 </html>
