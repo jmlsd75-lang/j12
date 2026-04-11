@@ -30,45 +30,36 @@
         transition: 0.3s;
     }
 
-    .sales {
-        background-color: #28a745;
-    }
+    .sales { background-color: #28a745; }
+    .sales:hover { background-color: #218838; }
 
-    .sales:hover {
-        background-color: #218838;
-    }
-
-    .purchases {
-        background-color: #007bff;
-    }
-
-    .purchases:hover {
-        background-color: #0056b3;
-    }
+    .purchases { background-color: #007bff; }
+    .purchases:hover { background-color: #0056b3; }
 </style>
 </head>
 
 <body>
 
 <div class="container">
-
-    <button class="btn sales" data-flow="IN" onclick="goToAdd(this)">
+    <!-- Data attributes are used for logic, URL params for passing to next page -->
+    <button class="btn sales" data-flow="IN" data-detail="Sales" onclick="goToAdd(this)">
         Sales
     </button>
 
-    <button class="btn purchases" data-flow="OUT" onclick="goToAdd(this)">
+    <button class="btn purchases" data-flow="OUT" data-detail="Purchases" onclick="goToAdd(this)">
         Purchases
     </button>
-
 </div>
 
 <script>
 function goToAdd(btn) {
-    const flow = btn.dataset.flow;     // IN / OUT (hidden logic)
-    const detail = btn.innerText;      // Sales / Purchases
-
-    window.location.href =
-        "add-transaction.html?flow=" + flow + "&detail=" + encodeURIComponent(detail);
+    const flow = btn.getAttribute('data-flow');      // IN / OUT
+    const detail = btn.getAttribute('data-detail');  // Sales / Purchases
+    
+    // Construct URL with all necessary parameters
+    // We set method=none so the user is forced to select it in the next step
+    window.location.href = "add-transaction.html?flow=" + encodeURIComponent(flow) + 
+                          "&detail=" + encodeURIComponent(detail);
 }
 </script>
 
