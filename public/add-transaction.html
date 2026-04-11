@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Transaction Entry</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
@@ -19,10 +19,10 @@
             --text-muted: #6B7280;
             --border: #E5E7EB;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --radius: 12px;
+            --radius: 16px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -48,25 +48,52 @@
             position: relative;
         }
 
+        /* Header */
         header {
             padding: 20px;
             border-bottom: 1px solid var(--border);
-            text-align: center;
             background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
         }
+        
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .back-btn:hover { background: #F3F4F6; color: var(--text-main); }
+
         header h1 { font-size: 1.25rem; font-weight: 600; color: var(--text-main); }
 
+        /* Steps */
         .step-content {
             padding: 24px;
             flex: 1;
-            display: none; flex-direction: column;
+            display: none; 
+            flex-direction: column;
             animation: slideUp 0.3s ease-out;
         }
         .step-content.active { display: flex; }
         .centered-content { justify-content: center; align-items: center; }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
@@ -79,66 +106,58 @@
         }
         .trail-label { color: var(--text-muted); font-size: 0.65rem; text-transform: uppercase; margin-right: 6px; }
 
-        label { display: block; font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; color: var(--text-main); }
+        label { display: block; font-size: 0.95rem; font-weight: 600; margin-bottom: 12px; color: var(--text-main); }
         
         input[type="text"], input[type="number"] {
-            width: 100%; padding: 14px 16px; border: 2px solid var(--border);
-            border-radius: 10px; font-size: 1.1rem; transition: all 0.2s;
+            width: 100%; padding: 16px; border: 2px solid var(--border);
+            border-radius: 12px; font-size: 1.25rem; transition: all 0.2s;
             font-family: inherit; -moz-appearance: textfield;
+            text-align: center;
         }
         input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
-        .hint { font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; }
+        .hint { font-size: 0.85rem; color: var(--text-muted); margin-top: 12px; text-align: center; }
 
         .grid-options {
             display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 10px;
         }
         .option-btn {
-            background: #F9FAFB; border: 2px solid var(--border); border-radius: 10px;
-            padding: 18px; text-align: center; cursor: pointer; transition: all 0.2s;
+            background: #F9FAFB; border: 2px solid var(--border); border-radius: 12px;
+            padding: 20px 10px; text-align: center; cursor: pointer; transition: all 0.2s;
             font-weight: 600; font-size: 1rem; color: var(--text-main);
         }
         .option-btn:hover { border-color: var(--primary); background: #EEF2FF; color: var(--primary); }
         .option-btn.selected { border-color: var(--primary); background: var(--primary); color: #fff; }
-
-        .btn-container-wrapper { display: flex; gap: 20px; justify-content: center; width: 100%; }
-        .btn {
-            padding: 15px 40px; font-size: 18px; border: none; border-radius: 8px;
-            cursor: pointer; color: white; transition: 0.3s; font-weight: 500;
-            font-family: 'Inter', sans-serif; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .sales { background-color: #28a745; }
-        .sales:hover { background-color: #218838; }
-        .purchases { background-color: #007bff; }
-        .purchases:hover { background-color: #0056b3; }
 
         .action-bar {
             padding: 16px 24px 24px 24px; margin-top: auto; display: flex;
             justify-content: space-between; align-items: center;
             border-top: 1px solid var(--border); background: #F9FAFB;
         }
-        .action-cancel { background: transparent; color: var(--text-muted); font-weight: 600; border: none; cursor: pointer; padding: 10px; }
+        .action-cancel { background: transparent; color: var(--text-muted); font-weight: 600; border: none; cursor: pointer; padding: 10px; font-size: 0.95rem; }
         .action-cancel:hover { color: var(--danger); }
+        
         .action-primary {
-            background: var(--primary); color: white; border: none; padding: 12px 24px;
-            border-radius: 8px; cursor: pointer; font-weight: 500; flex: 1; margin-left: 12px;
+            background: var(--primary); color: white; border: none; padding: 14px 28px;
+            border-radius: 10px; cursor: pointer; font-weight: 600; flex: 1; margin-left: 12px;
+            font-size: 1rem; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
         }
         .action-primary:hover:not(:disabled) { background: var(--primary-hover); }
-        .action-primary:disabled { background: #A5B4FC; cursor: not-allowed; }
+        .action-primary:disabled { background: #C7D2FE; cursor: not-allowed; box-shadow: none; }
         .hidden { display: none !important; }
 
         .success-view { text-align: center; padding-top: 40px; }
         .success-icon {
-            width: 64px; height: 64px; background: #D1FAE5; color: var(--success);
+            width: 80px; height: 80px; background: #D1FAE5; color: var(--success);
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 16px auto; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin: 0 auto 24px auto; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
 
         #toast {
-            visibility: hidden; min-width: 280px; background-color: #333; color: #fff;
-            text-align: center; border-radius: 8px; padding: 14px; position: fixed;
-            z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%) translateY(20px);
-            font-size: 0.9rem; opacity: 0; transition: all 0.3s;
+            visibility: hidden; min-width: 280px; background-color: #1F2937; color: #fff;
+            text-align: center; border-radius: 12px; padding: 16px; position: fixed;
+            z-index: 1000; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(20px);
+            font-size: 0.95rem; opacity: 0; transition: all 0.3s;
         }
         #toast.show { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
     </style>
@@ -146,25 +165,22 @@
 <body>
 
     <div class="app-container">
+        <!-- Header with Back Button (Redirects to business.html) -->
         <header>
-            <h1>New Transaction</h1>
+            <button class="back-btn" onclick="goBack()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Back
+            </button>
+            <h1 id="headerTitle">New Transaction</h1>
         </header>
 
         <main>
-            <!-- Step 1: Type Selection -->
-            <section id="step-1" class="step-content active centered-content">
-                <label style="text-align: center; margin-bottom: 30px; width: 100%;">Select Transaction Type</label>
-                <div class="btn-container-wrapper">
-                    <button class="btn sales" data-flow="IN" data-detail="Sales" onclick="handleTypeClick(this)">
-                        Sales
-                    </button>
-                    <button class="btn purchases" data-flow="OUT" data-detail="Purchases" onclick="handleTypeClick(this)">
-                        Purchases
-                    </button>
-                </div>
-            </section>
+            <!-- Step 1: REMOVED (Handled by detail.html) -->
 
-            <!-- Step 2: Amount -->
+            <!-- Step 2: Amount (Now Step 1 logically) -->
             <section id="step-2" class="step-content">
                 <div class="trail-container" id="trail-2"></div>
                 <label for="amountInput">Enter Amount</label>
@@ -172,10 +188,10 @@
                 <div class="hint">Press <b>Enter</b> to continue</div>
             </section>
 
-            <!-- Step 3: Form -->
+            <!-- Step 3: Form (Now Step 2 logically) -->
             <section id="step-3" class="step-content">
                 <div class="trail-container" id="trail-3"></div>
-                <label>Form of Flow</label>
+                <label>Payment Method</label>
                 <div class="grid-options">
                     <div class="option-btn" onclick="selectForm('Cash', this)">Cash</div>
                     <div class="option-btn" onclick="selectForm('Credit', this)">Credit</div>
@@ -183,19 +199,19 @@
                 </div>
             </section>
 
-            <!-- Step 4: Credit Name -->
+            <!-- Step 4: Credit Name (Now Step 3 logically) -->
             <section id="step-4" class="step-content">
                 <div class="trail-container" id="trail-4"></div>
                 <label for="creditNameInput">Credit Name / Lender</label>
-                <input type="text" id="creditNameInput" placeholder="Enter name..." autocomplete="off">
+                <input type="text" id="creditNameInput" placeholder="e.g. Supplier A" autocomplete="off">
                 <div class="hint">Press <b>Enter</b> to continue</div>
             </section>
 
-            <!-- Step 5: Confirmation -->
+            <!-- Step 5: Confirmation (Now Step 4 logically) -->
             <section id="step-5" class="step-content">
                 <div class="trail-container" id="trail-5" style="justify-content: center; margin-bottom: 30px;"></div>
-                <div style="text-align: center; color: var(--text-muted);">
-                    Please verify the transaction details above.
+                <div style="text-align: center; color: var(--text-muted); font-size: 0.95rem;">
+                    Please verify the transaction details above before saving.
                 </div>
             </section>
 
@@ -203,12 +219,12 @@
             <section id="step-6" class="step-content">
                 <div class="success-view">
                     <div class="success-icon">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                     </div>
-                    <div class="success-title">Data recorded successfully</div>
-                    <p style="color:var(--text-muted)">Redirecting to list...</p>
+                    <h2 style="font-size: 1.5rem; margin-bottom: 8px;">Saved!</h2>
+                    <p style="color:var(--text-muted)">Redirecting to dashboard...</p>
                 </div>
             </section>
         </main>
@@ -240,7 +256,7 @@
         const auth = getAuth(app);
 
         const state = {
-            step: 1,
+            step: 2, // Default start step since we skip step 1
             data: {
                 flowType: '',   
                 detail: '',     
@@ -255,36 +271,47 @@
             creditName: document.getElementById('creditNameInput')
         };
         const mainActionBtn = document.getElementById('mainActionBtn');
+        const headerTitle = document.getElementById('headerTitle');
 
-        // --- Parse URL Params on Load ---
+        // --- Initialization: Read URL Params ---
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const flow = urlParams.get('flow');
             const detail = urlParams.get('detail');
             
             if (flow && detail) {
-                // Pre-fill state
+                // Pre-fill state from URL
                 state.data.flowType = flow;
                 state.data.detail = detail;
-                // Jump directly to Step 2 (Amount)
+                
+                // Start directly at Step 2 (Amount)
                 goToStep(2);
+            } else {
+                // If accessed directly without params, redirect to detail selection
+                window.location.href = 'detail.html';
             }
         });
 
         function goToStep(stepNumber) {
             document.querySelector('.step-content.active')?.classList.remove('active');
             const next = document.getElementById(`step-${stepNumber}`);
-            if(next) next.classList.add('active');
-            state.step = stepNumber;
-            updateUI();
-            if(stepNumber === 2) setTimeout(() => inputs.amount.focus(), 50);
-            if(stepNumber === 4) setTimeout(() => inputs.creditName.focus(), 50);
+            if(next) {
+                next.classList.add('active');
+                state.step = stepNumber;
+                updateUI();
+                if(stepNumber === 2) setTimeout(() => inputs.amount.focus(), 50);
+                if(stepNumber === 4) setTimeout(() => inputs.creditName.focus(), 50);
+            }
         }
 
         function updateUI() {
+            if(state.step === 1) headerTitle.innerText = "New Transaction";
+            else if(state.step === 5) headerTitle.innerText = "Confirm Details";
+            else headerTitle.innerText = state.data.detail || "Transaction";
+
             if (state.step === 5) {
                 mainActionBtn.classList.remove('hidden');
-                mainActionBtn.textContent = "Save";
+                mainActionBtn.textContent = "Save Transaction";
                 mainActionBtn.disabled = false;
             } else {
                 mainActionBtn.classList.add('hidden');
@@ -297,46 +324,27 @@
         }
 
         function renderHistory() {
-            if (state.step >= 2) {
-                document.getElementById('trail-2').innerHTML = createHistoryButton('Type', state.data.detail);
-            }
-            if (state.step >= 3) {
-                document.getElementById('trail-3').innerHTML = 
-                    createHistoryButton('Type', state.data.detail) + 
-                    createHistoryButton('Amount', state.data.amount);
-            }
-            if (state.step >= 4) {
-                document.getElementById('trail-4').innerHTML = 
-                    createHistoryButton('Type', state.data.detail) + 
-                    createHistoryButton('Amount', state.data.amount) +
-                    createHistoryButton('Form', state.data.flowForm);
-            }
+            const typePill = createHistoryButton('Type', state.data.detail);
+            const amountPill = state.data.amount ? createHistoryButton('Amount', state.data.amount) : '';
+            const formPill = state.data.flowForm ? createHistoryButton('Method', state.data.flowForm) : '';
+            const creditPill = (state.data.flowForm === 'Credit' && state.data.creditName) ? createHistoryButton('Lender', state.data.creditName) : '';
+
+            // Render based on current step (offset by 1 since step 1 is gone)
+            if (state.step >= 2) document.getElementById('trail-2').innerHTML = typePill;
+            if (state.step >= 3) document.getElementById('trail-3').innerHTML = typePill + amountPill;
+            if (state.step >= 4) document.getElementById('trail-4').innerHTML = typePill + amountPill + formPill;
             if (state.step === 5) {
-                let html = 
-                    createHistoryButton('Type', state.data.detail) + 
-                    createHistoryButton('Amount', state.data.amount) +
-                    createHistoryButton('Form', state.data.flowForm);
-                if (state.data.flowForm === 'Credit') {
-                    html += createHistoryButton('Credit', state.data.creditName);
-                }
-                document.getElementById('trail-5').innerHTML = html;
+                document.getElementById('trail-5').innerHTML = typePill + amountPill + formPill + creditPill;
             }
         }
 
-        // Handlers
-        window.handleTypeClick = function(btnElement) {
-            const flowType = btnElement.getAttribute('data-flow');
-            const detailText = btnElement.getAttribute('data-detail');
-            state.data.flowType = flowType;
-            state.data.detail = detailText;
-            goToStep(2);
-        };
+        // --- Event Handlers ---
 
         inputs.amount.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const val = parseFloat(inputs.amount.value);
-                if (!val || val <= 0) return showToast("Please enter a valid amount.");
-                state.data.amount = val;
+                if (!val || val <= 0) return showToast("Please enter a valid amount greater than 0.");
+                state.data.amount = val.toFixed(2);
                 goToStep(3);
             }
         });
@@ -375,9 +383,8 @@
 
             const user = auth.currentUser;
             if (!user) {
-                showToast("Not logged in. Redirecting...");
+                showToast("Session expired. Redirecting to login...");
                 setTimeout(() => window.location.href = 'index.html', 1500);
-                isSaving = false;
                 return;
             }
 
@@ -391,7 +398,6 @@
                 detail: finalDetail,
                 type: state.data.flowType,       
                 displayType: state.data.detail,  
-                // CRITICAL FIX: Saved as 'method' so Cashbook can find it
                 method: state.data.flowForm.toUpperCase(), 
                 amount: Number(state.data.amount),
                 createdAt: Date.now()
@@ -404,20 +410,28 @@
 
                 console.log("Transaction Saved:", transaction);
                 goToStep(6);
-                // Redirect to list.html or business.html
-                setTimeout(() => { window.location.href = 'list.html'; }, 2000);
+                // Requirement: On successive save redirect to business.html
+                setTimeout(() => { window.location.href = 'business.html'; }, 2000);
 
             } catch (error) {
                 console.error("Error:", error);
-                showToast("Error: " + error.message);
+                showToast("Error saving: " + error.message);
                 isSaving = false;
                 mainActionBtn.disabled = false;
                 mainActionBtn.textContent = "Save";
             }
         };
 
+        window.goBack = function() {
+            // Requirement: Back button redirects to business.html
+            window.location.href = 'business.html';
+        };
+
         window.handleCancel = function() {
-            if(confirm("Cancel transaction?")) window.location.href = 'detail.html';
+            // Requirement: On cancel redirect to business.html
+            if(confirm("Cancel this transaction? Unsaved data will be lost.")) {
+                window.location.href = 'business.html';
+            }
         };
 
         function showToast(msg) {
