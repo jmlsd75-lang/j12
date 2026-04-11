@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sales Journal (View Only)</title>
+    <title>Sales Journal (Functional)</title>
     
-    <!-- Google Fonts for a professional look -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -23,7 +23,9 @@
             --text-muted: #6b7280;
             --border: #e5e7eb;
             --success: #10b981;
+            --success-bg: #ecfdf5;
             --danger: #ef4444;
+            --danger-bg: #fef2f2;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -37,7 +39,7 @@
             min-height: 100vh;
         }
 
-        /* --- Header / Navigation --- */
+        /* --- Header --- */
         header {
             background: var(--bg-card);
             border-bottom: 1px solid var(--border);
@@ -58,6 +60,7 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            text-decoration: none;
         }
 
         .user-menu {
@@ -76,23 +79,19 @@
             font-size: 0.9rem;
         }
 
-        .user-info .role {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
         .avatar {
             width: 36px;
             height: 36px;
             border-radius: 50%;
             background: #e0e7ff;
             color: var(--primary);
-            display: flex;
+            display: none; /* Flex when loaded */
             align-items: center;
             justify-content: center;
             font-weight: 600;
             font-size: 0.9rem;
             object-fit: cover;
+            border: 2px solid var(--border);
         }
 
         .btn-logout {
@@ -110,7 +109,7 @@
         }
 
         .btn-logout:hover {
-            background: #fef2f2;
+            background: var(--danger-bg);
             color: var(--danger);
             border-color: #fecaca;
         }
@@ -144,18 +143,21 @@
             font-size: 0.9rem;
         }
 
-        .badge-credit {
-            background: #ecfdf5;
-            color: #059669;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border: 1px solid #d1fae5;
+        .add-btn {
+            background-color: var(--primary); 
+            color: white; 
+            text-decoration: none;
+            padding: 8px 16px; 
+            border-radius: 6px; 
+            font-weight: 600; 
+            font-size: 0.9rem;
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 6px;
+            transition: background 0.2s;
         }
+        
+        .add-btn:hover { background-color: var(--primary-hover); }
 
         /* --- Table Card --- */
         .card {
@@ -168,19 +170,19 @@
 
         .table-container {
             width: 100%;
-            overflow-x: auto; /* Scroll on mobile */
+            overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            min-width: 600px;
+            min-width: 700px;
         }
 
         thead {
             background-color: #f9fafb;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 2px solid var(--border);
         }
 
         th {
@@ -200,111 +202,88 @@
             vertical-align: middle;
         }
 
-        tr:last-child td {
-            border-bottom: none;
-        }
-
-        tr:hover {
-            background-color: #f9fafb;
-        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background-color: #fcfcfc; }
 
         .amount-cell {
-            font-family: 'Courier New', Courier, monospace;
-            font-weight: 600;
-            color: var(--text-main);
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .col-actions { width: 100px; text-align: right; white-space: nowrap; }
+
+        /* --- Action Buttons --- */
+        .action-link {
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center;
+            width: 32px; 
+            height: 32px; 
+            border-radius: 6px; 
+            color: var(--text-muted);
+            text-decoration: none; 
+            transition: all 0.2s ease; 
+            margin-left: 4px;
+            background: transparent; 
+            border: 1px solid transparent;
+        }
+
+        .action-link:hover { background-color: #f3f4f6; color: var(--primary); }
+        .action-link.delete-link:hover { background-color: var(--danger-bg); color: var(--danger); }
+        .action-link svg { width: 16px; height: 16px; }
+
+        /* --- States --- */
+        .loading-container {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem;
+        }
+        
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid #e5e7eb; border-top: 4px solid var(--primary);
+            border-radius: 50%; animation: spin 0.8s linear infinite;
         }
 
         .empty-state {
-            padding: 4rem 2rem;
-            text-align: center;
-            color: var(--text-muted);
+            padding: 4rem 2rem; text-align: center; color: var(--text-muted); display: none;
         }
-        
-        .empty-state i {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            color: #d1d5db;
-        }
+        .empty-state.visible { display: block; }
+        .empty-state i { font-size: 2.5rem; margin-bottom: 1rem; color: #d1d5db; }
 
-        /* --- Loading Spinner --- */
-        .loading-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 4rem;
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #e5e7eb;
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* --- Toast Notification --- */
-        #toast-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
+        /* --- Toast --- */
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
         .toast {
-            background: #1f2937;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            animation: slideIn 0.3s ease-out forwards;
-            max-width: 300px;
+            background: #1f2937; color: white; padding: 12px 20px; border-radius: 8px; font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px;
+            animation: slideIn 0.3s ease-out forwards; max-width: 300px;
         }
-
         .toast.error { background: var(--danger); }
-        .toast.success { background: var(--success); }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
         @media (max-width: 640px) {
             main { padding: 1rem; }
             .page-header { flex-direction: column; align-items: flex-start; }
-            .user-info { display: none; } /* Hide name on very small screens, keep avatar */
+            .user-info { display: none; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Navigation -->
+    <!-- Header -->
     <header>
-        <div class="brand">
+        <a href="detail.html" class="brand">
             <i class="fa-solid fa-book-open"></i>
             <span>SalesJournal</span>
-        </div>
+        </a>
 
         <div class="user-menu">
             <div class="user-info" id="userInfo">
                 <div class="name" id="userName">User Name</div>
-                <div class="role" id="userRole">Viewer</div>
             </div>
             
-            <!-- Avatar placeholder -->
-            <img src="" alt="User" id="userAvatar" class="avatar" style="display:none;">
+            <img src="" alt="User" id="userAvatar" class="avatar">
+            <div id="userAvatarInitials" class="avatar" style="display:none;"></div>
 
             <button class="btn-logout" id="logoutBtn" onclick="handleLogout()" title="Sign Out">
                 <i class="fa-solid fa-right-from-bracket"></i>
@@ -316,26 +295,28 @@
     <main>
         <div class="page-header">
             <div class="page-title">
-                <h1>Credit Sales</h1>
-                <p>Overview of all recorded credit transactions.</p>
+                <h1>Sales Journal</h1>
+                <p>Overview of recorded transactions.</p>
             </div>
-            <div class="badge-credit">
-                <i class="fa-solid fa-ban"></i> Cash Sales Not Allowed
-            </div>
+            <!-- Added Add Button to match List functionality -->
+            <a href="add-transaction.html" class="add-btn">
+                <i class="fa-solid fa-plus"></i> New Sale
+            </a>
         </div>
 
         <div class="card">
             <div class="table-container">
-                <table>
+                <table id="salesTable">
                     <thead>
                         <tr>
                             <th>Date</th>
+                            <th>Invoice / Detail</th>
                             <th>Customer Name</th>
                             <th>Amount</th>
-                            <th>Invoice / Detail</th>
+                            <th class="col-actions">Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="salesTableBody">
+                    <tbody id="tableBody">
                         <!-- Data injected via JS -->
                     </tbody>
                 </table>
@@ -344,13 +325,13 @@
             <!-- Loading State -->
             <div id="loadingState" class="loading-container">
                 <div class="spinner"></div>
-                <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;">Fetching data...</p>
+                <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;">Fetching transactions...</p>
             </div>
 
-            <!-- Empty State (Hidden by default) -->
-            <div id="emptyState" class="empty-state" style="display: none;">
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state">
                 <i class="fa-regular fa-folder-open"></i>
-                <p>No sales records found.</p>
+                <p>No transactions found.</p>
             </div>
         </div>
     </main>
@@ -359,22 +340,11 @@
 
     <!-- Firebase Logic -->
     <script type="module">
-        // Import Firebase functions from v10.12.2 (matching your config)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import {
-            getAuth,
-            onAuthStateChanged,
-            signOut
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import {
-            getFirestore,
-            collection,
-            query,
-            orderBy,
-            onSnapshot
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // ── Firebase Config (From your provided code) ──
+        // ── Firebase Config ──
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
             authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -390,108 +360,135 @@
         const db = getFirestore(app);
 
         // ── DOM Elements ──
-        const tableBody = document.getElementById('salesTableBody');
+        const tableBody = document.getElementById('tableBody');
         const loadingState = document.getElementById('loadingState');
         const emptyState = document.getElementById('emptyState');
+        const salesTable = document.getElementById('salesTable');
         const userNameEl = document.getElementById('userName');
         const userAvatarEl = document.getElementById('userAvatar');
+        const userAvatarInitialsEl = document.getElementById('userAvatarInitials');
         const userInfoEl = document.getElementById('userInfo');
 
-        // ── Auth State Check ──
+        // ── Auth State ──
         onAuthStateChanged(auth, (user) => {
             if (!user) {
-                // Not logged in, redirect to index.html
                 window.location.href = "index.html";
                 return;
             }
 
-            // User is logged in, set up UI
-            console.log("User logged in:", user.email);
-            
-            // Update Header
-            userNameEl.textContent = user.displayName || "User";
+            // Set User UI
+            const sessionData = localStorage.getItem("userSession");
+            let displayName = "User";
+            let photoUrl = null;
+
+            if (sessionData) {
+                const parsed = JSON.parse(sessionData);
+                displayName = parsed.name || user.displayName || "User";
+                photoUrl = parsed.photo || user.photoURL;
+            } else {
+                displayName = user.displayName || "User";
+                photoUrl = user.photoURL;
+            }
+
+            userNameEl.textContent = displayName;
             userInfoEl.style.display = "block";
-            
-            if (user.photoURL) {
-                userAvatarEl.src = user.photoURL;
+
+            if (photoUrl) {
+                userAvatarEl.src = photoUrl;
                 userAvatarEl.style.display = "flex";
             } else {
-                // Generate initial avatar if no photo
-                userAvatarEl.textContent = (user.displayName || user.email)[0].toUpperCase();
-                userAvatarEl.style.display = "flex";
+                userAvatarInitialsEl.textContent = displayName.charAt(0).toUpperCase();
+                userAvatarInitialsEl.style.display = "flex";
             }
 
             // Load Data
-            loadSalesData();
+            fetchTransactions(user.email);
         });
 
-        // ── Load Data from Firestore ──
-        function loadSalesData() {
-            // Assuming collection name is 'sales'. Change if your collection is named differently.
-            // We order by 'date' descending to show newest first.
-            const salesQuery = query(collection(db, "sales"), orderBy("date", "desc"));
-
-            // Real-time listener
-            onSnapshot(salesQuery, (snapshot) => {
-                // Clear existing rows
-                tableBody.innerHTML = "";
+        // ── Data Fetching (Mirroring Transaction List Logic) ──
+        async function fetchTransactions(userEmail) {
+            try {
+                // Target the same collection as the list: users/{email}/transactions
+                const transactionsRef = collection(db, "users", userEmail, "transactions");
+                const q = query(transactionsRef, orderBy("createdAt", "desc"));
                 
-                // Hide loading
+                const querySnapshot = await getDocs(q);
+
+                tableBody.innerHTML = "";
                 loadingState.style.display = "none";
 
-                if (snapshot.empty) {
-                    emptyState.style.display = "block";
+                if (querySnapshot.empty) {
+                    emptyState.classList.add('visible');
+                    salesTable.style.display = 'none';
                     return;
                 } else {
-                    emptyState.style.display = "none";
+                    emptyState.classList.remove('visible');
+                    salesTable.style.display = 'table';
                 }
 
-                snapshot.forEach((doc) => {
+                querySnapshot.forEach((doc) => {
                     const data = doc.data();
-                    const row = document.createElement("tr");
+                    const docId = doc.id;
 
-                    // Format Date safely
-                    let dateDisplay = "—";
-                    if (data.date) {
-                        // If it's a Firestore Timestamp, convert it
-                        if (data.date.toDate) {
-                            dateDisplay = data.date.toDate().toLocaleDateString();
-                        } else {
-                            // If it's a string, just display it
-                            dateDisplay = data.date;
-                        }
+                    // 1. Handle Date
+                    const dateStr = data.date || "N/A";
+
+                    // 2. Handle Amount (TZS Formatting)
+                    const amount = parseFloat(data.amount || 0);
+                    const amountFormatted = new Intl.NumberFormat('en-US', { 
+                        style: 'currency', currency: 'TZS' 
+                    }).format(amount);
+
+                    // 3. Parse Detail and Name (Regex Logic from List)
+                    let displayName = "-";
+                    let cleanDetail = data.detail || "-";
+
+                    const nameMatch = cleanDetail.match(/\(([^)]+)\)$/);
+                    if (nameMatch) {
+                        displayName = nameMatch[1];
+                        cleanDetail = cleanDetail.replace(/\s*\([^)]+\)$/, ""); 
                     }
 
-                    // Format Amount safely
-                    let amountDisplay = "0.00";
-                    if (data.amount !== undefined && data.amount !== null) {
-                        // Assuming amount is a number
-                        amountDisplay = parseFloat(data.amount).toFixed(2);
-                    }
+                    // 4. Determine Color based on Type (Optional, keeps visual consistency)
+                    const flowType = (data.type || "IN").toUpperCase();
+                    const colorStyle = flowType === 'OUT' ? '#ef4444' : '#10b981';
 
-                    // Check Customer Name (Rule: Must exist, but handle missing data gracefully)
-                    const customerName = data.customerName || <span style="color:#ef4444; font-style:italic;">Unknown</span>;
-
-                    // Check Invoice/Detail (Rule: Optional)
-                    const invoiceRef = data.invoice || data.detail || <span style="color:#9ca3af;">—</span>;
-
+                    const row = document.createElement('tr');
+                    
                     row.innerHTML = `
-                        <td>${dateDisplay}</td>
-                        <td style="font-weight: 500;">${customerName}</td>
-                        <td class="amount-cell">$${amountDisplay}</td>
-                        <td style="color: var(--text-muted); font-size: 0.85rem;">${invoiceRef}</td>
+                        <td style="color: var(--text-muted); font-size: 0.85rem;">${dateStr}</td>
+                        <td style="font-weight: 500;">${cleanDetail}</td>
+                        <td>${displayName}</td>
+                        <td class="amount-cell" style="color: ${colorStyle}">
+                            ${flowType === 'OUT' ? '-' : '+'}${amountFormatted}
+                        </td>
+                        <td class="col-actions">
+                            <a href="businessedit.html?id=${docId}" class="action-link" title="Edit">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </a>
+                            <a href="businessdelete.html?id=${docId}" class="action-link delete-link" title="Delete">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
+                            </a>
+                        </td>
                     `;
-
+                    
                     tableBody.appendChild(row);
                 });
-            }, (error) => {
-                console.error("Error fetching sales:", error);
+
+            } catch (error) {
+                console.error("Error fetching transactions:", error);
                 loadingState.style.display = "none";
-                showToast("Failed to load sales data.", "error");
-            });
+                showToast("Failed to load data: " + error.message, true);
+            }
         }
 
-        // ── Logout Functionality ──
+        // ── Logout ──
         window.handleLogout = async () => {
             try {
                 await signOut(auth);
@@ -504,18 +501,20 @@
         };
 
         // ── Helper: Toast Notification ──
-        function showToast(message, type = 'success') {
+        function showToast(message, isError = false) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
+            toast.className = `toast ${isError ? 'error' : ''}`;
+            toast.textContent = message;
             
-            const icon = type === 'success' ? '<i class="fa-solid fa-check-circle"></i>' : '<i class="fa-solid fa-circle-exclamation"></i>';
-            
-            toast.innerHTML = `${icon} <span>${message}</span>`;
             container.appendChild(toast);
+            
+            requestAnimationFrame(() => {
+                toast.classList.add('show'); // Assuming class triggers animation or just exists
+            });
 
             setTimeout(() => {
-                toast.style.animation = "slideIn 0.3s ease-in reverse forwards";
+                toast.style.opacity = "0";
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
