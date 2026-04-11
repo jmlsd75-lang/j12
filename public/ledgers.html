@@ -1,461 +1,491 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>General Ledger | Accounts View</title>
-    <style>
-        :root {
-            --primary: #1a73e8;
-            --bg-body: #f0f2f5;
-            --surface: #ffffff;
-            --border: #dfe1e5;
-            --text-main: #202124;
-            --text-sub: #5f6368;
-            --dr-color: #1a73e8; /* Blue for Debit */
-            --cr-color: #d93025; /* Red for Credit */
-            --highlight: #e8f0fe;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>General Ledger</title>
+  <style>
+    :root {
+      --primary: #4285F4;
+      --bg-body: #f4f6f9;
+      --bg-card: #ffffff;
+      --text-main: #2c3e50;
+      --text-muted: #7f8c8d;
+      --border-color: #000; /* Ledger uses black borders usually */
+      --header-bg: #e8e8e8;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
-            background: var(--bg-body);
-            color: var(--text-main);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-        /* --- Header --- */
-        header {
-            background: var(--surface);
-            padding: 0.8rem 1.5rem;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    header {
+      background: var(--bg-card);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
 
-        .brand { font-weight: 600; font-size: 1.2rem; color: var(--primary); }
-        
-        .nav-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 0.9rem;
-        }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--text-main);
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: background 0.2s;
+      border: 1px solid transparent;
+    }
+    .back-btn:hover { background-color: #f0f2f5; }
+    .back-btn svg { width: 20px; height: 20px; }
 
-        /* --- Layout --- */
-        .container {
-            display: flex;
-            flex: 1;
-            overflow: hidden; /* Prevent body scroll, handle inside panels */
-        }
+    .user-info { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--text-muted); }
+    .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); }
 
-        /* --- Sidebar (Account List) --- */
-        aside {
-            width: 300px;
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-        }
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
 
-        .sidebar-header {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border);
-            font-weight: 600;
-            color: var(--text-sub);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+    .page-header { margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; }
+    .page-title { font-size: 1.5rem; font-weight: 700; color: var(--text-main); }
 
-        .account-list {
-            flex: 1;
-            overflow-y: auto;
-            list-style: none;
-        }
+    #ledger-container {
+      display: flex;
+      flex-direction: column;
+      gap: 50px; /* Space between ledgers */
+      padding-bottom: 50px;
+    }
 
-        .account-item {
-            padding: 1rem;
-            border-bottom: 1px solid #f1f3f4;
-            cursor: pointer;
-            transition: background 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .ledger-section {
+      background: white;
+      padding: 20px;
+      border-radius: 4px; /* Slightly less rounded for formal ledger look */
+      box-shadow: var(--shadow);
+      page-break-inside: avoid;
+      border: 1px solid #ddd;
+    }
 
-        .account-item:hover { background: #f8f9fa; }
-        .account-item.active { background: var(--highlight); border-left: 4px solid var(--primary); }
+    .account-title {
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 6px;
+      color: #000;
+    }
 
-        .acc-name { font-weight: 500; display: block; }
-        .acc-type { font-size: 0.75rem; color: var(--text-sub); }
-        .acc-balance { font-weight: 600; font-family: monospace; font-size: 0.95rem; }
+    table.ledger-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 2px solid var(--border-color);
+      font-size: 14px;
+    }
 
-        /* --- Main Ledger View --- */
-        main {
-            flex: 1;
-            padding: 2rem;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
+    .ledger-table th, .ledger-table td {
+      border: 1px solid var(--border-color);
+      padding: 10px 12px;
+    }
 
-        .ledger-card {
-            background: var(--surface);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
+    .col-date { width: 15%; }
+    .col-particulars { width: 35%; }
+    .col-folio { width: 10%; text-align: center; }
+    .col-amount { width: 20%; text-align: right; font-family: 'Courier New', monospace; }
 
-        .ledger-header {
-            padding: 1.5rem;
-            border-bottom: 2px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .ledger-table th {
+      background-color: var(--header-bg);
+      font-weight: bold;
+      text-align: center;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
 
-        .ledger-title { font-size: 1.4rem; font-weight: 700; }
-        .ledger-sub { color: var(--text-sub); font-size: 0.9rem; }
+    .ledger-table td { vertical-align: top; }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
 
-        .ledger-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.95rem;
-        }
+    .row-total td {
+      font-weight: bold;
+      border-top: 2px solid var(--border-color);
+      background-color: #fafafa;
+    }
 
-        .ledger-table th {
-            text-align: left;
-            padding: 1rem 1.5rem;
-            background: #f8f9fa;
-            color: var(--text-sub);
-            font-weight: 600;
-            border-bottom: 1px solid var(--border);
-        }
+    .row-balance-cd td { font-style: italic; background-color: #fdfdfd; }
+    .row-balance-bd td { font-weight: bold; background-color: #fff; }
 
-        .ledger-table td {
-            padding: 0.8rem 1.5rem;
-            border-bottom: 1px solid #f1f3f4;
-            color: var(--text-main);
-        }
+    #status-msg {
+      text-align: center;
+      margin-top: 20px;
+      font-weight: bold;
+      padding: 10px;
+      border-radius: 4px;
+      display: none;
+    }
+    .msg-error { color: #c0392b; background: #fadbd8; display: block !important; }
+    .msg-loading { color: var(--primary); background: #e8f0fe; display: block !important; }
 
-        .amount-dr { color: var(--dr-color); font-weight: 600; text-align: right; }
-        .amount-cr { color: var(--cr-color); font-weight: 600; text-align: right; }
-        .balance-col { text-align: right; font-weight: 700; }
+    .empty-ledger {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-muted);
+        font-style: italic;
+    }
 
-        .rule-tag {
-            font-size: 0.7rem;
-            background: #eee;
-            padding: 2px 6px;
-            border-radius: 4px;
-            color: #666;
-            margin-left: 8px;
-            vertical-align: middle;
-        }
-
-        .empty-ledger {
-            padding: 3rem;
-            text-align: center;
-            color: var(--text-sub);
-        }
-
-        /* --- Floating Rule Hint --- */
-        .rule-hint {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #323232;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            max-width: 300px;
-            line-height: 1.4;
-        }
-        
-        .loading-overlay {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(255,255,255,0.8); display: flex; justify-content: center; align-items: center;
-            z-index: 1000;
-        }
-    </style>
+    @media print {
+      body { background-color: white; padding: 0; }
+      header, .page-header, #status-msg { display: none; }
+      main { padding: 0; max-width: 100%; }
+      #ledger-container { gap: 30px; }
+      .ledger-section { box-shadow: none; border: none; padding: 0; }
+    }
+  </style>
 </head>
 <body>
 
-    <header>
-        <div class="brand">📘 General Ledger</div>
-        <div>
-            <a href="salesjournal.html" class="nav-btn">← Back to Sales Journal</a>
-        </div>
-    </header>
+  <header>
+    <a href="list.html" class="back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Back to List
+    </a>
+    
+    <div class="user-info" id="userInfoDisplay"></div>
+  </header>
 
-    <div class="container">
-        <!-- Sidebar: List of Accounts -->
-        <aside>
-            <div class="sidebar-header">Chart of Accounts (Auto-Generated)</div>
-            <ul class="account-list" id="accountList">
-                <!-- Accounts will be injected here -->
-            </ul>
-        </aside>
-
-        <!-- Main: Ledger Detail -->
-        <main>
-            <div id="ledgerView" class="ledger-card" style="display:none;">
-                <div class="ledger-header">
-                    <div>
-                        <div class="ledger-title" id="viewAccountName">Account Name</div>
-                        <div class="ledger-sub" id="viewAccountType">Type</div>
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 0.8rem; color: #666;">Current Balance</div>
-                        <div style="font-size: 1.5rem; font-weight: 700;" id="viewTotalBalance">$0.00</div>
-                    </div>
-                </div>
-
-                <table class="ledger-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 15%">Date</th>
-                            <th style="width: 40%">Description / Particulars</th>
-                            <th style="width: 15%; text-align: right;">Debit</th>
-                            <th style="width: 15%; text-align: right;">Credit</th>
-                            <th style="width: 15%; text-align: right;">Balance</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ledgerTableBody">
-                        <!-- Rows injected here -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div id="emptyState" class="empty-ledger">
-                <h3>No Accounts Found</h3>
-                <p>Please go to the Sales Journal and add transactions to generate ledger accounts.</p>
-                <br>
-                <a href="salesjournal.html" class="nav-btn">Go to Sales Journal</a>
-            </div>
-        </main>
+  <main>
+    <div class="page-header">
+      <h1 class="page-title">General Ledger</h1>
     </div>
 
-    <div class="rule-hint">
-        <strong>Rule 7 Applied:</strong><br>
-        Credit Sales → Dr: Customer (Receivables), Cr: Sales Revenue.
+    <div id="status-msg"></div>
+
+    <div id="ledger-container">
+      <div class="empty-ledger">Loading ledger data from Firestore...</div>
     </div>
+  </main>
 
-    <div id="loading" class="loading-overlay hidden">Loading Accounts...</div>
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    <!-- ============================================================
-       LOGIC: SALES JOURNAL TO LEDGER POSTING
-       ============================================================ -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    // ── Firebase Config (Identical to list.html) ──
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+      authDomain: "my-project-66803-95cb3.firebaseapp.com",
+      projectId: "my-project-66803-95cb3",
+      storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+      messagingSenderId: "167159607898",
+      appId: "1:167159607898:web:23ca11366b88868b085e63"
+    };
 
-        // Firebase Config (Same as login.js)
-        const firebaseConfig = {
-            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-            authDomain: "my-project-66803-95cb3.firebaseapp.com",
-            projectId: "my-project-66803-95cb3",
-            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-            messagingSenderId: "167159607898",
-            appId: "1:167159607898:web:23ca11366b88868b085e63"
-        };
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+    const statusMsg = document.getElementById('status-msg');
+    const ledgerContainer = document.getElementById('ledger-container');
+    const userInfoDisplay = document.getElementById('userInfoDisplay');
 
-        // Check Auth
-        onAuthStateChanged(auth, (user) => {
-            if (!user) {
-                window.location.href = "index.html";
-            } else {
-                initApp();
-            }
+    // ── Auth Check ──
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+        return;
+      }
+
+      // Display User Info
+      const sessionData = localStorage.getItem("userSession");
+      if (sessionData) {
+        const parsed = JSON.parse(sessionData);
+        userInfoDisplay.innerHTML = `
+          <span>${parsed.name || user.displayName || "User"}</span>
+          <img src="${parsed.photo || user.photoURL || 'https://picsum.photos/seed/user/32/32'}" alt="Avatar" class="user-avatar">
+        `;
+      } else {
+        userInfoDisplay.innerHTML = `
+          <span>${user.displayName || "User"}</span>
+          <img src="${user.photoURL || 'https://picsum.photos/seed/user/32/32'}" alt="Avatar" class="user-avatar">
+        `;
+      }
+
+      // Start Fetching
+      fetchLedgerData(user.email);
+    });
+
+    // ── Fetch Data from Firestore ──
+    async function fetchLedgerData(userEmail) {
+      showStatus("Loading transactions...", false);
+
+      try {
+        // Path: users/{email}/transactions
+        const transactionsRef = collection(db, "users", userEmail, "transactions");
+        const q = query(transactionsRef, orderBy("date", "asc")); // Order by date for ledgers
+        const querySnapshot = await getDocs(q);
+
+        const transactions = [];
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          
+          // --- PARSING LOGIC ---
+          // We need to extract Account Name and Particulars from the 'detail' field
+          // Format expected in DB: "Account Name (Person Name)"
+          
+          let accountName = data.detail || "General";
+          let particularName = data.method || "Unknown"; // Fallback
+
+          // Regex to find content inside parentheses
+          const nameMatch = data.detail ? data.detail.match(/\(([^)]+)\)$/) : null;
+          
+          if (nameMatch) {
+            // If parentheses exist:
+            // "Salary (John)" -> Account: Salary, Particular: John
+            accountName = data.detail.replace(/\s*\([^)]+\)$/, "").trim();
+            particularName = nameMatch[1].trim();
+          } else {
+            // If no parentheses:
+            // "Sales" -> Account: Sales, Particular: Cash/Bank (from method field)
+            particularName = data.method || "Cash"; 
+          }
+
+          transactions.push({
+            date: data.date,
+            detail: accountName,      // Used for grouping
+            name: particularName,     // Used for Particulars column
+            flowType: data.type,      // IN or OUT
+            flowForm: data.method,    // CASH, BANK, etc.
+            amount: parseFloat(data.amount || 0)
+          });
         });
 
-        // --- Core Application Logic ---
-        function initApp() {
-            // 1. Load Sales Journal Data (The Source)
-            const journalData = JSON.parse(localStorage.getItem('salesJournalEntries')) || [];
-            
-            if (journalData.length === 0) {
-                document.getElementById('emptyState').style.display = 'block';
-                document.getElementById('ledgerView').style.display = 'none';
-                return;
-            }
-
-            // 2. "Post" to Ledger (Apply Rules)
-            // We need to group data by Account Name
-            const ledger = {};
-
-            // Initialize Sales Account (Rule 7: Credit Side)
-            ledger['Sales Revenue'] = {
-                type: 'Revenue',
-                entries: [],
-                balance: 0
-            };
-
-            journalData.forEach(entry => {
-                // RULE 7: Dr Customer (Debtor)
-                const customerName = entry.customer;
-                
-                if (!ledger[customerName]) {
-                    ledger[customerName] = {
-                        type: 'Asset (Receivable)',
-                        entries: [],
-                        balance: 0
-                    };
-                }
-
-                // Add to Customer Account (Debit)
-                ledger[customerName].entries.push({
-                    date: entry.date,
-                    ref: entry.invoice || 'N/A',
-                    desc: 'Sales', // What did they buy? Goods.
-                    amount: entry.amount,
-                    side: 'Dr' // Debit
-                });
-                ledger[customerName].balance += entry.amount;
-
-                // Add to Sales Account (Credit)
-                ledger['Sales Revenue'].entries.push({
-                    date: entry.date,
-                    ref: entry.invoice || 'N/A',
-                    desc: `Credit Sale to ${customerName}`,
-                    amount: entry.amount,
-                    side: 'Cr' // Credit
-                });
-                // Sales is a revenue account, credits increase it. 
-                // For ledger display, we usually show absolute balances or specific sign logic.
-                // Here we will track the "Credit" total.
-                ledger['Sales Revenue'].balance += entry.amount; 
-            });
-
-            // 3. Render Sidebar
-            renderSidebar(ledger);
-            
-            // 4. Default to first customer
-            const firstAccount = Object.keys(ledger).find(k => k !== 'Sales Revenue') || Object.keys(ledger)[0];
-            if (firstAccount) {
-                renderLedger(firstAccount, ledger[firstAccount]);
-            }
+        if (transactions.length === 0) {
+          ledgerContainer.innerHTML = '<div class="empty-ledger">No transactions found to generate ledgers.</div>';
+          hideStatus();
+          return;
         }
 
-        function renderSidebar(ledger) {
-            const list = document.getElementById('accountList');
-            list.innerHTML = '';
+        // Process and Render
+        processLedgerData(transactions);
+        hideStatus();
 
-            // Sort: Customers first, then Sales Revenue
-            const sortedKeys = Object.keys(ledger).sort((a, b) => {
-                if (a === 'Sales Revenue') return 1;
-                if (b === 'Sales Revenue') return -1;
-                return a.localeCompare(b);
-            });
+      } catch (error) {
+        console.error("Firestore Error:", error);
+        showStatus("Error loading data: " + error.message, true);
+      }
+    }
 
-            sortedKeys.forEach(accName => {
-                const acc = ledger[accName];
-                const li = document.createElement('li');
-                li.className = 'account-item';
-                li.innerHTML = `
-                    <div>
-                        <span class="acc-name">${accName}</span>
-                        <span class="acc-type">${acc.type}</span>
-                    </div>
-                    <span class="acc-balance" style="color: ${accName === 'Sales Revenue' ? 'var(--cr-color)' : 'var(--dr-color)'}">
-                        ${formatMoney(acc.balance)}
-                    </span>
-                `;
-                
-                li.onclick = () => {
-                    // Remove active class from all
-                    document.querySelectorAll('.account-item').forEach(el => el.classList.remove('active'));
-                    li.classList.add('active');
-                    // Render main view
-                    renderLedger(accName, acc);
-                };
+    // ── Core Ledger Processing Logic ──
+    function processLedgerData(allTransactions) {
+      ledgerContainer.innerHTML = ''; // Clear loading message
+      
+      const accounts = {};
+      
+      // 1. Group by Detail (Account Name)
+      allTransactions.forEach(tx => {
+        if (!accounts[tx.detail]) accounts[tx.detail] = [];
+        accounts[tx.detail].push(tx);
+      });
 
-                list.appendChild(li);
-            });
+      const accountNames = Object.keys(accounts).sort();
+
+      accountNames.forEach(accName => {
+        const transactions = accounts[accName];
+        
+        // 2. Classify IN/OUT to DR/CR
+        // Rule: IN -> CREDIT, OUT -> DEBIT
+        let drEntries = [];
+        let crEntries = [];
+        let totalDr = 0;
+        let totalCr = 0;
+
+        transactions.forEach(tx => {
+          // Rule 5: Use Name (extracted) OR Flow Form
+          let particulars = (tx.name && tx.name !== '') ? tx.name : tx.flowForm;
+          
+          const entry = { 
+            date: tx.date, 
+            particulars: particulars, 
+            folio: '', 
+            amount: tx.amount 
+          };
+
+          if (tx.flowType === 'OUT') {
+            drEntries.push(entry);
+            totalDr += tx.amount;
+          } else if (tx.flowType === 'IN') {
+            crEntries.push(entry);
+            totalCr += tx.amount;
+          }
+        });
+
+        // Filter: If no transactions, skip (Safety check)
+        if (drEntries.length === 0 && crEntries.length === 0) return;
+
+        // 3. Build Render List (Aligning Debit and Credit columns)
+        let renderList = [];
+        let maxLen = Math.max(drEntries.length, crEntries.length);
+
+        // Add Transactions
+        for (let i = 0; i < maxLen; i++) {
+          let dr = drEntries[i] || null;
+          let cr = crEntries[i] || null;
+          renderList.push({ type: 'tx', dr, cr });
         }
 
-        function renderLedger(name, data) {
-            document.getElementById('emptyState').style.display = 'none';
-            document.getElementById('ledgerView').style.display = 'block';
+        // 4. Balancing Logic (c/d)
+        const diff = Math.abs(totalDr - totalCr);
+        let finalTotal = 0;
+        let balanceSide = null; 
 
-            // Header Info
-            document.getElementById('viewAccountName').textContent = name;
-            document.getElementById('viewAccountType').textContent = data.type;
-            
-            const balanceEl = document.getElementById('viewTotalBalance');
-            balanceEl.textContent = formatMoney(data.balance);
-            balanceEl.style.color = (name === 'Sales Revenue') ? 'var(--cr-color)' : 'var(--dr-color)';
-
-            // Table Rows
-            const tbody = document.getElementById('ledgerTableBody');
-            tbody.innerHTML = '';
-
-            let runningBalance = 0;
-
-            // Sort entries by date
-            const sortedEntries = [...data.entries].sort((a, b) => new Date(a.date) - new Date(b.date));
-
-            sortedEntries.forEach(entry => {
-                const tr = document.createElement('tr');
-                
-                // Determine Debit/Credit display logic
-                let drDisplay = '';
-                let crDisplay = '';
-                let balClass = '';
-
-                if (entry.side === 'Dr') {
-                    drDisplay = formatMoney(entry.amount);
-                    runningBalance += entry.amount;
-                } else {
-                    crDisplay = formatMoney(entry.amount);
-                    runningBalance += entry.amount; // For Revenue, Credit increases balance
-                }
-
-                // Visual styling for balance
-                if (name === 'Sales Revenue') {
-                    balClass = 'amount-cr'; // Revenue is normally a Credit balance
-                } else {
-                    balClass = 'amount-dr'; // Receivables are Debit balances
-                }
-
-                tr.innerHTML = `
-                    <td>${formatDate(entry.date)}</td>
-                    <td>
-                        ${entry.desc}
-                        <br><span style="font-size:0.75rem; color:#999;">Ref: ${entry.ref}</span>
-                    </td>
-                    <td class="amount-dr">${drDisplay}</td>
-                    <td class="amount-cr">${crDisplay}</td>
-                    <td class="balance-col ${balClass}">${formatMoney(runningBalance)}</td>
-                `;
-                tbody.appendChild(tr);
-            });
+        if (totalDr > totalCr) {
+          finalTotal = totalDr;
+          balanceSide = 'cr'; // Put c/d on Credit side
+          renderList.push({ 
+            type: 'balance_cd', 
+            dr: null, 
+            cr: { date: '', particulars: 'Balance', folio: 'c/d', amount: diff } 
+          });
+        } else if (totalCr > totalDr) {
+          finalTotal = totalCr;
+          balanceSide = 'dr'; // Put c/d on Debit side
+          renderList.push({ 
+            type: 'balance_cd', 
+            dr: { date: '', particulars: 'Balance', folio: 'c/d', amount: diff }, 
+            cr: null 
+          });
+        } else {
+          finalTotal = totalDr;
+          balanceSide = 'equal';
         }
 
-        // --- Helpers ---
-        function formatMoney(num) {
-            return '$' + num.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        // 5. Add Total Row
+        renderList.push({
+          type: 'total',
+          dr: { date: '', particulars: 'Total', folio: '', amount: finalTotal },
+          cr: { date: '', particulars: 'Total', folio: '', amount: finalTotal }
+        });
+
+        // 6. Add Balance b/d (Opposite side of c/d)
+        if (balanceSide === 'cr') {
+          renderList.push({ 
+            type: 'balance_bd', 
+            dr: { date: '', particulars: 'Balance', folio: 'b/d', amount: diff }, 
+            cr: null 
+          });
+        } else if (balanceSide === 'dr') {
+          renderList.push({ 
+            type: 'balance_bd', 
+            dr: null, 
+            cr: { date: '', particulars: 'Balance', folio: 'b/d', amount: diff } 
+          });
         }
 
-        function formatDate(dateString) {
-            const options = { year: 'numeric', month: 'short', day: 'numeric' };
-            return new Date(dateString).toLocaleDateString('en-US', options);
+        // 7. Render HTML
+        const section = document.createElement('div');
+        section.className = 'ledger-section';
+        section.innerHTML = buildTableHTML(accName, renderList);
+        ledgerContainer.appendChild(section);
+      });
+    }
+
+    function buildTableHTML(accountName, rows) {
+      let html = `
+        <div class="account-title">${accountName} Account</div>
+        <table class="ledger-table">
+          <thead>
+            <tr>
+              <th colspan="4" style="border-right:2px solid black;">Debit (DR)</th>
+              <th colspan="4">Credit (CR)</th>
+            </tr>
+            <tr>
+              <th class="col-date">Date</th>
+              <th class="col-particulars">Particulars</th>
+              <th class="col-folio">Folio</th>
+              <th class="col-amount">Amount</th>
+              
+              <th class="col-date">Date</th>
+              <th class="col-particulars">Particulars</th>
+              <th class="col-folio">Folio</th>
+              <th class="col-amount">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      rows.forEach(row => {
+        html += '<tr>';
+        
+        // Debit Cells
+        if (row.dr) {
+          let rowClass = row.type === 'total' ? 'row-total' : (row.type.includes('balance') ? 'row-'+row.type : '');
+          html += `
+            <td class="${rowClass}">${row.dr.date}</td>
+            <td class="${rowClass}">${row.dr.particulars}</td>
+            <td class="${rowClass} text-center">${row.dr.folio}</td>
+            <td class="${rowClass} text-right">${formatMoney(row.dr.amount)}</td>
+          `;
+        } else {
+          html += '<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>';
         }
 
-    </script>
+        // Credit Cells
+        if (row.cr) {
+          let rowClass = row.type === 'total' ? 'row-total' : (row.type.includes('balance') ? 'row-'+row.type : '');
+          html += `
+            <td class="${rowClass}">${row.cr.date}</td>
+            <td class="${rowClass}">${row.cr.particulars}</td>
+            <td class="${rowClass} text-center">${row.cr.folio}</td>
+            <td class="${rowClass} text-right">${formatMoney(row.cr.amount)}</td>
+          `;
+        } else {
+          html += '<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>';
+        }
+
+        html += '</tr>';
+      });
+
+      html += `</tbody></table>`;
+      return html;
+    }
+
+    function formatMoney(amount) {
+      return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function showStatus(msg, isError) {
+      statusMsg.textContent = msg;
+      statusMsg.className = isError ? 'msg-error' : 'msg-loading';
+    }
+
+    function hideStatus() {
+      statusMsg.style.display = 'none';
+    }
+  </script>
 </body>
 </html>
