@@ -363,11 +363,14 @@
             </div>
 
             <!-- Step 6: Patient Phone Number (Optional) -->
+            <!-- FIXED: Added missing error-message div here -->
             <div class="step-content" data-step="6">
                 <h2 class="step-title">Patient Phone Number <span style="font-size:0.8em; color:#90a4ae;">(Optional)</span></h2>
                 <div class="input-group">
-                    <input type="text" id="pPhone" placeholder="e.g. 0712345678">
+                    <input type="text" id="pPhone" placeholder="e.g. 0655510714">
                     <div class="optional-text">You can skip this step.</div>
+                    <!-- Added this div to prevent JavaScript crash -->
+                    <div class="error-message"></div> 
                 </div>
                 <div class="button-row">
                     <button type="button" class="btn-cancel" onclick="cancelEntry()">Cancel</button>
@@ -487,14 +490,13 @@
 
 
         // ============================================================
-        // Form Logic
+        // Form Logic & Variables
         // ============================================================
         
         let currentStep = 1;
         const totalSteps = 11;
 
         // Define required fields for each step
-        // Note: Step 6 is optional, so we skip validation for it.
         const stepConfig = {
             1: { id: 'pFirstName', required: true },
             2: { id: 'pSecondName', required: true },
@@ -512,20 +514,23 @@
         // --- Navigation Functions ---
 
         window.nextStep = function() {
+            // Validate current step before moving
             if (validateStep(currentStep)) {
                 // Hide current
                 document.querySelector(`.step-content[data-step="${currentStep}"]`).classList.remove('active');
                 
-                // Increment
+                // Increment step
                 currentStep++;
                 
                 // Show next
                 const nextStepEl = document.querySelector(`.step-content[data-step="${currentStep}"]`);
-                nextStepEl.classList.add('active');
-                
-                // Focus input for UX
-                const input = nextStepEl.querySelector('input, select');
-                if(input) input.focus();
+                if(nextStepEl) {
+                    nextStepEl.classList.add('active');
+                    
+                    // Focus input for UX
+                    const input = nextStepEl.querySelector('input, select');
+                    if(input) input.focus();
+                }
 
                 updateUI();
             }
@@ -593,26 +598,45 @@
 
         // --- Helper Functions ---
 
+        // IMPROVED: validateStep now checks if errorEl exists before modifying it
         function validateStep(step) {
             const config = stepConfig[step];
             const el = document.getElementById(config.id);
+            
+            // Safety check if element exists
+            if (!el) return false;
+
+            // Find error message element (might be null for some steps)
             const errorEl = el.parentElement.querySelector('.error-message');
 
+            // Specific logic for optional fields (Step 6)
+            if (!config.required) {
+                // Clear any lingering errors if element exists
+                if (errorEl) {
+                    errorEl.style.display = 'none';
+                }
+                el.style.borderColor = '#b0bec5';
+                return true;
+            }
+
+            // Check validation for required fields
             if (config.required && !el.value.trim()) {
-                // Show error
-                errorEl.style.display = 'block';
+                // Show error (only if element exists)
+                if (errorEl) {
+                    errorEl.style.display = 'block';
+                    // Shake animation reset
+                    el.parentElement.style.animation = 'none';
+                    el.parentElement.offsetHeight; /* trigger reflow */
+                    el.parentElement.style.animation = 'shake 0.3s ease-in-out';
+                }
                 el.style.borderColor = 'var(--error-color)';
-                
-                // Shake animation reset
-                el.parentElement.style.animation = 'none';
-                el.parentElement.offsetHeight; /* trigger reflow */
-                el.parentElement.style.animation = 'shake 0.3s ease-in-out';
-                
                 return false;
             } else {
-                // Clear error
-                errorEl.style.display = 'none';
-                el.style.borderColor = '#b0bec5'; // reset to default or success color
+                // Clear error (only if element exists)
+                if (errorEl) {
+                    errorEl.style.display = 'none';
+                }
+                el.style.borderColor = '#b0bec5'; // reset to default
                 return true;
             }
         }
@@ -628,6 +652,33 @@
 
         // Initialize UI
         updateUI();
+
+        // ============================================================
+        // FIXED: Robust "ENTER KEY" LISTENER LOGIC
+        // ============================================================
+        const form = document.getElementById('patientForm');
+        
+        form.addEventListener('keydown', function(e) {
+            // Check if "Enter" key was pressed
+            if (e.key === "Enter") {
+                // Check if the event target is an INPUT or SELECT
+                // (e.target is more reliable than document.activeElement here)
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+                    
+                    // 1. Prevent default form submission behavior immediately
+                    e.preventDefault();
+
+                    // 2. Decide whether to go Next or Save
+                    if (currentStep === totalSteps) {
+                        // We are on the last step, trigger Save
+                        saveData();
+                    } else {
+                        // We are in the middle, go to Next Step
+                        nextStep();
+                    }
+                }
+            }
+        });
 
     </script>
 </body>
