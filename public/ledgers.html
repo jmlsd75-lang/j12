@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>General Ledger View</title>
+    <title>General Ledger (Firestore)</title>
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -46,6 +46,7 @@
             transition: background 0.3s;
         }
         button:hover { background-color: var(--accent-color); }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
 
         #ledger-container {
             display: flex;
@@ -132,136 +133,115 @@
 
     <header>
         <h1>General Ledger</h1>
-        <p class="subtitle">Data Source: list.html</p>
+        <p class="subtitle">Data Source: Firestore (Transaction Collection)</p>
     </header>
 
     <div class="controls">
-        <button onclick="generateLedgers()">Show All Ledgers</button>
+        <button id="loadBtn" onclick="generateLedgers()">Load Data from Firestore</button>
         <div id="status-msg"></div>
     </div>
 
     <main id="ledger-container">
         <div style="text-align: center; color: #888; margin-top: 50px;">
-            Click "Show All Ledgers" to load data from list.html
+            Click "Load Data" to fetch transactions from the database.
         </div>
     </main>
 
-    <script>
-        /**
-         * ------------------------------------------------------------------
-         * DATA FETCHING LOGIC
-         * Attempts to read 'list.html' directly.
-         * ------------------------------------------------------------------
-         */
-        async function getTransactions() {
-            const statusMsg = document.getElementById('status-msg');
-            
-            try {
-                // 1. Attempt to fetch the actual file
-                const response = await fetch('list.html');
-                
-                if (!response.ok) {
-                    throw new Error(`File not found (Status: ${response.status})`);
-                }
+    <!-- Firebase SDKs (Modular) -->
+    <script type="module">
+        // ============================================================
+        // FIREBASE CONFIGURATION (Imported from your login.js)
+        // ============================================================
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-                const htmlText = await response.text();
-                const transactions = parseListHTML(htmlText);
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
+
+        // Initialize Firestore
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // ============================================================
+        // DATA FETCHING LOGIC
+        // ============================================================
+        
+        // Expose function to global scope so HTML button can call it
+        window.generateLedgers = async function() {
+            const container = document.getElementById('ledger-container');
+            const statusMsg = document.getElementById('status-msg');
+            const loadBtn = document.getElementById('loadBtn');
+            
+            container.innerHTML = ''; 
+            statusMsg.className = "msg-warn";
+            statusMsg.textContent = "Connecting to Firestore...";
+            loadBtn.disabled = true;
+
+            try {
+                // 1. FETCH from Firestore
+                // Assuming you have a collection named "transactions"
+                const q = query(collection(db, "transactions"), orderBy("date", "asc"));
+                const querySnapshot = await getDocs(q);
                 
+                const transactions = [];
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    
+                    // Map Firestore fields to the ledger logic
+                    // Ensure data exists before pushing to avoid errors
+                    if (data.detail && data.flowType) {
+                        transactions.push({
+                            date: data.date || new Date().toISOString().split('T')[0],
+                            detail: data.detail,
+                            flowType: data.flowType.toUpperCase(), // IN or OUT
+                            flowForm: data.flowForm || '',
+                            name: data.name || 'Unknown',
+                            amount: parseFloat(data.amount) || 0
+                        });
+                    }
+                });
+
                 if (transactions.length === 0) {
-                    throw new Error("No transactions found in the table.");
+                    statusMsg.className = "msg-warn";
+                    statusMsg.textContent = "No transactions found in Firestore 'transactions' collection.";
+                    loadBtn.disabled = false;
+                    return;
                 }
 
                 statusMsg.className = "msg-success";
-                statusMsg.textContent = `Successfully loaded ${transactions.length} transactions from list.html`;
-                return transactions;
+                statusMsg.textContent = `Successfully loaded ${transactions.length} transactions.`;
+
+                // 2. PROCESS LEDGERS
+                processLedgerData(transactions);
 
             } catch (error) {
-                console.warn("Fetch failed:", error);
-                
-                // 2. FALLBACK: If fetch fails (e.g., opened directly as file://), use demo data
-                statusMsg.className = "msg-warn";
-                statusMsg.innerHTML = `<b>Warning:</b> Could not read 'list.html' directly (likely due to browser security/CORS). <br>Using DEMO DATA instead. Use a local server (Live Server) to read the real file.`;
-                
-                // This is the fallback data only used if the file can't be read
-                return getFallbackData();
+                console.error("Firestore Error:", error);
+                statusMsg.className = "msg-error";
+                statusMsg.textContent = "Error fetching data: " + error.message;
+                loadBtn.disabled = false;
             }
-        }
+        };
 
-        /**
-         * Parses the HTML content of list.html to extract table rows
-         * Assumes a standard table structure
-         */
-        function parseListHTML(htmlString) {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlString, 'text/html');
-            const rows = doc.querySelectorAll('table tr'); // Select all rows in the first table
-            const data = [];
+        // ============================================================
+        // CORE LOGIC (Unchanged from previous working version)
+        // ============================================================
 
-            rows.forEach((row, index) => {
-                // Skip header row (assuming index 0 is header)
-                if (index === 0) return;
-
-                const cols = row.querySelectorAll('td');
-                if (cols.length >= 6) {
-                    // Mapping columns based on your description:
-                    // Date, Detail, Flow Type, Flow Form, Name, Amount
-                    data.push({
-                        date: cols[0].innerText.trim(),
-                        detail: cols[1].innerText.trim(),
-                        flowType: cols[2].innerText.trim().toUpperCase(), // Ensure IN/OUT
-                        flowForm: cols[3].innerText.trim(),
-                        name: cols[4].innerText.trim(),
-                        amount: parseFloat(cols[5].innerText.replace(/[^0-9.-]+/g, "")) // Clean currency symbols
-                    });
-                }
-            });
-            return data;
-        }
-
-        /**
-         * FALLBACK DATA (Used only if list.html cannot be accessed)
-         */
-        function getFallbackData() {
-            return [
-                { date: '2023-10-01', detail: 'Cash', flowType: 'IN', flowForm: 'CASH', name: 'Capital A/c', amount: 10000 },
-                { date: '2023-10-02', detail: 'Bank', flowType: 'IN', flowForm: 'BANK', name: 'Cash', amount: 5000 },
-                { date: '2023-10-03', detail: 'Purchases', flowType: 'OUT', flowForm: 'CASH', name: 'Supplier A', amount: 2000 },
-                { date: '2023-10-04', detail: 'Sales', flowType: 'IN', flowForm: 'CASH', name: 'Customer B', amount: 1500 },
-                { date: '2023-10-05', detail: 'Rent', flowType: 'OUT', flowForm: 'BANK', name: 'Landlord', amount: 1000 },
-                { date: '2023-10-06', detail: 'Purchases', flowType: 'OUT', flowForm: 'CREDIT', name: 'Supplier C', amount: 3000 },
-                { date: '2023-10-07', detail: 'Cash', flowType: 'OUT', flowForm: 'CASH', name: 'Wages', amount: 500 },
-                { date: '2023-10-08', detail: 'Sales', flowType: 'IN', flowForm: 'CREDIT', name: 'Customer D', amount: 4000 },
-                { date: '2023-10-09', detail: 'Furniture', flowType: 'OUT', flowForm: 'BANK', name: 'Furniture Mart', amount: 2500 },
-            ];
-        }
-
-        /**
-         * ------------------------------------------------------------------
-         * CORE LOGIC
-         * ------------------------------------------------------------------
-         */
-
-        async function generateLedgers() {
+        function processLedgerData(allTransactions) {
             const container = document.getElementById('ledger-container');
-            const statusMsg = document.getElementById('status-msg');
-            
-            container.innerHTML = ''; // Clear previous
-            statusMsg.textContent = "Processing...";
-
-            // 1. GET DATA (Real or Fallback)
-            const allTransactions = await getTransactions();
-
-            // 2. GROUP BY DETAIL
             const accounts = {};
             
+            // 1. Group by Detail
             allTransactions.forEach(tx => {
-                if (!accounts[tx.detail]) {
-                    accounts[tx.detail] = [];
-                }
+                if (!accounts[tx.detail]) accounts[tx.detail] = [];
                 accounts[tx.detail].push(tx);
             });
 
-            // 3. PROCESS EACH ACCOUNT
             const accountNames = Object.keys(accounts).sort(); 
             
             if(accountNames.length === 0) {
@@ -272,23 +252,16 @@
             accountNames.forEach(accName => {
                 const transactions = accounts[accName];
                 
-                // 4. CLASSIFY IN/OUT to DR/CR
+                // 2. Classify IN/OUT to DR/CR
                 let drEntries = [];
                 let crEntries = [];
                 let totalDr = 0;
                 let totalCr = 0;
 
                 transactions.forEach(tx => {
-                    // Particulars Rule: Use Name or FlowForm. 
-                    // Prioritize Name, if empty use FlowForm
-                    let particulars = tx.name && tx.name !== '' ? tx.name : tx.flowForm;
-
-                    const entry = {
-                        date: tx.date,
-                        particulars: particulars,
-                        folio: '', 
-                        amount: tx.amount
-                    };
+                    // Particulars Logic
+                    let particulars = (tx.name && tx.name !== '') ? tx.name : tx.flowForm;
+                    const entry = { date: tx.date, particulars: particulars, folio: '', amount: tx.amount };
 
                     if (tx.flowType === 'OUT') {
                         drEntries.push(entry);
@@ -299,7 +272,10 @@
                     }
                 });
 
-                // 5. BUILD RENDER LIST (Logic for c/d, Total, b/d)
+                // Filter: If no transactions, skip
+                if (drEntries.length === 0 && crEntries.length === 0) return;
+
+                // 3. Build Render List
                 let renderList = [];
                 let maxLen = Math.max(drEntries.length, crEntries.length);
 
@@ -317,20 +293,12 @@
 
                 if (totalDr > totalCr) {
                     finalTotal = totalDr;
-                    balanceSide = 'cr'; // Put c/d on Credit
-                    renderList.push({ 
-                        type: 'balance_cd', 
-                        dr: null, 
-                        cr: { date: '', particulars: 'Balance', folio: 'c/d', amount: diff } 
-                    });
+                    balanceSide = 'cr';
+                    renderList.push({ type: 'balance_cd', dr: null, cr: { date: '', particulars: 'Balance', folio: 'c/d', amount: diff } });
                 } else if (totalCr > totalDr) {
                     finalTotal = totalCr;
-                    balanceSide = 'dr'; // Put c/d on Debit
-                    renderList.push({ 
-                        type: 'balance_cd', 
-                        dr: { date: '', particulars: 'Balance', folio: 'c/d', amount: diff }, 
-                        cr: null 
-                    });
+                    balanceSide = 'dr';
+                    renderList.push({ type: 'balance_cd', dr: { date: '', particulars: 'Balance', folio: 'c/d', amount: diff }, cr: null });
                 } else {
                     finalTotal = totalDr;
                     balanceSide = 'equal';
@@ -343,31 +311,22 @@
                     cr: { date: '', particulars: 'Total', folio: '', amount: finalTotal }
                 });
 
-                // Add Balance b/d (Opposite side of c/d)
+                // Add Balance b/d
                 if (balanceSide === 'cr') {
-                    renderList.push({
-                        type: 'balance_bd',
-                        dr: { date: '', particulars: 'Balance', folio: 'b/d', amount: diff },
-                        cr: null
-                    });
+                    renderList.push({ type: 'balance_bd', dr: { date: '', particulars: 'Balance', folio: 'b/d', amount: diff }, cr: null });
                 } else if (balanceSide === 'dr') {
-                    renderList.push({
-                        type: 'balance_bd',
-                        dr: null,
-                        cr: { date: '', particulars: 'Balance', folio: 'b/d', amount: diff }
-                    });
+                    renderList.push({ type: 'balance_bd', dr: null, cr: { date: '', particulars: 'Balance', folio: 'b/d', amount: diff } });
                 }
 
-                // 6. RENDER
+                // 4. Render
                 const section = document.createElement('div');
                 section.className = 'ledger-section';
                 section.innerHTML = buildTableHTML(accName, renderList);
                 container.appendChild(section);
             });
             
-            if(statusMsg.className !== 'msg-warn') {
-                setTimeout(() => { statusMsg.textContent = ""; }, 3000);
-            }
+            // Re-enable button after processing
+            document.getElementById('loadBtn').disabled = false;
         }
 
         function buildTableHTML(accountName, rows) {
@@ -432,10 +391,6 @@
 
         function formatMoney(amount) {
             return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-
-        function emptyCell() {
-            return '<td>&nbsp;</td>';
         }
     </script>
 </body>
