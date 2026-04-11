@@ -5,27 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Credit Sales Journal</title>
     
-    <!-- Google Fonts -->
+    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Icons -->
+    <!-- Icons: FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        /* --- CSS Variables & Reset --- */
         :root {
-            --primary: #4F46E5;
+            --primary: #4F46E5;       /* Indigo */
             --primary-hover: #4338ca;
             --bg-body: #f3f4f6;
             --bg-card: #ffffff;
-            --text-main: #1f2937;
+            --text-main: #111827;
             --text-muted: #6b7280;
             --border: #e5e7eb;
-            --success: #10b981;
+            --success: #10b981;       /* Emerald */
             --success-bg: #ecfdf5;
-            --danger: #ef4444;
+            --danger: #ef4444;        /* Red */
             --danger-bg: #fef2f2;
+            --warning: #f59e0b;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -47,19 +49,19 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 50;
         }
 
         .brand {
-            font-weight: 600;
-            font-size: 1.1rem;
+            font-weight: 700;
+            font-size: 1.25rem;
             color: var(--primary);
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
             text-decoration: none;
         }
 
@@ -75,13 +77,19 @@
         }
 
         .user-info .name {
-            font-weight: 500;
+            font-weight: 600;
             font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .user-info .email {
+            font-size: 0.75rem;
+            color: var(--text-muted);
         }
 
         .avatar {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             background: #e0e7ff;
             color: var(--primary);
@@ -89,15 +97,17 @@
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            font-size: 0.9rem;
-            object-fit: cover;
+            font-size: 1rem;
             border: 2px solid var(--border);
+            overflow: hidden;
         }
+        
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
         .btn-logout {
             background: transparent;
             border: 1px solid var(--border);
-            padding: 0.4rem 0.8rem;
+            padding: 0.5rem 1rem;
             border-radius: 6px;
             cursor: pointer;
             font-size: 0.85rem;
@@ -105,20 +115,21 @@
             transition: all 0.2s;
             display: flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.5rem;
+            font-family: inherit;
         }
 
         .btn-logout:hover {
             background: var(--danger-bg);
             color: var(--danger);
-            border-color: #fecaca;
+            border-color: #fca5a5;
         }
 
-        /* --- Main Content --- */
+        /* --- Main Layout --- */
         main {
             flex: 1;
             padding: 2rem;
-            max-width: 1200px;
+            max-width: 1280px;
             margin: 0 auto;
             width: 100%;
         }
@@ -133,39 +144,45 @@
         }
 
         .page-title h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-main);
             margin-bottom: 0.25rem;
         }
 
         .page-title p {
             color: var(--text-muted);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
 
-        .add-btn {
+        .btn-primary {
             background-color: var(--primary); 
             color: white; 
             text-decoration: none;
-            padding: 8px 16px; 
+            padding: 0.6rem 1.25rem; 
             border-radius: 6px; 
             font-weight: 600; 
             font-size: 0.9rem;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            transition: background 0.2s;
+            gap: 0.5rem;
+            transition: background 0.2s, transform 0.1s;
+            border: none;
+            cursor: pointer;
         }
         
-        .add-btn:hover { background-color: var(--primary-hover); }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-primary:active { transform: scale(0.98); }
 
-        /* --- Table Card --- */
+        /* --- Card & Table --- */
         .card {
             background: var(--bg-card);
-            border-radius: 8px;
+            border-radius: 12px;
             border: 1px solid var(--border);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             overflow: hidden;
+            position: relative;
+            min-height: 300px;
         }
 
         .table-container {
@@ -177,16 +194,16 @@
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            min-width: 700px;
+            min-width: 800px; /* Ensures table doesn't squish too much */
         }
 
         thead {
             background-color: #f9fafb;
-            border-bottom: 2px solid var(--border);
+            border-bottom: 1px solid var(--border);
         }
 
         th {
-            padding: 0.875rem 1.5rem;
+            padding: 1rem 1.5rem;
             font-size: 0.75rem;
             font-weight: 600;
             text-transform: uppercase;
@@ -203,23 +220,45 @@
         }
 
         tr:last-child td { border-bottom: none; }
-        tr:hover { background-color: #fcfcfc; }
+        tr:hover { background-color: #f8fafc; }
 
         .amount-cell {
-            font-family: 'Courier New', monospace;
-            font-weight: 700;
-            letter-spacing: -0.5px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+            font-size: 0.95rem;
         }
 
-        .col-actions { width: 100px; text-align: right; white-space: nowrap; }
+        .col-actions { width: 120px; text-align: right; white-space: nowrap; }
 
-        /* --- Action Buttons --- */
+        /* --- Badges --- */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-credit {
+            background-color: #e0e7ff;
+            color: var(--primary);
+        }
+        
+        .badge-icon {
+            margin-right: 4px;
+        }
+
+        /* --- Action Icons --- */
         .action-link {
             display: inline-flex; 
             align-items: center; 
             justify-content: center;
-            width: 32px; 
-            height: 32px; 
+            width: 36px; 
+            height: 36px; 
             border-radius: 6px; 
             color: var(--text-muted);
             text-decoration: none; 
@@ -231,54 +270,62 @@
 
         .action-link:hover { background-color: #f3f4f6; color: var(--primary); }
         .action-link.delete-link:hover { background-color: var(--danger-bg); color: var(--danger); }
-        .action-link svg { width: 16px; height: 16px; }
+        .action-link svg { width: 18px; height: 18px; }
 
-        /* --- Badge for Credit --- */
-        .badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 99px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        .badge-credit {
-            background-color: #e0e7ff;
-            color: var(--primary);
-        }
-
-        /* --- States --- */
-        .loading-container {
-            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem;
+        /* --- Feedback States --- */
+        .loading-container, .empty-state {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            text-align: center;
         }
         
+        .loading-container.active, .empty-state.active { display: flex; }
+
         .spinner {
-            width: 40px; height: 40px; border: 4px solid #e5e7eb; border-top: 4px solid var(--primary);
-            border-radius: 50%; animation: spin 0.8s linear infinite;
+            width: 40px; height: 40px; 
+            border: 3px solid #e5e7eb; 
+            border-top: 3px solid var(--primary);
+            border-radius: 50%; 
+            animation: spin 1s linear infinite;
         }
 
-        .empty-state {
-            padding: 4rem 2rem; text-align: center; color: var(--text-muted); display: none;
+        .empty-state i { font-size: 3rem; margin-bottom: 1rem; color: #d1d5db; }
+        .empty-state h3 { margin-bottom: 0.5rem; color: var(--text-main); }
+        .empty-state p { color: var(--text-muted); font-size: 0.9rem; max-width: 400px; }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- Toast Notification --- */
+        #toast-container { 
+            position: fixed; bottom: 24px; right: 24px; z-index: 100; 
+            display: flex; flex-direction: column; gap: 10px; 
         }
-        .empty-state.visible { display: block; }
-        .empty-state i { font-size: 2.5rem; margin-bottom: 1rem; color: #d1d5db; }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* --- Toast --- */
-        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
         .toast {
-            background: #1f2937; color: white; padding: 12px 20px; border-radius: 8px; font-size: 0.9rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px;
-            animation: slideIn 0.3s ease-out forwards; max-width: 300px;
+            background: #1f2937; color: white; padding: 12px 20px; 
+            border-radius: 8px; font-size: 0.9rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            display: flex; align-items: center; gap: 12px;
+            animation: slideIn 0.3s ease-out forwards; 
+            min-width: 300px;
         }
+        
         .toast.error { background: var(--danger); }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .toast.success { background: var(--success); }
+        
+        @keyframes slideIn { 
+            from { transform: translateY(20px); opacity: 0; } 
+            to { transform: translateY(0); opacity: 1; } 
+        }
 
+        /* --- Mobile Responsive --- */
         @media (max-width: 640px) {
             main { padding: 1rem; }
-            .page-header { flex-direction: column; align-items: flex-start; }
-            .user-info { display: none; }
+            .page-header { flex-direction: column; align-items: stretch; }
+            .btn-primary { justify-content: center; }
+            .user-info { display: none !important; } /* Hide name on small screens, keep avatar */
         }
     </style>
 </head>
@@ -288,19 +335,24 @@
     <header>
         <a href="detail.html" class="brand">
             <i class="fa-solid fa-file-invoice-dollar"></i>
-            <span>Credit Sales Journal</span>
+            <span>Sales Journal</span>
         </a>
 
         <div class="user-menu">
             <div class="user-info" id="userInfo">
                 <div class="name" id="userName">User Name</div>
+                <div class="email" id="userEmail">user@email.com</div>
             </div>
             
-            <img src="" alt="User" id="userAvatar" class="avatar">
-            <div id="userAvatarInitials" class="avatar" style="display:none;"></div>
+            <!-- Avatar Container -->
+            <div id="userAvatar" class="avatar">
+                <img id="avatarImg" src="" alt="Profile" style="display:none;">
+                <span id="avatarInitials">U</span>
+            </div>
 
-            <button class="btn-logout" id="logoutBtn" onclick="handleLogout()" title="Sign Out">
+            <button class="btn-logout" id="logoutBtn" title="Sign Out">
                 <i class="fa-solid fa-right-from-bracket"></i>
+                <span style="display:none;">Sign Out</span>
             </button>
         </div>
     </header>
@@ -309,29 +361,31 @@
     <main>
         <div class="page-header">
             <div class="page-title">
-                <h1>Credit Sales Journal</h1>
-                <p>Recorded sales where Payment Method is Credit.</p>
+                <h1>Credit Sales</h1>
+                <p>A journal of all sales made on credit.</p>
             </div>
-            <!-- Optional: You might want to link to a specific 'Add Credit Sale' form if you have one -->
-            <a href="add-transaction.html" class="add-btn">
+            
+            <!-- Link to your add transaction page -->
+            <a href="add-transaction.html" class="btn-primary">
                 <i class="fa-solid fa-plus"></i> New Sale
             </a>
         </div>
 
         <div class="card">
-            <div class="table-container">
+            <!-- Table Display -->
+            <div class="table-container" id="tableContainer">
                 <table id="salesTable">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Invoice / Detail</th>
-                            <th>Customer Name</th>
-                            <th>Amount</th>
+                            <th style="width: 140px;">Date</th>
+                            <th>Transaction Detail</th>
+                            <th style="width: 200px;">Customer</th>
+                            <th style="width: 160px; text-align: right;">Amount</th>
                             <th class="col-actions">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
-                        <!-- Data injected via JS -->
+                        <!-- Rows will be injected here via JS -->
                     </tbody>
                 </table>
             </div>
@@ -339,27 +393,29 @@
             <!-- Loading State -->
             <div id="loadingState" class="loading-container">
                 <div class="spinner"></div>
-                <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;">Filtering credit transactions...</p>
+                <p style="margin-top: 1rem; color: var(--text-muted);">Fetching transactions from database...</p>
             </div>
 
             <!-- Empty State -->
             <div id="emptyState" class="empty-state">
                 <i class="fa-regular fa-folder-open"></i>
-                <p>No credit sales transactions found.</p>
-                <p style="font-size: 0.8rem; margin-top: 0.5rem;">(Only items with 'Credit' payment method and 'Sales' in details are shown)</p>
+                <h3>No Credit Sales Found</h3>
+                <p>We couldn't find any transactions marked as "Credit" with "Sales" in the details.</p>
             </div>
         </div>
     </main>
 
+    <!-- Toast Container -->
     <div id="toast-container"></div>
 
-    <!-- Firebase Logic -->
+    <!-- Firebase Application Logic -->
     <script type="module">
+        // Import Firebase SDKs
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // ── Firebase Config ──
+        // ── Firebase Configuration ──
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
             authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -369,7 +425,7 @@
             appId: "1:167159607898:web:23ca11366b88868b085e63"
         };
 
-        // ── Initialize ──
+        // ── Initialization ──
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
@@ -378,184 +434,197 @@
         const tableBody = document.getElementById('tableBody');
         const loadingState = document.getElementById('loadingState');
         const emptyState = document.getElementById('emptyState');
-        const salesTable = document.getElementById('salesTable');
+        const tableContainer = document.getElementById('tableContainer');
         const userNameEl = document.getElementById('userName');
-        const userAvatarEl = document.getElementById('userAvatar');
-        const userAvatarInitialsEl = document.getElementById('userAvatarInitials');
+        const userEmailEl = document.getElementById('userEmail');
+        const avatarImg = document.getElementById('avatarImg');
+        const avatarInitials = document.getElementById('avatarInitials');
         const userInfoEl = document.getElementById('userInfo');
+        const logoutBtn = document.getElementById('logoutBtn');
 
-        // ── Auth State ──
+        // ── Authentication State ──
         onAuthStateChanged(auth, (user) => {
             if (!user) {
+                // Not logged in? Redirect to index/login
                 window.location.href = "index.html";
                 return;
             }
 
-            // Set User UI
-            const sessionData = localStorage.getItem("userSession");
-            let displayName = "User";
-            let photoUrl = null;
-
-            if (sessionData) {
-                const parsed = JSON.parse(sessionData);
-                displayName = parsed.name || user.displayName || "User";
-                photoUrl = parsed.photo || user.photoURL;
-            } else {
-                displayName = user.displayName || "User";
-                photoUrl = user.photoURL;
-            }
-
-            userNameEl.textContent = displayName;
-            userInfoEl.style.display = "block";
-
-            if (photoUrl) {
-                userAvatarEl.src = photoUrl;
-                userAvatarEl.style.display = "flex";
-            } else {
-                userAvatarInitialsEl.textContent = displayName.charAt(0).toUpperCase();
-                userAvatarInitialsEl.style.display = "flex";
-            }
-
-            // Load Data
-            fetchTransactions(user.email);
+            // User is logged in, set up UI
+            setupUserProfile(user);
+            
+            // Fetch the data
+            fetchCreditSales(user.email);
         });
 
-        // ── Data Fetching & Filtering Logic ──
-        async function fetchTransactions(userEmail) {
+        // ── UI Setup ──
+        function setupUserProfile(user) {
+            const displayName = user.displayName || "User";
+            const email = user.email || "";
+            const photoURL = user.photoURL;
+
+            userNameEl.textContent = displayName;
+            userEmailEl.textContent = email;
+            userInfoEl.style.display = "block";
+
+            // Handle Avatar
+            if (photoURL) {
+                avatarImg.src = photoURL;
+                avatarImg.style.display = "block";
+                avatarInitials.style.display = "none";
+            } else {
+                // Generate Initials
+                const initials = displayName.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+                avatarInitials.textContent = initials || "U";
+                avatarImg.style.display = "none";
+                avatarInitials.style.display = "block";
+            }
+        }
+
+        // ── Data Fetching & Core Logic ──
+        async function fetchCreditSales(userEmail) {
+            // Show Loading
+            loadingState.classList.add('active');
+            tableContainer.style.display = 'none';
+            emptyState.classList.remove('active');
+            tableBody.innerHTML = '';
+
             try {
+                // Reference: users/{email}/transactions
                 const transactionsRef = collection(db, "users", userEmail, "transactions");
+                
+                // Query: Order by Date (Descending)
                 const q = query(transactionsRef, orderBy("createdAt", "desc"));
                 
                 const querySnapshot = await getDocs(q);
 
-                tableBody.innerHTML = "";
-                loadingState.style.display = "none";
+                let foundItems = false;
 
-                let hasVisibleRows = false;
-
+                // Loop through all transactions
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
-                    const docId = doc.id;
-
-                    // ── CRITICAL FILTER LOGIC ──
                     
-                    // 1. Check Payment Method: Must be 'credit'
-                    // We normalize to lowercase to handle variations like 'Credit', 'CREDIT', 'credit'
-                    const paymentMethod = (data.paymentMethod || "").toLowerCase().trim();
+                    // ── FILTER LOGIC ──
+                    // 1. Get Payment Method (lowercase for comparison)
+                    const method = (data.paymentMethod || "").toLowerCase().trim();
                     
-                    // 2. Check Detail: Must contain 'sales'
-                    // We normalize to lowercase to handle variations like 'Sales', 'SALES', 'sales of item'
-                    const detailText = (data.detail || "").toLowerCase();
+                    // 2. Get Detail (lowercase for comparison)
+                    const detail = (data.detail || "").toLowerCase();
 
-                    // STRICT FILTER: Only proceed if BOTH conditions are met
-                    if (paymentMethod !== 'credit' || !detailText.includes('sales')) {
-                        return; // Ignore this transaction completely
+                    // 3. CHECK: Must be 'credit' AND must contain 'sales'
+                    if (method === 'credit' && detail.includes('sales')) {
+                        foundItems = true;
+                        renderRow(doc.id, data);
                     }
-
-                    // ── END FILTER LOGIC ──
-
-                    hasVisibleRows = true;
-
-                    // 1. Handle Date
-                    const dateStr = data.date || "N/A";
-
-                    // 2. Handle Amount (TZS Formatting)
-                    const amount = parseFloat(data.amount || 0);
-                    const amountFormatted = new Intl.NumberFormat('en-US', { 
-                        style: 'currency', currency: 'TZS' 
-                    }).format(amount);
-
-                    // 3. Parse Detail and Name
-                    let displayName = "-";
-                    let cleanDetail = data.detail || "-";
-
-                    // Attempt to find customer name in parentheses, e.g., "Sales Item (John Doe)"
-                    const nameMatch = cleanDetail.match(/\(([^)]+)\)$/);
-                    if (nameMatch) {
-                        displayName = nameMatch[1];
-                        // Remove the name from the detail string for a cleaner look
-                        cleanDetail = cleanDetail.replace(/\s*\([^)]+\)$/, ""); 
-                    }
-
-                    // 4. Color Logic (Green for Sales)
-                    // Since we filtered strictly for credit sales, we assume positive revenue
-                    const colorStyle = '#10b981'; 
-
-                    const row = document.createElement('tr');
-                    
-                    row.innerHTML = `
-                        <td style="color: var(--text-muted); font-size: 0.85rem;">${dateStr}</td>
-                        <td>
-                            <div style="font-weight: 500;">${cleanDetail}</div>
-                            <span class="badge badge-credit" style="margin-top: 4px;">Credit</span>
-                        </td>
-                        <td>${displayName}</td>
-                        <td class="amount-cell" style="color: ${colorStyle}">
-                            +${amountFormatted}
-                        </td>
-                        <td class="col-actions">
-                            <a href="businessedit.html?id=${docId}" class="action-link" title="Edit">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                </svg>
-                            </a>
-                            <a href="businessdelete.html?id=${docId}" class="action-link delete-link" title="Delete">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                </svg>
-                            </a>
-                        </td>
-                    `;
-                    
-                    tableBody.appendChild(row);
                 });
 
-                // Handle Empty State after filtering
-                if (!hasVisibleRows) {
-                    emptyState.classList.add('visible');
-                    salesTable.style.display = 'none';
+                // Update UI based on results
+                loadingState.classList.remove('active');
+
+                if (foundItems) {
+                    tableContainer.style.display = 'block';
                 } else {
-                    emptyState.classList.remove('visible');
-                    salesTable.style.display = 'table';
+                    emptyState.classList.add('active');
                 }
 
             } catch (error) {
-                console.error("Error fetching transactions:", error);
-                loadingState.style.display = "none";
-                showToast("Failed to load data: " + error.message, true);
+                console.error("Error fetching sales:", error);
+                loadingState.classList.remove('active');
+                showToast("Error loading data: " + error.message, true);
             }
         }
 
-        // ── Logout ──
-        window.handleLogout = async () => {
+        // ── Render Table Row ──
+        function renderRow(docId, data) {
+            // Format Date
+            const dateStr = data.date || new Date().toLocaleDateString();
+
+            // Format Amount (TZS)
+            const amount = parseFloat(data.amount || 0);
+            const formattedAmount = new Intl.NumberFormat('en-US', { 
+                style: 'currency', 
+                currency: 'TZS',
+                minimumFractionDigits: 0 
+            }).format(amount);
+
+            // Parse Customer Name from Detail
+            // Assumes format like "Sales Item (Customer Name)"
+            let cleanDetail = data.detail || "Unknown Sale";
+            let customerName = "Walk-in Customer";
+            
+            // Regex to find text inside parentheses at the end
+            const nameMatch = cleanDetail.match(/\(([^)]+)\)$/);
+            if (nameMatch) {
+                customerName = nameMatch[1];
+                // Remove the name part for the "Detail" column to look cleaner
+                cleanDetail = cleanDetail.replace(/\s*\([^)]+\)$/, ""); 
+            }
+
+            // Create Row
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="color: var(--text-muted); font-size: 0.85rem;">
+                    ${dateStr}
+                </td>
+                <td>
+                    <div style="font-weight: 600; color: var(--text-main); margin-bottom: 4px;">
+                        ${cleanDetail}
+                    </div>
+                    <span class="badge badge-credit">
+                        <i class="fa-solid fa-credit-card badge-icon"></i> Credit
+                    </span>
+                </td>
+                <td style="color: var(--text-main);">
+                    ${customerName}
+                </td>
+                <td class="amount-cell" style="text-align: right; color: var(--success);">
+                    +${formattedAmount}
+                </td>
+                <td class="col-actions">
+                    <a href="businessedit.html?id=${docId}" class="action-link" title="Edit">
+                        <i class="fa-solid fa-pen"></i>
+                    </a>
+                    <a href="businessdelete.html?id=${docId}" class="action-link delete-link" title="Delete">
+                        <i class="fa-solid fa-trash"></i>
+                    </a>
+                </td>
+            `;
+            
+            tableBody.appendChild(tr);
+        }
+
+        // ── Logout Handler ──
+        logoutBtn.addEventListener('click', async () => {
             try {
                 await signOut(auth);
                 localStorage.removeItem("userSession");
                 window.location.href = "index.html";
             } catch (error) {
-                console.error("Logout error:", error);
-                showToast("Error signing out.", "error");
+                console.error("Logout Error", error);
+                showToast("Failed to logout", true);
             }
-        };
+        });
 
-        // ── Helper: Toast Notification ──
+        // ── Toast Notification System ──
         function showToast(message, isError = false) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = `toast ${isError ? 'error' : ''}`;
-            toast.textContent = message;
+            
+            // Icon based on type
+            const icon = isError 
+                ? '<i class="fa-solid fa-circle-exclamation"></i>' 
+                : '<i class="fa-solid fa-circle-check"></i>';
+
+            toast.className = `toast ${isError ? 'error' : 'success'}`;
+            toast.innerHTML = `${icon} <span>${message}</span>`;
             
             container.appendChild(toast);
-            
-            requestAnimationFrame(() => {
-                toast.classList.add('show');
-            });
 
+            // Remove after 3 seconds
             setTimeout(() => {
                 toast.style.opacity = "0";
-                setTimeout(() => toast.remove(), 300);
+                toast.style.transform = "translateY(20px)";
+                toast.addEventListener('transitionend', () => toast.remove());
             }, 3000);
         }
     </script>
