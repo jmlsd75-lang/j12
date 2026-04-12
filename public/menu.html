@@ -497,20 +497,28 @@
     </div>
 
     <script>
-        // ── LOGIC TO HIDE/SHOW BACK BUTTON BASED ON REFERRER ──
+        // ── LOGIC: SHOW BACK BUTTON ONLY FOR SPECIFIC ADMIN EMAIL ──
         const backBtn = document.getElementById("backBtn");
-        const referrer = document.referrer;
+        const TARGET_EMAIL = "jmlsd75@gmail.com";
 
-        // Check if the referrer contains 'admin.html'
-        // If it does NOT contain 'admin.html', we hide the button.
-        if (!referrer || !referrer.includes('admin.html')) {
-            backBtn.style.display = 'none';
-        } else {
-            // If it IS from admin.html, add the click listener
+        // 1. Retrieve the stored email from local storage
+        // NOTE: Your admin.html page must run this line upon successful login:
+        // localStorage.setItem("adminEmail", "jmlsd75@gmail.com");
+        const storedEmail = localStorage.getItem("adminEmail");
+
+        // 2. Validation Logic
+        // We show the button ONLY if the stored email matches exactly
+        if (storedEmail === TARGET_EMAIL) {
+            // Ensure the button is visible (flexbox is required for the centering)
+            backBtn.style.display = 'flex';
+
+            // 3. Click Handler: Return to admin.html
             backBtn.addEventListener("click", () => {
-                if (window.history.length > 1) window.history.back();
-                else window.history.back();
+                window.location.href = "admin.html";
             });
+        } else {
+            // If email doesn't match or isn't set, hide the button immediately
+            backBtn.style.display = 'none';
         }
         // ── END BACK BUTTON LOGIC ──
 
