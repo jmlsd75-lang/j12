@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cash Book</title>
+  <style>
+    :root {
+      --primary: #4285F4;
+      --bg-body: #f4f6f9;
+      --bg-card: #ffffff;
+      --text-main: #2c3e50;
+      --text-muted: #7f8c8d;
+      --border-color: #e1e4e8;
+      --success: #27ae60; /* Dr Color */
+      --danger: #c0392b;  /* Cr Color */
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --row-height: 45px; /* Constant row height */
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header / Nav ── */
+    header {
+      background: var(--bg-card);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--text-main);
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: background 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .back-btn:hover { background-color: #f0f2f5; }
+    .back-btn svg { width: 20px; height: 20px; }
+
+    .user-info { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--text-muted); }
+    .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); }
+
+    /* ── Main Content ── */
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .page-title {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ── Cash Book Layout (Single Table) ── */
+    .cash-book-wrapper {
+      background: var(--bg-card);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+      overflow-x: auto; /* Handle small screens */
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      min-width: 800px; /* Ensure columns don't squish too much */
+    }
+
+    /* ── Header Rows ── */
+    th {
+      border-bottom: 1px solid var(--border-color);
+      padding: 0;
+    }
+
+    /* Top Headers (Debit / Credit) */
+    .main-header th {
+      padding: 12px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    
+    .main-header.dr-side { color: var(--success); border-right: 2px solid var(--border-color); }
+    .main-header.cr-side { color: var(--danger); }
+
+    /* Sub Headers (Date, Particulars, etc.) */
+    .sub-header th {
+      padding: 10px 12px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background-color: #fcfcfc;
+    }
+
+    /* Vertical Divider Line in Middle */
+    /* We apply a border-left to the first column of the Credit side (5th column effectively) */
+    .divider-col {
+      border-left: 2px solid var(--border-color) !important;
+    }
+
+    /* ── Table Cells ── */
+    td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #f0f0f0;
+      vertical-align: middle;
+      height: var(--row-height); /* Constant Height */
+    }
+
+    /* Vertical border for cells in the middle column */
+    td.divider-col {
+      border-left: 2px solid var(--border-color);
+    }
+
+    /* Column Widths */
+    .col-date { width: 15%; }
+    .col-detail { width: 35%; }
+    .col-folio { width: 10%; text-align: center; }
+    .col-amount { width: 15%; text-align: right; font-family: 'Courier New', monospace; font-weight: 600; }
+
+    /* ── Special Rows ── */
+    .row-balance { 
+      font-style: italic; 
+      color: var(--text-muted); 
+      background-color: #fafafa; 
+    }
+    
+    .row-total { 
+      background-color: #edf2f7; 
+      font-weight: 700; 
+      border-top: 2px solid #cbd5e0;
+      color: #2d3748;
+      height: 50px; /* Slightly taller for total */
+    }
+    
+    /* Remove bottom border for the very last row (Balance b/d usually) if desired, 
+       but keeping it is cleaner for separation. */
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+      display: none;
+    }
+    .empty-state.visible { display: block; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header { padding: 1rem; }
+      main { padding: 1rem; }
+      .page-title { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="menu.html" class="back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Menu
+    </a>
+    <div class="user-info" id="userInfoDisplay"></div>
+  </header>
+
+  <main>
+    <h1 class="page-title">Cash Book</h1>
+
+    <div class="empty-state" id="emptyState">
+      <p>No transactions found to generate Cash Book.</p>
+    </div>
+
+    <div class="cash-book-wrapper" id="cashBookWrapper">
+      <table>
+        <thead>
+          <!-- Main Headers -->
+          <tr class="main-header">
+            <th colspan="4" class="dr-side">Debit</th>
+            <th colspan="4" class="cr-side">Credit</th>
+          </tr>
+          <!-- Sub Headers -->
+          <tr class="sub-header">
+            <th class="col-date">Date</th>
+            <th class="col-detail">Particulars</th>
+            <th class="col-folio">Folio</th>
+            <th class="col-amount">Amount</th>
+            
+            <!-- Middle Column -->
+            <th class="col-date divider-col">Date</th>
+            <th class="col-detail divider-col">Particulars</th>
+            <th class="col-folio divider-col">Folio</th>
+            <th class="col-amount divider-col">Amount</th>
+          </tr>
+        </thead>
+        <tbody id="cashBookBody">
+          <!-- Rows will be injected here via JS -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Firebase Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+      authDomain: "my-project-66803-95cb3.firebaseapp.com",
+      projectId: "my-project-66803-95cb3",
+      storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+      messagingSenderId: "167159607898",
+      appId: "1:167159607898:web:23ca11366b88868b085e63"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const tableBody = document.getElementById('cashBookBody');
+    const emptyState = document.getElementById('emptyState');
+    const cashBookWrapper = document.getElementById('cashBookWrapper');
+    const userInfoDisplay = document.getElementById('userInfoDisplay');
+
+    // Helper: Format Currency
+    const formatCurrency = (amount) => {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TZS' }).format(amount);
+    };
+
+    // Helper: Get Today's Date string
+    const getTodayDate = () => {
+      return new Date().toISOString().split('T')[0];
+    };
+
+    // Auth Check
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+        return;
+      }
+
+      // Update Header User
+      const sessionData = localStorage.getItem("userSession");
+      if (sessionData) {
+        const parsed = JSON.parse(sessionData);
+        userInfoDisplay.innerHTML = `
+          <span>Hello, ${parsed.name || "User"}</span>
+          <img src="${parsed.photo || 'https://picsum.photos/seed/user/32/32'}" class="user-avatar">
+        `;
+      }
+
+      // REAL-TIME LISTENER
+      const transactionsRef = collection(db, "users", user.email, "transactions");
+      const q = query(transactionsRef, orderBy("date", "desc")); 
+
+      onSnapshot(q, (snapshot) => {
+        renderCashBook(snapshot.docs);
+      }, (error) => {
+        console.error("Error listening to changes:", error);
+      });
+    });
+
+    function renderCashBook(docs) {
+      tableBody.innerHTML = "";
+
+      if (docs.length === 0) {
+        emptyState.classList.add('visible');
+        cashBookWrapper.style.display = 'none';
+        return;
+      } else {
+        emptyState.classList.remove('visible');
+        cashBookWrapper.style.display = 'block';
+      }
+
+      let totalDr = 0;
+      let totalCr = 0;
+      
+      // Arrays to hold row objects
+      let drRows = [];
+      let crRows = [];
+
+      // Folio Logic
+      let folioCounter = 1;
+      const folioMap = {}; 
+      const getFolio = (detail) => {
+        const key = detail.toLowerCase().trim();
+        if (folioMap[key] !== undefined) {
+          return folioMap[key];
+        } else {
+          folioMap[key] = folioCounter++;
+          return folioMap[key];
+        }
+      };
+
+      const today = getTodayDate();
+
+      // 1. Process Transactions into separate arrays
+      docs.forEach((doc) => {
+        const data = doc.data();
+        const amount = parseFloat(data.amount || 0);
+        const type = (data.type || "IN").toUpperCase();
+        
+        let detail = data.detail || "-";
+        // Clean name from detail for the particulars column
+        const nameMatch = detail.match(/\(([^)]+)\)$/);
+        let particulars = detail;
+        if (nameMatch) {
+          particulars = detail.replace(/\s*\([^)]+\)$/, ""); 
+        }
+
+        const folio = getFolio(particulars);
+        const dateStr = data.date || today;
+
+        const rowObj = {
+          date: dateStr,
+          detail: particulars,
+          folio: folio,
+          amount: amount,
+          type: 'trans' // marker for normal transaction
+        };
+
+        if (type === 'IN') {
+          totalDr += amount;
+          drRows.push(rowObj);
+        } else {
+          totalCr += amount;
+          crRows.push(rowObj);
+        }
+      });
+
+      // 2. Calculate Difference & Insert "Balance c/d"
+      // Determine which side is smaller to add the balancing figure
+      let diff = Math.abs(totalDr - totalCr);
+      let balanceCdSide = null; // 'dr' or 'cr'
+
+      // c/d goes to the side with the SMALLER total to make them equal
+      if (totalDr > totalCr) {
+        // Dr is bigger, add to Cr
+        balanceCdSide = 'cr';
+        crRows.push({
+          date: today,
+          detail: "Balance",
+          folio: "c/d",
+          amount: diff,
+          type: 'bal_cd'
+        });
+        totalCr += diff;
+      } else if (totalCr > totalDr) {
+        // Cr is bigger, add to Dr
+        balanceCdSide = 'dr';
+        drRows.push({
+          date: today,
+          detail: "Balance",
+          folio: "c/d",
+          amount: diff,
+          type: 'bal_cd'
+        });
+        totalDr += diff;
+      }
+
+      // 3. Render Transaction Rows (with padding)
+      // We iterate up to the maximum length of the two arrays
+      const maxRows = Math.max(drRows.length, crRows.length);
+
+      for (let i = 0; i < maxRows; i++) {
+        let rowHTML = "<tr>";
+
+        // --- DEBIT SIDE CELLS ---
+        if (i < drRows.length) {
+          const r = drRows[i];
+          const isBal = (r.type === 'bal_cd');
+          const cellClass = isBal ? 'row-balance' : '';
+          rowHTML += `
+            <td class="${cellClass}">${r.date}</td>
+            <td class="${cellClass}">${r.detail}</td>
+            <td class="col-folio ${cellClass}">${r.folio}</td>
+            <td class="col-amount ${cellClass}">${formatCurrency(r.amount)}</td>
+          `;
+        } else {
+          // Empty Padding Cells
+          rowHTML += `<td></td><td></td><td></td><td></td>`;
+        }
+
+        // --- CREDIT SIDE CELLS ---
+        if (i < crRows.length) {
+          const r = crRows[i];
+          const isBal = (r.type === 'bal_cd');
+          const cellClass = isBal ? 'row-balance' : '';
+          // Add divider-col to the first cell of Credit side to maintain the vertical line
+          rowHTML += `
+            <td class="divider-col ${cellClass}">${r.date}</td>
+            <td class="divider-col ${cellClass}">${r.detail}</td>
+            <td class="col-folio divider-col ${cellClass}">${r.folio}</td>
+            <td class="col-amount divider-col ${cellClass}">${formatCurrency(r.amount)}</td>
+          `;
+        } else {
+          // Empty Padding Cells (with divider on first one)
+          rowHTML += `<td class="divider-col"></td><td class="divider-col"></td><td class="divider-col"></td><td class="divider-col"></td>`;
+        }
+
+        rowHTML += "</tr>";
+        tableBody.insertAdjacentHTML('beforeend', rowHTML);
+      }
+
+      // 4. Render Total Row (Always on one line)
+      const finalTotal = formatCurrency(totalDr); // totals are equal now
+      const totalRowHTML = `
+        <tr class="row-total">
+          <td></td>
+          <td>Total</td>
+          <td></td>
+          <td class="col-amount">${finalTotal}</td>
+          
+          <td class="divider-col"></td>
+          <td class="divider-col">Total</td>
+          <td class="divider-col"></td>
+          <td class="col-amount divider-col">${finalTotal}</td>
+        </tr>
+      `;
+      tableBody.insertAdjacentHTML('beforeend', totalRowHTML);
+
+      // 5. Render Balance b/d (Brought Down)
+      // Rule: Show after totals, on side OPPOSITE to c/d. 
+      // If c/d was on Credit, b/d is on Debit.
+      if (diff > 0) {
+        let bdSide = (balanceCdSide === 'cr') ? 'dr' : 'cr';
+        
+        let bdRowHTML = "<tr>";
+        
+        if (bdSide === 'dr') {
+          // b/d on Left
+          bdRowHTML += `
+            <td>${today}</td>
+            <td>Balance</td>
+            <td class="col-folio">b/d</td>
+            <td class="col-amount">${formatCurrency(diff)}</td>
+            <!-- Right side empty -->
+            <td class="divider-col"></td>
+            <td class="divider-col"></td>
+            <td class="divider-col"></td>
+            <td class="divider-col"></td>
+          `;
+        } else {
+          // b/d on Right
+          bdRowHTML += `
+            <!-- Left side empty -->
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <!-- Right side b/d -->
+            <td class="divider-col">${today}</td>
+            <td class="divider-col">Balance</td>
+            <td class="col-folio divider-col">b/d</td>
+            <td class="col-amount divider-col">${formatCurrency(diff)}</td>
+          `;
+        }
+        bdRowHTML += "</tr>";
+        tableBody.insertAdjacentHTML('beforeend', bdRowHTML);
+      }
+    }
+  </script>
+</body>
+</html>
