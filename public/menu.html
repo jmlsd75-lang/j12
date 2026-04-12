@@ -94,9 +94,6 @@
         }
         .back-btn:hover { background: rgba(40, 25, 10, 0.85); border-color: rgba(232, 160, 64, 0.6); transform: translateX(-3px); box-shadow: 0 6px 24px rgba(0,0,0,0.35); }
         .back-btn:active { transform: translateX(-1px); }
-        
-        /* Helper class to hide the button via JS */
-        .force-hidden { display: none !important; }
 
         .files-wrapper {
             position: fixed; top: 20px; right: 20px; z-index: 100;
@@ -497,31 +494,6 @@
     </div>
 
     <script>
-        // ── LOGIC: SHOW BACK BUTTON ONLY FOR SPECIFIC ADMIN EMAIL ──
-        const backBtn = document.getElementById("backBtn");
-        const TARGET_EMAIL = "jmlsd75@gmail.com";
-
-        // 1. Retrieve the stored email from local storage
-        // NOTE: Your admin.html page must run this line upon successful login:
-        // localStorage.setItem("adminEmail", "jmlsd75@gmail.com");
-        const storedEmail = localStorage.getItem("adminEmail");
-
-        // 2. Validation Logic
-        // We show the button ONLY if the stored email matches exactly
-        if (storedEmail === TARGET_EMAIL) {
-            // Ensure the button is visible (flexbox is required for the centering)
-            backBtn.style.display = 'flex';
-
-            // 3. Click Handler: Return to admin.html
-            backBtn.addEventListener("click", () => {
-                window.location.href = "admin.html";
-            });
-        } else {
-            // If email doesn't match or isn't set, hide the button immediately
-            backBtn.style.display = 'none';
-        }
-        // ── END BACK BUTTON LOGIC ──
-
         const filesBtn = document.getElementById("filesBtn");
         const filesDropdown = document.getElementById("filesDropdown");
         const dropdownOverlay = document.getElementById("dropdownOverlay");
@@ -557,6 +529,11 @@
                 scrollTicking = true;
             }
         }, { passive: true });
+
+        document.getElementById("backBtn").addEventListener("click", () => {
+            if (window.history.length > 1) window.history.back();
+            else window.history.back();
+        });
 
         /* Prevent dropdown from going off-screen on small devices */
         function adjustDropdownPosition() {
