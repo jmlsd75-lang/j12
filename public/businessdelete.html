@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
-        /* --- CSS Reset & Base Styles (Matches Edit Page) --- */
+        /* --- CSS Reset & Base Styles --- */
         :root {
             --primary: #4F46E5;
             --primary-hover: #4338CA;
@@ -307,7 +307,7 @@
         // 2. Fetch Transactions
         async function loadTransactions() {
             try {
-                // PATH: users/{email}/transactions (Matches Edit Page Structure)
+                // PATH: users/{email}/transactions
                 const q = collection(db, "users", userPath, "transactions");
                 const querySnapshot = await getDocs(q);
                 
@@ -346,10 +346,7 @@
                 // Parse Detail (Handle Credit Name)
                 let title = item.detail;
                 let method = item.method || 'CASH';
-                if (method === 'CREDIT' && title.includes('(')) {
-                   // Keep full detail for title, logic is just display
-                }
-
+                
                 row.innerHTML = `
                     <div class="checkbox-wrapper">
                         <div class="custom-checkbox"></div>
@@ -408,7 +405,7 @@
             renderList(); // Re-render to show visuals
         };
 
-        // 6. Bulk Delete Logic (Simultaneous)
+        // 6. Bulk Delete Logic
         bulkDeleteBtn.onclick = async () => {
             if (!confirm(`Are you sure you want to delete ${selectedIds.size} transaction(s)?`)) return;
 
@@ -426,18 +423,23 @@
 
                 await batch.commit();
 
-                // Remove deleted items from local state
+                // --- REQUESTED CHANGE ---
+                // Redirect to list.html after successful deletion
+                window.location.href = 'list.html';
+                // -------------------------
+
+                // The code below updates local state and re-renders the UI.
+                // This is kept for safety, though typically the redirect happens 
+                // immediately and this code won't execute visibly.
                 transactions = transactions.filter(t => !selectedIds.has(t.id));
                 selectedIds.clear();
-                
-                // Refresh UI
                 renderList();
 
             } catch (error) {
                 console.error("Batch delete error:", error);
                 alert("Could not delete some items.");
             } finally {
-                // Reset button (hidden via updateUI anyway)
+                // Reset button
                 bulkDeleteBtn.disabled = false;
                 bulkDeleteBtn.textContent = "Delete Selected";
             }
