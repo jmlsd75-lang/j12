@@ -6,7 +6,7 @@
   <title>General Journal</title>
   <style>
     /* ============================================================
-       CORE STYLES (Matches your existing design system)
+       CORE STYLES
        ============================================================ */
     :root {
       --primary: #4285F4;
@@ -17,9 +17,7 @@
       --text-muted: #7f8c8d;
       --border-color: #e1e4e8;
       --success: #27ae60;
-      --success-bg: #e8f5e9;
       --danger: #c0392b;
-      --danger-bg: #fdeaea;
       --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       --journal-line: 1px solid #eee;
@@ -99,7 +97,7 @@
 
     .table-container { width: 100%; overflow-x: auto; }
 
-    /* General Journal Table Specifics */
+    /* Table Specifics */
     table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 800px; }
 
     thead { background-color: #f8fafc; border-bottom: 2px solid var(--border-color); }
@@ -113,10 +111,14 @@
     td { padding: 14px 16px; border-bottom: var(--journal-line); vertical-align: top; }
     tr:last-child td { border-bottom: none; }
     
-    /* Specific Column Styling */
-    .col-date { width: 120px; color: var(--text-muted); white-space: nowrap; }
-    .col-particulars { width: 45%; } /* Description takes most space */
+    /* Column Styling */
+    .col-date { width: 140px; color: var(--text-muted); white-space: nowrap; }
+    .col-particulars { width: 45%; } 
+    
     .col-amount { width: 20%; text-align: right; font-family: 'Courier New', monospace; font-weight: 600; letter-spacing: -0.5px; }
+    
+    /* Indentation for Credit entries */
+    .indent { padding-left: 30px; color: #555; font-style: italic; }
     
     .col-footer-label { font-weight: 700; color: var(--text-main); text-align: right; padding-right: 20px; }
     .col-footer-amount { font-weight: 700; font-family: 'Courier New', monospace; font-size: 1.1rem; }
@@ -128,7 +130,7 @@
     }
     .empty-state.visible { display: flex; }
     
-    /* Toast Notifications */
+    /* Toast */
     #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
     .toast {
       background: #333; color: #fff; padding: 12px 24px; border-radius: 8px;
@@ -138,8 +140,6 @@
     .toast.show { opacity: 1; transform: translateY(0); }
     .toast.error { background: #e74c3c; }
 
-    /* Utility */
-    .text-right { text-align: right; }
     .badge { 
       display: inline-block; padding: 2px 8px; border-radius: 4px; 
       font-size: 0.7rem; background: #eee; color: #666; margin-bottom: 4px;
@@ -173,7 +173,6 @@
         <h1 class="page-title">General Journal</h1>
         <div class="subtitle">Adjustments, Corrections & Credit Expenses</div>
       </div>
-      <!-- Optional: Print Button for Journals -->
       <button onclick="window.print()" style="background:none; border:1px solid #ddd; padding:8px 12px; border-radius:6px; cursor:pointer; color:var(--text-muted);">
         <svg style="width:16px;height:16px;vertical-align:middle" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg>
       </button>
@@ -185,7 +184,7 @@
           <thead>
             <tr>
               <th class="col-date">Date</th>
-              <th class="col-particulars">Particulars (Description / Narration)</th>
+              <th class="col-particulars">Particulars</th>
               <th class="col-amount">Debit (TZS)</th>
               <th class="col-amount">Credit (TZS)</th>
             </tr>
@@ -253,7 +252,7 @@
     });
 
     // ============================================================
-    // AUTH CHECK & INITIALIZATION
+    // AUTH CHECK
     // ============================================================
     onAuthStateChanged(auth, (user) => {
       if (!user) {
@@ -261,7 +260,6 @@
         return;
       }
 
-      // Set User Info
       const sessionData = localStorage.getItem("userSession");
       if (sessionData) {
         const parsed = JSON.parse(sessionData);
@@ -276,18 +274,16 @@
         `;
       }
 
-      // Start Process
       fetchAndProcessJournal(user.email);
     });
 
     // ============================================================
-    // CORE LOGIC: CREATE GENERAL JOURNAL
+    // CORE LOGIC: DOUBLE ENTRY GENERATION
     // ============================================================
     async function fetchAndProcessJournal(userEmail) {
       try {
-        // 1. Identify all transactions
         const transactionsRef = collection(db, "users", userEmail, "transactions");
-        const q = query(transactionsRef, orderBy("date", "asc")); // Journals usually chronological
+        const q = query(transactionsRef, orderBy("date", "asc")); 
         const querySnapshot = await getDocs(q);
 
         let totalDebit = 0;
@@ -299,40 +295,47 @@
         querySnapshot.forEach((doc) => {
           const data = doc.data();
           
-          // 2. Apply Journal Classification Rules
-          if (!isGeneralJournalEntry(data)) {
-            return; // Skip: belongs to Cash Book, Sales Journal, or Purchases Journal
-          }
+          // Apply Filters
+          if (!isGeneralJournalEntry(data)) return;
 
-          // 3. Record in Double Entry Form
-          // We interpret 'IN' as Debit and 'OUT' as Credit for the purpose of this view
-          // assuming the transaction represents a non-monetary exchange or accrual.
+          // 1. Parse the Transaction Detail
+          // Logic: "Purchases (jamal)" -> Debit: Purchases, Credit: jamal
+          const parsed = parseDoubleEntry(data.detail || "");
           const amount = parseFloat(data.amount || 0);
-          const isDebit = (data.type || "IN").toUpperCase() === "IN";
-          
-          if (isDebit) totalDebit += amount;
-          else totalCredit += amount;
+          const dateStr = data.date || "N/A";
 
-          hasEntries = true;
-
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td class="col-date">${data.date || "N/A"}</td>
+          // 2. Create Row 1: The DEBIT
+          const row1 = document.createElement('tr');
+          row1.innerHTML = `
+            <td class="col-date">${dateStr}</td>
             <td class="col-particulars">
               <span class="badge">${data.category || 'General'}</span>
-              <div>${data.detail || "No description provided"}</div>
+              <div><strong>${parsed.debitAccount} A/C</strong> Dr.</div>
             </td>
-            <td class="col-amount" style="color: var(--text-main);">
-              ${isDebit ? tzFormatter.format(amount) : ''}
-            </td>
-            <td class="col-amount" style="color: var(--text-main);">
-              ${!isDebit ? tzFormatter.format(amount) : ''}
-            </td>
+            <td class="col-amount">${tzFormatter.format(amount)}</td>
+            <td class="col-amount"></td>
           `;
-          journalBody.appendChild(row);
+          journalBody.appendChild(row1);
+
+          // 3. Create Row 2: The CREDIT
+          const row2 = document.createElement('tr');
+          row2.innerHTML = `
+            <td class="col-date"></td>
+            <td class="col-particulars indent">
+              To ${parsed.creditAccount} A/C
+            </td>
+            <td class="col-amount"></td>
+            <td class="col-amount">${tzFormatter.format(amount)}</td>
+          `;
+          journalBody.appendChild(row2);
+
+          // Update Totals
+          totalDebit += amount;
+          totalCredit += amount;
+          hasEntries = true;
         });
 
-        // Handle UI State
+        // UI Updates
         if (!hasEntries) {
           emptyState.classList.add('visible');
           journalTable.style.display = 'none';
@@ -343,11 +346,6 @@
           
           document.getElementById('totalDebit').textContent = tzFormatter.format(totalDebit);
           document.getElementById('totalCredit').textContent = tzFormatter.format(totalCredit);
-
-          // Validation Check (Visual feedback if totals don't match due to data entry)
-          if (Math.abs(totalDebit - totalCredit) > 0.1) {
-            showToast("Warning: Debit and Credit totals do not match.", true);
-          }
         }
 
       } catch (error) {
@@ -357,51 +355,65 @@
     }
 
     /**
-     * FILTERING LOGIC (The "Idea Used to Create the General Journal")
-     * Returns FALSE if the transaction belongs to a Special Journal.
-     * Returns TRUE if it belongs in the General Journal.
+     * Parses a string like "Purchases (jamal)" into Debit/Credit accounts.
+     * Rule: Expense/Asset -> Debit. Person Owed -> Credit.
+     */
+    function parseDoubleEntry(detail) {
+      // Regex looks for "Text (Name)"
+      const match = detail.match(/(.+?)\s*\((.+?)\)$/);
+
+      if (match) {
+        return {
+          debitAccount: match[1].trim(), // e.g., "Purchases"
+          creditAccount: match[2].trim() // e.g., "jamal"
+        };
+      } else {
+        // Fallback if no parentheses found (e.g., "Opening Balance")
+        // Heuristic: Debit is the detail, Credit is a generic "Suspense" or "Capital"
+        return {
+          debitAccount: detail,
+          creditAccount: "General Creditor"
+        };
+      }
+    }
+
+    /**
+     * FILTERING LOGIC
      */
     function isGeneralJournalEntry(t) {
       const method = (t.method || "").toUpperCase();
       const detail = (t.detail || "").toLowerCase();
       const category = (t.category || "").toLowerCase();
 
-      // Rule 1: Cash or Bank transactions -> Cash Book
+      // Rule 1: Exclude Cash/Bank (Cash Book)
       if (method === "CASH" || method === "BANK" || method === "TRANSFER" || method === "MOBILE") {
         return false;
       }
 
-      // Rule 2: Credit Sales -> Sales Journal
-      // We check keywords in case explicit category is missing
-      if (category.includes("sale") || category.includes("revenue") || detail.includes("credit sale")) {
+      // Rule 2: Exclude Credit Sales (Sales Journal)
+      if (category.includes("sale") || category.includes("revenue")) {
         return false;
       }
 
-      // Rule 3: Credit Purchases -> Purchases Journal
-      if (category.includes("purchase") || category.includes("inventory") || detail.includes("credit purchase")) {
+      // Rule 3: Exclude explicit Credit Purchases ONLY if they are inventory (Purchases Journal)
+      // NOTE: Your example included "Purchases (jamal)" here, so we allow 'purchase' 
+      // IF it looks like a credit expense/personnel transaction.
+      // We will only exclude if it is explicitly marked as "Inventory" purchase.
+      if (category.includes("inventory") || category.includes("stock")) {
         return false;
       }
 
-      // Rule 4: Remaining transactions -> General Journal
-      // Includes: Credit expenses, Adjustments, Opening entries, Corrections, etc.
+      // Rule 4: Everything else (Adjustments, Corrections, Expenses) -> General Journal
       return true;
     }
 
-    // ============================================================
-    // UTILITIES
-    // ============================================================
     function showToast(message, isError = false) {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
       toast.className = `toast ${isError ? 'error' : ''}`;
       toast.textContent = message;
-      
       container.appendChild(toast);
-      
-      requestAnimationFrame(() => {
-        toast.classList.add('show');
-      });
-
+      requestAnimationFrame(() => toast.classList.add('show'));
       setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 300);
