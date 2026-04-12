@@ -54,6 +54,11 @@
       border-radius: 6px;
       transition: background 0.2s;
       border: 1px solid transparent;
+      /* Button Resets */
+      background: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: inherit;
     }
 
     .back-btn:hover { background-color: #f0f2f5; }
@@ -186,13 +191,18 @@
 <body>
 
   <header>
-    <a href="menu.html" class="back-btn">
+    <!-- 
+      Updated to a BUTTON.
+      Added onclick="window.location.href='business.html'" as a backup redirect.
+      Added ID "backBtn" for the JavaScript script listener.
+    -->
+    <button id="backBtn" class="back-btn" onclick="window.location.href='business.html'">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="19" y1="12" x2="5" y2="12"></line>
         <polyline points="12 19 5 12 12 5"></polyline>
       </svg>
-      Menu
-    </a>
+      Back
+    </button>
     <div class="user-info" id="userInfoDisplay"></div>
   </header>
 
@@ -484,6 +494,21 @@
         bdRowHTML += "</tr>";
         tableBody.insertAdjacentHTML('beforeend', bdRowHTML);
       }
+    }
+
+    // ── BACK BUTTON SCRIPT ──
+    // This script runs inside the module.
+    const backBtn = document.getElementById('backBtn');
+    if (backBtn) {
+      backBtn.addEventListener('click', (e) => {
+        // Prevent default if necessary (though button default is often harmless, good practice)
+        // e.preventDefault(); 
+        
+        console.log("Navigating back to business.html...");
+        
+        // Perform the redirect
+        window.location.href = 'business.html';
+      });
     }
   </script>
 </body>
