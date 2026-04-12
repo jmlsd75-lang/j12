@@ -1,1 +1,105 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Selection</title>
+    <style>
+        /* Page Layout Styles */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+
+        /* Back Button Styles (Top Left) */
+        .back-btn-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #555;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none; /* Removes underline if using anchor tag */
+        }
+
+        .back-btn:hover {
+            background-color: #333;
+        }
+
+        /* Button Container Styles */
+        .button-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* Category Button Styles */
+        .category-btn {
+            padding: 20px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 150px;
+        }
+
+        .category-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Specific Colors */
+        .btn-business { background-color: #3498db; } /* Blue */
+        .btn-health { background-color: #2ecc71; }   /* Green */
+        .btn-education { background-color: #e74c3c; } /* Red */
+    </style>
+</head>
+<body>
+
+    <!-- 3. Back Button at Top Left -->
+    <!-- Using an anchor tag with onclick to handle the redirect via JS or standard link -->
+    <div class="back-btn-container">
+        <button class="back-btn" onclick="goBack()">← Back</button>
+    </div>
+
+    <!-- 1. Show Business, Health, and Education as buttons -->
+    <div class="button-group">
+        <!-- 2. On click, redirect to respective page -->
+        <button class="category-btn btn-business" onclick="redirectTo('business.html')">Business</button>
+        <button class="category-btn btn-health" onclick="redirectTo('health.html')">Health</button>
+        <button class="category-btn btn-education" onclick="redirectTo('education.html')">Education</button>
+    </div>
+
+    <script>
+        // Function to handle category button clicks
+        function redirectTo(page) {
+            window.location.href = page;
+        }
+
+        // 4. When back button is clicked, redirect to menu.html
+        // (Note: This function effectively reloads the current page if this file is menu.html)
+        function goBack() {
+            window.location.href = 'menu.html';
+        }
+    </script>
+
+</body>
+</html>
