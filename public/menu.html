@@ -494,34 +494,6 @@
     </div>
 
     <script>
-        // ==========================================
-        // ADMIN BUTTON LOGIC
-        // ==========================================
-        
-        // 1. SET THE CURRENT USER EMAIL
-        // Replace the string below with the actual logged-in user's email.
-        // Example: const currentEmail = localStorage.getItem('userEmail');
-        // To test: Change "test@example.com" to "jmlsd75@gmail.com"
-        const currentEmail = "test@example.com"; 
-
-        const adminEmail = "jmlsd75@gmail.com";
-        const backBtn = document.getElementById("backBtn");
-
-        // 2. CHECK PERMISSION
-        if (currentEmail === adminEmail) {
-            // If email matches: Keep button visible (default behavior) and add redirect
-            backBtn.style.display = "flex";
-            
-            // Ensure the click event redirects to admin.html
-            backBtn.addEventListener("click", () => {
-                window.location.href = "admin.html";
-            });
-        } else {
-            // If email does NOT match: Hide the button completely
-            backBtn.style.display = "none";
-        }
-        // ==========================================
-
         const filesBtn = document.getElementById("filesBtn");
         const filesDropdown = document.getElementById("filesDropdown");
         const dropdownOverlay = document.getElementById("dropdownOverlay");
@@ -557,6 +529,11 @@
                 scrollTicking = true;
             }
         }, { passive: true });
+
+        document.getElementById("backBtn").addEventListener("click", () => {
+            if (window.history.length > 1) window.history.back();
+            else window.history.back();
+        });
 
         /* Prevent dropdown from going off-screen on small devices */
         function adjustDropdownPosition() {
