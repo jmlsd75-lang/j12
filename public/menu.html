@@ -422,7 +422,8 @@
         <div class="ground"></div>
     </div>
 
-    <button class="back-btn" id="backBtn" aria-label="Go back">&lt;</button>
+    <!-- Updated aria-label and title for accessibility and tooltips -->
+    <button class="back-btn" id="backBtn" aria-label="Back to Admin" title="Back to Admin">&lt;</button>
 
     <div class="files-wrapper">
         <button class="files-btn" id="filesBtn" aria-haspopup="true" aria-expanded="false">
@@ -530,9 +531,10 @@
             }
         }, { passive: true });
 
+        // === UPDATED BACK BUTTON LOGIC ===
         document.getElementById("backBtn").addEventListener("click", () => {
-            if (window.history.length > 1) window.history.back();
-            else window.history.back();
+            // Redirects specifically to admin.html
+            window.location.href = 'admin.html';
         });
 
         /* Prevent dropdown from going off-screen on small devices */
