@@ -438,7 +438,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
   <div class="success-title">PAYMENT VERIFIED</div>
   <div class="success-sub">All 6 checks passed successfully</div>
   <div class="success-amount" id="successAmount"></div>
-  <div class="success-redirect">Redirecting to menu.html ...</div>
+  <div class="success-redirect">Redirecting to men.html ...</div>
   <div class="success-bar"><div class="success-bar-fill"></div></div>
 </div>
 
@@ -729,7 +729,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
     document.getElementById("successOverlay").style.display = "flex";
     localStorage.setItem("sessionEnd", String(Date.now() + seconds * 1000));
     localStorage.setItem("sessionAmount", tzsDisplay);
-    setTimeout(() => { window.location.href = "menu.html"; }, 2800);
+    setTimeout(() => { window.location.href = "men.html"; }, 2800);
   }
 
   function showFail(reason, redirectMs) {
@@ -898,7 +898,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
   window.onload = () => {
     const endTime = parseInt(localStorage.getItem("sessionEnd"));
     if (endTime && Date.now() < endTime) {
-      window.location.href = "menu.html";
+      window.location.href = "men.html";
       return;
     }
     localStorage.removeItem("sessionEnd");
