@@ -862,7 +862,7 @@
                 <div class="timer-label">Free Session Time</div>
                 <div class="timer-display" id="freeTimer">00:03:00</div>
             </div>
-            <a href="menu.html" class="action-btn" id="menuBtn">Open Menu</a>
+            <a href="men.html" class="action-btn" id="menuBtn">Open Menu</a>
         </div>
 
         <div id="awaitPhase" class="hidden">
@@ -1055,10 +1055,10 @@
             setInterval(engineTick, TICK_INTERVAL);
         }
 
-        // ── Menu button opens menu.html in new window ──
+        // ── Menu button opens men.html in new window ──
         document.getElementById("menuBtn").addEventListener("click", function (e) {
             e.preventDefault();
-            window.menuWindow = window.open("menu.html", "_blank", "width=800,height=600");
+            window.menuWindow = window.open("men.html", "_blank", "width=800,height=600");
         });
 
         // ── Periodic localStorage sync ──
