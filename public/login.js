@@ -1,5 +1,5 @@
 // ============================================================
-// login.js — Fixed: Force Redirect after Login
+// login.js — Updated: Admin -> admin.html, User -> free.html
 // ============================================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -54,8 +54,14 @@ function isAdminUser(email) {
 }
 
 function getRedirectPath(email) {
-  // Returns the file name only
-  return isAdminUser(email) ? "admin.html" : "free.html";
+  // UPDATED LOGIC:
+  // If Admin -> Go to admin.html
+  // If Non-Admin -> Go to free.html
+  if (isAdminUser(email)) {
+    return "admin.html";
+  } else {
+    return "free.html";
+  }
 }
 
 // ── Firestore Sync ──
@@ -141,17 +147,21 @@ window.handleGoogleLogin = async function () {
     
     console.log("✅ Login successful. User:", user.email);
 
-    // 7. FORCE REDIRECT
-    // We construct a full URL to ensure the browser navigates away completely.
+    // 7. REDIRECT LOGIC
     const destination = getRedirectPath(user.email);
-    const nextUrl = window.location.origin + "/" + destination;
+    const currentPath = window.location.pathname;
 
-    console.log("🚀 Redirecting to:", nextUrl);
-    
-    // Use setTimeout to allow the UI to update briefly before the page unloads
-    setTimeout(() => {
-      window.location.replace(destination); 
-    }, 800);
+    // Loop Prevention: If we are somehow already on the correct page, reload to update state.
+    // Otherwise, navigate to the new page.
+    if (currentPath.includes(destination)) {
+      console.log("Already on destination page. Reloading...");
+      setTimeout(() => window.location.reload(), 800);
+    } else {
+      console.log("🚀 Redirecting to:", destination);
+      setTimeout(() => {
+        window.location.replace(destination); 
+      }, 800);
+    }
 
   } catch (error) {
     // Error Handling
@@ -180,15 +190,14 @@ window.handleLogout = async function () {
 
 // ── Auto-Login Check ──
 onAuthStateChanged(auth, async (user) => {
-  // HELPER: Check if we are currently on the login page (index.html)
-  // Adjust this check if your login page is named differently (e.g., login.html)
+  // Check if we are on the login page (index.html)
   const isLoginOrIndexPage = window.location.pathname.includes("index.html") || 
                              window.location.pathname.endsWith("/");
 
   if (user && isLoginOrIndexPage) {
     console.log("♻️ User already logged in. Verifying session...");
     
-    // Sync data if needed (same logic as login)
+    // Sync data if needed
     let sessionStr = localStorage.getItem("userSession");
     let session = sessionStr ? JSON.parse(sessionStr) : null;
 
@@ -201,12 +210,15 @@ onAuthStateChanged(auth, async (user) => {
        localStorage.setItem("userSession", JSON.stringify(session));
     }
 
-    // FORCE REDIRECT (Avoiding loops by checking isLoginOrIndexPage above)
+    // REDIRECT LOGIC
     const destination = getRedirectPath(user.email);
-    const nextUrl = window.location.origin + "/" + destination;
-    
-    console.log("🚀 Auto-redirecting to:", nextUrl);
-    window.location.replace(destination);
+    const currentPath = window.location.pathname;
+
+    // If we are on index.html, we definitely want to redirect to the correct dashboard
+    if (!currentPath.includes(destination)) {
+      console.log("🚀 Auto-redirecting to:", destination);
+      window.location.replace(destination);
+    }
   }
 });
 
