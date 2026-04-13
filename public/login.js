@@ -150,7 +150,7 @@ window.handleGoogleLogin = async function () {
     
     // Use setTimeout to allow the UI to update briefly before the page unloads
     setTimeout(() => {
-      window.location.replace(nextUrl); 
+      window.location.replace(destination); 
     }, 800);
 
   } catch (error) {
@@ -206,7 +206,7 @@ onAuthStateChanged(auth, async (user) => {
     const nextUrl = window.location.origin + "/" + destination;
     
     console.log("🚀 Auto-redirecting to:", nextUrl);
-    window.location.replace(nextUrl);
+    window.location.replace(destination);
   }
 });
 
