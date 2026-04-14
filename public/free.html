@@ -271,7 +271,7 @@
         let appMode = MODE_ACTIVE;
         
         // Timer variables
-        // UPDATED: Changed initial timer from 3 hours (10800s) to 3 minutes (180s)
+        // Initial timer set to 3 minutes (180 seconds)
         let activeTimeLeft = 3 * 60; 
         let awaitTimeLeft = 24 * 60 * 60; 
         let tabMultiplier = 1;
@@ -361,8 +361,7 @@
                 } else {
                     appMode = MODE_ACTIVE;
                     serverStartTime = data.activeStartTime || Date.now();
-                    // Check if old duration was 3 hours, if so, force update to 3 mins logic or just respect stored duration
-                    activeDurationAtStart = data.activeDuration || (3 * 60 * 1000); 
+                    activeDurationAtStart = data.activeDuration || (3 * 60 * 1000);
                     
                     const now = Date.now();
                     const elapsed = now - serverStartTime;
@@ -379,7 +378,7 @@
                 const initialData = {
                     mode: MODE_ACTIVE,
                     activeStartTime: Date.now(),
-                    activeDuration: 3 * 60 * 1000 // 3 minutes in ms
+                    activeDuration: 3 * 60 * 1000
                 };
                 await setDoc(userRef, initialData, { merge: true });
                 serverStartTime = initialData.activeStartTime;
@@ -391,7 +390,7 @@
         async function resetToActiveState(userRef) {
             console.log("Resetting to Active State");
             appMode = MODE_ACTIVE;
-            activeTimeLeft = 3 * 60; // 3 minutes
+            activeTimeLeft = 3 * 60;
             serverStartTime = Date.now();
             activeDurationAtStart = 3 * 60 * 1000;
 
@@ -518,12 +517,9 @@
             elPayBtn.addEventListener('click', () => {
                 window.location.href = 'pay.html';
             });
-            window.addEventListener('beforeunload', (e) => {
-                if (appMode === MODE_ACTIVE && activeTimeLeft > 0) {
-                    e.preventDefault();
-                    e.returnValue = '';
-                }
-            });
+            
+            // REMOVED: The beforeunload event listener that caused the warning.
+            // The page can now be closed or navigated away from without confirmation.
         }
     </script>
 </body>
