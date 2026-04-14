@@ -3,204 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard - Free Access</title>
+    <title>Free Session</title>
     <style>
         :root {
-            --primary: #4285F4;
-            --danger: #EA4335;
-            --success: #34A853;
-            --dark: #202124;
-            --light: #f8f9fa;
-            --gray: #5f6368;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-color: #3f51b5;
+            --error-color: #cf6679;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
-            background-color: var(--light);
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
             overflow: hidden;
-            text-align: center;
         }
 
-        /* Container */
-        .card {
-            background: white;
-            padding: 2rem;
+        .container {
+            background-color: var(--surface-color);
+            padding: 40px;
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            max-width: 400px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 500px;
             width: 90%;
-            transition: all 0.3s ease;
+            position: relative;
         }
 
         h1 {
-            font-size: 1.5rem;
-            color: var(--dark);
-            margin-bottom: 1.5rem;
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            font-weight: 500;
         }
 
-        /* Timer Display */
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
         .timer-display {
-            font-size: 2.5rem;
+            font-size: 64px;
             font-weight: 700;
             font-variant-numeric: tabular-nums;
-            color: var(--primary);
-            margin: 1rem 0;
+            margin: 20px 0;
+            letter-spacing: 2px;
         }
 
-        .timer-display.await {
-            color: var(--danger);
+        .timer-display.urgent {
+            color: var(--error-color);
+            animation: pulse 1s infinite;
         }
 
-        /* Buttons */
-        .btn {
+        .status-badge {
             display: inline-block;
+            padding: 6px 12px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 12px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        button {
             padding: 12px 24px;
-            font-size: 1rem;
-            font-weight: 600;
-            color: white;
-            background-color: var(--primary);
             border: none;
             border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            text-decoration: none;
-            transition: background 0.2s, transform 0.1s;
-            margin-top: 1rem;
+            transition: all 0.2s ease;
         }
 
-        .btn:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-        }
-
-        .btn:active {
-            transform: translateY(0);
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
         }
 
         .btn-pay {
-            background-color: var(--success);
-            margin-left: 10px;
+            background-color: #4caf50;
+            color: white;
         }
 
-        .btn:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-            transform: none;
+        .btn-pay:hover {
+            background-color: #43a047;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
         }
 
-        /* Status & Tab Counter */
-        .status-bar {
-            margin-top: 2rem;
-            font-size: 0.9rem;
-            color: var(--gray);
-            border-top: 1px solid #eee;
-            padding-top: 1rem;
+        .btn-await {
+            background-color: #9e9e9e;
+            color: #424242;
+            cursor: default; /* Unclickable */
         }
 
-        .tab-counter {
-            display: inline-flex;
-            align-items: center;
-            background: #e8f0fe;
-            color: var(--primary);
-            padding: 4px 12px;
-            border-radius: 16px;
-            font-weight: bold;
-            font-size: 0.8rem;
+        .tab-info {
+            margin-top: 20px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        .hidden {
+            display: none !important;
         }
 
         /* Loading Overlay */
-        .overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.9);
+        #loadingOverlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
-            flex-direction: column;
+            z-index: 10;
+            border-radius: 12px;
         }
-        
+
         .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary);
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255,255,255,0.3);
             border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 10px;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
         }
 
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
 
-        /* Utility */
-        .hidden { display: none !important; }
-
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- Loading Screen -->
-    <div id="loadingOverlay" class="overlay">
-        <div class="spinner"></div>
-        <p>Syncing System...</p>
+    <div class="container">
+        <div id="loadingOverlay" class="hidden">
+            <div class="spinner"></div>
+        </div>
+
+        <div class="status-badge" id="statusBadge">Active Session</div>
+        <h1 id="pageTitle">Time Remaining</h1>
+        
+        <!-- Main Countdown -->
+        <div id="mainTimerWrapper">
+            <div class="timer-display" id="mainTimer">03:00:00</div>
+            <p>Do not close this tab. Speed increases with more tabs.</p>
+            <div class="tab-info">Active Tabs Detected: <span id="tabCount">1</span></div>
+        </div>
+
+        <!-- Await State Wrapper -->
+        <div id="awaitTimerWrapper" class="hidden">
+            <div class="timer-display" id="awaitTimer">24:00:00</div>
+            <p>Access locked. Waiting for cooldown.</p>
+            <div class="controls">
+                <!-- Unclickable Await Button -->
+                <button class="btn-await" id="awaitBtn" disabled>Await</button>
+                <!-- Pay Button -->
+                <button class="btn-pay" id="payBtn">Pay</button>
+            </div>
+        </div>
     </div>
-
-    <!-- Main UI -->
-    <main class="card">
-        <h1 id="statusTitle">Access Available</h1>
-        
-        <!-- Countdown Timer Display -->
-        <div id="timerDisplay" class="timer-display">00:03:00</div>
-        
-        <!-- Step 2: Menu Button -->
-        <div id="menuContainer">
-            <button id="btnMenu" class="btn">Menu</button>
-        </div>
-
-        <!-- Step 4 & 5: Await / Pay Container (Hidden initially) -->
-        <div id="awaitContainer" class="hidden">
-            <button id="btnAwait" class="btn" disabled>Wait 24:00:00</button>
-            <button id="btnPay" class="btn btn-pay">Pay</button>
-        </div>
-
-        <!-- Step 6: Tab Counter & Speed Indicator -->
-        <div class="status-bar">
-            <div id="tabInfo" class="tab-counter">
-                Active Tabs: <span id="tabCount" style="margin-left:5px;">1</span>
-            </div>
-            <div style="margin-top: 8px; font-size: 0.8rem;">
-                Status: <span id="systemStatus">Active</span>
-            </div>
-        </div>
-    </main>
 
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { 
-            getAuth, 
-            onAuthStateChanged 
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { 
-            getFirestore, 
-            doc, 
-            getDoc, 
-            setDoc, 
-            updateDoc,
-            serverTimestamp 
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // ── Firebase Configuration (From user input) ──
+        // ── Firebase Configuration (From User Request) ──
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
             authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -215,292 +210,325 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // ── DOM Elements ──
-        const els = {
-            loading: document.getElementById('loadingOverlay'),
-            timerDisplay: document.getElementById('timerDisplay'),
-            menuContainer: document.getElementById('menuContainer'),
-            btnMenu: document.getElementById('btnMenu'),
-            awaitContainer: document.getElementById('awaitContainer'),
-            btnAwait: document.getElementById('btnAwait'),
-            btnPay: document.getElementById('btnPay'),
-            tabCount: document.getElementById('tabCount'),
-            statusTitle: document.getElementById('statusTitle'),
-            systemStatus: document.getElementById('systemStatus')
-        };
-
-        // ── State Variables ──
-        // Durations in seconds
-        const PHASE_1_DURATION = 3 * 60; // 03:00
-        const PHASE_2_DURATION = 24 * 60 * 60; // 24:00:00
+        // ── State Constants ──
+        const MODE_ACTIVE = 'ACTIVE';
+        const MODE_AWAIT = 'AWAIT';
+        const SESSION_ID_KEY = 'current_session_id';
+        const ACTIVE_TAB_COUNT_KEY = 'active_tab_count';
+        const TAB_ID = 'tab_' + Math.random().toString(36).substr(2, 9);
         
-        let userEmail = null;
-        let userId = null;
-        let currentState = 'active'; // 'active' or 'await'
-        let timerInterval = null;
-        let activeTabs = 1;
+        // ── DOM Elements ──
+        const elMainWrapper = document.getElementById('mainTimerWrapper');
+        const elAwaitWrapper = document.getElementById('awaitTimerWrapper');
+        const elMainTimer = document.getElementById('mainTimer');
+        const elAwaitTimer = document.getElementById('awaitTimer');
+        const elStatusBadge = document.getElementById('statusBadge');
+        const elTabCount = document.getElementById('tabCount');
+        const elPayBtn = document.getElementById('payBtn');
+        const elLoading = document.getElementById('loadingOverlay');
 
-        // ── Tab Detection (Step 6) ──
-        // We use a local heartbeat to detect other tabs.
-        const CHANNEL_NAME = 'tab_sync_channel';
-        const HEARTBEAT_KEY = 'free_heartbeat';
-        const CHECK_INTERVAL = 1000;
+        // ── App State ──
+        let currentUser = null;
+        let currentUserEmail = null;
+        let appMode = MODE_ACTIVE;
+        
+        // Timer variables
+        let activeTimeLeft = 3 * 60 * 60; // 3 hours in seconds
+        let awaitTimeLeft = 24 * 60 * 60; // 24 hours in seconds
+        let tabMultiplier = 1;
 
-        function startTabDetection() {
-            // Unique ID for this tab
-            const tabId = Date.now() + Math.random().toString(36).substr(2, 9);
+        // Timestamp from Firestore (ms)
+        let serverStartTime = 0; 
+        let activeDurationAtStart = 0;
+        let awaitStartTime = 0;
+        let awaitDurationAtStart = 0;
+
+        // Sync Interval (Firestore)
+        let syncInterval = null;
+
+        // ── Auth Check ──
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                // Not logged in, redirect to index
+                window.location.replace('index.html');
+                return;
+            }
+            currentUser = user;
+            currentUserEmail = user.email;
+            initApp();
+        });
+
+        // ── Initialization ──
+        async function initApp() {
+            showLoading(true);
+            try {
+                await loadStateFromFirestore();
+                setupTabTracking();
+                startTimers();
+                setupEventListeners();
+            } catch (error) {
+                console.error("Init Error:", error);
+                alert("Error loading session. Please refresh.");
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // ── Tab Tracking Logic (Requirement 2 & 4) ──
+        function setupTabTracking() {
+            // 1. Register this tab
+            localStorage.setItem(TAB_ID, Date.now());
             
-            // 1. Listen for storage events (cross-tab communication)
+            // 2. Clean up dead tabs (older than 5 seconds implies closed/refreshed)
+            const now = Date.now();
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('tab_')) {
+                    const val = parseInt(localStorage.getItem(key));
+                    if (now - val > 5000) {
+                        localStorage.removeItem(key);
+                    }
+                }
+            }
+
+            // 3. Count active tabs
+            updateTabCount();
+
+            // 4. Listen for storage events to update count from other tabs
             window.addEventListener('storage', (e) => {
-                if (e.key === HEARTBEAT_KEY) {
-                    countTabs();
+                if (e.key === TAB_ID || (e.key && e.key.startsWith('tab_'))) {
+                    updateTabCount();
                 }
             });
 
-            // 2. Heartbeat loop: update timestamp to say "I am alive"
-            const heartbeat = () => {
-                const data = JSON.parse(localStorage.getItem(HEARTBEAT_KEY) || '{}');
-                data[tabId] = Date.now();
-                // Clean up old tabs (older than 2 seconds)
-                const now = Date.now();
-                Object.keys(data).forEach(k => {
-                    if (now - data[k] > 2000) delete data[k];
-                });
-                localStorage.setItem(HEARTBEAT_KEY, JSON.stringify(data));
-                countTabs();
+            // 5. Heartbeat to keep this tab marked as alive
+            setInterval(() => {
+                localStorage.setItem(TAB_ID, Date.now());
+            }, 1000);
+        }
+
+        function updateTabCount() {
+            let count = 0;
+            for (let i = 0; i < localStorage.length; i++) {
+                if (localStorage.key(i).startsWith('tab_')) count++;
+            }
+            tabMultiplier = count > 0 ? count : 1;
+            elTabCount.textContent = tabMultiplier;
+        }
+
+        // ── Firestore State Management (Requirement 3 & 7) ──
+        async function loadStateFromFirestore() {
+            const userRef = doc(db, "users", currentUserEmail);
+            const docSnap = await getDoc(userRef);
+
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                
+                // Determine Mode
+                if (data.mode === MODE_AWAIT) {
+                    appMode = MODE_AWAIT;
+                    // Load Await State
+                    awaitStartTime = data.awaitStartTime || Date.now();
+                    awaitDurationAtStart = data.awaitDuration || (24 * 60 * 60 * 1000);
+                    
+                    // Calculate elapsed
+                    const now = Date.now();
+                    const elapsed = now - awaitStartTime;
+                    const remainingMs = awaitDurationAtStart - elapsed;
+
+                    if (remainingMs <= 0) {
+                        // Await finished, reset to Active
+                        await resetToActiveState(userRef);
+                    } else {
+                        awaitTimeLeft = Math.floor(remainingMs / 1000);
+                    }
+                } else {
+                    // Default to Active
+                    appMode = MODE_ACTIVE;
+                    serverStartTime = data.activeStartTime || Date.now();
+                    activeDurationAtStart = data.activeDuration || (3 * 60 * 60 * 1000);
+                    
+                    // Calculate elapsed
+                    const now = Date.now();
+                    const elapsed = now - serverStartTime;
+                    const remainingMs = activeDurationAtStart - elapsed;
+
+                    if (remainingMs <= 0) {
+                        // Time up, switch to Await
+                        await switchToAwaitState(userRef);
+                    } else {
+                        activeTimeLeft = Math.floor(remainingMs / 1000);
+                    }
+                }
+            } else {
+                // First time run (default Active)
+                const initialData = {
+                    mode: MODE_ACTIVE,
+                    activeStartTime: Date.now(),
+                    activeDuration: 3 * 60 * 60 * 1000
+                };
+                await setDoc(userRef, initialData, { merge: true });
+                serverStartTime = initialData.activeStartTime;
+                activeDurationAtStart = initialData.activeDuration;
+            }
+            
+            updateUI();
+        }
+
+        async function resetToActiveState(userRef) {
+            console.log("Resetting to Active State");
+            appMode = MODE_ACTIVE;
+            activeTimeLeft = 3 * 60 * 60;
+            serverStartTime = Date.now();
+            activeDurationAtStart = 3 * 60 * 60 * 1000;
+
+            const updateData = {
+                mode: MODE_ACTIVE,
+                activeStartTime: serverStartTime,
+                activeDuration: activeDurationAtStart,
+                awaitStartTime: null, // clear await data
+                awaitDuration: null
+            };
+            
+            // If userRef not passed, get it
+            if (!userRef) userRef = doc(db, "users", currentUserEmail);
+            await updateDoc(userRef, updateData);
+        }
+
+        async function switchToAwaitState(userRef) {
+            console.log("Switching to Await State");
+            appMode = MODE_AWAIT;
+            awaitTimeLeft = 24 * 60 * 60;
+            awaitStartTime = Date.now();
+            awaitDurationAtStart = 24 * 60 * 60 * 1000;
+
+            const updateData = {
+                mode: MODE_AWAIT,
+                awaitStartTime: awaitStartTime,
+                awaitDuration: awaitDurationAtStart,
+                activeStartTime: null, // clear active data
+                activeDuration: null
             };
 
-            heartbeat(); // Initial call
-            setInterval(heartbeat, CHECK_INTERVAL);
+            if (!userRef) userRef = doc(db, "users", currentUserEmail);
+            await updateDoc(userRef, updateData);
+
+            // Requirement 4: Close current page (simulated by redirect to self or await view)
+            // Since we can't `window.close()` a script-opened tab usually, we switch the view immediately.
+            updateUI();
         }
 
-        function countTabs() {
-            const data = JSON.parse(localStorage.getItem(HEARTBEAT_KEY) || '{}');
-            const count = Object.keys(data).length;
-            activeTabs = count;
-            els.tabCount.textContent = activeTabs;
-        }
+        // ── Timer Logic ──
+        function startTimers() {
+            let lastTick = Date.now();
 
-        // ── Logic: Phase 1 (Active / 3 Min) ──
-        let phase1EndTime = null;
-
-        function startPhase1(dbEndTime) {
-            currentState = 'active';
-            updateUIState();
-
-            // If DB has an end time, use it. Otherwise, set it to Now + 3 mins.
-            if (dbEndTime) {
-                phase1EndTime = dbEndTime;
-            } else {
-                phase1EndTime = Date.now() + (PHASE_1_DURATION * 1000);
-                // Sync to Firestore immediately
-                syncPhase1ToFirestore(phase1EndTime);
-            }
-
-            if (timerInterval) clearInterval(timerInterval);
-
-            // Timer Loop (Step 1 & 6)
-            timerInterval = setInterval(() => {
+            // Main Loop (runs every 100ms for smoothness)
+            const timerLoop = setInterval(() => {
                 const now = Date.now();
-                let remaining = Math.floor((phase1EndTime - now) / 1000);
+                const deltaMs = now - lastTick;
+                lastTick = now;
 
-                if (remaining <= 0) {
-                    // Phase 1 Complete -> Trigger Phase 2
-                    clearInterval(timerInterval);
-                    transitionToPhase2();
-                } else {
-                    // Step 6: Adjust speed based on tabs
-                    // We deduct (1 * activeTabs) seconds per second effectively?
-                    // No, the timer display is linear time. 
-                    // To make it "faster" with more tabs, we just let the logic run.
-                    // The "End Time" is fixed. The "Now" is fixed. 
-                    // The countdown naturally shows the same time left on ALL tabs.
-                    // However, the prompt says "adjust countdown speed so more tabs = faster reduction".
-                    // This implies the PROCESS stops faster. Since we use a fixed End Time,
-                    // syncing across tabs ensures all tabs see the same deadline.
-                    // If we strictly wanted N tabs to reduce it N times faster, we would need to update the 
-                    // End Time every second. That's expensive on Firestore. 
-                    // The prompt also says "Persist externally". 
-                    // Compromise: We treat the visual countdown as linear, but the logic checks the server.
-                    // To strictly follow "more tabs = faster countdown", we would decrement the Firestore End Time.
-                    // Let's implement the decrement logic for strict compliance.
+                if (appMode === MODE_ACTIVE) {
+                    // Requirement 2: Rate is n (number of tabs)
+                    // Calculate seconds to deduct: (realSecondsPassed * n)
+                    // We divide by 1000 to get seconds.
+                    const realSecondsPassed = deltaMs / 1000;
+                    const deductedSeconds = realSecondsPassed * tabMultiplier;
                     
-                    // Actually, to be safe and performant, let's keep the Fixed End Time approach.
-                    // It feels "faster" because if you open a new tab, you are adding a watcher, but you don't get extra time.
-                    // Wait, Step 6 says "adjust countdown speed". 
-                    // If I have 2 tabs, does the timer run 2x speed? 
-                    // If so, I must update the End Time in Firestore to be (Current - 1s) instead of (Current).
-                    
-                    els.timerDisplay.textContent = formatTime(remaining);
+                    activeTimeLeft -= deductedSeconds;
+
+                    if (activeTimeLeft <= 0) {
+                        activeTimeLeft = 0;
+                        updateDisplay(activeTimeLeft, elMainTimer);
+                        clearInterval(timerLoop); // Stop loop
+                        switchToAwaitState(); // Trigger Firestore update and UI change
+                    } else {
+                        updateDisplay(activeTimeLeft, elMainTimer);
+                    }
+                } else if (appMode === MODE_AWAIT) {
+                    // Requirement 6: Fixed rate of 1
+                    const realSecondsPassed = deltaMs / 1000;
+                    awaitTimeLeft -= realSecondsPassed;
+
+                    if (awaitTimeLeft <= 0) {
+                        awaitTimeLeft = 0;
+                        updateDisplay(awaitTimeLeft, elAwaitTimer);
+                        clearInterval(timerLoop);
+                        handleAwaitFinish();
+                    } else {
+                        updateDisplay(awaitTimeLeft, elAwaitTimer);
+                    }
                 }
-            }, 1000);
-            
-            // Initial set
-            els.timerDisplay.textContent = formatTime(Math.floor((phase1EndTime - Date.now()) / 1000));
+            }, 100);
         }
 
-        async function syncPhase1ToFirestore(endTime) {
-            if (!userEmail) return;
-            try {
-                const userRef = doc(db, "users", userEmail);
-                await setDoc(userRef, {
-                    phase1End: endTime,
-                    phase: 1
-                }, { merge: true });
-            } catch (e) {
-                console.error("Error syncing Phase 1:", e);
-            }
-        }
-
-        // ── Logic: Phase 2 (Await / 24 Hours) ──
-        let phase2EndTime = null;
-
-        function transitionToPhase2() {
-            // 1. Setup Phase 2
-            currentState = 'await';
-            phase2EndTime = Date.now() + (PHASE_2_DURATION * 1000);
-            
-            // 2. Stop processes from men.html (Simulated by menu button removal/hiding)
-            // We strictly enforce the UI change here.
-            
-            // 3. Persist State (Step 9)
-            syncPhase2ToFirestore(phase2EndTime);
-            
-            // 4. Start Countdown
-            startPhase2Loop(phase2EndTime);
-        }
-
-        async function syncPhase2ToFirestore(endTime) {
-            if (!userEmail) return;
-            try {
-                const userRef = doc(db, "users", userEmail);
-                await updateDoc(userRef, {
-                    phase2End: endTime,
-                    phase: 2
-                });
-            } catch (e) {
-                console.error("Error syncing Phase 2:", e);
-            }
-        }
-
-        function startPhase2Loop(dbEndTime) {
-            if (dbEndTime) phase2EndTime = dbEndTime;
-            updateUIState();
-
-            if (timerInterval) clearInterval(timerInterval);
-
-            // Step 7: "Must decrease at a fixed rate of 1 unit regardless of tabs".
-            // Standard countdown behavior.
-            timerInterval = setInterval(() => {
-                const now = Date.now();
-                const remaining = Math.floor((phase2EndTime - now) / 1000);
-
-                if (remaining <= 0) {
-                    clearInterval(timerInterval);
-                    els.timerDisplay.textContent = "00:00:00";
-                    els.btnAwait.textContent = "Time Served";
-                    els.btnPay.textContent = "Unlocked";
-                } else {
-                    els.timerDisplay.textContent = formatTime(remaining);
-                }
-            }, 1000);
+        function handleAwaitFinish() {
+            // Requirement 9: Grant access (restart Active countdown) when opened again
+            // Since we are already open, we can just trigger the reset immediately
+            const userRef = doc(db, "users", currentUserEmail);
+            resetToActiveState(userRef).then(() => {
+                startTimers(); // Restart loop with new state
+            });
         }
 
         // ── UI Updates ──
-        function updateUIState() {
-            if (currentState === 'active') {
-                els.statusTitle.textContent = "Session Active";
-                els.timerDisplay.classList.remove('await');
-                els.menuContainer.classList.remove('hidden');
-                els.awaitContainer.classList.add('hidden');
-                els.systemStatus.textContent = "Menu Accessible";
+        function updateDisplay(seconds, element) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            
+            const fH = h.toString().padStart(2, '0');
+            const fM = m.toString().padStart(2, '0');
+            const fS = s.toString().padStart(2, '0');
+
+            element.textContent = `${fH}:${fM}:${fS}`;
+
+            // Visual urgency for last minute
+            if (seconds < 60) {
+                element.classList.add('urgent');
             } else {
-                // Step 4 & 8: Menu hidden, Await active
-                els.statusTitle.textContent = "Lockdown Active";
-                els.timerDisplay.classList.add('await');
-                els.menuContainer.classList.add('hidden'); // Step 8
-                els.awaitContainer.classList.remove('hidden');
-                els.systemStatus.textContent = "Menu Disabled. Wait or Pay.";
+                element.classList.remove('urgent');
             }
         }
 
-        function formatTime(seconds) {
-            const h = Math.floor(seconds / 3600);
-            const m = Math.floor((seconds % 3600) / 60);
-            const s = seconds % 60;
-            return `${pad(h)}:${pad(m)}:${pad(s)}`;
+        function updateUI() {
+            if (appMode === MODE_ACTIVE) {
+                elMainWrapper.classList.remove('hidden');
+                elAwaitWrapper.classList.add('hidden');
+                elStatusBadge.textContent = "Active Session";
+                elStatusBadge.style.backgroundColor = "rgba(63, 81, 181, 0.3)";
+                elStatusBadge.style.color = "#8c9eff";
+                updateDisplay(activeTimeLeft, elMainTimer);
+            } else {
+                elMainWrapper.classList.add('hidden');
+                elAwaitWrapper.classList.remove('hidden');
+                elStatusBadge.textContent = "Locked - Awaiting";
+                elStatusBadge.style.backgroundColor = "rgba(207, 102, 121, 0.3)";
+                elStatusBadge.style.color = "#ff8a80";
+                updateDisplay(awaitTimeLeft, elAwaitTimer);
+            }
         }
 
-        function pad(num) {
-            return num.toString().padStart(2, '0');
+        function showLoading(show) {
+            if (show) elLoading.classList.remove('hidden');
+            else elLoading.classList.add('hidden');
         }
 
         // ── Event Listeners ──
-        
-        // Step 3: Menu Button Click
-        els.btnMenu.addEventListener('click', () => {
-            if (currentState === 'active') {
-                window.location.href = 'men.html';
-            }
-        });
+        function setupEventListeners() {
+            // Requirement 8: Pay Button
+            elPayBtn.addEventListener('click', () => {
+                window.location.href = 'pay.html';
+            });
 
-        // Step 5: Pay Button Click
-        els.btnPay.addEventListener('click', () => {
-            window.location.href = 'pay.html';
-        });
-
-        // ── Initialization & Auth ──
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                userEmail = user.email;
-                userId = user.uid;
-                
-                try {
-                    // Fetch user state from Firestore (Step 9)
-                    const userRef = doc(db, "users", userEmail);
-                    const docSnap = await getDoc(userRef);
-
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        const savedPhase = data.phase || 1;
-
-                        if (savedPhase === 2 && data.phase2End) {
-                            // Restore Phase 2
-                            console.log("Restoring Phase 2 from DB");
-                            // Check if 24h passed already while offline
-                            if (Date.now() > data.phase2End.toDate().getTime()) {
-                                // Time is up, but we keep logic simple
-                                startPhase2Loop(data.phase2End.toDate().getTime());
-                            } else {
-                                startPhase2Loop(data.phase2End.toDate().getTime());
-                            }
-                        } else {
-                            // Restore Phase 1
-                            console.log("Restoring Phase 1 from DB");
-                            const savedEnd = data.phase1End ? data.phase1End.toDate().getTime() : null;
-                            startPhase1(savedEnd);
-                        }
-                    } else {
-                        // New User / No Doc yet -> Start Phase 1
-                        console.log("No DB record, starting Phase 1");
-                        startPhase1(null);
-                    }
-                } catch (error) {
-                    console.error("Error loading user data:", error);
-                    // Fallback to Phase 1
-                    startPhase1(null);
+            // Prevent accidental closing
+            window.addEventListener('beforeunload', (e) => {
+                if (appMode === MODE_ACTIVE && activeTimeLeft > 0) {
+                    e.preventDefault();
+                    e.returnValue = ''; // Chrome requires returnValue to be set
                 }
-
-                els.loading.classList.add('hidden');
-            } else {
-                // Not logged in? Should redirect to index.html
-                window.location.replace('index.html');
-            }
-        });
-
-        // Start Tab Detection Logic
-        startTabDetection();
-
+            });
+        }
     </script>
 </body>
 </html>
