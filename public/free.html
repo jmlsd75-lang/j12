@@ -197,7 +197,7 @@
 <body>
 
     <!-- Menu Button -->
-    <a href="men.html" class="menu-btn">
+    <a href="men.html" class="menu-btn" id="menuBtn">
         <span class="menu-icon"></span> Menu
     </a>
 
@@ -264,6 +264,8 @@
         const elTabCount = document.getElementById('tabCount');
         const elPayBtn = document.getElementById('payBtn');
         const elLoading = document.getElementById('loadingOverlay');
+        // ADDED: Select the Menu Button
+        const elMenuBtn = document.getElementById('menuBtn');
 
         // ── App State ──
         let currentUser = null;
@@ -498,6 +500,9 @@
                 elStatusBadge.style.backgroundColor = "rgba(63, 81, 181, 0.3)";
                 elStatusBadge.style.color = "#8c9eff";
                 updateDisplay(activeTimeLeft, elMainTimer);
+                
+                // CHANGE: Show Menu Button when Active
+                elMenuBtn.classList.remove('hidden');
             } else {
                 elMainWrapper.classList.add('hidden');
                 elAwaitWrapper.classList.remove('hidden');
@@ -505,6 +510,9 @@
                 elStatusBadge.style.backgroundColor = "rgba(207, 102, 121, 0.3)";
                 elStatusBadge.style.color = "#ff8a80";
                 updateDisplay(awaitTimeLeft, elAwaitTimer);
+                
+                // CHANGE: Hide Menu Button when in Await Mode
+                elMenuBtn.classList.add('hidden');
             }
         }
 
@@ -517,9 +525,6 @@
             elPayBtn.addEventListener('click', () => {
                 window.location.href = 'pay.html';
             });
-            
-            // REMOVED: The beforeunload event listener that caused the warning.
-            // The page can now be closed or navigated away from without confirmation.
         }
     </script>
 </body>
