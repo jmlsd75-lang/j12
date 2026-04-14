@@ -29,6 +29,48 @@
             overflow: hidden;
         }
 
+        /* Menu Button */
+        .menu-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .menu-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .menu-icon {
+            display: inline-block;
+            width: 18px;
+            height: 2px;
+            background: white;
+            position: relative;
+        }
+        .menu-icon::before, .menu-icon::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 2px;
+            background: white;
+            left: 0;
+        }
+        .menu-icon::before { top: -6px; }
+        .menu-icon::after { top: 6px; }
+
         .container {
             background-color: var(--surface-color);
             padding: 40px;
@@ -38,6 +80,7 @@
             max-width: 500px;
             width: 90%;
             position: relative;
+            z-index: 1;
         }
 
         h1 {
@@ -113,7 +156,7 @@
         .btn-await {
             background-color: #9e9e9e;
             color: #424242;
-            cursor: default; /* Unclickable */
+            cursor: default;
         }
 
         .tab-info {
@@ -127,7 +170,6 @@
             display: none !important;
         }
 
-        /* Loading Overlay */
         #loadingOverlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -148,18 +190,16 @@
             animation: spin 1s ease-in-out infinite;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
+
+    <!-- Menu Button -->
+    <a href="men.html" class="menu-btn">
+        <span class="menu-icon"></span> Menu
+    </a>
 
     <div class="container">
         <div id="loadingOverlay" class="hidden">
@@ -171,7 +211,7 @@
         
         <!-- Main Countdown -->
         <div id="mainTimerWrapper">
-            <div class="timer-display" id="mainTimer">03:00:00</div>
+            <div class="timer-display" id="mainTimer">00:03:00</div>
             <p>Do not close this tab. Speed increases with more tabs.</p>
             <div class="tab-info">Active Tabs Detected: <span id="tabCount">1</span></div>
         </div>
@@ -181,9 +221,7 @@
             <div class="timer-display" id="awaitTimer">24:00:00</div>
             <p>Access locked. Waiting for cooldown.</p>
             <div class="controls">
-                <!-- Unclickable Await Button -->
                 <button class="btn-await" id="awaitBtn" disabled>Await</button>
-                <!-- Pay Button -->
                 <button class="btn-pay" id="payBtn">Pay</button>
             </div>
         </div>
@@ -195,7 +233,7 @@
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // ── Firebase Configuration (From User Request) ──
+        // ── Firebase Configuration ──
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
             authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -233,23 +271,19 @@
         let appMode = MODE_ACTIVE;
         
         // Timer variables
-        let activeTimeLeft = 3 * 60 * 60; // 3 hours in seconds
-        let awaitTimeLeft = 24 * 60 * 60; // 24 hours in seconds
+        // UPDATED: Changed initial timer from 3 hours (10800s) to 3 minutes (180s)
+        let activeTimeLeft = 3 * 60; 
+        let awaitTimeLeft = 24 * 60 * 60; 
         let tabMultiplier = 1;
 
-        // Timestamp from Firestore (ms)
         let serverStartTime = 0; 
         let activeDurationAtStart = 0;
         let awaitStartTime = 0;
         let awaitDurationAtStart = 0;
 
-        // Sync Interval (Firestore)
-        let syncInterval = null;
-
         // ── Auth Check ──
         onAuthStateChanged(auth, (user) => {
             if (!user) {
-                // Not logged in, redirect to index
                 window.location.replace('index.html');
                 return;
             }
@@ -274,12 +308,10 @@
             }
         }
 
-        // ── Tab Tracking Logic (Requirement 2 & 4) ──
+        // ── Tab Tracking Logic ──
         function setupTabTracking() {
-            // 1. Register this tab
             localStorage.setItem(TAB_ID, Date.now());
             
-            // 2. Clean up dead tabs (older than 5 seconds implies closed/refreshed)
             const now = Date.now();
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
@@ -290,21 +322,9 @@
                     }
                 }
             }
-
-            // 3. Count active tabs
             updateTabCount();
-
-            // 4. Listen for storage events to update count from other tabs
-            window.addEventListener('storage', (e) => {
-                if (e.key === TAB_ID || (e.key && e.key.startsWith('tab_'))) {
-                    updateTabCount();
-                }
-            });
-
-            // 5. Heartbeat to keep this tab marked as alive
-            setInterval(() => {
-                localStorage.setItem(TAB_ID, Date.now());
-            }, 1000);
+            window.addEventListener('storage', () => updateTabCount());
+            setInterval(() => localStorage.setItem(TAB_ID, Date.now()), 1000);
         }
 
         function updateTabCount() {
@@ -316,7 +336,7 @@
             elTabCount.textContent = tabMultiplier;
         }
 
-        // ── Firestore State Management (Requirement 3 & 7) ──
+        // ── Firestore State Management ──
         async function loadStateFromFirestore() {
             const userRef = doc(db, "users", currentUserEmail);
             const docSnap = await getDoc(userRef);
@@ -324,73 +344,65 @@
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 
-                // Determine Mode
                 if (data.mode === MODE_AWAIT) {
                     appMode = MODE_AWAIT;
-                    // Load Await State
                     awaitStartTime = data.awaitStartTime || Date.now();
                     awaitDurationAtStart = data.awaitDuration || (24 * 60 * 60 * 1000);
                     
-                    // Calculate elapsed
                     const now = Date.now();
                     const elapsed = now - awaitStartTime;
                     const remainingMs = awaitDurationAtStart - elapsed;
 
                     if (remainingMs <= 0) {
-                        // Await finished, reset to Active
                         await resetToActiveState(userRef);
                     } else {
                         awaitTimeLeft = Math.floor(remainingMs / 1000);
                     }
                 } else {
-                    // Default to Active
                     appMode = MODE_ACTIVE;
                     serverStartTime = data.activeStartTime || Date.now();
-                    activeDurationAtStart = data.activeDuration || (3 * 60 * 60 * 1000);
+                    // Check if old duration was 3 hours, if so, force update to 3 mins logic or just respect stored duration
+                    activeDurationAtStart = data.activeDuration || (3 * 60 * 1000); 
                     
-                    // Calculate elapsed
                     const now = Date.now();
                     const elapsed = now - serverStartTime;
                     const remainingMs = activeDurationAtStart - elapsed;
 
                     if (remainingMs <= 0) {
-                        // Time up, switch to Await
                         await switchToAwaitState(userRef);
                     } else {
                         activeTimeLeft = Math.floor(remainingMs / 1000);
                     }
                 }
             } else {
-                // First time run (default Active)
+                // First time: Set Active for 3 minutes
                 const initialData = {
                     mode: MODE_ACTIVE,
                     activeStartTime: Date.now(),
-                    activeDuration: 3 * 60 * 60 * 1000
+                    activeDuration: 3 * 60 * 1000 // 3 minutes in ms
                 };
                 await setDoc(userRef, initialData, { merge: true });
                 serverStartTime = initialData.activeStartTime;
                 activeDurationAtStart = initialData.activeDuration;
             }
-            
             updateUI();
         }
 
         async function resetToActiveState(userRef) {
             console.log("Resetting to Active State");
             appMode = MODE_ACTIVE;
-            activeTimeLeft = 3 * 60 * 60;
+            activeTimeLeft = 3 * 60; // 3 minutes
             serverStartTime = Date.now();
-            activeDurationAtStart = 3 * 60 * 60 * 1000;
+            activeDurationAtStart = 3 * 60 * 1000;
 
             const updateData = {
                 mode: MODE_ACTIVE,
                 activeStartTime: serverStartTime,
                 activeDuration: activeDurationAtStart,
-                awaitStartTime: null, // clear await data
+                awaitStartTime: null,
                 awaitDuration: null
             };
             
-            // If userRef not passed, get it
             if (!userRef) userRef = doc(db, "users", currentUserEmail);
             await updateDoc(userRef, updateData);
         }
@@ -406,32 +418,24 @@
                 mode: MODE_AWAIT,
                 awaitStartTime: awaitStartTime,
                 awaitDuration: awaitDurationAtStart,
-                activeStartTime: null, // clear active data
+                activeStartTime: null,
                 activeDuration: null
             };
 
             if (!userRef) userRef = doc(db, "users", currentUserEmail);
             await updateDoc(userRef, updateData);
-
-            // Requirement 4: Close current page (simulated by redirect to self or await view)
-            // Since we can't `window.close()` a script-opened tab usually, we switch the view immediately.
             updateUI();
         }
 
         // ── Timer Logic ──
         function startTimers() {
             let lastTick = Date.now();
-
-            // Main Loop (runs every 100ms for smoothness)
             const timerLoop = setInterval(() => {
                 const now = Date.now();
                 const deltaMs = now - lastTick;
                 lastTick = now;
 
                 if (appMode === MODE_ACTIVE) {
-                    // Requirement 2: Rate is n (number of tabs)
-                    // Calculate seconds to deduct: (realSecondsPassed * n)
-                    // We divide by 1000 to get seconds.
                     const realSecondsPassed = deltaMs / 1000;
                     const deductedSeconds = realSecondsPassed * tabMultiplier;
                     
@@ -440,13 +444,12 @@
                     if (activeTimeLeft <= 0) {
                         activeTimeLeft = 0;
                         updateDisplay(activeTimeLeft, elMainTimer);
-                        clearInterval(timerLoop); // Stop loop
-                        switchToAwaitState(); // Trigger Firestore update and UI change
+                        clearInterval(timerLoop);
+                        switchToAwaitState();
                     } else {
                         updateDisplay(activeTimeLeft, elMainTimer);
                     }
                 } else if (appMode === MODE_AWAIT) {
-                    // Requirement 6: Fixed rate of 1
                     const realSecondsPassed = deltaMs / 1000;
                     awaitTimeLeft -= realSecondsPassed;
 
@@ -463,11 +466,9 @@
         }
 
         function handleAwaitFinish() {
-            // Requirement 9: Grant access (restart Active countdown) when opened again
-            // Since we are already open, we can just trigger the reset immediately
             const userRef = doc(db, "users", currentUserEmail);
             resetToActiveState(userRef).then(() => {
-                startTimers(); // Restart loop with new state
+                startTimers();
             });
         }
 
@@ -483,7 +484,6 @@
 
             element.textContent = `${fH}:${fM}:${fS}`;
 
-            // Visual urgency for last minute
             if (seconds < 60) {
                 element.classList.add('urgent');
             } else {
@@ -514,18 +514,14 @@
             else elLoading.classList.add('hidden');
         }
 
-        // ── Event Listeners ──
         function setupEventListeners() {
-            // Requirement 8: Pay Button
             elPayBtn.addEventListener('click', () => {
                 window.location.href = 'pay.html';
             });
-
-            // Prevent accidental closing
             window.addEventListener('beforeunload', (e) => {
                 if (appMode === MODE_ACTIVE && activeTimeLeft > 0) {
                     e.preventDefault();
-                    e.returnValue = ''; // Chrome requires returnValue to be set
+                    e.returnValue = '';
                 }
             });
         }
