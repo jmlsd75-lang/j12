@@ -476,9 +476,6 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // Expose db and updateDoc to window if needed, or use them internally
-  // We will use them directly in the recordPayment function below.
-
   // ============================================================
   // PAYMENT LOGIC
   // ============================================================
@@ -498,7 +495,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
 
   const FOREIGN_CURRENCIES = [
     "USD","EUR","GBP","KES","UGX","RWF","BIF","ZAR","CNY","JPY",
-    "INR","AED","SAR","QAR","OMR","BHD","KWD","MAD","EGP","CDF"
+    "INR","AED","SAR","Qatar","OMR","BHD","KWD","MAD","EGP","CDF"
   ];
 
   const results = {
@@ -719,6 +716,10 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
     return Math.floor((amount / 500) * 3600);
   }
 
+  // ============================================================
+  // STRICT REDIRECT LOGIC
+  // ============================================================
+
   function showSuccess(amount, seconds) {
     const tzsDisplay = amount.toLocaleString() + " TZS";
     const hrs = Math.floor(seconds / 3600);
@@ -727,13 +728,19 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
     document.getElementById("successAmount").textContent =
       "Paid: " + tzsDisplay + "  •  Session: " + timeStr;
     document.getElementById("successOverlay").style.display = "flex";
+    
+    // Set local storage for session
     localStorage.setItem("sessionEnd", String(Date.now() + seconds * 1000));
     localStorage.setItem("sessionAmount", tzsDisplay);
-    setTimeout(() => { window.location.href = "men.html"; }, 2800);
+    
+    // STRICT REDIRECT TO men.html IF SUCCESSFUL
+    setTimeout(() => { 
+      window.location.href = "men.html"; 
+    }, 2500);
   }
 
   function showFail(reason, redirectMs) {
-    const ms = redirectMs || 3500;
+    const ms = redirectMs || 3000;
     document.getElementById("failReason").textContent = reason || "";
     const container = document.getElementById("failChecks");
     container.innerHTML = "";
@@ -745,7 +752,11 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
       container.appendChild(div);
     });
     document.getElementById("failOverlay").style.display = "flex";
-    setTimeout(() => { window.location.href = "free.html"; }, ms);
+    
+    // STRICT REDIRECT TO free.html IF FAILED
+    setTimeout(() => { 
+      window.location.href = "free.html"; 
+    }, ms);
   }
 
   /* ============================================================
@@ -799,6 +810,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
           failAllInstant();
           await delay(1500);
           loadingOverlay.style.display = "none";
+          // Redirect to free.html
           showFail("Uploaded image is not a valid receipt or QR code", 2000);
           return;
         }
@@ -823,6 +835,7 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
 
       if (!results.photoType.pass || !results.textExtract.pass) {
         loadingOverlay.style.display = "none";
+        // Redirect to free.html
         showFail("No readable receipt or QR code found in image", 2000);
         return;
       }
@@ -872,21 +885,25 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
           // --- FIRESTONE INTEGRATION END ---
           
           loadingOverlay.style.display = "none";
+          // Redirect to men.html
           showSuccess(amount, seconds);
         } else {
           results.currency.pass = false;
           results.currency.label = "Currency / Amount (TZS)";
           loadingOverlay.style.display = "none";
+          // Redirect to free.html
           showFail("Could not extract valid TZS amount", 2000);
         }
       } else {
         loadingOverlay.style.display = "none";
+        // Redirect to free.html
         showFail("Some checks did not pass", 2000);
       }
     } catch (error) {
       console.error("Verification error:", error);
       loadingOverlay.style.display = "none";
-      showFail("Error processing image", 2000);
+      // Redirect to free.html on ANY error
+      showFail("Error processing image: " + error.message, 2500);
     } finally {
       if (objectUrl) URL.revokeObjectURL(objectUrl);
       selectedFile = null;
@@ -897,10 +914,12 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0a0f;min-height:100vh
 
   window.onload = () => {
     const endTime = parseInt(localStorage.getItem("sessionEnd"));
+    // If already paid, go straight to men.html
     if (endTime && Date.now() < endTime) {
       window.location.href = "men.html";
       return;
     }
+    // If session expired or none, clear it
     localStorage.removeItem("sessionEnd");
     localStorage.removeItem("sessionAmount");
   };
