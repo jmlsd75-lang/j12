@@ -29,11 +29,21 @@
             overflow: hidden;
         }
 
-        /* Menu Button */
-        .menu-btn {
+        /* --- Top Buttons --- */
+        .top-nav {
             position: absolute;
             top: 20px;
-            right: 20px;
+            left: 0;
+            right: 0;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            box-sizing: border-box;
+        }
+
+        .btn-nav {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
@@ -41,18 +51,30 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
-            transition: background 0.2s;
-            z-index: 100;
+            transition: all 0.2s;
+            text-decoration: none;
             display: flex;
             align-items: center;
             gap: 8px;
-            text-decoration: none;
         }
 
-        .menu-btn:hover {
+        .btn-nav:hover {
             background: rgba(255, 255, 255, 0.2);
         }
 
+        /* Specific style for Logout to distinguish it */
+        .btn-logout {
+            border-color: rgba(207, 102, 121, 0.5);
+            color: #ff8a80;
+            background: rgba(207, 102, 121, 0.1);
+        }
+        
+        .btn-logout:hover {
+            background: rgba(207, 102, 121, 0.2);
+            border-color: #ff8a80;
+        }
+
+        /* Menu Icon CSS */
         .menu-icon {
             display: inline-block;
             width: 18px;
@@ -71,6 +93,7 @@
         .menu-icon::before { top: -6px; }
         .menu-icon::after { top: 6px; }
 
+        /* --- Main Container --- */
         .container {
             background-color: var(--surface-color);
             padding: 40px;
@@ -101,6 +124,7 @@
             font-variant-numeric: tabular-nums;
             margin: 20px 0;
             letter-spacing: 2px;
+            line-height: 1;
         }
 
         .timer-display.urgent {
@@ -170,6 +194,7 @@
             display: none !important;
         }
 
+        /* --- Loading Overlay --- */
         #loadingOverlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -190,16 +215,31 @@
             animation: spin 1s ease-in-out infinite;
         }
 
+        /* Animations */
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .timer-display { font-size: 48px; }
+            .container { padding: 25px; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- Menu Button -->
-    <a href="men.html" class="menu-btn" id="menuBtn">
-        <span class="menu-icon"></span> Menu
-    </a>
+    <!-- Top Navigation Bar -->
+    <div class="top-nav">
+        <!-- Logout Button (Left) -->
+        <button class="btn-nav btn-logout" id="logoutBtn">
+            Logout
+        </button>
+        
+        <!-- Menu Button (Right) -->
+        <a href="men.html" class="btn-nav" id="menuBtn">
+            <span class="menu-icon"></span> Menu
+        </a>
+    </div>
 
     <div class="container">
         <div id="loadingOverlay" class="hidden">
@@ -209,7 +249,7 @@
         <div class="status-badge" id="statusBadge">Active Session</div>
         <h1 id="pageTitle">Time Remaining</h1>
         
-        <!-- Main Countdown -->
+        <!-- Main Countdown Wrapper -->
         <div id="mainTimerWrapper">
             <div class="timer-display" id="mainTimer">00:03:00</div>
             <p>Do not close this tab. Speed increases with more tabs.</p>
@@ -229,11 +269,23 @@
 
     <!-- Firebase SDKs -->
     <script type="module">
+        // ── Imports ──
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged, 
+            signOut 
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            updateDoc, 
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // ── Firebase Configuration ──
+        // ── Firebase Configuration (From your login.js) ──
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
             authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -251,7 +303,6 @@
         // ── State Constants ──
         const MODE_ACTIVE = 'ACTIVE';
         const MODE_AWAIT = 'AWAIT';
-        const SESSION_ID_KEY = 'current_session_id';
         const ACTIVE_TAB_COUNT_KEY = 'active_tab_count';
         const TAB_ID = 'tab_' + Math.random().toString(36).substr(2, 9);
         
@@ -264,7 +315,7 @@
         const elTabCount = document.getElementById('tabCount');
         const elPayBtn = document.getElementById('payBtn');
         const elLoading = document.getElementById('loadingOverlay');
-        // ADDED: Select the Menu Button
+        const elLogoutBtn = document.getElementById('logoutBtn');
         const elMenuBtn = document.getElementById('menuBtn');
 
         // ── App State ──
@@ -273,19 +324,20 @@
         let appMode = MODE_ACTIVE;
         
         // Timer variables
-        // Initial timer set to 3 minutes (180 seconds)
-        let activeTimeLeft = 3 * 60; 
-        let awaitTimeLeft = 24 * 60 * 60; 
+        let activeTimeLeft = 3 * 60; // Seconds
+        let awaitTimeLeft = 24 * 60 * 60; // Seconds
         let tabMultiplier = 1;
 
+        // These will be populated from Firestore to ensure persistence across refreshes
         let serverStartTime = 0; 
-        let activeDurationAtStart = 0;
+        let activeDurationAtStart = 0; // Expected duration in ms
         let awaitStartTime = 0;
         let awaitDurationAtStart = 0;
 
         // ── Auth Check ──
         onAuthStateChanged(auth, (user) => {
             if (!user) {
+                // If not logged in, redirect to index immediately
                 window.location.replace('index.html');
                 return;
             }
@@ -298,9 +350,16 @@
         async function initApp() {
             showLoading(true);
             try {
+                // 1. Load persistent state from Firestore
                 await loadStateFromFirestore();
+                
+                // 2. Setup local tab tracking logic
                 setupTabTracking();
+                
+                // 3. Start the visual timers
                 startTimers();
+                
+                // 4. Attach interactions
                 setupEventListeners();
             } catch (error) {
                 console.error("Init Error:", error);
@@ -310,11 +369,24 @@
             }
         }
 
+        // ── Logout Handler ──
+        async function handleLogout() {
+            try {
+                await signOut(auth);
+                localStorage.removeItem("userSession"); // Clean up session storage if used
+                window.location.replace('index.html');
+            } catch (error) {
+                console.error("Logout Error:", error);
+            }
+        }
+
         // ── Tab Tracking Logic ──
         function setupTabTracking() {
+            // Set a heartbeat for this specific tab
             localStorage.setItem(TAB_ID, Date.now());
             
             const now = Date.now();
+            // Cleanup dead tabs (older than 5 seconds)
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 if (key.startsWith('tab_')) {
@@ -325,7 +397,11 @@
                 }
             }
             updateTabCount();
+            
+            // Listen for storage events (tabs opening/closing)
             window.addEventListener('storage', () => updateTabCount());
+            
+            // Heartbeat pulse
             setInterval(() => localStorage.setItem(TAB_ID, Date.now()), 1000);
         }
 
@@ -338,7 +414,7 @@
             elTabCount.textContent = tabMultiplier;
         }
 
-        // ── Firestore State Management ──
+        // ── Firestore State Management (Persistence Core) ──
         async function loadStateFromFirestore() {
             const userRef = doc(db, "users", currentUserEmail);
             const docSnap = await getDoc(userRef);
@@ -347,6 +423,7 @@
                 const data = docSnap.data();
                 
                 if (data.mode === MODE_AWAIT) {
+                    // --- AWAIT MODE LOGIC ---
                     appMode = MODE_AWAIT;
                     awaitStartTime = data.awaitStartTime || Date.now();
                     awaitDurationAtStart = data.awaitDuration || (24 * 60 * 60 * 1000);
@@ -361,7 +438,9 @@
                         awaitTimeLeft = Math.floor(remainingMs / 1000);
                     }
                 } else {
+                    // --- ACTIVE MODE LOGIC ---
                     appMode = MODE_ACTIVE;
+                    // Use Firestore timestamp for "No Refresh" guarantee
                     serverStartTime = data.activeStartTime || Date.now();
                     activeDurationAtStart = data.activeDuration || (3 * 60 * 1000);
                     
@@ -376,11 +455,11 @@
                     }
                 }
             } else {
-                // First time: Set Active for 3 minutes
+                // First time user: Create document with Active State
                 const initialData = {
                     mode: MODE_ACTIVE,
                     activeStartTime: Date.now(),
-                    activeDuration: 3 * 60 * 1000
+                    activeDuration: 3 * 60 * 1000 // 3 minutes in ms
                 };
                 await setDoc(userRef, initialData, { merge: true });
                 serverStartTime = initialData.activeStartTime;
@@ -392,7 +471,7 @@
         async function resetToActiveState(userRef) {
             console.log("Resetting to Active State");
             appMode = MODE_ACTIVE;
-            activeTimeLeft = 3 * 60;
+            activeTimeLeft = 3 * 60; // 3 minutes
             serverStartTime = Date.now();
             activeDurationAtStart = 3 * 60 * 1000;
 
@@ -411,7 +490,7 @@
         async function switchToAwaitState(userRef) {
             console.log("Switching to Await State");
             appMode = MODE_AWAIT;
-            awaitTimeLeft = 24 * 60 * 60;
+            awaitTimeLeft = 24 * 60 * 60; // 24 hours
             awaitStartTime = Date.now();
             awaitDurationAtStart = 24 * 60 * 60 * 1000;
 
@@ -437,6 +516,7 @@
                 lastTick = now;
 
                 if (appMode === MODE_ACTIVE) {
+                    // Calculate decrement based on real time passed * tab multiplier
                     const realSecondsPassed = deltaMs / 1000;
                     const deductedSeconds = realSecondsPassed * tabMultiplier;
                     
@@ -451,6 +531,7 @@
                         updateDisplay(activeTimeLeft, elMainTimer);
                     }
                 } else if (appMode === MODE_AWAIT) {
+                    // Await timer counts down in real time regardless of tabs
                     const realSecondsPassed = deltaMs / 1000;
                     awaitTimeLeft -= realSecondsPassed;
 
@@ -501,8 +582,9 @@
                 elStatusBadge.style.color = "#8c9eff";
                 updateDisplay(activeTimeLeft, elMainTimer);
                 
-                // CHANGE: Show Menu Button when Active
+                // Show Menu and Logout buttons
                 elMenuBtn.classList.remove('hidden');
+                elLogoutBtn.classList.remove('hidden');
             } else {
                 elMainWrapper.classList.add('hidden');
                 elAwaitWrapper.classList.remove('hidden');
@@ -511,8 +593,9 @@
                 elStatusBadge.style.color = "#ff8a80";
                 updateDisplay(awaitTimeLeft, elAwaitTimer);
                 
-                // CHANGE: Hide Menu Button when in Await Mode
+                // Hide Menu and Logout buttons (locked state)
                 elMenuBtn.classList.add('hidden');
+                elLogoutBtn.classList.add('hidden');
             }
         }
 
@@ -525,6 +608,8 @@
             elPayBtn.addEventListener('click', () => {
                 window.location.href = 'pay.html';
             });
+
+            elLogoutBtn.addEventListener('click', handleLogout);
         }
     </script>
 </body>
