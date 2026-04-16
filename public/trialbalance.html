@@ -11,7 +11,7 @@
       --bg-card: #ffffff;
       --text-main: #2c3e50;
       --text-muted: #7f8c8d;
-      --border-color: #000; /* Accounting standard is often black */
+      --border-color: #000;
       --header-bg: #e8e8e8;
       --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -106,7 +106,6 @@
       text-align: center;
     }
 
-    /* Column Widths */
     .col-s-n { width: 10%; text-align: center; }
     .col-detail { width: 50%; }
     .col-dr { width: 20%; text-align: right; font-family: 'Courier New', monospace; }
@@ -128,7 +127,6 @@
       font-style: italic;
     }
 
-    /* Status Toast */
     #status-msg {
       text-align: center;
       margin-bottom: 1rem;
@@ -221,7 +219,6 @@
         `;
       }
 
-      // Start Calculation
       calculateTrialBalance(user.email);
     });
 
@@ -246,7 +243,7 @@
           const data = doc.data();
           transactions.push({
             amount: parseFloat(data.amount || 0),
-            type: (data.type || "IN").toUpperCase(), // IN or OUT
+            type: (data.type || "IN").toUpperCase(), 
             detail: data.detail || "General",
             method: data.method || "Cash"
           });
@@ -256,9 +253,7 @@
         // LOGIC IMPLEMENTATION
         // ---------------------------------------------------------
 
-        // Step 1: Calculate Cash Book Balance (Opening Balance / Net Cash Position)
-        // Logic: Total Debit (IN) - Total Credit (OUT)
-        // We treat the RESULT as the "Cash" account balance.
+        // Step 1: Calculate Cash Book Balance
         let totalCashIn = 0;
         let totalCashOut = 0;
 
@@ -269,7 +264,6 @@
 
         // Net Cash Balance (Asset, so Debit)
         let cashBalance = totalCashIn - totalCashOut; 
-        // Note: If negative, it's a credit (Overdraft), but typically we display absolute on appropriate side.
 
         // Step 2: Process General Ledger Accounts
         const accounts = {};
@@ -286,7 +280,7 @@
             particularName = nameMatch[1].trim();
           } else {
             accountName = tx.detail.trim();
-            particularName = tx.method; // Cash/Bank
+            particularName = tx.method;
           }
 
           if (!accounts[accountName]) {
@@ -306,8 +300,6 @@
         let serialNumber = 1;
 
         // --- Entry 1: Cash Account ---
-        // S/N = 1, Detail = "Cash"
-        // Side depends on if cashBalance is positive (Dr) or negative (Cr)
         if (cashBalance !== 0) {
           trialBalanceEntries.push({
             sn: 1,
@@ -318,19 +310,17 @@
         }
 
         // --- Entries 2+: Other Accounts ---
-        // Loop through the accounts calculated in Step 2
         const accountNames = Object.keys(accounts).sort();
         
         accountNames.forEach(accName => {
           const accData = accounts[accName];
           const diff = accData.dr - accData.cr;
 
-          // Only include if there is a balance (diff != 0)
           if (diff !== 0) {
-            // S/N ++, Detail = "From [Account Name]"
+            // UPDATED LOGIC: Removed "From " prefix
             trialBalanceEntries.push({
-              sn: serialNumber + 1, // Starts at 2 because Cash was 1
-              detail: `From ${accName}`,
+              sn: serialNumber + 1, 
+              detail: accName, // Just the account name, no "From"
               dr: diff > 0 ? diff : 0,
               cr: diff < 0 ? Math.abs(diff) : 0
             });
