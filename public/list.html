@@ -272,16 +272,19 @@
           transactionsTable.style.display = 'table';
         }
 
-        // Calculate total documents to handle reverse numbering
-        const totalDocs = querySnapshot.size;
+        // 1. Get the total number of transactions
+        const totalCount = querySnapshot.size;
 
+        // 2. Iterate and calculate S/N
+        // Index 0 (Newest) -> Total - 0 (Highest Number)
+        // Index N (Oldest) -> Total - N (Lowest Number)
         querySnapshot.forEach((doc, index) => {
           const data = doc.data();
           const docId = doc.id;
-          
-          // Swap Logic: The first item (index 0) is the newest, so it gets the highest number
-          const serialNumber = totalDocs - index;
-          
+
+          // Swap Logic: Highest number at top, 1 at bottom
+          const serialNumber = totalCount - index;
+
           const row = document.createElement('tr');
           
           const dateStr = data.date || "N/A";
