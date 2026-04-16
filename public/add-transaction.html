@@ -5,346 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Transaction Entry</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, addDoc, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-        // 1. Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-            authDomain: "my-project-66803-95cb3.firebaseapp.com",
-            projectId: "my-project-66803-95cb3",
-            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-            messagingSenderId: "167159607898",
-            appId: "1:167159607898:web:23ca11366b88868b085e63"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-
-        // 2. State Management
-        const state = {
-            step: 1,
-            data: {
-                flowType: 'out',   // In or Out (passed from URL or default)
-                detail: 'Purchases', // Category name (passed from URL)
-                amount: 0,
-                flowForm: '',       // Cash, Credit, Bank, Financial Institution
-                extraName: '',      // Lender or Org Name
-                hasCharges: false,
-                chargesAmount: 0,
-                chargesGroupId: null // To link main transaction and charge transaction
-            }
-        };
-
-        const inputs = {
-            amount: document.getElementById('amountInput'),
-            creditName: document.getElementById('creditNameInput'),
-            orgName: document.getElementById('orgNameInput'),
-            chargesAmount: document.getElementById('chargesAmountInput')
-        };
-        const mainActionBtn = document.getElementById('mainActionBtn');
-        const headerTitle = document.getElementById('headerTitle');
-
-        // 3. Initialization & Routing
-        window.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const flow = urlParams.get('flow'); // 'in' or 'out'
-            const detail = urlParams.get('detail'); // Category Name
-            
-            if (flow && detail) {
-                state.data.flowType = flow;
-                state.data.detail = detail;
-            } else {
-                console.log("No URL params found, defaulting to Out/Purchases for testing.");
-            }
-            
-            goToStep(1);
-        });
-
-        function goToStep(stepNumber) {
-            // Hide current step
-            document.querySelector('.step-content.active')?.classList.remove('active');
-            
-            // Show next step
-            const next = document.getElementById(`step-${stepNumber}`);
-            if(next) {
-                next.classList.add('active');
-                state.step = stepNumber;
-                updateUI();
-                
-                // Auto-focus logic
-                if(stepNumber === 1) setTimeout(() => inputs.amount.focus(), 50);
-                if(stepNumber === 3) setTimeout(() => inputs.creditName.focus(), 50);
-                if(stepNumber === 4) setTimeout(() => inputs.orgName.focus(), 50);
-                if(stepNumber === '5b') setTimeout(() => inputs.chargesAmount.focus(), 50);
-            }
-        }
-
-        function updateUI() {
-            // Header Title
-            if(state.step === 6) headerTitle.innerText = "Confirm Details";
-            else if(state.step === 1) headerTitle.innerText = "Amount";
-            else if(state.step === '5b') headerTitle.innerText = "Charges Amount";
-            else headerTitle.innerText = state.data.detail || "Transaction";
-
-            // Show/Hide Main Save Button
-            if (state.step === 6) {
-                mainActionBtn.classList.remove('hidden');
-                mainActionBtn.textContent = "Save Transaction";
-                mainActionBtn.disabled = false;
-            } else {
-                mainActionBtn.classList.add('hidden');
-            }
-            renderHistory();
-        }
-
-        // 4. History Breadcrumbs
-        function createHistoryButton(label, value) {
-            return `<div class="trail-btn"><span class="trail-label">${label}</span> ${value}</div>`;
-        }
-
-        function renderHistory() {
-            const typePill = createHistoryButton('Type', state.data.detail);
-            const amountPill = state.data.amount ? createHistoryButton('Amount', state.data.amount) : '';
-            const formPill = state.data.flowForm ? createHistoryButton('Method', state.data.flowForm) : '';
-            let extraPill = '';
-
-            if(state.data.flowForm === 'Credit' && state.data.extraName) {
-                extraPill = createHistoryButton('Lender', state.data.extraName);
-            } else if ((state.data.flowForm === 'Bank' || state.data.flowForm === 'Financial Institution') && state.data.extraName) {
-                extraPill = createHistoryButton('Org', state.data.extraName);
-            }
-            
-            // Charges Logic for History
-            let chargesPill = '';
-            if (state.data.hasCharges && state.data.chargesAmount > 0) {
-                chargesPill = createHistoryButton('Fees', state.data.chargesAmount);
-            } else if (state.data.hasCharges === false && state.data.flowType === 'out' && (state.data.flowForm === 'Bank' || state.data.flowForm === 'Financial Institution')) {
-                chargesPill = createHistoryButton('Fees', 'None');
-            } else if (state.data.hasCharges === true) {
-                chargesPill = createHistoryButton('Fees', 'Pending');
-            }
-
-            // Populate specific step containers
-            if (state.step >= 1) document.getElementById('trail-1').innerHTML = typePill;
-            if (state.step >= 2) document.getElementById('trail-2').innerHTML = typePill + amountPill;
-            if (state.step >= 3) document.getElementById('trail-3').innerHTML = typePill + amountPill + formPill;
-            if (state.step >= 4) document.getElementById('trail-4').innerHTML = typePill + amountPill + formPill + extraPill;
-            if (state.step >= 5) document.getElementById('trail-5').innerHTML = typePill + amountPill + formPill + extraPill + chargesPill;
-            if (state.step === '5b') document.getElementById('trail-5b').innerHTML = typePill + amountPill + formPill + extraPill + chargesPill;
-            if (state.step === 6) document.getElementById('trail-6').innerHTML = typePill + amountPill + formPill + extraPill + chargesPill;
-        }
-
-        // 5. Event Handlers (Wired to HTML)
-
-        // Step 1: Amount
-        inputs.amount.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const val = parseFloat(inputs.amount.value);
-                if (!val || val <= 0) return showToast("Please enter a valid amount greater than 0.");
-                state.data.amount = val.toFixed(2);
-                goToStep(2);
-            }
-        });
-
-        // Step 2: Payment Method Selection
-        window.selectForm = function(form, btnEl) {
-            state.data.flowForm = form;
-            state.data.extraName = ''; 
-            
-            const container = document.getElementById('step-2');
-            container.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
-            btnEl.classList.add('selected');
-
-            setTimeout(() => {
-                if (form === 'Credit') {
-                    goToStep(3); // Ask for Credit Name
-                } else if (form === 'Bank' || form === 'Financial Institution') {
-                    goToStep(4); // Ask for Org Name
-                } else {
-                    // Cash: Skip Name and Charges steps
-                    goToStep(6); 
-                }
-            }, 150);
-        };
-
-        // Step 3: Credit Name Input
-        inputs.creditName.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const val = inputs.creditName.value.trim();
-                if (!val) return showToast("Please enter a name.");
-                state.data.extraName = val;
-
-                // Requirement 2 Logic: 
-                // Credit is generally an external source, so we typically don't ask for "Bank Charges" here.
-                // Go straight to Confirmation.
-                goToStep(6);
-            }
-        });
-
-        // Step 4: Organization Name (Bank / Fin Inst)
-        inputs.orgName.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const val = inputs.orgName.value.trim();
-                if (!val) return showToast("Please enter the organization name.");
-                state.data.extraName = val;
-
-                // Requirement 2 Logic: 
-                // If flow is OUT and (Bank or Financial Institution), ASK ABOUT CHARGES
-                if(state.data.flowType === 'out') {
-                    goToStep(5);
-                } else {
-                    // It is an IN flow, go to confirmation
-                    goToStep(6);
-                }
-            }
-        });
-
-        // Step 5: Charges Selection (With / Without)
-        window.selectCharges = function(type, btnEl) {
-            const container = document.getElementById('step-5');
-            container.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
-            btnEl.classList.add('selected');
-
-            if (type === 'with') {
-                state.data.hasCharges = true;
-                // Go to Step 5b to enter specific amount
-                setTimeout(() => goToStep('5b'), 150);
-            } else {
-                state.data.hasCharges = false;
-                state.data.chargesAmount = 0;
-                // Go straight to confirmation
-                setTimeout(() => goToStep(6), 150);
-            }
-        };
-
-        // Step 5b: Enter Charges Amount
-        inputs.chargesAmount.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const val = parseFloat(inputs.chargesAmount.value);
-                if (!val || val <= 0) return showToast("Please enter a valid charge amount.");
-                state.data.chargesAmount = val.toFixed(2);
-                goToStep(6);
-            }
-        });
-
-        // 6. Save Logic (Requirement 3)
-        let isSaving = false;
-        window.saveTransaction = async function() {
-            if (isSaving) return;
-            isSaving = true;
-            mainActionBtn.disabled = true;
-            mainActionBtn.textContent = "Saving...";
-
-            const user = auth.currentUser;
-            if (!user) {
-                showToast("Session expired. Redirecting to login...");
-                setTimeout(() => window.location.href = 'index.html', 1500);
-                return;
-            }
-
-            // Generate ID to link main transaction and charge transaction
-            state.data.chargesGroupId = Date.now();
-            const nowString = new Date().toLocaleString();
-
-            // Prepare Main Transaction Data
-            let finalDetail = state.data.detail;
-            
-            // Add lender/org name to detail for clarity
-            if (state.data.flowForm === 'Credit' && state.data.extraName) {
-                finalDetail += ` (${state.data.extraName})`;
-            } else if ((state.data.flowForm === 'Bank' || state.data.flowForm === 'Financial Institution') && state.data.extraName) {
-                finalDetail += ` (${state.data.extraName})`;
-            }
-
-            const mainTransaction = {
-                date: nowString,
-                detail: finalDetail,
-                type: state.data.flowType,       
-                displayType: state.data.detail,  
-                method: state.data.flowForm.toUpperCase(), 
-                amount: Number(state.data.amount),
-                chargesGroupId: state.data.chargesGroupId,
-                isCharge: false,
-                createdAt: Date.now()
-            };
-
-            let chargeTransaction = null;
-            
-            // Requirement 3: Logic to add the charge transaction
-            // Only if: Flow is OUT AND User selected "With Charges" AND Amount > 0
-            if (state.data.flowType === 'out' && state.data.hasCharges && Number(state.data.chargesAmount) > 0) {
-                
-                // Spec: detail = "Charges", flowType = 'out', flowForm = Bank Name (which maps to extraName or flowForm), amount = charges amount
-                // We use 'extraName' for the "Bank Name" field in the requirements.
-                const bankName = state.data.extraName || state.data.flowForm; 
-
-                chargeTransaction = {
-                    date: nowString, // Same date as transaction
-                    detail: "charges", // Spec: "charges" (lowercase in prompt, but titleized usually better, sticking to prompt implication)
-                    type: 'out',       // Spec: out
-                    displayType: "charges", 
-                    method: bankName, // Spec: Bank Name (mapped to method field here as per flowForm structure)
-                    amount: Number(state.data.chargesAmount),
-                    chargesGroupId: state.data.chargesGroupId,
-                    isCharge: true,
-                    createdAt: Date.now() + 1 // Ensure it appears slightly after in lists sorted by time
-                };
-            }
-
-            try {
-                // 1. Save Main Transaction
-                await addDoc(collection(db, "users", user.email, "transactions"), mainTransaction);
-
-                // 2. Save Charges Transaction if it exists
-                if (chargeTransaction) {
-                    await addDoc(collection(db, "users", user.email, "transactions"), chargeTransaction);
-                }
-
-                // 3. Update User Space Used (Optional: increments count)
-                const userRef = doc(db, "users", user.email);
-                const incrementVal = chargeTransaction ? 2 : 1;
-                await updateDoc(userRef, { spaceUsed: increment(incrementVal) });
-
-                console.log("Transaction(s) Saved Successfully");
-                goToStep(7);
-                setTimeout(() => { window.location.href = 'business.html'; }, 2000);
-
-            } catch (error) {
-                console.error("Error:", error);
-                showToast("Error saving: " + error.message);
-                isSaving = false;
-                mainActionBtn.disabled = false;
-                mainActionBtn.textContent = "Save";
-            }
-        };
-
-        window.goBack = function() {
-            window.location.href = 'business.html';
-        };
-
-        window.handleCancel = function() {
-            if(confirm("Cancel this transaction? Unsaved data will be lost.")) {
-                window.location.href = 'business.html';
-            }
-        };
-
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg; t.className = 'show';
-            setTimeout(() => t.className = t.className.replace('show', ''), 3000);
-        }
-
-        // Auth Listener
-        onAuthStateChanged(auth, (user) => {
-            if (!user) window.location.href = 'index.html';
-        });
-    </script>
 
     <style>
         /* --- Base Styles --- */
@@ -563,7 +223,7 @@
                 <div class="hint">Press <b>Enter</b> to continue</div>
             </section>
 
-            <!-- Step 4: Organization Name (Bank/Fin Inst) -->
+            <!-- Step 4: Organization Name -->
             <section id="step-4" class="step-content">
                 <div class="trail-container" id="trail-4"></div>
                 <label for="orgNameInput">Organization Name</label>
@@ -586,16 +246,8 @@
                     </div>
                 </div>
                 <div class="hint" style="margin-top: 20px;">
-                    Select "With Charges" to record bank fees separately.
+                    "With Charges" records a second transaction for fees.
                 </div>
-            </section>
-
-            <!-- Step 5b: Enter Charges Amount -->
-            <section id="step-5b" class="step-content">
-                <div class="trail-container" id="trail-5b"></div>
-                <label for="chargesAmountInput">Enter Charges Amount</label>
-                <input type="number" id="chargesAmountInput" placeholder="0.00" inputmode="decimal">
-                <div class="hint">Press <b>Enter</b> to continue</div>
             </section>
 
             <!-- Step 6: Confirmation -->
@@ -627,5 +279,288 @@
     </div>
 
     <div id="toast"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, addDoc, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        const state = {
+            step: 1,
+            data: {
+                flowType: '',      // 'in' or 'out'
+                detail: '',        // Category name
+                amount: 0,
+                flowForm: '',      // Cash, Credit, Bank, Financial Institution
+                extraName: '',     // Credit Lender OR Org Name
+                hasCharges: false, // true or false
+                chargesGroupId: null
+            }
+        };
+
+        const inputs = {
+            amount: document.getElementById('amountInput'),
+            creditName: document.getElementById('creditNameInput'),
+            orgName: document.getElementById('orgNameInput')
+        };
+        const mainActionBtn = document.getElementById('mainActionBtn');
+        const headerTitle = document.getElementById('headerTitle');
+
+        // --- Initialization: Read URL Params ---
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const flow = urlParams.get('flow');
+            const detail = urlParams.get('detail');
+            
+            if (flow && detail) {
+                state.data.flowType = flow;
+                state.data.detail = detail;
+                goToStep(1);
+            } else {
+                window.location.href = 'business.html';
+            }
+        });
+
+        function goToStep(stepNumber) {
+            document.querySelector('.step-content.active')?.classList.remove('active');
+            const next = document.getElementById(`step-${stepNumber}`);
+            if(next) {
+                next.classList.add('active');
+                state.step = stepNumber;
+                updateUI();
+                
+                if(stepNumber === 1) setTimeout(() => inputs.amount.focus(), 50);
+                if(stepNumber === 3) setTimeout(() => inputs.creditName.focus(), 50);
+                if(stepNumber === 4) setTimeout(() => inputs.orgName.focus(), 50);
+            }
+        }
+
+        function updateUI() {
+            if(state.step === 6) headerTitle.innerText = "Confirm Details";
+            else if(state.step === 1) headerTitle.innerText = "Amount";
+            else headerTitle.innerText = state.data.detail || "Transaction";
+
+            if (state.step === 6) {
+                mainActionBtn.classList.remove('hidden');
+                mainActionBtn.textContent = "Save Transaction";
+                mainActionBtn.disabled = false;
+            } else {
+                mainActionBtn.classList.add('hidden');
+            }
+            renderHistory();
+        }
+
+        function createHistoryButton(label, value) {
+            return `<div class="trail-btn"><span class="trail-label">${label}</span> ${value}</div>`;
+        }
+
+        function renderHistory() {
+            const typePill = createHistoryButton('Type', state.data.detail);
+            const amountPill = state.data.amount ? createHistoryButton('Amount', state.data.amount) : '';
+            const formPill = state.data.flowForm ? createHistoryButton('Method', state.data.flowForm) : '';
+            let extraPill = '';
+
+            if(state.data.flowForm === 'Credit' && state.data.extraName) {
+                extraPill = createHistoryButton('Lender', state.data.extraName);
+            } else if ((state.data.flowForm === 'Bank' || state.data.flowForm === 'Financial Institution') && state.data.extraName) {
+                extraPill = createHistoryButton('Org', state.data.extraName);
+            }
+            
+            const chargesPill = state.data.hasCharges ? createHistoryButton('Fees', 'Included') : '';
+
+            if (state.step >= 1) document.getElementById('trail-1').innerHTML = typePill;
+            if (state.step >= 2) document.getElementById('trail-2').innerHTML = typePill + amountPill;
+            if (state.step >= 3) document.getElementById('trail-3').innerHTML = typePill + amountPill + formPill;
+            if (state.step >= 4) document.getElementById('trail-4').innerHTML = typePill + amountPill + formPill + extraPill;
+            if (state.step >= 5) document.getElementById('trail-5').innerHTML = typePill + amountPill + formPill + extraPill + chargesPill;
+            if (state.step === 6) {
+                document.getElementById('trail-6').innerHTML = typePill + amountPill + formPill + extraPill + chargesPill;
+            }
+        }
+
+        // --- Event Handlers ---
+
+        inputs.amount.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const val = parseFloat(inputs.amount.value);
+                if (!val || val <= 0) return showToast("Please enter a valid amount greater than 0.");
+                state.data.amount = val.toFixed(2);
+                goToStep(2);
+            }
+        });
+
+        window.selectForm = function(form, btnEl) {
+            state.data.flowForm = form;
+            state.data.extraName = ''; 
+            
+            const container = document.getElementById('step-2');
+            container.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+            btnEl.classList.add('selected');
+
+            setTimeout(() => {
+                if (form === 'Credit') {
+                    goToStep(3);
+                } else if (form === 'Bank' || form === 'Financial Institution') {
+                    goToStep(4);
+                } else {
+                    // Logic Change: If Cash, skip charges step regardless of Flow Type
+                    goToStep(6);
+                }
+            }, 150);
+        };
+
+        inputs.creditName.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const val = inputs.creditName.value.trim();
+                if (!val) return showToast("Please enter a name.");
+                state.data.extraName = val;
+
+                // Logic Change: Only ask for charges if Flow is OUT
+                if(state.data.flowType === 'out') {
+                    goToStep(5);
+                } else {
+                    goToStep(6);
+                }
+            }
+        });
+
+        inputs.orgName.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const val = inputs.orgName.value.trim();
+                if (!val) return showToast("Please enter the organization name.");
+                state.data.extraName = val;
+
+                // Logic Change: Only ask for charges if Flow is OUT
+                if(state.data.flowType === 'out') {
+                    goToStep(5);
+                } else {
+                    goToStep(6);
+                }
+            }
+        });
+
+        window.selectCharges = function(type, btnEl) {
+            const container = document.getElementById('step-5');
+            container.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+            btnEl.classList.add('selected');
+
+            if (type === 'with') {
+                state.data.hasCharges = true;
+            } else {
+                state.data.hasCharges = false;
+            }
+            
+            setTimeout(() => goToStep(6), 150);
+        };
+
+        let isSaving = false;
+        window.saveTransaction = async function() {
+            if (isSaving) return;
+            isSaving = true;
+            mainActionBtn.disabled = true;
+            mainActionBtn.textContent = "Saving...";
+
+            const user = auth.currentUser;
+            if (!user) {
+                showToast("Session expired. Redirecting to login...");
+                setTimeout(() => window.location.href = 'index.html', 1500);
+                return;
+            }
+
+            state.data.chargesGroupId = Date.now();
+
+            let finalDetail = state.data.detail;
+            
+            if (state.data.flowForm === 'Credit' && state.data.extraName) {
+                finalDetail += ` (${state.data.extraName})`;
+            } else if ((state.data.flowForm === 'Bank' || state.data.flowForm === 'Financial Institution') && state.data.extraName) {
+                finalDetail += ` (${state.data.extraName})`;
+            }
+
+            const mainTransaction = {
+                date: new Date().toLocaleString(),
+                detail: finalDetail,
+                type: state.data.flowType,       
+                displayType: state.data.detail,  
+                method: state.data.flowForm.toUpperCase(), 
+                amount: Number(state.data.amount),
+                chargesGroupId: state.data.chargesGroupId,
+                isCharge: false,
+                createdAt: Date.now()
+            };
+
+            let chargeTransaction = null;
+            // Only record charges if it's an Outflow and the user selected "With Charges"
+            if (state.data.flowType === 'out' && state.data.hasCharges) {
+                chargeTransaction = {
+                    date: new Date().toLocaleString(),
+                    detail: "Bank Charges / Fees", // Shared Account Name
+                    type: 'out',       
+                    displayType: 'Expense',  
+                    method: state.data.flowForm.toUpperCase(), 
+                    amount: 0, 
+                    chargesGroupId: state.data.chargesGroupId,
+                    isCharge: true,
+                    createdAt: Date.now() + 1
+                };
+            }
+
+            try {
+                await addDoc(collection(db, "users", user.email, "transactions"), mainTransaction);
+
+                if (chargeTransaction) {
+                    await addDoc(collection(db, "users", user.email, "transactions"), chargeTransaction);
+                }
+
+                const userRef = doc(db, "users", user.email);
+                const incrementVal = chargeTransaction ? 2 : 1;
+                await updateDoc(userRef, { spaceUsed: increment(incrementVal) });
+
+                console.log("Transaction(s) Saved");
+                goToStep(7);
+                setTimeout(() => { window.location.href = 'business.html'; }, 2000);
+
+            } catch (error) {
+                console.error("Error:", error);
+                showToast("Error saving: " + error.message);
+                isSaving = false;
+                mainActionBtn.disabled = false;
+                mainActionBtn.textContent = "Save";
+            }
+        };
+
+        window.goBack = function() {
+            window.location.href = 'business.html';
+        };
+
+        window.handleCancel = function() {
+            if(confirm("Cancel this transaction? Unsaved data will be lost.")) {
+                window.location.href = 'business.html';
+            }
+        };
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.className = 'show';
+            setTimeout(() => t.className = t.className.replace('show', ''), 3000);
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) window.location.href = 'index.html';
+        });
+    </script>
 </body>
 </html>
