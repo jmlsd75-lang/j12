@@ -226,8 +226,10 @@
     // --- ROW BUILDERS ---
 
     const createRow = (op, detail, dr, cr, amt, isTotal = false) => {
-      const drStr = dr > 0 ? formatCurrency(dr) : '-';
-      const crStr = cr > 0 ? formatCurrency(cr) : '-';
+      // Modified logic: If value is 0, return empty string instead of '-'
+      const drStr = dr > 0 ? formatCurrency(dr) : "";
+      const crStr = cr > 0 ? formatCurrency(cr) : "";
+      
       const amtStr = amt !== null && amt !== undefined ? formatCurrency(amt) : '-';
       const cssClass = isTotal ? 'grand-total' : (amt !== null ? 'sub-total' : '');
       
