@@ -60,7 +60,7 @@
         main {
             flex: 1;
             padding: 20px;
-            max-width: 600px; /* Increased width slightly to allow 2 columns on larger screens */
+            max-width: 600px; 
             margin: 0 auto;
             width: 100%;
             display: flex;
@@ -262,20 +262,21 @@
                 </div>
                 <span class="btn-text">Purchases</span>
             </button>
+
+            <!-- Item: Transport -->
+            <button class="btn-cat theme-out" onclick="goToAdd('OUT', 'Transport')">
+                <div class="icon-box">
+                    <!-- Transport Icon (car) -->
+                    <svg viewBox="0 0 24 24">
+                        <path d="M3 13l2-6h14l2 6"></path>
+                        <circle cx="7" cy="18" r="2"></circle>
+                        <circle cx="17" cy="18" r="2"></circle>
+                        <path d="M5 13h14v5H5z"></path>
+                    </svg>
+                </div>
+                <span class="btn-text">Transport</span>
+            </button>
         </div>
-        <!-- Item: Transport -->
-<button class="btn-cat theme-out" onclick="goToAdd('OUT', 'Transport')">
-    <div class="icon-box">
-        <!-- Transport Icon (car) -->
-        <svg viewBox="0 0 24 24">
-            <path d="M3 13l2-6h14l2 6"></path>
-            <circle cx="7" cy="18" r="2"></circle>
-            <circle cx="17" cy="18" r="2"></circle>
-            <path d="M5 13h14v5H5z"></path>
-        </svg>
-    </div>
-    <span class="btn-text">Transport</span>
-</button>
 
     </main>
 
@@ -290,7 +291,7 @@
         function goToAdd(flow, detail) {
             // Redirect to add-transaction.html with query parameters
             // flow = 'IN' or 'OUT'
-            // detail = 'Capital', 'Purchases', etc.
+            // detail = 'Capital', 'Purchases', 'Transport', etc.
             const url = `add-transaction.html?flow=${encodeURIComponent(flow)}&detail=${encodeURIComponent(detail)}`;
             window.location.href = url;
         }
