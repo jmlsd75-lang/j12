@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Capital Injection</title>
+    <title>Transaction Type</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Distinct Color Palette */
-            --c1: #059669; /* Emerald Green */
+            /* Color Palette */
+            --c-in: #059669;   /* Emerald Green for Income */
+            --c-out: #E11D48;  /* Rose Red for Expenses/Out */
             
             --bg-color: #F3F4F6;
             --text-main: #1F2937;
@@ -59,11 +60,9 @@
         main {
             flex: 1;
             padding: 20px;
-            max-width: 1400px;
+            max-width: 600px; /* Increased width slightly to allow 2 columns on larger screens */
             margin: 0 auto;
             width: 100%;
-            
-            /* Flex centering to handle the single element gracefully */
             display: flex;
             flex-direction: column;
             align-items: center; 
@@ -77,12 +76,12 @@
             padding-bottom: 10px;
             border-bottom: 2px solid #E5E7EB;
             width: 100%;
-            max-width: 300px; /* Constrain width for the single item look */
+            max-width: 320px;
             justify-content: center;
         }
 
         .section-header h2 {
-            font-size: 1.1rem;
+            font-size: 1rem;
             margin: 0;
             color: #374151;
             text-transform: uppercase;
@@ -93,21 +92,24 @@
             display: inline-block;
             padding: 4px 10px;
             border-radius: 20px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 700;
             color: white;
             margin-right: 10px;
+            min-width: 30px;
+            text-align: center;
         }
         
-        .badge.in { background-color: var(--c1); }
+        .badge.in { background-color: var(--c-in); }
+        .badge.out { background-color: var(--c-out); }
 
-        /* Grid Layout - Adjusted for single item centering */
+        /* Grid Layout */
         .grid-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             gap: 16px;
             width: 100%;
-            max-width: 300px; /* Keeps the single button focused in the center */
+            max-width: 320px; /* Constrain width to keep buttons focused */
         }
 
         /* Button Styling */
@@ -127,7 +129,7 @@
             transition: transform 0.15s ease, box-shadow 0.15s ease;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             height: 100%;
-            min-height: 130px; /* Ensures buttons are chunky and clear */
+            min-height: 130px;
             width: 100%;
         }
 
@@ -163,16 +165,20 @@
             font-weight: 600;
             color: #374151;
             line-height: 1.3;
-            max-width: 100%;
-            word-wrap: break-word;
         }
 
-        /* --- COLOR THEME --- */
+        /* --- COLOR THEMES --- */
         
-        /* Theme 1: Emerald */
-        .theme-1 .icon-box { 
+        /* Theme 1: Income (Emerald) */
+        .theme-in .icon-box { 
             background: linear-gradient(135deg, #10B981 0%, #047857 100%); 
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); 
+        }
+
+        /* Theme 2: Expenses (Rose Red) */
+        .theme-out .icon-box { 
+            background: linear-gradient(135deg, #F43F5E 0%, #BE123C 100%); 
+            box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3); 
         }
 
         /* Icon SVG Styling */
@@ -227,14 +233,34 @@
             <h2>Income & Gains</h2>
         </div>
         <div class="grid-container">
-            <!-- Single Item: Capital -->
-            <button class="btn-cat theme-1" onclick="goToAdd('IN', 'Capital')">
+            <!-- Item: Capital -->
+            <button class="btn-cat theme-in" onclick="goToAdd('IN', 'Capital')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24">
                         <path d="M12 2v20M7 7h10M7 12h10M7 17h10"></path>
                     </svg>
                 </div>
                 <span class="btn-text">Capital</span>
+            </button>
+        </div>
+
+        <!-- EXPENSE SECTION -->
+        <div class="section-header">
+            <span class="badge out">OUT</span>
+            <h2>Expenses</h2>
+        </div>
+        <div class="grid-container">
+            <!-- Item: Purchases -->
+            <button class="btn-cat theme-out" onclick="goToAdd('OUT', 'Purchases')">
+                <div class="icon-box">
+                    <!-- Shopping Cart Icon -->
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                </div>
+                <span class="btn-text">Purchases</span>
             </button>
         </div>
 
@@ -250,6 +276,8 @@
     <script>
         function goToAdd(flow, detail) {
             // Redirect to add-transaction.html with query parameters
+            // flow = 'IN' or 'OUT'
+            // detail = 'Capital', 'Purchases', etc.
             const url = `add-transaction.html?flow=${encodeURIComponent(flow)}&detail=${encodeURIComponent(detail)}`;
             window.location.href = url;
         }
