@@ -52,6 +52,13 @@
             z-index: 100;
         }
 
+        /* Container for the Back Button and Brand to align them left */
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
         .brand {
             font-weight: 600;
             font-size: 1.1rem;
@@ -60,6 +67,27 @@
             align-items: center;
             gap: 0.5rem;
             text-decoration: none;
+        }
+
+        /* Back Button Styles */
+        .btn-back {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .btn-back:hover {
+            background-color: #f3f4f6;
+            color: var(--primary);
+            border-color: var(--border);
         }
 
         .user-menu {
@@ -265,6 +293,9 @@
             main { padding: 1rem; }
             .page-header { flex-direction: column; align-items: flex-start; }
             .user-info { display: none; }
+            .nav-left { gap: 0.5rem; }
+            .brand span { display: none; } /* Hide text on very small screens if needed, or keep */
+            .brand span { display: block; font-size: 1rem; } /* Keeping it but adjust spacing */
         }
     </style>
 </head>
@@ -272,10 +303,17 @@
 
     <!-- Header -->
     <header>
-        <a href="detail.html" class="brand">
-            <i class="fa-solid fa-cart-shopping"></i>
-            <span>Purchases Journal (Credit)</span>
-        </a>
+        <div class="nav-left">
+            <!-- Back Button added here -->
+            <button class="btn-back" onclick="window.location.href='business file.html'" aria-label="Go back">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+
+            <a href="detail.html" class="brand">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span>Purchases Journal</span>
+            </a>
+        </div>
 
         <div class="user-menu">
             <div class="user-info" id="userInfo">
