@@ -120,7 +120,6 @@
         .grid-options {
             display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;
         }
-        /* Specific grid for 3 or 4 items */
         .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
         .grid-2 { grid-template-columns: 1fr 1fr; }
 
@@ -209,7 +208,6 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-2a2 2 0 0 1 4 0v2"></path></svg>
                         Bank
                     </div>
-                    <!-- Added Financial Institution Button -->
                     <div class="option-btn" onclick="selectForm('Financial Institution', this)">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-2a2 2 0 0 1 4 0v2"></path><path d="M12 11h.01"></path></svg>
                         Fin. Inst.
@@ -217,7 +215,7 @@
                 </div>
             </section>
 
-            <!-- Step 3: Credit Name (Only for Credit) -->
+            <!-- Step 3: Credit Name -->
             <section id="step-3" class="step-content">
                 <div class="trail-container" id="trail-3"></div>
                 <label for="creditNameInput">Credit Name / Lender</label>
@@ -225,18 +223,18 @@
                 <div class="hint">Press <b>Enter</b> to continue</div>
             </section>
 
-            <!-- Step 4: Organization Name (Only for Bank/Fin Inst) -->
+            <!-- Step 4: Organization Name -->
             <section id="step-4" class="step-content">
                 <div class="trail-container" id="trail-4"></div>
                 <label for="orgNameInput">Organization Name</label>
-                <input type="text" id="orgNameInput" placeholder="e.g. Chase Bank, Local NGO" autocomplete="off">
+                <input type="text" id="orgNameInput" placeholder="e.g. Chase Bank" autocomplete="off">
                 <div class="hint">Press <b>Enter</b> to continue</div>
             </section>
 
             <!-- Step 5: Outgoing Logic (With/Without Charges) -->
             <section id="step-5" class="step-content">
                 <div class="trail-container" id="trail-5"></div>
-                <label>Transaction Type (Out)</label>
+                <label>Include Charges?</label>
                 <div class="grid-options grid-2">
                     <div class="option-btn" onclick="selectCharges('with', this)">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
@@ -248,7 +246,7 @@
                     </div>
                 </div>
                 <div class="hint" style="margin-top: 20px;">
-                    "With Charges" will record a second transaction for bank fees automatically.
+                    "With Charges" records a second transaction for fees.
                 </div>
             </section>
 
@@ -309,7 +307,7 @@
                 flowForm: '',      // Cash, Credit, Bank, Financial Institution
                 extraName: '',     // Credit Lender OR Org Name
                 hasCharges: false, // true or false
-                chargesGroupId: null // timestamp linking transactions
+                chargesGroupId: null
             }
         };
 
@@ -332,7 +330,6 @@
                 state.data.detail = detail;
                 goToStep(1);
             } else {
-                // Fallback if accessed directly
                 window.location.href = 'business.html';
             }
         });
@@ -345,7 +342,6 @@
                 state.step = stepNumber;
                 updateUI();
                 
-                // Auto focus logic
                 if(stepNumber === 1) setTimeout(() => inputs.amount.focus(), 50);
                 if(stepNumber === 3) setTimeout(() => inputs.creditName.focus(), 50);
                 if(stepNumber === 4) setTimeout(() => inputs.orgName.focus(), 50);
@@ -353,12 +349,10 @@
         }
 
         function updateUI() {
-            // Dynamic Header
             if(state.step === 6) headerTitle.innerText = "Confirm Details";
             else if(state.step === 1) headerTitle.innerText = "Amount";
             else headerTitle.innerText = state.data.detail || "Transaction";
 
-            // Show/Hide Save Button
             if (state.step === 6) {
                 mainActionBtn.classList.remove('hidden');
                 mainActionBtn.textContent = "Save Transaction";
@@ -379,7 +373,6 @@
             const formPill = state.data.flowForm ? createHistoryButton('Method', state.data.flowForm) : '';
             let extraPill = '';
 
-            // Determine label based on form type
             if(state.data.flowForm === 'Credit' && state.data.extraName) {
                 extraPill = createHistoryButton('Lender', state.data.extraName);
             } else if ((state.data.flowForm === 'Bank' || state.data.flowForm === 'Financial Institution') && state.data.extraName) {
@@ -388,7 +381,6 @@
             
             const chargesPill = state.data.hasCharges ? createHistoryButton('Fees', 'Included') : '';
 
-            // Render logic mapping
             if (state.step >= 1) document.getElementById('trail-1').innerHTML = typePill;
             if (state.step >= 2) document.getElementById('trail-2').innerHTML = typePill + amountPill;
             if (state.step >= 3) document.getElementById('trail-3').innerHTML = typePill + amountPill + formPill;
@@ -412,9 +404,8 @@
 
         window.selectForm = function(form, btnEl) {
             state.data.flowForm = form;
-            state.data.extraName = ''; // Reset extra name
+            state.data.extraName = ''; 
             
-            // Visual selection
             const container = document.getElementById('step-2');
             container.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
             btnEl.classList.add('selected');
@@ -425,12 +416,8 @@
                 } else if (form === 'Bank' || form === 'Financial Institution') {
                     goToStep(4);
                 } else {
-                    // Cash: Check if Outgoing logic needed
-                    if(state.data.flowType === 'out') {
-                        goToStep(5);
-                    } else {
-                        goToStep(6);
-                    }
+                    // Logic Change: If Cash, skip charges step regardless of Flow Type
+                    goToStep(6);
                 }
             }, 150);
         };
@@ -440,9 +427,13 @@
                 const val = inputs.creditName.value.trim();
                 if (!val) return showToast("Please enter a name.");
                 state.data.extraName = val;
-                
-                if(state.data.flowType === 'out') goToStep(5);
-                else goToStep(6);
+
+                // Logic Change: Only ask for charges if Flow is OUT
+                if(state.data.flowType === 'out') {
+                    goToStep(5);
+                } else {
+                    goToStep(6);
+                }
             }
         });
 
@@ -452,13 +443,16 @@
                 if (!val) return showToast("Please enter the organization name.");
                 state.data.extraName = val;
 
-                if(state.data.flowType === 'out') goToStep(5);
-                else goToStep(6);
+                // Logic Change: Only ask for charges if Flow is OUT
+                if(state.data.flowType === 'out') {
+                    goToStep(5);
+                } else {
+                    goToStep(6);
+                }
             }
         });
 
         window.selectCharges = function(type, btnEl) {
-            // Visual selection
             const container = document.getElementById('step-5');
             container.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
             btnEl.classList.add('selected');
@@ -486,19 +480,16 @@
                 return;
             }
 
-            // Generate a shared ID for the transaction group (Used to link charges)
             state.data.chargesGroupId = Date.now();
 
             let finalDetail = state.data.detail;
             
-            // Append extra info to detail name for clarity
             if (state.data.flowForm === 'Credit' && state.data.extraName) {
                 finalDetail += ` (${state.data.extraName})`;
             } else if ((state.data.flowForm === 'Bank' || state.data.flowForm === 'Financial Institution') && state.data.extraName) {
                 finalDetail += ` (${state.data.extraName})`;
             }
 
-            // 1. Prepare the main transaction
             const mainTransaction = {
                 date: new Date().toLocaleString(),
                 detail: finalDetail,
@@ -511,15 +502,8 @@
                 createdAt: Date.now()
             };
 
-            // 2. Prepare the charges transaction (Only if Outflow and WithCharges)
-            // Note: Assuming a fixed charge amount or logic. 
-            // Since user didn't specify charge amount, we will create a placeholder transaction 
-            // for "Bank Charges" that the user might need to edit later, or we can ask for charge amount.
-            // For this flow, we will record a generic "Bank Charges" transaction with 0 amount or 
-            // prompt. Given requirements "record two transactions", we record the second one.
-            // I will set a default description. Ideally, you'd ask for the fee amount.
-            
             let chargeTransaction = null;
+            // Only record charges if it's an Outflow and the user selected "With Charges"
             if (state.data.flowType === 'out' && state.data.hasCharges) {
                 chargeTransaction = {
                     date: new Date().toLocaleString(),
@@ -527,32 +511,26 @@
                     type: 'out',       
                     displayType: 'Expense',  
                     method: state.data.flowForm.toUpperCase(), 
-                    amount: 0, // Default 0, user should edit in dashboard or we could add another input step. 
-                                // Adding logic: prompt user for amount? No, requirement says "if with charges record transaction".
-                                // I will set amount to 0 and detail to 'Bank Charges'.
+                    amount: 0, 
                     chargesGroupId: state.data.chargesGroupId,
-                    isCharge: true, // Flag identifying this as a fee
-                    createdAt: Date.now() + 1 // Ensure distinct order
+                    isCharge: true,
+                    createdAt: Date.now() + 1
                 };
             }
 
             try {
-                // Save Main Transaction
                 await addDoc(collection(db, "users", user.email, "transactions"), mainTransaction);
 
-                // Save Charge Transaction (if exists)
                 if (chargeTransaction) {
                     await addDoc(collection(db, "users", user.email, "transactions"), chargeTransaction);
                 }
 
-                // Update Counters
                 const userRef = doc(db, "users", user.email);
                 const incrementVal = chargeTransaction ? 2 : 1;
                 await updateDoc(userRef, { spaceUsed: increment(incrementVal) });
 
                 console.log("Transaction(s) Saved");
                 goToStep(7);
-                
                 setTimeout(() => { window.location.href = 'business.html'; }, 2000);
 
             } catch (error) {
