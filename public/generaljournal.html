@@ -171,7 +171,7 @@
     <div class="page-header">
       <div>
         <h1 class="page-title">General Journal</h1>
-        <div class="subtitle">Adjustments, Corrections & Credit Expenses</div>
+        <div class="subtitle">Adjustments, Corrections & General Expenses</div>
       </div>
       <button onclick="window.print()" style="background:none; border:1px solid #ddd; padding:8px 12px; border-radius:6px; cursor:pointer; color:var(--text-muted);">
         <svg style="width:16px;height:16px;vertical-align:middle" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg>
@@ -299,7 +299,7 @@
           if (!isGeneralJournalEntry(data)) return;
 
           // 1. Parse the Transaction Detail
-          // Logic: "Purchases (jamal)" -> Debit: Purchases, Credit: jamal
+          // Logic: "Expense Name (Person Name)" -> Debit: Expense, Credit: Person
           const parsed = parseDoubleEntry(data.detail || "");
           const amount = parseFloat(data.amount || 0);
           const dateStr = data.date || "N/A";
@@ -355,8 +355,7 @@
     }
 
     /**
-     * Parses a string like "Purchases (jamal)" into Debit/Credit accounts.
-     * Rule: Expense/Asset -> Debit. Person Owed -> Credit.
+     * Parses a string like "Expense Name (Person Name)" into Debit/Credit accounts.
      */
     function parseDoubleEntry(detail) {
       // Regex looks for "Text (Name)"
@@ -364,12 +363,11 @@
 
       if (match) {
         return {
-          debitAccount: match[1].trim(), // e.g., "Purchases"
-          creditAccount: match[2].trim() // e.g., "jamal"
+          debitAccount: match[1].trim(),
+          creditAccount: match[2].trim()
         };
       } else {
-        // Fallback if no parentheses found (e.g., "Opening Balance")
-        // Heuristic: Debit is the detail, Credit is a generic "Suspense" or "Capital"
+        // Fallback if no parentheses found
         return {
           debitAccount: detail,
           creditAccount: "General Creditor"
@@ -379,10 +377,10 @@
 
     /**
      * FILTERING LOGIC
+     * Strictly excludes Sales and Purchases as requested.
      */
     function isGeneralJournalEntry(t) {
       const method = (t.method || "").toUpperCase();
-      const detail = (t.detail || "").toLowerCase();
       const category = (t.category || "").toLowerCase();
 
       // Rule 1: Exclude Cash/Bank (Cash Book)
@@ -391,19 +389,18 @@
       }
 
       // Rule 2: Exclude Credit Sales (Sales Journal)
+      // Checks for "sale", "sales", or "revenue"
       if (category.includes("sale") || category.includes("revenue")) {
         return false;
       }
 
-      // Rule 3: Exclude explicit Credit Purchases ONLY if they are inventory (Purchases Journal)
-      // NOTE: Your example included "Purchases (jamal)" here, so we allow 'purchase' 
-      // IF it looks like a credit expense/personnel transaction.
-      // We will only exclude if it is explicitly marked as "Inventory" purchase.
-      if (category.includes("inventory") || category.includes("stock")) {
+      // Rule 3: Exclude Credit Purchases (Purchases Journal)
+      // Checks for "purchase" or "purchases"
+      if (category.includes("purchase")) {
         return false;
       }
 
-      // Rule 4: Everything else (Adjustments, Corrections, Expenses) -> General Journal
+      // Rule 4: Everything else (General Expenses, Adjustments, Corrections) -> General Journal
       return true;
     }
 
