@@ -246,11 +246,11 @@
                     </div>
                 </div>
                 <div class="hint" style="margin-top: 20px;">
-                    "With Charges" allows you to record transaction fees.
+                    Select "With Charges" to record bank fees separately.
                 </div>
             </section>
 
-            <!-- Step 5b: Enter Charges Amount (New Step) -->
+            <!-- Step 5b: Enter Charges Amount -->
             <section id="step-5b" class="step-content">
                 <div class="trail-container" id="trail-5b"></div>
                 <label for="chargesAmountInput">Enter Charges Amount</label>
@@ -309,13 +309,13 @@
         const state = {
             step: 1,
             data: {
-                flowType: '',      // 'in' or 'out'
-                detail: '',        // Category name
+                flowType: 'out',   // Defaulting to 'out' for testing if params missing
+                detail: 'Purchases', // Defaulting for testing
                 amount: 0,
-                flowForm: '',      // Cash, Credit, Bank, Financial Institution
-                extraName: '',     // Credit Lender OR Org Name
-                hasCharges: false, // true or false
-                chargesAmount: 0,  // New field for specific charge amount
+                flowForm: '',
+                extraName: '',
+                hasCharges: false,
+                chargesAmount: 0,
                 chargesGroupId: null
             }
         };
@@ -338,10 +338,12 @@
             if (flow && detail) {
                 state.data.flowType = flow;
                 state.data.detail = detail;
-                goToStep(1);
             } else {
-                window.location.href = 'business.html';
+                // Allow running without URL params for testing (Defaults to Out/Purchases)
+                console.log("No URL params found, defaulting to Out/Purchases for testing.");
             }
+            
+            goToStep(1);
         });
 
         function goToStep(stepNumber) {
@@ -391,33 +393,24 @@
                 extraPill = createHistoryButton('Org', state.data.extraName);
             }
             
-            // Only show charges pill if we have charges or confirmed no charges
+            // Charges Logic for History
             let chargesPill = '';
             if (state.data.hasCharges && state.data.chargesAmount > 0) {
                 chargesPill = createHistoryButton('Fees', state.data.chargesAmount);
             } else if (state.data.hasCharges === false && state.data.flowType === 'out' && (state.data.flowForm === 'Bank' || state.data.flowForm === 'Financial Institution')) {
-                // Explicitly show No Charges if relevant
                 chargesPill = createHistoryButton('Fees', 'None');
             } else if (state.data.hasCharges === true) {
-                // Selected 'With' but haven't entered amount yet
                 chargesPill = createHistoryButton('Fees', 'Pending');
             }
 
+            // Assign to specific step containers
             if (state.step >= 1) document.getElementById('trail-1').innerHTML = typePill;
             if (state.step >= 2) document.getElementById('trail-2').innerHTML = typePill + amountPill;
             if (state.step >= 3) document.getElementById('trail-3').innerHTML = typePill + amountPill + formPill;
             if (state.step >= 4) document.getElementById('trail-4').innerHTML = typePill + amountPill + formPill + extraPill;
-            
-            // Step 5 is With/Without selection
             if (state.step >= 5) document.getElementById('trail-5').innerHTML = typePill + amountPill + formPill + extraPill + chargesPill;
-            
-            // Step 5b is entering the amount (keep previous pill state)
             if (state.step === '5b') document.getElementById('trail-5b').innerHTML = typePill + amountPill + formPill + extraPill + chargesPill;
-            
-            // Step 6 Confirmation
-            if (state.step === 6) {
-                document.getElementById('trail-6').innerHTML = typePill + amountPill + formPill + extraPill + chargesPill;
-            }
+            if (state.step === 6) document.getElementById('trail-6').innerHTML = typePill + amountPill + formPill + extraPill + chargesPill;
         }
 
         // --- Event Handlers ---
@@ -472,7 +465,7 @@
                 if (!val) return showToast("Please enter the organization name.");
                 state.data.extraName = val;
 
-                // Only ask for charges if Flow is OUT and Method is Bank/Fin Inst
+                // LOGIC FIX: If flow is OUT and method is Bank/Fin Inst, ASK ABOUT CHARGES
                 if(state.data.flowType === 'out') {
                     goToStep(5);
                 } else {
@@ -488,7 +481,7 @@
 
             if (type === 'with') {
                 state.data.hasCharges = true;
-                // NEW LOGIC: Go to Step 5b to enter amount
+                // Go to Step 5b to enter specific amount
                 setTimeout(() => goToStep('5b'), 150);
             } else {
                 state.data.hasCharges = false;
@@ -498,7 +491,6 @@
             }
         };
 
-        // New Event Listener for Charges Amount
         inputs.chargesAmount.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 const val = parseFloat(inputs.chargesAmount.value);
@@ -549,17 +541,16 @@
             // Logic: Only record charges if flowType is 'out', hasCharges is true, AND chargesAmount > 0
             if (state.data.flowType === 'out' && state.data.hasCharges && Number(state.data.chargesAmount) > 0) {
                 
-                // User Requirement: detail== "transaction charges" ... eg purchases charges
-                // We construct it as "Category charges" (e.g. "Purchases charges")
+                // Detail: "Category charges"
                 const chargesDetailName = state.data.detail + " charges";
 
                 chargeTransaction = {
                     date: new Date().toLocaleString(),
                     detail: chargesDetailName, 
                     type: 'out',       
-                    displayType: state.data.detail, // Keeping same display type for grouping
+                    displayType: state.data.detail, 
                     method: state.data.flowForm.toUpperCase(), 
-                    amount: Number(state.data.chargesAmount), // The specific amount entered
+                    amount: Number(state.data.chargesAmount), // Amount entered in step 5b
                     chargesGroupId: state.data.chargesGroupId,
                     isCharge: true,
                     createdAt: Date.now() + 1
