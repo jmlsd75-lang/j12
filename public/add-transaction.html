@@ -148,6 +148,7 @@
         }
         .action-primary:hover:not(:disabled) { background: var(--primary-hover); }
         .action-primary:disabled { background: #C7D2FE; cursor: not-allowed; box-shadow: none; }
+        
         .hidden { display: none !important; }
 
         .success-view { text-align: center; padding-top: 40px; }
@@ -209,22 +210,22 @@
                 <div class="hint">Press <b>Enter</b> to continue</div>
             </section>
 
-            <!-- Step 5: Charges Option (Only if Flow is OUT & Form is BANK) -->
+            <!-- Step 5: Charges Option + Input (Combined Step) -->
             <section id="step-5-charges" class="step-content">
                 <div class="trail-container" id="trail-5-charges"></div>
                 <label>Are there bank charges?</label>
+                
                 <div class="grid-options-2">
                     <div class="option-btn" onclick="selectChargesOption(false, this)">Without Charges</div>
                     <div class="option-btn" onclick="selectChargesOption(true, this)">With Charges</div>
                 </div>
-            </section>
 
-            <!-- Step 6: Charges Amount (Only if With Charges is YES) -->
-            <section id="step-6-charge-amt" class="step-content">
-                <div class="trail-container" id="trail-6-charge-amt"></div>
-                <label for="chargeAmountInput">Enter Charges Amount</label>
-                <input type="number" id="chargeAmountInput" placeholder="0.00" inputmode="decimal">
-                <div class="hint">Press <b>Enter</b> to continue</div>
+                <!-- Input wrapper, hidden by default -->
+                <div id="chargeInputWrapper" class="hidden" style="margin-top: 24px; animation: slideUp 0.3s ease-out;">
+                    <label for="chargeAmountInput" style="margin-bottom: 8px;">Enter Charges Amount</label>
+                    <input type="number" id="chargeAmountInput" placeholder="0.00" inputmode="decimal">
+                    <div class="hint">Press <b>Enter</b> to continue</div>
+                </div>
             </section>
 
             <!-- Step 7: Credit Name (Only if Credit) -->
@@ -303,6 +304,8 @@
             bankName: document.getElementById('bankNameInput'),
             chargeAmount: document.getElementById('chargeAmountInput')
         };
+        
+        const chargeInputWrapper = document.getElementById('chargeInputWrapper');
         const mainActionBtn = document.getElementById('mainActionBtn');
         const headerTitle = document.getElementById('headerTitle');
 
@@ -313,7 +316,6 @@
             const detail = urlParams.get('detail');
             
             if (flow && detail) {
-                // Normalize flow to lowercase to avoid case sensitivity issues
                 state.data.flowType = flow.toLowerCase(); 
                 state.data.detail = detail;
                 goToStep(2);
@@ -333,7 +335,7 @@
                 // Focus logic
                 if(stepNumber === 2) setTimeout(() => inputs.amount.focus(), 50);
                 if(stepNumber === '4-bank') setTimeout(() => inputs.bankName.focus(), 50);
-                if(stepNumber === '6-charge-amt') setTimeout(() => inputs.chargeAmount.focus(), 50);
+                // Note: We removed focus for step-6-charge-amt because it's now part of step-5-charges and handled there
                 if(stepNumber === '7-credit') setTimeout(() => inputs.creditName.focus(), 50);
             }
         }
@@ -368,7 +370,7 @@
             }
 
             let chargePill = '';
-            if (state.data.flowForm === 'Bank' && state.data.hasCharges) {
+            if (state.data.flowForm === 'Bank' && state.data.hasCharges && state.data.chargesAmount) {
                 chargePill = createHistoryButton('Charges', state.data.chargesAmount);
             }
 
@@ -383,9 +385,8 @@
             
             if (state.step === '4-bank') document.getElementById('trail-4-bank').innerHTML = typePill + amountPill + formPill;
             
+            // Updated Step 5 trail logic (No longer separate step 6)
             if (state.step === '5-charges') document.getElementById('trail-5-charges').innerHTML = typePill + amountPill + formPill + bankPill;
-            
-            if (state.step === '6-charge-amt') document.getElementById('trail-6-charge-amt').innerHTML = typePill + amountPill + formPill + bankPill;
             
             if (state.step === '7-credit') document.getElementById('trail-7-credit').innerHTML = typePill + amountPill + formPill;
             
@@ -441,7 +442,7 @@
                 if (!val) return showToast("Please enter a bank name.");
                 state.data.bankName = val;
 
-                // LOGIC: If flow is OUT && form is BANK, ask for charges
+                // LOGIC: If flow is OUT && form is BANK, ask for charges (Step 5)
                 if (state.data.flowType === 'out') {
                     goToStep('5-charges');
                 } else {
@@ -451,11 +452,11 @@
             }
         });
 
-        // 4. Charges Option Selection
+        // 4. Charges Option Selection (Combined Logic)
         window.selectChargesOption = function(hasCharges, btnEl) {
             state.data.hasCharges = hasCharges;
             
-            // Visual selection
+            // Visual selection for buttons
             document.querySelectorAll('#step-5-charges .option-btn').forEach(b => {
                 b.classList.remove('selected');
                 b.style.borderColor = 'var(--border)'; b.style.background = '#F9FAFB'; b.style.color = 'var(--text-main)';
@@ -463,13 +464,17 @@
             btnEl.classList.add('selected');
             btnEl.style.borderColor = 'var(--primary)'; btnEl.style.background = 'var(--primary)'; btnEl.style.color = '#fff';
 
-            setTimeout(() => {
-                if (hasCharges) {
-                    goToStep('6-charge-amt');
-                } else {
-                    goToStep(8);
-                }
-            }, 150);
+            if (hasCharges) {
+                // Show input field on the same screen
+                chargeInputWrapper.classList.remove('hidden');
+                // Focus the input field immediately
+                setTimeout(() => inputs.chargeAmount.focus(), 100);
+            } else {
+                // Hide input field (in case it was shown before)
+                chargeInputWrapper.classList.add('hidden');
+                // Move to confirmation immediately
+                goToStep(8);
+            }
         };
 
         // 5. Charge Amount Input
