@@ -272,11 +272,15 @@
           transactionsTable.style.display = 'table';
         }
 
-        let serialNumber = 1;
+        // Calculate total documents to handle reverse numbering
+        const totalDocs = querySnapshot.size;
 
-        querySnapshot.forEach((doc) => {
+        querySnapshot.forEach((doc, index) => {
           const data = doc.data();
           const docId = doc.id;
+          
+          // Swap Logic: The first item (index 0) is the newest, so it gets the highest number
+          const serialNumber = totalDocs - index;
           
           const row = document.createElement('tr');
           
@@ -289,7 +293,6 @@
           const flowType = (data.type || "IN").toUpperCase();
           const typeBadgeClass = flowType === 'IN' ? 'badge-type-in' : 'badge-type-out';
           
-          // FIX: Ensure method is read correctly
           const flowForm = (data.method || "CASH").toUpperCase(); 
 
           let displayName = "-";
@@ -302,7 +305,7 @@
           }
 
           row.innerHTML = `
-            <td class="col-sn">${serialNumber++}</td>
+            <td class="col-sn">${serialNumber}</td>
             <td class="col-date">${dateStr}</td>
             <td class="col-detail">${cleanDetail}</td>
             <td><span class="badge ${typeBadgeClass}">${flowType}</span></td>
