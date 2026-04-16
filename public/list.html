@@ -272,19 +272,12 @@
           transactionsTable.style.display = 'table';
         }
 
-        // 1. Get the total number of transactions
-        const totalCount = querySnapshot.size;
+        let serialNumber = 1;
 
-        // 2. Iterate and calculate S/N
-        // Index 0 (Newest) -> Total - 0 (Highest Number)
-        // Index N (Oldest) -> Total - N (Lowest Number)
-        querySnapshot.forEach((doc, index) => {
+        querySnapshot.forEach((doc) => {
           const data = doc.data();
           const docId = doc.id;
-
-          // Swap Logic: Highest number at top, 1 at bottom
-          const serialNumber = totalCount - index;
-
+          
           const row = document.createElement('tr');
           
           const dateStr = data.date || "N/A";
@@ -296,6 +289,7 @@
           const flowType = (data.type || "IN").toUpperCase();
           const typeBadgeClass = flowType === 'IN' ? 'badge-type-in' : 'badge-type-out';
           
+          // FIX: Ensure method is read correctly
           const flowForm = (data.method || "CASH").toUpperCase(); 
 
           let displayName = "-";
@@ -308,7 +302,7 @@
           }
 
           row.innerHTML = `
-            <td class="col-sn">${serialNumber}</td>
+            <td class="col-sn">${serialNumber++}</td>
             <td class="col-date">${dateStr}</td>
             <td class="col-detail">${cleanDetail}</td>
             <td><span class="badge ${typeBadgeClass}">${flowType}</span></td>
