@@ -33,7 +33,7 @@
             color: var(--text-white);
         }
 
-        /* Background Animation - Abstract Business Waves */
+        /* Background Animation */
         .bg-animation {
             position: fixed;
             top: 0;
@@ -520,7 +520,8 @@
             <h1>Business Suite</h1>
             <p>Access your enterprise dashboard, analytics, and team collaboration tools.</p>
 
-            <button class="google-login-btn" id="googleLoginBtn" onclick="handleGoogleLogin()">
+            <!-- Button now triggers redirectToLoginJs() -->
+            <button class="google-login-btn" id="googleLoginBtn" onclick="redirectToLoginJs()">
                 <svg class="google-icon" id="btnIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -562,62 +563,30 @@
     <!-- Toast Notification Element -->
     <div id="toast" class="toast">
         <span id="toastIcon">✅</span>
-        <span id="toastMessage">Operation successful</span>
+        <span id="toastMessage">Redirecting to login.js...</span>
     </div>
 
     <script>
-        // Simulated Login Logic
-        const loginBtn = document.getElementById('googleLoginBtn');
-        const btnText = document.getElementById('btnText');
-        const btnIcon = document.getElementById('btnIcon');
-        const btnLoader = document.getElementById('btnLoader');
-        
-        let isProcessing = false;
-
-        function handleGoogleLogin() {
-            if (isProcessing) return;
+        // Function to handle the click and redirect
+        function redirectToLoginJs() {
+            const loginBtn = document.getElementById('googleLoginBtn');
+            const btnText = document.getElementById('btnText');
+            const btnIcon = document.getElementById('btnIcon');
+            const btnLoader = document.getElementById('btnLoader');
             
-            // 1. Set Loading State
-            isProcessing = true;
+            // 1. Visual feedback: Show loading state
             loginBtn.disabled = true;
-            btnText.textContent = "Authenticating...";
+            btnText.textContent = "Redirecting...";
             btnIcon.style.display = 'none';
             btnLoader.style.display = 'block';
 
-            // 2. Simulate Network Request (2 seconds)
+            showToast("Redirecting to login.js...", "success");
+
+            // 2. Perform the actual redirect after a short delay for visual effect
             setTimeout(() => {
-                // Success Scenario
-                const success = true; // Change to false to test error handling
-
-                if (success) {
-                    showToast("Login Successful! Redirecting...", "success");
-                    
-                    // Simulate Redirect delay
-                    setTimeout(() => {
-                        // Reset button (in a real app, window.location.href would change here)
-                        isProcessing = false;
-                        loginBtn.disabled = false;
-                        btnText.textContent = "Go to Dashboard";
-                        btnLoader.style.display = 'none';
-                        btnIcon.style.display = 'block';
-                        btnIcon.innerHTML = '<path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" fill="#3b82f6"/>'; // Change icon to arrow
-                    }, 1500);
-
-                } else {
-                    // Error Handling
-                    showToast("Authentication failed. Please try again.", "error");
-                    resetButton();
-                }
-
-            }, 2000);
-        }
-
-        function resetButton() {
-            isProcessing = false;
-            loginBtn.disabled = false;
-            btnText.textContent = "Sign in with Google";
-            btnIcon.style.display = 'block';
-            btnLoader.style.display = 'none';
+                // This line changes the browser location to 'login.js'
+                window.location.href = 'login.js';
+            }, 1000);
         }
 
         function showToast(message, type) {
@@ -625,17 +594,14 @@
             const toastMsg = document.getElementById('toastMessage');
             const toastIcon = document.getElementById('toastIcon');
 
-            // Set content
             toastMsg.textContent = message;
-            toast.className = `toast ${type}`; // Reset classes
+            toast.className = `toast ${type}`; 
             toastIcon.textContent = type === 'success' ? '✅' : '⚠️';
 
-            // Show toast
             requestAnimationFrame(() => {
                 toast.classList.add('visible');
             });
 
-            // Hide after 3 seconds
             setTimeout(() => {
                 toast.classList.remove('visible');
             }, 3500);
