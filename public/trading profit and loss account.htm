@@ -363,7 +363,16 @@
         html += createSpacer();
 
         const grossProfit = netSales - cogs;
-        html += createRow("", "<strong>Gross Profit</strong>", 0, grossProfit, grossProfit, true);
+        
+        // LOGIC CHANGE: Check for Gross Loss
+        let grossLabel = "Gross Profit";
+        let grossVal = grossProfit;
+        if (grossProfit < 0) {
+          grossLabel = "Gross Loss";
+          grossVal = Math.abs(grossProfit); // Make positive
+        }
+        
+        html += createRow("", `<strong>${grossLabel}</strong>`, 0, grossVal, grossVal, true);
         html += createSpacer();
 
         // === PROFIT & LOSS ACCOUNT ===
@@ -374,7 +383,6 @@
         
         incomeItems.forEach(inc => {
           const val = getAbsBal(inc);
-          // Dynamic Rule: Only show if present
           if (val > 0) {
             totalIncome += val;
             html += createRow("", inc, 0, val, null);
@@ -388,7 +396,6 @@
         
         expenseItems.forEach(exp => {
           const val = getAbsBal(exp);
-          // Dynamic Rule: Only show if present
           if (val > 0) {
             totalExp += val;
             html += createRow("", exp, val, 0, null);
@@ -397,8 +404,18 @@
         html += createRow("", "<strong>Total Expenses</strong>", 0, 0, totalExp);
         html += createSpacer();
 
+        // Note: grossProfit variable used here preserves negative value if it exists
         const netProfit = grossProfit + totalIncome - totalExp;
-        html += createRow("", "<strong>Net Profit for the Year</strong>", 0, 0, netProfit, true);
+        
+        // LOGIC CHANGE: Check for Net Loss
+        let netLabel = "Net Profit for the Year";
+        let netVal = netProfit;
+        if (netProfit < 0) {
+          netLabel = "Net Loss for the Year";
+          netVal = Math.abs(netProfit); // Make positive
+        }
+
+        html += createRow("", `<strong>${netLabel}</strong>`, 0, 0, netVal, true);
         html += createSpacer();
 
         // === APPROPRIATION ACCOUNT ===
@@ -412,7 +429,16 @@
         html += createRow("Less", "Ordinary Dividends", ordDiv, 0, null);
         
         const retainedCF = retainedBF + netProfit - (corpTax + genRes + goodwill + prefDiv + ordDiv);
-        html += createRow("", "<strong>Retained Profit c/f</strong>", 0, 0, retainedCF, true);
+        
+        // LOGIC CHANGE: Check for Retained Loss
+        let retLabel = "Retained Profit c/f";
+        let retVal = retainedCF;
+        if (retainedCF < 0) {
+          retLabel = "Retained Loss c/f";
+          retVal = Math.abs(retainedCF); // Make positive
+        }
+
+        html += createRow("", `<strong>${retLabel}</strong>`, 0, 0, retVal, true);
 
         // Render
         tableBody.innerHTML = html;
