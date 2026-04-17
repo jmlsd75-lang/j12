@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cash Book (Cash Only)</title>
+  <title>Cash Book</title>
   <style>
     :root {
       --primary: #4285F4;
@@ -125,6 +125,7 @@
     }
 
     /* Vertical Divider Line in Middle */
+    /* We apply a border-left to the first column of the Credit side (5th column effectively) */
     .divider-col {
       border-left: 2px solid var(--border-color) !important;
     }
@@ -137,6 +138,7 @@
       height: var(--row-height); /* Constant Height */
     }
 
+    /* Vertical border for cells in the middle column */
     td.divider-col {
       border-left: 2px solid var(--border-color);
     }
@@ -159,8 +161,11 @@
       font-weight: 700; 
       border-top: 2px solid #cbd5e0;
       color: #2d3748;
-      height: 50px;
+      height: 50px; /* Slightly taller for total */
     }
+    
+    /* Remove bottom border for the very last row (Balance b/d usually) if desired, 
+       but keeping it is cleaner for separation. */
 
     /* Empty State */
     .empty-state {
@@ -182,7 +187,7 @@
 <body>
 
   <header>
-    <a href="business file.html" class="back-btn">
+    <a href="business.html" class="back-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="19" y1="12" x2="5" y2="12"></line>
         <polyline points="12 19 5 12 12 5"></polyline>
@@ -196,7 +201,7 @@
     <h1 class="page-title">Cash Book</h1>
 
     <div class="empty-state" id="emptyState">
-      <p>No Cash transactions found.</p>
+      <p>No transactions found to generate Cash Book.</p>
     </div>
 
     <div class="cash-book-wrapper" id="cashBookWrapper">
@@ -305,6 +310,7 @@
       let totalDr = 0;
       let totalCr = 0;
       
+      // Arrays to hold row objects
       let drRows = [];
       let crRows = [];
 
@@ -323,39 +329,13 @@
 
       const today = getTodayDate();
 
-      // 1. Process Transactions with Filters
+      // 1. Process Transactions into separate arrays
       docs.forEach((doc) => {
         const data = doc.data();
         const amount = parseFloat(data.amount || 0);
         const type = (data.type || "IN").toUpperCase();
         
         let detail = data.detail || "-";
-        
-        // --- START OF FILTERING LOGIC ---
-        
-        // Normalize detail for checking
-        const detailLower = detail.toLowerCase();
-        
-        // 1. Exclude Opening Stock and Closing Stock
-        if (detailLower.includes('opening stock') || detailLower.includes('closing stock')) {
-          return; // Skip this transaction
-        }
-
-        // 2. Exclude Bank Transactions
-        // Checks if the detail explicitly mentions "Bank", "Cheque", "Transfer"
-        // Also checks if there is a specific payment mode field (e.g., data.mode === 'Bank')
-        const isBankRelated = 
-             detailLower.includes('bank') || 
-             detailLower.includes('cheque') || 
-             detailLower.includes('transfer') ||
-             (data.mode && data.mode.toLowerCase() === 'bank');
-
-        if (isBankRelated) {
-          return; // Skip this transaction
-        }
-
-        // --- END OF FILTERING LOGIC ---
-
         // Clean name from detail for the particulars column
         const nameMatch = detail.match(/\(([^)]+)\)$/);
         let particulars = detail;
@@ -371,7 +351,7 @@
           detail: particulars,
           folio: folio,
           amount: amount,
-          type: 'trans'
+          type: 'trans' // marker for normal transaction
         };
 
         if (type === 'IN') {
@@ -383,19 +363,14 @@
         }
       });
 
-      // If all transactions were filtered out
-      if (drRows.length === 0 && crRows.length === 0) {
-        emptyState.classList.add('visible');
-        cashBookWrapper.style.display = 'none';
-        return;
-      }
-
       // 2. Calculate Difference & Insert "Balance c/d"
+      // Determine which side is smaller to add the balancing figure
       let diff = Math.abs(totalDr - totalCr);
-      let balanceCdSide = null; 
+      let balanceCdSide = null; // 'dr' or 'cr'
 
-      // c/d goes to the side with the SMALLER total
+      // c/d goes to the side with the SMALLER total to make them equal
       if (totalDr > totalCr) {
+        // Dr is bigger, add to Cr
         balanceCdSide = 'cr';
         crRows.push({
           date: today,
@@ -406,6 +381,7 @@
         });
         totalCr += diff;
       } else if (totalCr > totalDr) {
+        // Cr is bigger, add to Dr
         balanceCdSide = 'dr';
         drRows.push({
           date: today,
@@ -417,7 +393,8 @@
         totalDr += diff;
       }
 
-      // 3. Render Transaction Rows
+      // 3. Render Transaction Rows (with padding)
+      // We iterate up to the maximum length of the two arrays
       const maxRows = Math.max(drRows.length, crRows.length);
 
       for (let i = 0; i < maxRows; i++) {
@@ -435,6 +412,7 @@
             <td class="col-amount ${cellClass}">${formatCurrency(r.amount)}</td>
           `;
         } else {
+          // Empty Padding Cells
           rowHTML += `<td></td><td></td><td></td><td></td>`;
         }
 
@@ -443,6 +421,7 @@
           const r = crRows[i];
           const isBal = (r.type === 'bal_cd');
           const cellClass = isBal ? 'row-balance' : '';
+          // Add divider-col to the first cell of Credit side to maintain the vertical line
           rowHTML += `
             <td class="divider-col ${cellClass}">${r.date}</td>
             <td class="divider-col ${cellClass}">${r.detail}</td>
@@ -450,6 +429,7 @@
             <td class="col-amount divider-col ${cellClass}">${formatCurrency(r.amount)}</td>
           `;
         } else {
+          // Empty Padding Cells (with divider on first one)
           rowHTML += `<td class="divider-col"></td><td class="divider-col"></td><td class="divider-col"></td><td class="divider-col"></td>`;
         }
 
@@ -457,8 +437,8 @@
         tableBody.insertAdjacentHTML('beforeend', rowHTML);
       }
 
-      // 4. Render Total Row
-      const finalTotal = formatCurrency(totalDr); 
+      // 4. Render Total Row (Always on one line)
+      const finalTotal = formatCurrency(totalDr); // totals are equal now
       const totalRowHTML = `
         <tr class="row-total">
           <td></td>
@@ -475,28 +455,35 @@
       tableBody.insertAdjacentHTML('beforeend', totalRowHTML);
 
       // 5. Render Balance b/d (Brought Down)
+      // Rule: Show after totals, on side OPPOSITE to c/d. 
+      // If c/d was on Credit, b/d is on Debit.
       if (diff > 0) {
         let bdSide = (balanceCdSide === 'cr') ? 'dr' : 'cr';
         
         let bdRowHTML = "<tr>";
         
         if (bdSide === 'dr') {
+          // b/d on Left
           bdRowHTML += `
             <td>${today}</td>
             <td>Balance</td>
             <td class="col-folio">b/d</td>
             <td class="col-amount">${formatCurrency(diff)}</td>
+            <!-- Right side empty -->
             <td class="divider-col"></td>
             <td class="divider-col"></td>
             <td class="divider-col"></td>
             <td class="divider-col"></td>
           `;
         } else {
+          // b/d on Right
           bdRowHTML += `
+            <!-- Left side empty -->
             <td></td>
             <td></td>
             <td></td>
             <td></td>
+            <!-- Right side b/d -->
             <td class="divider-col">${today}</td>
             <td class="divider-col">Balance</td>
             <td class="col-folio divider-col">b/d</td>
