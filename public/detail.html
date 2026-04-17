@@ -31,33 +31,32 @@
         /* Header Styling */
         header {
             background: var(--card-bg);
-            padding: 20px;
+            padding: 15px;
             text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
             position: sticky;
             top: 0;
             z-index: 10;
         }
 
         h1 {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             margin: 0;
             font-weight: 700;
             color: #111827;
         }
 
         .subtitle {
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             color: #6B7280;
-            margin-top: 5px;
+            margin-top: 4px;
         }
 
-        /* Main Content Area */
+        /* Main Content Area - Adjusted for Full Width */
         main {
             flex: 1;
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
+            padding: 15px;
+            /* Removed max-width: 800px to allow full screen fill */
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -68,15 +67,15 @@
         .section-header {
             display: flex;
             align-items: center;
-            margin: 40px 0 20px 0;
-            padding-bottom: 10px;
+            margin: 30px 0 15px 0;
+            padding-bottom: 8px;
             border-bottom: 2px solid #E5E7EB;
             width: 100%;
             justify-content: center;
         }
 
         .section-header h2 {
-            font-size: 1.1rem;
+            font-size: 1rem;
             margin: 0;
             color: #374151;
             text-transform: uppercase;
@@ -87,14 +86,14 @@
         .subsection-header {
             display: flex;
             align-items: center;
-            margin: 30px 0 15px 0;
+            margin: 20px 0 10px 0;
             width: 100%;
             justify-content: flex-start;
             padding-left: 5px;
         }
 
         .subsection-header h3 {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             margin: 0;
             color: #6B7280;
             text-transform: uppercase;
@@ -104,13 +103,13 @@
 
         .badge {
             display: inline-block;
-            padding: 6px 12px;
+            padding: 4px 10px;
             border-radius: 20px;
-            font-size: 0.75rem;
+            font-size: 0.65rem;
             font-weight: 700;
             color: white;
-            margin-right: 12px;
-            min-width: 36px;
+            margin-right: 10px;
+            min-width: 30px;
             text-align: center;
         }
         
@@ -121,11 +120,12 @@
         .badge.liab { background-color: #EC4899; }
         .badge.equity { background-color: #8B5CF6; }
 
-        /* Grid Layout */
+        /* Grid Layout - Full Width */
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 16px;
+            /* Smaller columns to fit more horizontally */
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
             width: 100%;
         }
 
@@ -136,17 +136,19 @@
             outline: none;
             cursor: pointer;
             background: white;
-            border-radius: 16px;
-            padding: 24px 10px;
+            border-radius: 12px;
+            /* Adjusted padding for smaller layout */
+            padding: 16px 8px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
             transition: transform 0.15s ease, box-shadow 0.15s ease;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             height: 100%;
-            min-height: 140px;
+            /* Reduced height slightly */
+            min-height: 100px; 
             width: 100%;
         }
 
@@ -156,18 +158,18 @@
 
         .btn-cat:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 12px -3px rgba(0, 0, 0, 0.1);
         }
 
-        /* Icon Wrapper */
+        /* Icon Wrapper - Reduced by Half */
         .icon-box {
-            width: 48px;
-            height: 48px;
+            width: 24px;  /* Reduced from 48px */
+            height: 24px; /* Reduced from 48px */
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 12px;
+            margin-bottom: 8px; /* Reduced margin */
             color: white;
             transition: transform 0.2s;
         }
@@ -178,16 +180,16 @@
 
         /* Button Text */
         .btn-text {
-            font-size: 0.85rem;
+            font-size: 0.75rem; /* Slightly smaller font */
             font-weight: 600;
             color: #374151;
-            line-height: 1.3;
+            line-height: 1.2;
         }
 
         /* Icon SVG Styling */
         .icon-box svg {
-            width: 24px;
-            height: 24px;
+            width: 14px; /* Scaled down to fit smaller box */
+            height: 14px;
             stroke-width: 2.5;
             stroke: currentColor;
             fill: none;
@@ -197,7 +199,7 @@
 
         /* Footer / Back Link */
         .footer-nav {
-            padding: 40px 20px;
+            padding: 30px 20px;
             text-align: center;
             margin-top: auto;
         }
@@ -209,10 +211,10 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 12px 24px;
+            padding: 10px 20px;
             border-radius: 8px;
             background: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             transition: background 0.2s;
         }
 
@@ -226,94 +228,94 @@
         /* --------------------------- */
 
         /* Income Colors (Green) */
-        .c-sales .icon-box { background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3); }
-        .c-discount-rec .icon-box { background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
-        .c-commission-rec .icon-box { background: linear-gradient(135deg, #34D399, #10B981); box-shadow: 0 4px 10px rgba(52, 211, 153, 0.3); }
-        .c-rent-rec .icon-box { background: linear-gradient(135deg, #6EE7B7, #34D399); box-shadow: 0 4px 10px rgba(110, 231, 183, 0.3); }
-        .c-interest-rec .icon-box { background: linear-gradient(135deg, #3B82F6, #2563EB); box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); }
-        .c-dividend-inc .icon-box { background: linear-gradient(135deg, #60A5FA, #3B82F6); box-shadow: 0 4px 10px rgba(96, 165, 250, 0.3); }
-        .c-bad-debt-rec .icon-box { background: linear-gradient(135deg, #818CF8, #6366F1); box-shadow: 0 4px 10px rgba(129, 140, 248, 0.3); }
-        .c-gain-asset .icon-box { background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3); }
-        .c-sundry-inc .icon-box { background: linear-gradient(135deg, #FBBF24, #F59E0B); box-shadow: 0 4px 10px rgba(251, 191, 36, 0.3); }
+        .c-sales .icon-box { background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3); }
+        .c-discount-rec .icon-box { background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3); }
+        .c-commission-rec .icon-box { background: linear-gradient(135deg, #34D399, #10B981); box-shadow: 0 2px 6px rgba(52, 211, 153, 0.3); }
+        .c-rent-rec .icon-box { background: linear-gradient(135deg, #6EE7B7, #34D399); box-shadow: 0 2px 6px rgba(110, 231, 183, 0.3); }
+        .c-interest-rec .icon-box { background: linear-gradient(135deg, #3B82F6, #2563EB); box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3); }
+        .c-dividend-inc .icon-box { background: linear-gradient(135deg, #60A5FA, #3B82F6); box-shadow: 0 2px 6px rgba(96, 165, 250, 0.3); }
+        .c-bad-debt-rec .icon-box { background: linear-gradient(135deg, #818CF8, #6366F1); box-shadow: 0 2px 6px rgba(129, 140, 248, 0.3); }
+        .c-gain-asset .icon-box { background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3); }
+        .c-sundry-inc .icon-box { background: linear-gradient(135deg, #FBBF24, #F59E0B); box-shadow: 0 2px 6px rgba(251, 191, 36, 0.3); }
 
         /* Expense Colors (Reds/Oranges) */
-        .c-opening-stock .icon-box { background: linear-gradient(135deg, #6366F1, #4F46E5); box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3); }
-        .c-closing-stock .icon-box { background: linear-gradient(135deg, #818CF8, #6366F1); box-shadow: 0 4px 10px rgba(129, 140, 248, 0.3); }
-        .c-purchases .icon-box { background: linear-gradient(135deg, #E11D48, #BE123C); box-shadow: 0 4px 10px rgba(225, 29, 72, 0.3); }
-        .c-sales-ret .icon-box { background: linear-gradient(135deg, #F43F5E, #E11D48); box-shadow: 0 4px 10px rgba(244, 63, 94, 0.3); }
-        .c-ret-out .icon-box { background: linear-gradient(135deg, #FB7185, #F43F5E); box-shadow: 0 4px 10px rgba(251, 113, 133, 0.3); }
-        .c-carriage-in .icon-box { background: linear-gradient(135deg, #F472B6, #EC4899); box-shadow: 0 4px 10px rgba(244, 114, 182, 0.3); }
-        .c-wages .icon-box { background: linear-gradient(135deg, #EF4444, #DC2626); box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); }
-        .c-rent-rates .icon-box { background: linear-gradient(135deg, #F87171, #EF4444); box-shadow: 0 4px 10px rgba(248, 113, 113, 0.3); }
-        .c-lighting .icon-box { background: linear-gradient(135deg, #FB923C, #F97316); box-shadow: 0 4px 10px rgba(251, 146, 60, 0.3); }
-        .c-electricity .icon-box { background: linear-gradient(135deg, #EAB308, #CA8A04); box-shadow: 0 4px 10px rgba(234, 179, 8, 0.3); }
-        .c-water .icon-box { background: linear-gradient(135deg, #0EA5E9, #0284C7); box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3); }
-        .c-telephone .icon-box { background: linear-gradient(135deg, #38BDF8, #0EA5E9); box-shadow: 0 4px 10px rgba(56, 189, 248, 0.3); }
-        .c-stationery .icon-box { background: linear-gradient(135deg, #A78BFA, #8B5CF6); box-shadow: 0 4px 10px rgba(167, 139, 250, 0.3); }
-        .c-postage .icon-box { background: linear-gradient(135deg, #C084FC, #A855F7); box-shadow: 0 4px 10px rgba(192, 132, 252, 0.3); }
-        .c-advertising .icon-box { background: linear-gradient(135deg, #E879F9, #D946EF); box-shadow: 0 4px 10px rgba(232, 121, 249, 0.3); }
-        .c-carriage-out .icon-box { background: linear-gradient(135deg, #F0ABFC, #E879F9); box-shadow: 0 4px 10px rgba(240, 171, 252, 0.3); }
-        .c-repairs .icon-box { background: linear-gradient(135deg, #FDA4AF, #FB7185); box-shadow: 0 4px 10px rgba(253, 164, 175, 0.3); }
-        .c-depreciation .icon-box { background: linear-gradient(135deg, #94A3B8, #64748B); box-shadow: 0 4px 10px rgba(148, 163, 184, 0.3); }
-        .c-insurance .icon-box { background: linear-gradient(135deg, #64748B, #475569); box-shadow: 0 4px 10px rgba(100, 116, 139, 0.3); }
-        .c-motor-veh .icon-box { background: linear-gradient(135deg, #4B5563, #374151); box-shadow: 0 4px 10px rgba(75, 85, 99, 0.3); }
-        .c-fuel .icon-box { background: linear-gradient(135deg, #D97706, #B45309); box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3); }
-        .c-office-exp .icon-box { background: linear-gradient(135deg, #14B8A6, #0D9488); box-shadow: 0 4px 10px rgba(20, 184, 166, 0.3); }
-        .c-general-exp .icon-box { background: linear-gradient(135deg, #64748B, #475569); box-shadow: 0 4px 10px rgba(100, 116, 139, 0.3); }
-        .c-sundry-exp .icon-box { background: linear-gradient(135deg, #9CA3AF, #6B7280); box-shadow: 0 4px 10px rgba(156, 163, 175, 0.3); }
-        .c-bank-chg .icon-box { background: linear-gradient(135deg, #B45309, #92400E); box-shadow: 0 4px 10px rgba(180, 83, 9, 0.3); }
-        .c-bad-debts .icon-box { background: linear-gradient(135deg, #DC2626, #991B1B); box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3); }
-        .c-prov-dbts .icon-box { background: linear-gradient(135deg, #EF4444, #B91C1C); box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); }
-        .c-directors .icon-box { background: linear-gradient(135deg, #1E40AF, #1E3A8A); box-shadow: 0 4px 10px rgba(30, 64, 175, 0.3); }
-        .c-debenture .icon-box { background: linear-gradient(135deg, #4338CA, #3730A3); box-shadow: 0 4px 10px rgba(67, 56, 202, 0.3); }
-        .c-warehouse .icon-box { background: linear-gradient(135deg, #7C3AED, #6D28D9); box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3); }
-        .c-security .icon-box { background: linear-gradient(135deg, #0F172A, #020617); box-shadow: 0 4px 10px rgba(15, 23, 42, 0.3); }
-        .c-legal .icon-box { background: linear-gradient(135deg, #334155, #1E293B); box-shadow: 0 4px 10px rgba(51, 65, 85, 0.3); }
-        .c-audit .icon-box { background: linear-gradient(135deg, #475569, #334155); box-shadow: 0 4px 10px rgba(71, 85, 105, 0.3); }
-        .c-subscriptions .icon-box { background: linear-gradient(135deg, #0891B2, #0E7490); box-shadow: 0 4px 10px rgba(8, 145, 178, 0.3); }
-        .c-training .icon-box { background: linear-gradient(135deg, #7C2D12, #9A3412); box-shadow: 0 4px 10px rgba(124, 45, 18, 0.3); }
-        .c-travel .icon-box { background: linear-gradient(135deg, #0369A1, #075985); box-shadow: 0 4px 10px rgba(3, 105, 161, 0.3); }
-        .c-entertainment .icon-box { background: linear-gradient(135deg, #BE185D, #9D174D); box-shadow: 0 4px 10px rgba(190, 24, 93, 0.3); }
-        .c-corp-tax .icon-box { background: linear-gradient(135deg, #B91C1C, #7F1D1D); box-shadow: 0 4px 10px rgba(185, 28, 28, 0.3); }
-        .c-goodwill .icon-box { background: linear-gradient(135deg, #78716C, #57534E); box-shadow: 0 4px 10px rgba(120, 113, 108, 0.3); }
-        .c-pref-div .icon-box { background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3); }
-        .c-ord-div .icon-box { background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
-        .c-gen-res .icon-box { background: linear-gradient(135deg, #D97706, #B45309); box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3); }
-        .c-retained .icon-box { background: linear-gradient(135deg, #0D9488, #0F766E); box-shadow: 0 4px 10px rgba(13, 148, 136, 0.3); }
+        .c-opening-stock .icon-box { background: linear-gradient(135deg, #6366F1, #4F46E5); box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3); }
+        .c-closing-stock .icon-box { background: linear-gradient(135deg, #818CF8, #6366F1); box-shadow: 0 2px 6px rgba(129, 140, 248, 0.3); }
+        .c-purchases .icon-box { background: linear-gradient(135deg, #E11D48, #BE123C); box-shadow: 0 2px 6px rgba(225, 29, 72, 0.3); }
+        .c-sales-ret .icon-box { background: linear-gradient(135deg, #F43F5E, #E11D48); box-shadow: 0 2px 6px rgba(244, 63, 94, 0.3); }
+        .c-ret-out .icon-box { background: linear-gradient(135deg, #FB7185, #F43F5E); box-shadow: 0 2px 6px rgba(251, 113, 133, 0.3); }
+        .c-carriage-in .icon-box { background: linear-gradient(135deg, #F472B6, #EC4899); box-shadow: 0 2px 6px rgba(244, 114, 182, 0.3); }
+        .c-wages .icon-box { background: linear-gradient(135deg, #EF4444, #DC2626); box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3); }
+        .c-rent-rates .icon-box { background: linear-gradient(135deg, #F87171, #EF4444); box-shadow: 0 2px 6px rgba(248, 113, 113, 0.3); }
+        .c-lighting .icon-box { background: linear-gradient(135deg, #FB923C, #F97316); box-shadow: 0 2px 6px rgba(251, 146, 60, 0.3); }
+        .c-electricity .icon-box { background: linear-gradient(135deg, #EAB308, #CA8A04); box-shadow: 0 2px 6px rgba(234, 179, 8, 0.3); }
+        .c-water .icon-box { background: linear-gradient(135deg, #0EA5E9, #0284C7); box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3); }
+        .c-telephone .icon-box { background: linear-gradient(135deg, #38BDF8, #0EA5E9); box-shadow: 0 2px 6px rgba(56, 189, 248, 0.3); }
+        .c-stationery .icon-box { background: linear-gradient(135deg, #A78BFA, #8B5CF6); box-shadow: 0 2px 6px rgba(167, 139, 250, 0.3); }
+        .c-postage .icon-box { background: linear-gradient(135deg, #C084FC, #A855F7); box-shadow: 0 2px 6px rgba(192, 132, 252, 0.3); }
+        .c-advertising .icon-box { background: linear-gradient(135deg, #E879F9, #D946EF); box-shadow: 0 2px 6px rgba(232, 121, 249, 0.3); }
+        .c-carriage-out .icon-box { background: linear-gradient(135deg, #F0ABFC, #E879F9); box-shadow: 0 2px 6px rgba(240, 171, 252, 0.3); }
+        .c-repairs .icon-box { background: linear-gradient(135deg, #FDA4AF, #FB7185); box-shadow: 0 2px 6px rgba(253, 164, 175, 0.3); }
+        .c-depreciation .icon-box { background: linear-gradient(135deg, #94A3B8, #64748B); box-shadow: 0 2px 6px rgba(148, 163, 184, 0.3); }
+        .c-insurance .icon-box { background: linear-gradient(135deg, #64748B, #475569); box-shadow: 0 2px 6px rgba(100, 116, 139, 0.3); }
+        .c-motor-veh .icon-box { background: linear-gradient(135deg, #4B5563, #374151); box-shadow: 0 2px 6px rgba(75, 85, 99, 0.3); }
+        .c-fuel .icon-box { background: linear-gradient(135deg, #D97706, #B45309); box-shadow: 0 2px 6px rgba(217, 119, 6, 0.3); }
+        .c-office-exp .icon-box { background: linear-gradient(135deg, #14B8A6, #0D9488); box-shadow: 0 2px 6px rgba(20, 184, 166, 0.3); }
+        .c-general-exp .icon-box { background: linear-gradient(135deg, #64748B, #475569); box-shadow: 0 2px 6px rgba(100, 116, 139, 0.3); }
+        .c-sundry-exp .icon-box { background: linear-gradient(135deg, #9CA3AF, #6B7280); box-shadow: 0 2px 6px rgba(156, 163, 175, 0.3); }
+        .c-bank-chg .icon-box { background: linear-gradient(135deg, #B45309, #92400E); box-shadow: 0 2px 6px rgba(180, 83, 9, 0.3); }
+        .c-bad-debts .icon-box { background: linear-gradient(135deg, #DC2626, #991B1B); box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3); }
+        .c-prov-dbts .icon-box { background: linear-gradient(135deg, #EF4444, #B91C1C); box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3); }
+        .c-directors .icon-box { background: linear-gradient(135deg, #1E40AF, #1E3A8A); box-shadow: 0 2px 6px rgba(30, 64, 175, 0.3); }
+        .c-debenture .icon-box { background: linear-gradient(135deg, #4338CA, #3730A3); box-shadow: 0 2px 6px rgba(67, 56, 202, 0.3); }
+        .c-warehouse .icon-box { background: linear-gradient(135deg, #7C3AED, #6D28D9); box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3); }
+        .c-security .icon-box { background: linear-gradient(135deg, #0F172A, #020617); box-shadow: 0 2px 6px rgba(15, 23, 42, 0.3); }
+        .c-legal .icon-box { background: linear-gradient(135deg, #334155, #1E293B); box-shadow: 0 2px 6px rgba(51, 65, 85, 0.3); }
+        .c-audit .icon-box { background: linear-gradient(135deg, #475569, #334155); box-shadow: 0 2px 6px rgba(71, 85, 105, 0.3); }
+        .c-subscriptions .icon-box { background: linear-gradient(135deg, #0891B2, #0E7490); box-shadow: 0 2px 6px rgba(8, 145, 178, 0.3); }
+        .c-training .icon-box { background: linear-gradient(135deg, #7C2D12, #9A3412); box-shadow: 0 2px 6px rgba(124, 45, 18, 0.3); }
+        .c-travel .icon-box { background: linear-gradient(135deg, #0369A1, #075985); box-shadow: 0 2px 6px rgba(3, 105, 161, 0.3); }
+        .c-entertainment .icon-box { background: linear-gradient(135deg, #BE185D, #9D174D); box-shadow: 0 2px 6px rgba(190, 24, 93, 0.3); }
+        .c-corp-tax .icon-box { background: linear-gradient(135deg, #B91C1C, #7F1D1D); box-shadow: 0 2px 6px rgba(185, 28, 28, 0.3); }
+        .c-goodwill .icon-box { background: linear-gradient(135deg, #78716C, #57534E); box-shadow: 0 2px 6px rgba(120, 113, 108, 0.3); }
+        .c-pref-div .icon-box { background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3); }
+        .c-ord-div .icon-box { background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3); }
+        .c-gen-res .icon-box { background: linear-gradient(135deg, #D97706, #B45309); box-shadow: 0 2px 6px rgba(217, 119, 6, 0.3); }
+        .c-retained .icon-box { background: linear-gradient(135deg, #0D9488, #0F766E); box-shadow: 0 2px 6px rgba(13, 148, 136, 0.3); }
 
-        /* NEW: Balance Sheet Colors */
+        /* Balance Sheet Colors */
         
         /* Current Assets (Blue/Cyan) */
-        .c-debtors .icon-box { background: linear-gradient(135deg, #0EA5E9, #0284C7); box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3); }
-        .c-stock .icon-box { background: linear-gradient(135deg, #06B6D4, #0891B2); box-shadow: 0 4px 10px rgba(6, 182, 212, 0.3); }
-        .c-prepayments .icon-box { background: linear-gradient(135deg, #22D3EE, #06B6D4); box-shadow: 0 4px 10px rgba(34, 211, 238, 0.3); }
-        .c-accrued-inc .icon-box { background: linear-gradient(135deg, #38BDF8, #0EA5E9); box-shadow: 0 4px 10px rgba(56, 189, 248, 0.3); }
+        .c-debtors .icon-box { background: linear-gradient(135deg, #0EA5E9, #0284C7); box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3); }
+        .c-stock .icon-box { background: linear-gradient(135deg, #06B6D4, #0891B2); box-shadow: 0 2px 6px rgba(6, 182, 212, 0.3); }
+        .c-prepayments .icon-box { background: linear-gradient(135deg, #22D3EE, #06B6D4); box-shadow: 0 2px 6px rgba(34, 211, 238, 0.3); }
+        .c-accrued-inc .icon-box { background: linear-gradient(135deg, #38BDF8, #0EA5E9); box-shadow: 0 2px 6px rgba(56, 189, 248, 0.3); }
 
         /* Non-Current Assets (Indigo/Purple) */
-        .c-land .icon-box { background: linear-gradient(135deg, #6366F1, #4F46E5); box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3); }
-        .c-buildings .icon-box { background: linear-gradient(135deg, #4F46E5, #4338CA); box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
-        .c-plant .icon-box { background: linear-gradient(135deg, #818CF8, #6366F1); box-shadow: 0 4px 10px rgba(129, 140, 248, 0.3); }
-        .c-motor-veh-asset .icon-box { background: linear-gradient(135deg, #4338CA, #3730A3); box-shadow: 0 4px 10px rgba(67, 56, 202, 0.3); }
-        .c-furniture .icon-box { background: linear-gradient(135deg, #A78BFA, #8B5CF6); box-shadow: 0 4px 10px rgba(167, 139, 250, 0.3); }
-        .c-equipment .icon-box { background: linear-gradient(135deg, #8B5CF6, #7C3AED); box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3); }
-        .c-goodwill-asset .icon-box { background: linear-gradient(135deg, #64748B, #475569); box-shadow: 0 4px 10px rgba(100, 116, 139, 0.3); }
+        .c-land .icon-box { background: linear-gradient(135deg, #6366F1, #4F46E5); box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3); }
+        .c-buildings .icon-box { background: linear-gradient(135deg, #4F46E5, #4338CA); box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3); }
+        .c-plant .icon-box { background: linear-gradient(135deg, #818CF8, #6366F1); box-shadow: 0 2px 6px rgba(129, 140, 248, 0.3); }
+        .c-motor-veh-asset .icon-box { background: linear-gradient(135deg, #4338CA, #3730A3); box-shadow: 0 2px 6px rgba(67, 56, 202, 0.3); }
+        .c-furniture .icon-box { background: linear-gradient(135deg, #A78BFA, #8B5CF6); box-shadow: 0 2px 6px rgba(167, 139, 250, 0.3); }
+        .c-equipment .icon-box { background: linear-gradient(135deg, #8B5CF6, #7C3AED); box-shadow: 0 2px 6px rgba(139, 92, 246, 0.3); }
+        .c-goodwill-asset .icon-box { background: linear-gradient(135deg, #64748B, #475569); box-shadow: 0 2px 6px rgba(100, 116, 139, 0.3); }
 
         /* Equity (Purple/Pink) */
-        .c-capital .icon-box { background: linear-gradient(135deg, #D946EF, #C026D3); box-shadow: 0 4px 10px rgba(217, 70, 239, 0.3); }
-        .c-drawings .icon-box { background: linear-gradient(135deg, #E879F9, #D946EF); box-shadow: 0 4px 10px rgba(232, 121, 249, 0.3); }
-        .c-retained-earnings .icon-box { background: linear-gradient(135deg, #F472B6, #EC4899); box-shadow: 0 4px 10px rgba(244, 114, 182, 0.3); }
+        .c-capital .icon-box { background: linear-gradient(135deg, #D946EF, #C026D3); box-shadow: 0 2px 6px rgba(217, 70, 239, 0.3); }
+        .c-drawings .icon-box { background: linear-gradient(135deg, #E879F9, #D946EF); box-shadow: 0 2px 6px rgba(232, 121, 249, 0.3); }
+        .c-retained-earnings .icon-box { background: linear-gradient(135deg, #F472B6, #EC4899); box-shadow: 0 2px 6px rgba(244, 114, 182, 0.3); }
 
         /* Current Liabilities (Orange/Red) */
-        .c-creditors .icon-box { background: linear-gradient(135deg, #F97316, #EA580C); box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3); }
-        .c-overdraft .icon-box { background: linear-gradient(135deg, #FB923C, #F97316); box-shadow: 0 4px 10px rgba(251, 146, 60, 0.3); }
-        .c-accrued-exp .icon-box { background: linear-gradient(135deg, #FDBA74, #FB923C); box-shadow: 0 4px 10px rgba(253, 186, 116, 0.3); }
-        .c-outstanding .icon-box { background: linear-gradient(135deg, #F87171, #EF4444); box-shadow: 0 4px 10px rgba(248, 113, 113, 0.3); }
-        .c-tax-payable .icon-box { background: linear-gradient(135deg, #DC2626, #B91C1C); box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3); }
+        .c-creditors .icon-box { background: linear-gradient(135deg, #F97316, #EA580C); box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3); }
+        .c-overdraft .icon-box { background: linear-gradient(135deg, #FB923C, #F97316); box-shadow: 0 2px 6px rgba(251, 146, 60, 0.3); }
+        .c-accrued-exp .icon-box { background: linear-gradient(135deg, #FDBA74, #FB923C); box-shadow: 0 2px 6px rgba(253, 186, 116, 0.3); }
+        .c-outstanding .icon-box { background: linear-gradient(135deg, #F87171, #EF4444); box-shadow: 0 2px 6px rgba(248, 113, 113, 0.3); }
+        .c-tax-payable .icon-box { background: linear-gradient(135deg, #DC2626, #B91C1C); box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3); }
 
         /* Non-Current Liabilities (Deep Slate/Grey) */
-        .c-long-loan .icon-box { background: linear-gradient(135deg, #334155, #1E293B); box-shadow: 0 4px 10px rgba(51, 65, 85, 0.3); }
-        .c-mortgage .icon-box { background: linear-gradient(135deg, #475569, #334155); box-shadow: 0 4px 10px rgba(71, 85, 105, 0.3); }
-        .c-debentures .icon-box { background: linear-gradient(135deg, #64748B, #475569); box-shadow: 0 4px 10px rgba(100, 116, 139, 0.3); }
+        .c-long-loan .icon-box { background: linear-gradient(135deg, #334155, #1E293B); box-shadow: 0 2px 6px rgba(51, 65, 85, 0.3); }
+        .c-mortgage .icon-box { background: linear-gradient(135deg, #475569, #334155); box-shadow: 0 2px 6px rgba(71, 85, 105, 0.3); }
+        .c-debentures .icon-box { background: linear-gradient(135deg, #64748B, #475569); box-shadow: 0 2px 6px rgba(100, 116, 139, 0.3); }
 
     </style>
 </head>
@@ -412,7 +414,7 @@
         </div>
         
         <!-- Opening/Closing Stock -->
-        <div class="grid-container" style="margin-bottom: 16px;">
+        <div class="grid-container" style="margin-bottom: 12px;">
              <!-- Opening Stock -->
              <button class="btn-cat c-opening-stock" onclick="goToAdd('OUT', 'Opening Stock')">
                 <div class="icon-box">
@@ -875,7 +877,7 @@
             <!-- Capital -->
             <button class="btn-cat c-capital" onclick="goToAdd('EQUITY', 'Capital')">
                 <div class="icon-box">
-                    <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                 </div>
                 <span class="btn-text">Capital</span>
             </button>
