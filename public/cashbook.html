@@ -163,9 +163,6 @@
       color: #2d3748;
       height: 50px; /* Slightly taller for total */
     }
-    
-    /* Remove bottom border for the very last row (Balance b/d usually) if desired, 
-       but keeping it is cleaner for separation. */
 
     /* Empty State */
     .empty-state {
@@ -201,7 +198,7 @@
     <h1 class="page-title">Cash Book</h1>
 
     <div class="empty-state" id="emptyState">
-      <p>No transactions found to generate Cash Book.</p>
+      <p>No CASH transactions found to generate Cash Book.</p>
     </div>
 
     <div class="cash-book-wrapper" id="cashBookWrapper">
@@ -298,7 +295,16 @@
     function renderCashBook(docs) {
       tableBody.innerHTML = "";
 
-      if (docs.length === 0) {
+      // 1. Filter Docs: Only include CASH transactions (Excludes BANK and CREDIT)
+      const cashDocs = docs.filter(doc => {
+        const data = doc.data();
+        // Check if flowForm exists and is strictly "CASH"
+        // If flowForm is missing, default to including it (optional) or excluding it.
+        // Based on your data, we assume flowForm is present.
+        return data.flowForm && data.flowForm.toUpperCase() === "CASH";
+      });
+
+      if (cashDocs.length === 0) {
         emptyState.classList.add('visible');
         cashBookWrapper.style.display = 'none';
         return;
@@ -329,14 +335,14 @@
 
       const today = getTodayDate();
 
-      // 1. Process Transactions into separate arrays
-      docs.forEach((doc) => {
+      // 2. Process Filtered Transactions
+      cashDocs.forEach((doc) => {
         const data = doc.data();
         const amount = parseFloat(data.amount || 0);
-        const type = (data.type || "IN").toUpperCase();
+        const type = (data.flowType || "IN").toUpperCase(); // Using flowType ('IN'/'OUT') instead of generic 'type'
         
         let detail = data.detail || "-";
-        // Clean name from detail for the particulars column
+        // Clean name from detail for the particulars column (e.g., remove "(juma)")
         const nameMatch = detail.match(/\(([^)]+)\)$/);
         let particulars = detail;
         if (nameMatch) {
@@ -354,6 +360,9 @@
           type: 'trans' // marker for normal transaction
         };
 
+        // Logic: 
+        // flowType 'IN' goes to Debit (Cash received)
+        // flowType 'OUT' goes to Credit (Cash paid out)
         if (type === 'IN') {
           totalDr += amount;
           drRows.push(rowObj);
@@ -363,14 +372,15 @@
         }
       });
 
-      // 2. Calculate Difference & Insert "Balance c/d"
+      // 3. Calculate Difference & Insert "Balance c/d"
       // Determine which side is smaller to add the balancing figure
       let diff = Math.abs(totalDr - totalCr);
       let balanceCdSide = null; // 'dr' or 'cr'
 
       // c/d goes to the side with the SMALLER total to make them equal
       if (totalDr > totalCr) {
-        // Dr is bigger, add to Cr
+        // Dr is bigger, add to Cr (Spent more than received? implies overdraft/cr balance, 
+        // but in cash book usually Dr balance. If Dr > Cr, we have cash in hand, Cr needs balance c/d)
         balanceCdSide = 'cr';
         crRows.push({
           date: today,
@@ -393,7 +403,7 @@
         totalDr += diff;
       }
 
-      // 3. Render Transaction Rows (with padding)
+      // 4. Render Transaction Rows (with padding)
       // We iterate up to the maximum length of the two arrays
       const maxRows = Math.max(drRows.length, crRows.length);
 
@@ -437,7 +447,7 @@
         tableBody.insertAdjacentHTML('beforeend', rowHTML);
       }
 
-      // 4. Render Total Row (Always on one line)
+      // 5. Render Total Row (Always on one line)
       const finalTotal = formatCurrency(totalDr); // totals are equal now
       const totalRowHTML = `
         <tr class="row-total">
@@ -454,7 +464,7 @@
       `;
       tableBody.insertAdjacentHTML('beforeend', totalRowHTML);
 
-      // 5. Render Balance b/d (Brought Down)
+      // 6. Render Balance b/d (Brought Down)
       // Rule: Show after totals, on side OPPOSITE to c/d. 
       // If c/d was on Credit, b/d is on Debit.
       if (diff > 0) {
