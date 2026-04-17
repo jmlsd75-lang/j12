@@ -114,8 +114,12 @@
             text-align: center;
         }
         
+        /* Badges for different categories */
         .badge.in { background-color: #10B981; }
         .badge.out { background-color: #F43F5E; }
+        .badge.asset { background-color: #3B82F6; }
+        .badge.liab { background-color: #EC4899; }
+        .badge.equity { background-color: #8B5CF6; }
 
         /* Grid Layout */
         .grid-container {
@@ -221,7 +225,7 @@
         /* UNIQUE BUTTON COLOR CLASSES */
         /* --------------------------- */
 
-        /* Income Colors */
+        /* Income Colors (Green) */
         .c-sales .icon-box { background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3); }
         .c-discount-rec .icon-box { background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
         .c-commission-rec .icon-box { background: linear-gradient(135deg, #34D399, #10B981); box-shadow: 0 4px 10px rgba(52, 211, 153, 0.3); }
@@ -232,15 +236,13 @@
         .c-gain-asset .icon-box { background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3); }
         .c-sundry-inc .icon-box { background: linear-gradient(135deg, #FBBF24, #F59E0B); box-shadow: 0 4px 10px rgba(251, 191, 36, 0.3); }
 
-        /* Expense Colors - Trading Items */
+        /* Expense Colors (Reds/Oranges) */
         .c-opening-stock .icon-box { background: linear-gradient(135deg, #6366F1, #4F46E5); box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3); }
         .c-closing-stock .icon-box { background: linear-gradient(135deg, #818CF8, #6366F1); box-shadow: 0 4px 10px rgba(129, 140, 248, 0.3); }
         .c-purchases .icon-box { background: linear-gradient(135deg, #E11D48, #BE123C); box-shadow: 0 4px 10px rgba(225, 29, 72, 0.3); }
         .c-sales-ret .icon-box { background: linear-gradient(135deg, #F43F5E, #E11D48); box-shadow: 0 4px 10px rgba(244, 63, 94, 0.3); }
         .c-ret-out .icon-box { background: linear-gradient(135deg, #FB7185, #F43F5E); box-shadow: 0 4px 10px rgba(251, 113, 133, 0.3); }
         .c-carriage-in .icon-box { background: linear-gradient(135deg, #F472B6, #EC4899); box-shadow: 0 4px 10px rgba(244, 114, 182, 0.3); }
-
-        /* Expense Colors - Operating */
         .c-wages .icon-box { background: linear-gradient(135deg, #EF4444, #DC2626); box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); }
         .c-rent-rates .icon-box { background: linear-gradient(135deg, #F87171, #EF4444); box-shadow: 0 4px 10px rgba(248, 113, 113, 0.3); }
         .c-lighting .icon-box { background: linear-gradient(135deg, #FB923C, #F97316); box-shadow: 0 4px 10px rgba(251, 146, 60, 0.3); }
@@ -273,13 +275,45 @@
         .c-travel .icon-box { background: linear-gradient(135deg, #0369A1, #075985); box-shadow: 0 4px 10px rgba(3, 105, 161, 0.3); }
         .c-entertainment .icon-box { background: linear-gradient(135deg, #BE185D, #9D174D); box-shadow: 0 4px 10px rgba(190, 24, 93, 0.3); }
         .c-corp-tax .icon-box { background: linear-gradient(135deg, #B91C1C, #7F1D1D); box-shadow: 0 4px 10px rgba(185, 28, 28, 0.3); }
-
-        /* Distribution & Reserves */
         .c-goodwill .icon-box { background: linear-gradient(135deg, #78716C, #57534E); box-shadow: 0 4px 10px rgba(120, 113, 108, 0.3); }
         .c-pref-div .icon-box { background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3); }
         .c-ord-div .icon-box { background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
         .c-gen-res .icon-box { background: linear-gradient(135deg, #D97706, #B45309); box-shadow: 0 4px 10px rgba(217, 119, 6, 0.3); }
         .c-retained .icon-box { background: linear-gradient(135deg, #0D9488, #0F766E); box-shadow: 0 4px 10px rgba(13, 148, 136, 0.3); }
+
+        /* NEW: Balance Sheet Colors */
+        
+        /* Current Assets (Blue/Cyan) */
+        .c-debtors .icon-box { background: linear-gradient(135deg, #0EA5E9, #0284C7); box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3); }
+        .c-stock .icon-box { background: linear-gradient(135deg, #06B6D4, #0891B2); box-shadow: 0 4px 10px rgba(6, 182, 212, 0.3); }
+        .c-prepayments .icon-box { background: linear-gradient(135deg, #22D3EE, #06B6D4); box-shadow: 0 4px 10px rgba(34, 211, 238, 0.3); }
+        .c-accrued-inc .icon-box { background: linear-gradient(135deg, #38BDF8, #0EA5E9); box-shadow: 0 4px 10px rgba(56, 189, 248, 0.3); }
+
+        /* Non-Current Assets (Indigo/Purple) */
+        .c-land .icon-box { background: linear-gradient(135deg, #6366F1, #4F46E5); box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3); }
+        .c-buildings .icon-box { background: linear-gradient(135deg, #4F46E5, #4338CA); box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
+        .c-plant .icon-box { background: linear-gradient(135deg, #818CF8, #6366F1); box-shadow: 0 4px 10px rgba(129, 140, 248, 0.3); }
+        .c-motor-veh-asset .icon-box { background: linear-gradient(135deg, #4338CA, #3730A3); box-shadow: 0 4px 10px rgba(67, 56, 202, 0.3); }
+        .c-furniture .icon-box { background: linear-gradient(135deg, #A78BFA, #8B5CF6); box-shadow: 0 4px 10px rgba(167, 139, 250, 0.3); }
+        .c-equipment .icon-box { background: linear-gradient(135deg, #8B5CF6, #7C3AED); box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3); }
+        .c-goodwill-asset .icon-box { background: linear-gradient(135deg, #64748B, #475569); box-shadow: 0 4px 10px rgba(100, 116, 139, 0.3); }
+
+        /* Equity (Purple/Pink) */
+        .c-capital .icon-box { background: linear-gradient(135deg, #D946EF, #C026D3); box-shadow: 0 4px 10px rgba(217, 70, 239, 0.3); }
+        .c-drawings .icon-box { background: linear-gradient(135deg, #E879F9, #D946EF); box-shadow: 0 4px 10px rgba(232, 121, 249, 0.3); }
+        .c-retained-earnings .icon-box { background: linear-gradient(135deg, #F472B6, #EC4899); box-shadow: 0 4px 10px rgba(244, 114, 182, 0.3); }
+
+        /* Current Liabilities (Orange/Red) */
+        .c-creditors .icon-box { background: linear-gradient(135deg, #F97316, #EA580C); box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3); }
+        .c-overdraft .icon-box { background: linear-gradient(135deg, #FB923C, #F97316); box-shadow: 0 4px 10px rgba(251, 146, 60, 0.3); }
+        .c-accrued-exp .icon-box { background: linear-gradient(135deg, #FDBA74, #FB923C); box-shadow: 0 4px 10px rgba(253, 186, 116, 0.3); }
+        .c-outstanding .icon-box { background: linear-gradient(135deg, #F87171, #EF4444); box-shadow: 0 4px 10px rgba(248, 113, 113, 0.3); }
+        .c-tax-payable .icon-box { background: linear-gradient(135deg, #DC2626, #B91C1C); box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3); }
+
+        /* Non-Current Liabilities (Deep Slate/Grey) */
+        .c-long-loan .icon-box { background: linear-gradient(135deg, #334155, #1E293B); box-shadow: 0 4px 10px rgba(51, 65, 85, 0.3); }
+        .c-mortgage .icon-box { background: linear-gradient(135deg, #475569, #334155); box-shadow: 0 4px 10px rgba(71, 85, 105, 0.3); }
+        .c-debentures .icon-box { background: linear-gradient(135deg, #64748B, #475569); box-shadow: 0 4px 10px rgba(100, 116, 139, 0.3); }
 
     </style>
 </head>
@@ -715,7 +749,7 @@
                 <span class="btn-text">Ordinary Dividends</span>
             </button>
 
-            <!-- General Reserve (ADDED) -->
+            <!-- General Reserve -->
             <button class="btn-cat c-gen-res" onclick="goToAdd('OUT', 'General Reserve')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
@@ -723,12 +757,215 @@
                 <span class="btn-text">General Reserve</span>
             </button>
 
-            <!-- Retained Profit (ADDED) -->
+            <!-- Retained Profit -->
             <button class="btn-cat c-retained" onclick="goToAdd('OUT', 'Retained Profit')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
                 </div>
                 <span class="btn-text">Retained Profit</span>
+            </button>
+        </div>
+
+
+        <!-- ========================================== -->
+        <!-- NEW: BALANCE SHEET ITEMS (ASSETS/LIABS/EQUITY) -->
+        <!-- ========================================== -->
+
+        <!-- ASSETS SECTION -->
+        <div class="section-header">
+            <span class="badge asset">ASSETS</span>
+            <h2>Assets</h2>
+        </div>
+
+        <div class="subsection-header">
+            <h3>Current Assets</h3>
+        </div>
+        <div class="grid-container">
+            <!-- Debtors -->
+            <button class="btn-cat c-debtors" onclick="goToAdd('ASSET', 'Debtors')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                </div>
+                <span class="btn-text">Debtors</span>
+            </button>
+            <!-- Stock -->
+            <button class="btn-cat c-stock" onclick="goToAdd('ASSET', 'Stock')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                </div>
+                <span class="btn-text">Stock</span>
+            </button>
+            <!-- Prepayments -->
+            <button class="btn-cat c-prepayments" onclick="goToAdd('ASSET', 'Prepayments')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                </div>
+                <span class="btn-text">Prepayments</span>
+            </button>
+            <!-- Accrued Income -->
+            <button class="btn-cat c-accrued-inc" onclick="goToAdd('ASSET', 'Accrued Income')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                </div>
+                <span class="btn-text">Accrued Income</span>
+            </button>
+        </div>
+
+        <div class="subsection-header">
+            <h3>Non-Current Assets</h3>
+        </div>
+        <div class="grid-container">
+            <!-- Land -->
+            <button class="btn-cat c-land" onclick="goToAdd('ASSET', 'Land')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M2 20h20"></path><path d="m15.59 15.29-8.17-8.17a3 3 0 0 0-4.24 0L2 8.29V20h13.17l.42-.41Z"></path></svg>
+                </div>
+                <span class="btn-text">Land</span>
+            </button>
+            <!-- Buildings -->
+            <button class="btn-cat c-buildings" onclick="goToAdd('ASSET', 'Buildings')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M5 21V7l8-4 8 4v14"></path><path d="M17 21v-8H7v8"></path></svg>
+                </div>
+                <span class="btn-text">Buildings</span>
+            </button>
+            <!-- Plant & Machinery -->
+            <button class="btn-cat c-plant" onclick="goToAdd('ASSET', 'Plant & Machinery')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M12 9a4 4 0 0 0-2 7.5"></path><path d="M12 3v2"></path><path d="M6.6 18.4l-1.4 1.4"></path><path d="M20 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg>
+                </div>
+                <span class="btn-text">Plant & Machinery</span>
+            </button>
+            <!-- Motor Vehicles -->
+            <button class="btn-cat c-motor-veh-asset" onclick="goToAdd('ASSET', 'Motor Vehicles')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9L18 10l-3-5H4v14h2"></path><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle></svg>
+                </div>
+                <span class="btn-text">Motor Vehicles</span>
+            </button>
+            <!-- Furniture & Fittings -->
+            <button class="btn-cat c-furniture" onclick="goToAdd('ASSET', 'Furniture & Fittings')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M4 22v-4"></path><path d="M20 22v-4"></path><path d="M4 18V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12"></path><path d="M14 13a2 2 0 1 1-4 0"></path><path d="M8 13h8"></path></svg>
+                </div>
+                <span class="btn-text">Furniture & Fittings</span>
+            </button>
+            <!-- Equipment -->
+            <button class="btn-cat c-equipment" onclick="goToAdd('ASSET', 'Equipment')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                </div>
+                <span class="btn-text">Equipment</span>
+            </button>
+            <!-- Goodwill -->
+            <button class="btn-cat c-goodwill-asset" onclick="goToAdd('ASSET', 'Goodwill')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M7 11v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3a4 4 0 0 0 4-4V6a4 4 0 0 0-4-4H4a2 2 0 0 0-2 2v12"></path><path d="M20 11v8a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3a4 4 0 0 0 4-4V6a4 4 0 0 0-4-4h-3a2 2 0 0 0-2 2v12"></path></svg>
+                </div>
+                <span class="btn-text">Goodwill</span>
+            </button>
+        </div>
+
+        <!-- EQUITY SECTION -->
+        <div class="section-header">
+            <span class="badge equity">EQTY</span>
+            <h2>Equity</h2>
+        </div>
+        <div class="grid-container">
+            <!-- Capital -->
+            <button class="btn-cat c-capital" onclick="goToAdd('EQUITY', 'Capital')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                </div>
+                <span class="btn-text">Capital</span>
+            </button>
+            <!-- Drawings -->
+            <button class="btn-cat c-drawings" onclick="goToAdd('EQUITY', 'Drawings')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"></path><path d="M18 12a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4v-8h-4z"></path></svg>
+                </div>
+                <span class="btn-text">Drawings</span>
+            </button>
+            <!-- Retained Earnings / Loss -->
+            <button class="btn-cat c-retained-earnings" onclick="goToAdd('EQUITY', 'Retained Earnings')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+                </div>
+                <span class="btn-text">Retained Earnings/Loss</span>
+            </button>
+        </div>
+
+        <!-- LIABILITIES SECTION -->
+        <div class="section-header">
+            <span class="badge liab">LIAB</span>
+            <h2>Liabilities</h2>
+        </div>
+
+        <div class="subsection-header">
+            <h3>Current Liabilities</h3>
+        </div>
+        <div class="grid-container">
+            <!-- Creditors -->
+            <button class="btn-cat c-creditors" onclick="goToAdd('LIAB', 'Creditors')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                </div>
+                <span class="btn-text">Creditors</span>
+            </button>
+            <!-- Bank Overdraft -->
+            <button class="btn-cat c-overdraft" onclick="goToAdd('LIAB', 'Bank Overdraft')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line><line x1="12" y1="15" x2="12" y2="15"></line></svg>
+                </div>
+                <span class="btn-text">Bank Overdraft</span>
+            </button>
+            <!-- Accrued Expenses -->
+            <button class="btn-cat c-accrued-exp" onclick="goToAdd('LIAB', 'Accrued Expenses')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                </div>
+                <span class="btn-text">Accrued Expenses</span>
+            </button>
+            <!-- Outstanding Expenses -->
+            <button class="btn-cat c-outstanding" onclick="goToAdd('LIAB', 'Outstanding Expenses')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                </div>
+                <span class="btn-text">Outstanding Expenses</span>
+            </button>
+            <!-- Tax Payable -->
+            <button class="btn-cat c-tax-payable" onclick="goToAdd('LIAB', 'Tax Payable')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </div>
+                <span class="btn-text">Tax Payable</span>
+            </button>
+        </div>
+
+        <div class="subsection-header">
+            <h3>Long Term Liabilities</h3>
+        </div>
+        <div class="grid-container">
+            <!-- Long Term Loan -->
+            <button class="btn-cat c-long-loan" onclick="goToAdd('LIAB', 'Long Term Loan')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M2 20h20"></path><path d="M5 20V8l8-4 8 4v12"></path><rect x="9" y="13" width="6" height="7"></rect></svg>
+                </div>
+                <span class="btn-text">Long Term Loan</span>
+            </button>
+            <!-- Mortgage -->
+            <button class="btn-cat c-mortgage" onclick="goToAdd('LIAB', 'Mortgage')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M5 21V7l8-4 8 4v14"></path><path d="M17 21v-8H7v8"></path></svg>
+                </div>
+                <span class="btn-text">Mortgage</span>
+            </button>
+            <!-- Debentures -->
+            <button class="btn-cat c-debentures" onclick="goToAdd('LIAB', 'Debentures')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </div>
+                <span class="btn-text">Debentures</span>
             </button>
         </div>
 
