@@ -171,7 +171,7 @@
     <div class="page-header">
       <div>
         <h1 class="page-title">General Journal</h1>
-        <div class="subtitle">Adjustments, Corrections & General Expenses</div>
+        <div class="subtitle">All Credit Transactions (Excluding Sales & Purchases)</div>
       </div>
       <button onclick="window.print()" style="background:none; border:1px solid #ddd; padding:8px 12px; border-radius:6px; cursor:pointer; color:var(--text-muted);">
         <svg style="width:16px;height:16px;vertical-align:middle" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg>
@@ -211,7 +211,7 @@
           <polyline points="10 9 9 9 8 9"></polyline>
         </svg>
         <p style="margin-top:15px;">No entries found for the General Journal.</p>
-        <p style="font-size:0.8rem; margin-top:5px;">(Cash, Bank, Sales, and Purchase transactions are excluded)</p>
+        <p style="font-size:0.8rem; margin-top:5px;">(Cash/Bank transactions and Sales/Purchases are excluded)</p>
       </div>
     </div>
   </main>
@@ -278,7 +278,7 @@
     });
 
     // ============================================================
-    // CORE LOGIC: DOUBLE ENTRY GENERATION
+    // CORE LOGIC: GENERAL JOURNAL GENERATION
     // ============================================================
     async function fetchAndProcessJournal(userEmail) {
       try {
@@ -295,7 +295,9 @@
         querySnapshot.forEach((doc) => {
           const data = doc.data();
           
-          // Apply Filters
+          // STRICT FILTERING: 
+          // 1. Must be a Credit transaction (not Cash/Bank)
+          // 2. Must NOT be a Sale or a Purchase
           if (!isGeneralJournalEntry(data)) return;
 
           // 1. Parse the Transaction Detail
@@ -367,7 +369,7 @@
           creditAccount: match[2].trim()
         };
       } else {
-        // Fallback if no parentheses found
+        // Fallback if no parentheses found (Default to General Creditor)
         return {
           debitAccount: detail,
           creditAccount: "General Creditor"
@@ -376,31 +378,50 @@
     }
 
     /**
-     * FILTERING LOGIC
-     * Strictly excludes Sales and Purchases as requested.
+     * REVISED FILTERING LOGIC
+     * 
+     * 1. Returns TRUE for: All credit transactions (Rent, Utilities, Corrections, etc).
+     * 2. Returns FALSE for: Cash/Bank transactions (belong in Cash Book).
+     * 3. Returns FALSE for: Sales (belong in Sales Journal).
+     * 4. Returns FALSE for: Purchases (belong in Purchases Journal).
      */
     function isGeneralJournalEntry(t) {
       const method = (t.method || "").toUpperCase();
       const category = (t.category || "").toLowerCase();
+      const detail = (t.detail || "").toLowerCase();
 
-      // Rule 1: Exclude Cash/Bank (Cash Book)
-      if (method === "CASH" || method === "BANK" || method === "TRANSFER" || method === "MOBILE") {
+      // ---------------------------------------------------------
+      // EXCLUSION 1: CASH & BANK TRANSACTIONS
+      // If it involves immediate payment, it does NOT go in General Journal.
+      // ---------------------------------------------------------
+      if (method === "CASH" || method === "BANK" || method === "TRANSFER" || method === "MOBILE" || method === "MPESA") {
         return false;
       }
 
-      // Rule 2: Exclude Credit Sales (Sales Journal)
-      // Checks for "sale", "sales", or "revenue"
-      if (category.includes("sale") || category.includes("revenue")) {
+      // ---------------------------------------------------------
+      // EXCLUSION 2: SALES TRANSACTIONS
+      // Even if on Credit, Sales have their own journal.
+      // ---------------------------------------------------------
+      if (category.includes("sale") || category.includes("revenue") || category.includes("income") || detail.includes("sale")) {
         return false;
       }
 
-      // Rule 3: Exclude Credit Purchases (Purchases Journal)
-      // Checks for "purchase" or "purchases"
-      if (category.includes("purchase")) {
+      // ---------------------------------------------------------
+      // EXCLUSION 3: PURCHASE TRANSACTIONS
+      // Even if on Credit, Purchases have their own journal.
+      // ---------------------------------------------------------
+      if (category.includes("purchase") || category.includes("inventory") || category.includes("stock") || detail.includes("purchase")) {
         return false;
       }
 
-      // Rule 4: Everything else (General Expenses, Adjustments, Corrections) -> General Journal
+      // ---------------------------------------------------------
+      // ACCEPTANCE
+      // If we reached here, the transaction is:
+      // 1. NOT Cash/Bank
+      // 2. NOT a Sale
+      // 3. NOT a Purchase
+      // Therefore, it is a General Journal Credit Transaction (e.g., Rent Expense, Drawings).
+      // ---------------------------------------------------------
       return true;
     }
 
