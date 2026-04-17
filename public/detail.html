@@ -56,7 +56,6 @@
         main {
             flex: 1;
             padding: 15px;
-            /* Removed max-width: 800px to allow full screen fill */
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -113,17 +112,16 @@
             text-align: center;
         }
         
-        /* Badges for different categories */
+        /* Badges */
         .badge.in { background-color: #10B981; }
         .badge.out { background-color: #F43F5E; }
         .badge.asset { background-color: #3B82F6; }
         .badge.liab { background-color: #EC4899; }
         .badge.equity { background-color: #8B5CF6; }
 
-        /* Grid Layout - Full Width */
+        /* Grid Layout */
         .grid-container {
             display: grid;
-            /* Smaller columns to fit more horizontally */
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             gap: 12px;
             width: 100%;
@@ -137,7 +135,6 @@
             cursor: pointer;
             background: white;
             border-radius: 12px;
-            /* Adjusted padding for smaller layout */
             padding: 16px 8px;
             display: flex;
             flex-direction: column;
@@ -147,7 +144,6 @@
             transition: transform 0.15s ease, box-shadow 0.15s ease;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             height: 100%;
-            /* Reduced height slightly */
             min-height: 100px; 
             width: 100%;
         }
@@ -161,15 +157,15 @@
             box-shadow: 0 6px 12px -3px rgba(0, 0, 0, 0.1);
         }
 
-        /* Icon Wrapper - Reduced by Half */
+        /* Icon Wrapper */
         .icon-box {
-            width: 24px;  /* Reduced from 48px */
-            height: 24px; /* Reduced from 48px */
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 8px; /* Reduced margin */
+            margin-bottom: 8px;
             color: white;
             transition: transform 0.2s;
         }
@@ -180,7 +176,7 @@
 
         /* Button Text */
         .btn-text {
-            font-size: 0.75rem; /* Slightly smaller font */
+            font-size: 0.75rem;
             font-weight: 600;
             color: #374151;
             line-height: 1.2;
@@ -188,7 +184,7 @@
 
         /* Icon SVG Styling */
         .icon-box svg {
-            width: 14px; /* Scaled down to fit smaller box */
+            width: 14px;
             height: 14px;
             stroke-width: 2.5;
             stroke: currentColor;
@@ -197,7 +193,7 @@
             stroke-linejoin: round;
         }
 
-        /* Footer / Back Link */
+        /* Footer */
         .footer-nav {
             padding: 30px 20px;
             text-align: center;
@@ -224,10 +220,10 @@
         }
 
         /* --------------------------- */
-        /* UNIQUE BUTTON COLOR CLASSES */
+        /* BUTTON COLOR CLASSES       */
         /* --------------------------- */
 
-        /* Income Colors (Green) */
+        /* Income */
         .c-sales .icon-box { background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3); }
         .c-discount-rec .icon-box { background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3); }
         .c-commission-rec .icon-box { background: linear-gradient(135deg, #34D399, #10B981); box-shadow: 0 2px 6px rgba(52, 211, 153, 0.3); }
@@ -238,7 +234,7 @@
         .c-gain-asset .icon-box { background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3); }
         .c-sundry-inc .icon-box { background: linear-gradient(135deg, #FBBF24, #F59E0B); box-shadow: 0 2px 6px rgba(251, 191, 36, 0.3); }
 
-        /* Expense Colors (Reds/Oranges) */
+        /* Expense */
         .c-opening-stock .icon-box { background: linear-gradient(135deg, #6366F1, #4F46E5); box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3); }
         .c-closing-stock .icon-box { background: linear-gradient(135deg, #818CF8, #6366F1); box-shadow: 0 2px 6px rgba(129, 140, 248, 0.3); }
         .c-purchases .icon-box { background: linear-gradient(135deg, #E11D48, #BE123C); box-shadow: 0 2px 6px rgba(225, 29, 72, 0.3); }
@@ -285,13 +281,13 @@
 
         /* Balance Sheet Colors */
         
-        /* Current Assets (Blue/Cyan) */
+        /* Current Assets */
         .c-debtors .icon-box { background: linear-gradient(135deg, #0EA5E9, #0284C7); box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3); }
         .c-stock .icon-box { background: linear-gradient(135deg, #06B6D4, #0891B2); box-shadow: 0 2px 6px rgba(6, 182, 212, 0.3); }
         .c-prepayments .icon-box { background: linear-gradient(135deg, #22D3EE, #06B6D4); box-shadow: 0 2px 6px rgba(34, 211, 238, 0.3); }
         .c-accrued-inc .icon-box { background: linear-gradient(135deg, #38BDF8, #0EA5E9); box-shadow: 0 2px 6px rgba(56, 189, 248, 0.3); }
 
-        /* Non-Current Assets (Indigo/Purple) */
+        /* Non-Current Assets */
         .c-land .icon-box { background: linear-gradient(135deg, #6366F1, #4F46E5); box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3); }
         .c-buildings .icon-box { background: linear-gradient(135deg, #4F46E5, #4338CA); box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3); }
         .c-plant .icon-box { background: linear-gradient(135deg, #818CF8, #6366F1); box-shadow: 0 2px 6px rgba(129, 140, 248, 0.3); }
@@ -300,19 +296,19 @@
         .c-equipment .icon-box { background: linear-gradient(135deg, #8B5CF6, #7C3AED); box-shadow: 0 2px 6px rgba(139, 92, 246, 0.3); }
         .c-goodwill-asset .icon-box { background: linear-gradient(135deg, #64748B, #475569); box-shadow: 0 2px 6px rgba(100, 116, 139, 0.3); }
 
-        /* Equity (Purple/Pink) */
+        /* Equity */
         .c-capital .icon-box { background: linear-gradient(135deg, #D946EF, #C026D3); box-shadow: 0 2px 6px rgba(217, 70, 239, 0.3); }
         .c-drawings .icon-box { background: linear-gradient(135deg, #E879F9, #D946EF); box-shadow: 0 2px 6px rgba(232, 121, 249, 0.3); }
         .c-retained-earnings .icon-box { background: linear-gradient(135deg, #F472B6, #EC4899); box-shadow: 0 2px 6px rgba(244, 114, 182, 0.3); }
 
-        /* Current Liabilities (Orange/Red) */
+        /* Current Liabilities */
         .c-creditors .icon-box { background: linear-gradient(135deg, #F97316, #EA580C); box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3); }
         .c-overdraft .icon-box { background: linear-gradient(135deg, #FB923C, #F97316); box-shadow: 0 2px 6px rgba(251, 146, 60, 0.3); }
         .c-accrued-exp .icon-box { background: linear-gradient(135deg, #FDBA74, #FB923C); box-shadow: 0 2px 6px rgba(253, 186, 116, 0.3); }
         .c-outstanding .icon-box { background: linear-gradient(135deg, #F87171, #EF4444); box-shadow: 0 2px 6px rgba(248, 113, 113, 0.3); }
         .c-tax-payable .icon-box { background: linear-gradient(135deg, #DC2626, #B91C1C); box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3); }
 
-        /* Non-Current Liabilities (Deep Slate/Grey) */
+        /* Non-Current Liabilities */
         .c-long-loan .icon-box { background: linear-gradient(135deg, #334155, #1E293B); box-shadow: 0 2px 6px rgba(51, 65, 85, 0.3); }
         .c-mortgage .icon-box { background: linear-gradient(135deg, #475569, #334155); box-shadow: 0 2px 6px rgba(71, 85, 105, 0.3); }
         .c-debentures .icon-box { background: linear-gradient(135deg, #64748B, #475569); box-shadow: 0 2px 6px rgba(100, 116, 139, 0.3); }
@@ -770,7 +766,7 @@
 
 
         <!-- ========================================== -->
-        <!-- NEW: BALANCE SHEET ITEMS (ASSETS/LIABS/EQUITY) -->
+        /* NEW: BALANCE SHEET ITEMS (ASSETS/LIABS/EQUITY) */
         <!-- ========================================== -->
 
         <!-- ASSETS SECTION -->
@@ -859,7 +855,7 @@
                 </div>
                 <span class="btn-text">Equipment</span>
             </button>
-            <!-- Goodwill -->
+            <!-- Goodwill (Asset) -->
             <button class="btn-cat c-goodwill-asset" onclick="goToAdd('ASSET', 'Goodwill')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M7 11v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3a4 4 0 0 0 4-4V6a4 4 0 0 0-4-4H4a2 2 0 0 0-2 2v12"></path><path d="M20 11v8a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3a4 4 0 0 0 4-4V6a4 4 0 0 0-4-4h-3a2 2 0 0 0-2 2v12"></path></svg>
@@ -982,8 +978,23 @@
 
     <script>
         function goToAdd(flow, detail) {
-            // Redirect to add-transaction.html with query parameters
-            const url = `add-transaction.html?flow=${encodeURIComponent(flow)}&detail=${encodeURIComponent(detail)}`;
+            // --- INTERNAL LOGIC OVERRIDE ---
+            // This ensures that specific accounts are treated according to their 
+            // accounting nature, preventing them from being recorded in the Cash Book.
+            
+            let actualFlow = flow;
+
+            // Mapping specific details to their correct flow types
+            if (detail === 'Capital') actualFlow = 'EQUITY';
+            if (detail === 'Drawings') actualFlow = 'EQUITY';
+            if (detail === 'Retained Earnings') actualFlow = 'EQUITY';
+            
+            // Note: 'Goodwill' is handled correctly by the explicit calls:
+            // 1. In Expenses -> goToAdd('OUT', 'Goodwill Written off')
+            // 2. In Assets  -> goToAdd('ASSET', 'Goodwill')
+            
+            // Redirect to add-transaction.html with parameters
+            const url = `add-transaction.html?flow=${encodeURIComponent(actualFlow)}&detail=${encodeURIComponent(detail)}`;
             window.location.href = url;
         }
     </script>
