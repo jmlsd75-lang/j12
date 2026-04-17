@@ -61,7 +61,7 @@
     main {
       flex: 1;
       padding: 2rem;
-      max-width: 1100px;
+      max-width: 900px;
       margin: 0 auto;
       width: 100%;
     }
@@ -88,12 +88,12 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
     }
 
     th, td {
       border: 1px solid var(--border-color);
-      padding: 10px 12px;
+      padding: 12px 16px;
       vertical-align: middle;
     }
 
@@ -101,27 +101,25 @@
       background-color: var(--header-bg);
       font-weight: bold;
       text-transform: uppercase;
-      text-align: center;
+      text-align: left;
     }
 
-    .col-op { width: 20%; }
-    .col-detail { width: 45%; }
-    .col-amt { width: 35%; text-align: right; font-weight: bold; font-family: 'Courier New', monospace; }
+    .col-detail { width: 60%; }
+    .col-amt { width: 40%; text-align: right; font-weight: bold; font-family: 'Courier New', monospace; }
 
-    /* Section Divider Row */
     .section-row td {
-      background-color: #f0f2f5;
-      font-weight: bold;
+      background-color: #e8e8e8;
+      font-weight: 800;
       text-transform: uppercase;
       font-size: 1rem;
       text-align: center;
       border-top: 2px solid var(--border-color);
       border-bottom: 2px solid var(--border-color);
-      padding: 15px;
+      padding: 12px;
       letter-spacing: 1px;
+      color: #000;
     }
 
-    /* Subtotal / Total styling */
     .sub-total td {
       background-color: #fafafa;
       font-weight: 600;
@@ -133,6 +131,7 @@
       font-weight: 800;
       font-size: 1.1rem;
       border-top: 2px solid var(--border-color);
+      border-bottom: 2px solid var(--border-color);
     }
 
     .loading-msg, .empty-msg {
@@ -183,13 +182,12 @@
       <table>
         <thead>
           <tr>
-            <th class="col-op">Operation</th>
-            <th class="col-detail">Details</th>
+            <th class="col-detail">Particulars</th>
             <th class="col-amt">Amount (TZS)</th>
           </tr>
         </thead>
         <tbody id="statementBody">
-          <tr><td colspan="3" class="loading-msg">Calculating Financials...</td></tr>
+          <tr><td colspan="2" class="loading-msg">Calculating Financials...</td></tr>
         </tbody>
       </table>
     </div>
@@ -221,25 +219,22 @@
       return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
     };
 
-    // --- ROW BUILDERS ---
-
-    const createRow = (op, detail, amt, isTotal = false) => {
-      const amtStr = amt !== null && amt !== undefined ? formatCurrency(amt) : '-';
+    const createRow = (detail, amt, isTotal = false) => {
+      const amtStr = amt !== null && amt !== undefined ? formatCurrency(amt) : '';
       const cssClass = isTotal ? 'grand-total' : (amt !== null ? 'sub-total' : '');
       
       return `<tr class="${cssClass}">
-        <td>${op}</td>
         <td>${detail}</td>
         <td class="col-amt">${amtStr}</td>
       </tr>`;
     };
 
     const createSectionHeader = (title) => {
-      return `<tr class="section-row"><td colspan="3">${title}</td></tr>`;
+      return `<tr class="section-row"><td colspan="2">${title}</td></tr>`;
     };
 
     const createSpacer = () => {
-      return `<tr><td colspan="3" style="padding: 5px; background: #fafafa; border:none;"></td></tr>`;
+      return `<tr><td colspan="2" style="padding: 5px; background: #fafafa; border:none;"></td></tr>`;
     };
 
     onAuthStateChanged(auth, (user) => {
@@ -257,10 +252,10 @@
 
     async function generateStatement(userEmail) {
       showStatus("Calculating Financials...", false);
-      tableBody.innerHTML = `<tr><td colspan="3" class="loading-msg">Processing...</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="2" class="loading-msg">Processing...</td></tr>`;
       
       try {
-        // 1. Fetch and Process Data
+        // 1. Fetch All Data
         const transactionsRef = collection(db, "users", userEmail, "transactions");
         const q = query(transactionsRef, orderBy("date", "asc"));
         const querySnapshot = await getDocs(q);
@@ -273,7 +268,7 @@
           const type = (data.type || "IN").toUpperCase();
           let detail = data.detail || "General";
 
-          // Parse Detail to get Account Name
+          // Clean Detail Name
           const nameMatch = detail.match(/\(([^)]+)\)$/);
           if (nameMatch) {
             detail = detail.replace(/\s*\([^)]+\)$/, "").trim();
@@ -281,18 +276,54 @@
 
           if (!accounts[detail]) accounts[detail] = { dr: 0, cr: 0 };
 
-          // Ledger Rule: OUT = DR, IN = CR
           if (type === 'OUT') accounts[detail].dr += amount;
           else accounts[detail].cr += amount;
         });
 
-        // Helper: Get Absolute Balance (assuming account is Dr balance if Dr>Cr, else Cr balance)
         const getAbsBal = (name) => {
           const acc = accounts[name] || { dr: 0, cr: 0 };
           return Math.abs(acc.dr - acc.cr);
         };
 
-        // --- 2. Define Balance Sheet Categories ---
+        // ---------------------------------------------------------
+        // 2. INTERNAL CALCULATION (DO NOT DISPLAY IN TABLE)
+        // ---------------------------------------------------------
+        
+        // Trading A/C Items
+        const sales = getAbsBal("Sales");
+        const salesReturns = getAbsBal("Sales Returns");
+        const openingStock = getAbsBal("Opening Stock");
+        const purchases = getAbsBal("Purchases");
+        const returnsOut = getAbsBal("Returns Outwards");
+        const carriageIn = getAbsBal("Carriage Inwards");
+        const closingStock = getAbsBal("Closing Stock");
+        
+        const netSales = sales - salesReturns;
+        const purchasesNet = purchases - returnsOut;
+        const cogs = openingStock + purchasesNet + carriageIn - closingStock;
+        const grossProfit = netSales - cogs;
+
+        // Income & Expense Items
+        const incomeList = ["Discount Received", "Commission Received", "Rent Received", "Interest Received", "Dividend Income", "Bad Debts Recovered", "Gain on Sale of Asset", "Sundry Income"];
+        const expenseList = ["Wages & Salaries", "Rent & Rates", "Lighting & Heating", "Electricity & Gas", "Water Charges", "Telephone & Internet", "Stationery", "Postage & Courier", "Advertising Expenses", "Carriage Outwards", "Repairs & Maintenance", "Depreciation", "Insurance", "Motor Vehicle Expenses", "Fuel & Transport", "Office Expenses", "General Expenses", "Sundry Expenses", "Bank Charges", "Bad Debts", "Provision for Doubtful Debts", "Directors’ Remuneration", "Debenture Interest", "Warehouse Rent", "Security Expenses", "Legal & Professional Fees", "Audit Fees", "Subscriptions", "Training Expenses", "Travel & Accommodation", "Entertainment Expenses"];
+        
+        let totalInc = 0;
+        incomeList.forEach(inc => totalInc += getAbsBal(inc));
+        let totalExp = 0;
+        expenseList.forEach(exp => totalExp += getAbsBal(exp));
+        
+        // Appropriation
+        const corpTax = getAbsBal("Corporation Tax");
+        const genRes = getAbsBal("General Reserve");
+        const prefDiv = getAbsBal("Preference Dividends");
+        const ordDiv = getAbsBal("Ordinary Dividends");
+        
+        const netProfit = grossProfit + totalInc - totalExp;
+        const currentRetainedEarnings = netProfit - (corpTax + genRes + prefDiv + ordDiv);
+
+        // ---------------------------------------------------------
+        // 3. BALANCE SHEET DEFINITIONS (ONLY THESE SHOW IN TABLE)
+        // ---------------------------------------------------------
 
         // === ASSETS ===
         const currentAssets = [
@@ -320,145 +351,118 @@
           "Capital", "Drawings", "Share Capital", "Preference Share Capital", "Ordinary Share Capital"
         ];
 
-        // --- 3. Calculation Logic ---
+        // ---------------------------------------------------------
+        // 4. CALCULATE TOTALS FOR DISPLAY
+        // ---------------------------------------------------------
 
-        // A. Assets Calculation
         let totalCurrentAssets = 0;
-        currentAssets.forEach(acc => {
-          totalCurrentAssets += getAbsBal(acc);
-        });
+        currentAssets.forEach(acc => totalCurrentAssets += getAbsBal(acc));
 
         let totalNonCurrentAssets = 0;
-        nonCurrentAssets.forEach(acc => {
-          totalNonCurrentAssets += getAbsBal(acc);
-        });
+        nonCurrentAssets.forEach(acc => totalNonCurrentAssets += getAbsBal(acc));
         const totalAssets = totalCurrentAssets + totalNonCurrentAssets;
 
-        // B. Liabilities Calculation
         let totalCurrentLiabilities = 0;
-        currentLiabilities.forEach(acc => {
-          totalCurrentLiabilities += getAbsBal(acc);
-        });
+        currentLiabilities.forEach(acc => totalCurrentLiabilities += getAbsBal(acc));
 
         let totalNonCurrentLiabilities = 0;
-        nonCurrentLiabilities.forEach(acc => {
-          totalNonCurrentLiabilities += getAbsBal(acc);
-        });
+        nonCurrentLiabilities.forEach(acc => totalNonCurrentLiabilities += getAbsBal(acc));
         const totalLiabilities = totalCurrentLiabilities + totalNonCurrentLiabilities;
 
-        // C. Equity Calculation
-        // Base Equity (Capital + Share Capital)
         let totalEquityInput = 0;
-        equityItems.forEach(acc => {
-            totalEquityInput += getAbsBal(acc);
-        });
-
-        // Calculate Retained Earnings from Profit & Loss logic
-        // Gross Profit
-        const sales = getAbsBal("Sales");
-        const salesReturns = getAbsBal("Sales Returns");
-        const openingStock = getAbsBal("Opening Stock");
-        const purchases = getAbsBal("Purchases");
-        const returnsOut = getAbsBal("Returns Outwards");
-        const carriageIn = getAbsBal("Carriage Inwards");
-        const closingStock = getAbsBal("Closing Stock");
-        
-        const netSales = sales - salesReturns;
-        const purchasesNet = purchases - returnsOut;
-        const cogs = openingStock + purchasesNet + carriageIn - closingStock;
-        const grossProfit = netSales - cogs;
-
-        // Net Profit
-        const incomeList = ["Discount Received", "Commission Received", "Rent Received", "Interest Received", "Dividend Income", "Bad Debts Recovered", "Gain on Sale of Asset", "Sundry Income"];
-        const expenseList = ["Wages & Salaries", "Rent & Rates", "Lighting & Heating", "Electricity & Gas", "Water Charges", "Telephone & Internet", "Stationery", "Postage & Courier", "Advertising Expenses", "Carriage Outwards", "Repairs & Maintenance", "Depreciation", "Insurance", "Motor Vehicle Expenses", "Fuel & Transport", "Office Expenses", "General Expenses", "Sundry Expenses", "Bank Charges", "Bad Debts", "Provision for Doubtful Debts", "Directors’ Remuneration", "Debenture Interest", "Warehouse Rent", "Security Expenses", "Legal & Professional Fees", "Audit Fees", "Subscriptions", "Training Expenses", "Travel & Accommodation", "Entertainment Expenses"];
-        
-        let totalInc = 0;
-        incomeList.forEach(inc => totalInc += getAbsBal(inc));
-        let totalExp = 0;
-        expenseList.forEach(exp => totalExp += getAbsBal(exp));
-        
-        const netProfit = grossProfit + totalInc - totalExp;
-
-        // Appropriation items affecting Equity
-        const corpTax = getAbsBal("Corporation Tax");
-        const genRes = getAbsBal("General Reserve");
-        const prefDiv = getAbsBal("Preference Dividends");
-        const ordDiv = getAbsBal("Ordinary Dividends");
-        
-        // Calculate Retained Earnings for Balance Sheet
-        // Note: We don't use "Retained Profit b/f" account here directly to avoid double counting if it exists in the ledger, 
-        // we calculate the change in retained earnings for this period and add it.
-        const currentRetainedEarnings = netProfit - (corpTax + genRes + prefDiv + ordDiv);
-
+        equityItems.forEach(acc => totalEquityInput += getAbsBal(acc));
         const totalEquity = totalEquityInput + currentRetainedEarnings;
 
-        // --- 4. Build HTML String ---
-
+        // ---------------------------------------------------------
+        // 5. BUILD HTML (STRICTLY ASSETS, LIABILITIES, EQUITY)
+        // ---------------------------------------------------------
         let html = "";
 
         // === ASSETS SIDE ===
         html += createSectionHeader("Assets");
         
-        html += createRow("Add", "<strong>Current Assets:</strong>", 0);
+        html += createRow("<strong>Current Assets:</strong>", 0);
+        let hasCurrentAssets = false;
         currentAssets.forEach(acc => {
           const val = getAbsBal(acc);
-          if (val > 0) html += createRow("", acc, val);
+          if (val > 0) {
+            html += createRow(acc, val);
+            hasCurrentAssets = true;
+          }
         });
-        html += createRow("", "<strong>Total Current Assets</strong>", totalCurrentAssets, true);
+        if(hasCurrentAssets) html += createRow("<strong>Total Current Assets</strong>", totalCurrentAssets, true);
         html += createSpacer();
 
-        html += createRow("Add", "<strong>Non-Current Assets:</strong>", 0);
+        html += createRow("<strong>Non-Current Assets:</strong>", 0);
+        let hasNonCurrentAssets = false;
         nonCurrentAssets.forEach(acc => {
           const val = getAbsBal(acc);
-          if (val > 0) html += createRow("", acc, val);
+          if (val > 0) {
+            html += createRow(acc, val);
+            hasNonCurrentAssets = true;
+          }
         });
-        html += createRow("", "<strong>Total Non-Current Assets</strong>", totalNonCurrentAssets, true);
+        if(hasNonCurrentAssets) html += createRow("<strong>Total Non-Current Assets</strong>", totalNonCurrentAssets, true);
         html += createSpacer();
 
-        html += createRow("", "<strong>Total Assets</strong>", totalAssets, true);
+        html += createRow("<strong>Total Assets</strong>", totalAssets, true);
         html += createSpacer();
         html += createSpacer();
 
         // === EQUITY & LIABILITIES SIDE ===
         html += createSectionHeader("Equity & Liabilities");
         
-        html += createRow("Add", "<strong>Shareholders' Equity:</strong>", 0);
+        html += createRow("<strong>Shareholders' Equity:</strong>", 0);
+        let hasEquity = false;
         equityItems.forEach(acc => {
           const val = getAbsBal(acc);
-          if (val > 0) html += createRow("", acc, val);
+          if (val > 0) {
+            html += createRow(acc, val);
+            hasEquity = true;
+          }
         });
         
-        // Add Retained Earnings (Calculated from P&L)
+        // Display Retained Earnings (Result of P&L calculation)
         let retLabel = "Retained Earnings (Current Year)";
         let retVal = currentRetainedEarnings;
         if (retVal < 0) {
            retLabel = "Retained Loss (Current Year)";
            retVal = Math.abs(retVal);
         }
-        // Only show if not zero
-        if (retVal !== 0) html += createRow("", retLabel, retVal);
+        if (retVal !== 0) {
+            html += createRow(retLabel, retVal);
+            hasEquity = true;
+        }
 
-        html += createRow("", "<strong>Total Equity</strong>", totalEquity, true);
+        if(hasEquity) html += createRow("<strong>Total Equity</strong>", totalEquity, true);
         html += createSpacer();
 
-        html += createRow("Less", "<strong>Current Liabilities:</strong>", 0);
+        html += createRow("<strong>Current Liabilities:</strong>", 0);
+        let hasCurrentLiab = false;
         currentLiabilities.forEach(acc => {
           const val = getAbsBal(acc);
-          if (val > 0) html += createRow("", acc, val);
+          if (val > 0) {
+            html += createRow(acc, val);
+            hasCurrentLiab = true;
+          }
         });
-        html += createRow("", "<strong>Total Current Liabilities</strong>", totalCurrentLiabilities, true);
+        if(hasCurrentLiab) html += createRow("<strong>Total Current Liabilities</strong>", totalCurrentLiabilities, true);
         html += createSpacer();
 
-        html += createRow("Less", "<strong>Non-Current Liabilities:</strong>", 0);
+        html += createRow("<strong>Non-Current Liabilities:</strong>", 0);
+        let hasNonCurrentLiab = false;
         nonCurrentLiabilities.forEach(acc => {
           const val = getAbsBal(acc);
-          if (val > 0) html += createRow("", acc, val);
+          if (val > 0) {
+            html += createRow(acc, val);
+            hasNonCurrentLiab = true;
+          }
         });
-        html += createRow("", "<strong>Total Non-Current Liabilities</strong>", totalNonCurrentLiabilities, true);
+        if(hasNonCurrentLiab) html += createRow("<strong>Total Non-Current Liabilities</strong>", totalNonCurrentLiabilities, true);
         html += createSpacer();
 
         const totalEquityAndLiabilities = totalEquity + totalLiabilities;
-        html += createRow("", "<strong>Total Equity & Liabilities</strong>", totalEquityAndLiabilities, true);
+        html += createRow("<strong>Total Equity & Liabilities</strong>", totalEquityAndLiabilities, true);
 
         // Render
         tableBody.innerHTML = html;
@@ -467,7 +471,7 @@
       } catch (error) {
         console.error(error);
         showStatus("Error generating statement: " + error.message, true);
-        tableBody.innerHTML = `<tr><td colspan="3" class="empty-msg" style="color:red">Error loading data.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="2" class="empty-msg" style="color:red">Error loading data.</td></tr>`;
       }
     }
 
