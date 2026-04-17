@@ -60,7 +60,7 @@
         main {
             flex: 1;
             padding: 20px;
-            max-width: 800px; /* Increased max-width slightly for better grid utilization */
+            max-width: 800px;
             margin: 0 auto;
             width: 100%;
             display: flex;
@@ -85,6 +85,25 @@
             color: #374151;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+        }
+
+        /* Subsection Headers (e.g. for Reserves) */
+        .subsection-header {
+            display: flex;
+            align-items: center;
+            margin: 30px 0 15px 0;
+            width: 100%;
+            justify-content: flex-start;
+            padding-left: 5px;
+        }
+
+        .subsection-header h3 {
+            font-size: 0.9rem;
+            margin: 0;
+            color: #6B7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
         }
 
         .badge {
@@ -127,7 +146,7 @@
             transition: transform 0.15s ease, box-shadow 0.15s ease;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             height: 100%;
-            min-height: 140px; /* Slightly taller for text wrapping */
+            min-height: 140px;
             width: 100%;
         }
 
@@ -310,6 +329,26 @@
             <span class="badge out">OUT</span>
             <h2>Expenses</h2>
         </div>
+        
+        <!-- Opening/Closing Stock -->
+        <div class="grid-container" style="margin-bottom: 16px;">
+             <!-- Opening Stock -->
+             <button class="btn-cat theme-out" onclick="goToAdd('OUT', 'Opening Stock')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                </div>
+                <span class="btn-text">Opening Stock</span>
+            </button>
+
+            <!-- Closing Stock -->
+            <button class="btn-cat theme-out" onclick="goToAdd('OUT', 'Closing Stock')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                </div>
+                <span class="btn-text">Closing Stock</span>
+            </button>
+        </div>
+
         <div class="grid-container">
             <!-- Purchases -->
             <button class="btn-cat theme-out" onclick="goToAdd('OUT', 'Purchases')">
@@ -598,9 +637,15 @@
                 </div>
                 <span class="btn-text">Corporation Tax</span>
             </button>
+        </div>
 
-            <!-- Goodwill Written off -->
-            <button class="btn-cat theme-out" onclick="goToAdd('OUT', 'Goodwill Written off')">
+        <!-- Distribution & Reserves (OUT) -->
+        <div class="subsection-header">
+            <h3>Distribution & Reserves</h3>
+        </div>
+        <div class="grid-container">
+             <!-- Goodwill Written off -->
+             <button class="btn-cat theme-out" onclick="goToAdd('OUT', 'Goodwill Written off')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
                 </div>
@@ -615,12 +660,28 @@
                 <span class="btn-text">Pref. Dividends</span>
             </button>
 
-             <!-- Ordinary Dividends -->
-             <button class="btn-cat theme-out" onclick="goToAdd('OUT', 'Ordinary Dividends')">
+            <!-- Ordinary Dividends -->
+            <button class="btn-cat theme-out" onclick="goToAdd('OUT', 'Ordinary Dividends')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                 </div>
                 <span class="btn-text">Ordinary Dividends</span>
+            </button>
+
+            <!-- General Reserve (ADDED) -->
+            <button class="btn-cat theme-out" onclick="goToAdd('OUT', 'General Reserve')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                </div>
+                <span class="btn-text">General Reserve</span>
+            </button>
+
+            <!-- Retained Profit (ADDED) -->
+            <button class="btn-cat theme-out" onclick="goToAdd('OUT', 'Retained Profit')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+                </div>
+                <span class="btn-text">Retained Profit</span>
             </button>
         </div>
 
@@ -636,8 +697,6 @@
     <script>
         function goToAdd(flow, detail) {
             // Redirect to add-transaction.html with query parameters
-            // flow = 'IN' or 'OUT'
-            // detail = The category name
             const url = `add-transaction.html?flow=${encodeURIComponent(flow)}&detail=${encodeURIComponent(detail)}`;
             window.location.href = url;
         }
