@@ -10,6 +10,10 @@
             --bg-color: #F3F4F6;
             --text-main: #1F2937;
             --card-bg: #ffffff;
+            --primary: #3B82F6;
+            --primary-hover: #2563EB;
+            --success: #10B981;
+            --danger: #EF4444;
         }
 
         * {
@@ -247,6 +251,112 @@
         }
 
         /* --------------------------- */
+        /* MODAL STYLING              */
+        /* --------------------------- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-card {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transform: translateY(20px);
+            transition: transform 0.2s;
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: translateY(0);
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #111827;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+        }
+        
+        .form-input:focus {
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background: #3B82F6;
+            color: white;
+        }
+        .btn-primary:hover { background: #2563EB; }
+
+        .btn-secondary {
+            background: #E5E7EB;
+            color: #374151;
+        }
+        .btn-secondary:hover { background: #D1D5DB; }
+
+        .btn-full {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        /* --------------------------- */
         /* BUTTON COLOR CLASSES       */
         /* --------------------------- */
 
@@ -339,6 +449,14 @@
         .c-long-loan .icon-box { background: linear-gradient(135deg, #334155, #1E293B); box-shadow: 0 2px 6px rgba(51, 65, 85, 0.3); }
         .c-mortgage .icon-box { background: linear-gradient(135deg, #475569, #334155); box-shadow: 0 2px 6px rgba(71, 85, 105, 0.3); }
         .c-debentures .icon-box { background: linear-gradient(135deg, #64748B, #475569); box-shadow: 0 2px 6px rgba(100, 116, 139, 0.3); }
+
+        /* Contra Specifics */
+        .c-contra { border: 2px solid #6366F1; }
+        .c-contra .icon-box { background: linear-gradient(135deg, #4338CA, #312E81); box-shadow: 0 4px 8px rgba(67, 56, 202, 0.4); }
+        
+        /* Removed the inner green and orange button styles */
+        /* .btn-contra-deposit ... */
+        /* .btn-contra-withdraw ... */
 
     </style>
 </head>
@@ -799,7 +917,7 @@
 
         <!-- ========================================== -->
         /* NEW: BALANCE SHEET ITEMS (ASSETS/LIABS/EQUITY) */
-        <!-- ========================================== -->
+        /* ========================================== */
 
         <!-- ASSETS SECTION -->
         <div class="section-header">
@@ -999,6 +1117,28 @@
             </button>
         </div>
 
+        <!-- NEW CONTRA SECTION -->
+        <div class="section-header">
+            <span class="badge asset">CONTRA</span>
+            <h2>Contra Entry</h2>
+        </div>
+        <div class="grid-container">
+            <!-- Cleaned up buttons: Logic on main button, no inner colored buttons -->
+            <button class="btn-cat c-contra" onclick="openContraModal('DEPOSIT')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                </div>
+                <span class="btn-text">Deposit Cash</span>
+            </button>
+
+            <button class="btn-cat c-contra" onclick="openContraModal('WITHDRAW')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                </div>
+                <span class="btn-text">Withdraw Cash</span>
+            </button>
+        </div>
+
     </main>
 
     <div class="footer-nav">
@@ -1006,6 +1146,69 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
             Back to Dashboard
         </a>
+    </div>
+
+    <!-- MODALS FOR CONTRA -->
+
+    <!-- Modal 1: Deposit -->
+    <div id="modal-deposit" class="modal-overlay">
+        <div class="modal-card">
+            <h3 class="modal-title">Deposit to Bank</h3>
+            <div class="form-group">
+                <label class="form-label">Organization Name</label>
+                <input type="text" id="dep-org" class="form-input" placeholder="e.g. ABC Bank">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Amount</label>
+                <input type="number" id="dep-amt" class="form-input" placeholder="0.00">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModals()">Cancel</button>
+                <button class="btn btn-primary" onclick="processDeposit()">Save Transaction</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Withdraw Initial -->
+    <div id="modal-withdraw" class="modal-overlay">
+        <div class="modal-card">
+            <h3 class="modal-title">Withdraw from Bank</h3>
+            <div class="form-group">
+                <label class="form-label">Amount</label>
+                <input type="number" id="wit-amt" class="form-input" placeholder="0.00">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModals()">Cancel</button>
+                <button class="btn btn-primary" onclick="processWithdrawStep1()">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Withdraw Options (With/Without Charges) -->
+    <div id="modal-withdraw-options" class="modal-overlay">
+        <div class="modal-card">
+            <h3 class="modal-title">Charges Applicable?</h3>
+            <div class="modal-actions" style="flex-direction: column;">
+                <button class="btn btn-primary" onclick="openChargesModal(false)">Without Charges</button>
+                <button class="btn btn-secondary" style="background:#EF4444; color:white" onclick="openChargesModal(true)">With Charges</button>
+                <button class="btn btn-secondary" onclick="closeModals()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 4: Charges Amount -->
+    <div id="modal-charges" class="modal-overlay">
+        <div class="modal-card">
+            <h3 class="modal-title">Enter Charges Amount</h3>
+            <div class="form-group">
+                <label class="form-label">Charges Amount</label>
+                <input type="number" id="chg-amt" class="form-input" placeholder="0.00">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModals()">Cancel</button>
+                <button class="btn btn-primary" onclick="finalizeWithdraw()">Save Transaction</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1037,7 +1240,7 @@
                     
                     if(visibleButtons.length === 0) {
                         header.style.display = 'none';
-                        nextGrid.style.display = 'none'; // Also hide the empty grid container
+                        nextGrid.style.display = 'none'; // Also hide empty grid container
                     } else {
                         header.style.display = 'flex';
                         nextGrid.style.display = 'grid';
@@ -1067,6 +1270,145 @@
             const url = `add-transaction.html?flow=${encodeURIComponent(actualFlow)}&detail=${encodeURIComponent(detail)}`;
             window.location.href = url;
         }
+
+        // --- CONTRA LOGIC START ---
+        
+        // Temporary state
+        let withdrawAmount = 0;
+
+        function openContraModal(type) {
+            closeModals();
+            if(type === 'DEPOSIT') {
+                document.getElementById('modal-deposit').classList.add('active');
+                document.getElementById('dep-org').value = '';
+                document.getElementById('dep-amt').value = '';
+            } else if(type === 'WITHDRAW') {
+                document.getElementById('modal-withdraw').classList.add('active');
+                document.getElementById('wit-amt').value = '';
+            }
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active'));
+            withdrawAmount = 0;
+        }
+
+        // Step 1: Handle Deposit
+        function processDeposit() {
+            const org = document.getElementById('dep-org').value.trim();
+            const amt = parseFloat(document.getElementById('dep-amt').value);
+
+            if(!org || isNaN(amt) || amt <= 0) {
+                alert('Please enter a valid organization name and amount.');
+                return;
+            }
+
+            // Record contra: Cash Increases, Bank Decreases (Logic: Bank is "Flow Form", Amount is recorded)
+            // Since this is a single file demo, we will log the transaction to console and alert the user.
+            
+            const transaction = {
+                sNo: generateSN(),
+                date: new Date().toLocaleDateString(),
+                detail: 'Contra Deposit',
+                flowType: 'CONTRA',
+                flowForm: 'Bank', // Bank decreases
+                name: org,
+                amount: amt,
+                action: 'Saved'
+            };
+
+            console.log("Transaction Saved:", transaction);
+            alert(`Transaction Saved:\n\nType: Contra (Deposit)\nDetail: Cash In, Bank Out\nOrg: ${org}\nAmount: ${amt}`);
+            closeModals();
+        }
+
+        // Step 2: Handle Withdrawal - Amount Entry
+        function processWithdrawStep1() {
+            const amt = parseFloat(document.getElementById('wit-amt').value);
+            if(isNaN(amt) || amt <= 0) {
+                alert('Please enter a valid amount.');
+                return;
+            }
+            withdrawAmount = amt;
+            document.getElementById('modal-withdraw').classList.remove('active');
+            document.getElementById('modal-withdraw-options').classList.add('active');
+        }
+
+        // Step 3: Handle Withdrawal - Charges Selection
+        function openChargesModal(hasCharges) {
+            document.getElementById('modal-withdraw-options').classList.remove('active');
+            
+            if(!hasCharges) {
+                // Withdraw without charges
+                // Record contra: Cash Increases, Bank Decreases
+                const transaction = {
+                    sNo: generateSN(),
+                    date: new Date().toLocaleDateString(),
+                    detail: 'Contra Withdrawal',
+                    flowType: 'CONTRA',
+                    flowForm: 'Bank',
+                    name: 'N/A',
+                    amount: withdrawAmount,
+                    action: 'Saved'
+                };
+                console.log("Transaction Saved:", transaction);
+                alert(`Transaction Saved:\n\nType: Contra (Withdraw)\nDetail: Cash In, Bank Out\nAmount: ${withdrawAmount}`);
+                closeModals();
+            } else {
+                // Withdraw with charges - Ask for charge amount
+                document.getElementById('modal-charges').classList.add('active');
+                document.getElementById('chg-amt').value = '';
+            }
+        }
+
+        // Step 4: Handle Withdrawal - Finalize with Charges
+        function finalizeWithdraw() {
+            const chgAmt = parseFloat(document.getElementById('chg-amt').value);
+            if(isNaN(chgAmt) || chgAmt < 0) {
+                alert('Please enter a valid charges amount.');
+                return;
+            }
+
+            // Record TWO transactions internally
+            
+            // 1. Normal Contra: Cash Increases, Bank Decreases (by main amount)
+            const contraTx = {
+                sNo: generateSN(),
+                date: new Date().toLocaleDateString(),
+                detail: 'Contra Withdrawal',
+                flowType: 'CONTRA',
+                flowForm: 'Bank',
+                name: 'N/A',
+                amount: withdrawAmount,
+                action: 'Saved'
+            };
+
+            // 2. Charges Entry: Bank is flow form, amount is charges
+            const chargeTx = {
+                sNo: generateSN() + 1, // Just for demo distinction
+                date: new Date().toLocaleDateString(),
+                detail: 'Bank Charges',
+                flowType: 'OUT', // Charges are an expense
+                flowForm: 'Bank',
+                name: 'Bank Charges',
+                amount: chgAmt,
+                action: 'Saved'
+            };
+
+            console.log("Transaction 1 (Contra) Saved:", contraTx);
+            console.log("Transaction 2 (Charges) Saved:", chargeTx);
+
+            alert(`Transactions Saved:\n\n1. Contra (Withdraw): ${withdrawAmount}\n2. Charges: ${chgAmt}`);
+            closeModals();
+        }
+
+        // Helper for Serial Number simulation
+        function generateSN() {
+            return Math.floor(Math.random() * 1000);
+        }
+
+        // --- CONTRA LOGIC END ---
+
     </script>
 </body>
 </html>
