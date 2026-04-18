@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Type</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #F3F4F6;
+            --text-main: #1F2937;
+            --card-bg: #ffffff;
+            --primary: #3B82F6;
+            --primary-hover: #2563EB;
+            --success: #10B981;
+            --danger: #EF4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Styling */
+        header {
+            background: var(--card-bg);
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 1.1rem;
+            margin: 0;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .subtitle {
+            font-size: 0.75rem;
+            color: #6B7280;
+            margin-top: 4px;
+        }
+
+        /* SEARCH BAR STYLING */
+        .search-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto 10px auto;
+            padding: 0 15px;
+            z-index: 9;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 12px 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            border: 1px solid #D1D5DB;
+            border-radius: 12px;
+            outline: none;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+        }
+
+        #searchInput:focus {
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Main Content Area */
+        main {
+            flex: 1;
+            padding: 15px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+        }
+
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin: 30px 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #E5E7EB;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .section-header h2 {
+            font-size: 1rem;
+            margin: 0;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Subsection Headers */
+        .subsection-header {
+            display: flex;
+            align-items: center;
+            margin: 20px 0 10px 0;
+            width: 100%;
+            justify-content: flex-start;
+            padding-left: 5px;
+        }
+
+        .subsection-header h3 {
+            font-size: 0.8rem;
+            margin: 0;
+            color: #6B7280;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: white;
+            margin-right: 10px;
+            min-width: 30px;
+            text-align: center;
+        }
+        
+        /* Badges */
+        .badge.in { background-color: #10B981; }
+        .badge.out { background-color: #F43F5E; }
+        .badge.asset { background-color: #3B82F6; }
+        .badge.liab { background-color: #EC4899; }
+        .badge.equity { background-color: #8B5CF6; }
+
+        /* Grid Layout */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
+            width: 100%;
+        }
+
+        /* Button Styling */
+        .btn-cat {
+            appearance: none;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            background: white;
+            border-radius: 12px;
+            padding: 16px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            height: 100%;
+            min-height: 100px; 
+            width: 100%;
+        }
+
+        .btn-cat:active {
+            transform: scale(0.96);
+        }
+
+        .btn-cat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Icon Wrapper */
+        .icon-box {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            color: white;
+            transition: transform 0.2s;
+        }
+
+        .btn-cat:hover .icon-box {
+            transform: scale(1.1);
+        }
+
+        /* Button Text */
+        .btn-text {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #374151;
+            line-height: 1.2;
+        }
+
+        /* Icon SVG Styling */
+        .icon-box svg {
+            width: 14px;
+            height: 14px;
+            stroke-width: 2.5;
+            stroke: currentColor;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Footer */
+        .footer-nav {
+            padding: 30px 20px;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #6B7280;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: background 0.2s;
+        }
+
+        .back-link:hover {
+            background: #E5E7EB;
+            color: #111827;
+        }
+
+        /* --------------------------- */
+        /* MODAL STYLING              */
+        /* --------------------------- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-card {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transform: translateY(20px);
+            transition: transform 0.2s;
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: translateY(0);
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #111827;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #D1D5DB;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+        }
+        
+        .form-input:focus {
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background: #3B82F6;
+            color: white;
+        }
+        .btn-primary:hover { background: #2563EB; }
+
+        .btn-secondary {
+            background: #E5E7EB;
+            color: #374151;
+        }
+        .btn-secondary:hover { background: #D1D5DB; }
+
+        .btn-full {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        /* --------------------------- */
+        /* BUTTON COLOR CLASSES       */
+        /* --------------------------- */
+
+        /* Income */
+        .c-sales .icon-box { background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3); }
+        .c-discount-rec .icon-box { background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3); }
+        .c-commission-rec .icon-box { background: linear-gradient(135deg, #34D399, #10B981); box-shadow: 0 2px 6px rgba(52, 211, 153, 0.3); }
+        .c-rent-rec .icon-box { background: linear-gradient(135deg, #6EE7B7, #34D399); box-shadow: 0 2px 6px rgba(110, 231, 183, 0.3); }
+        .c-interest-rec .icon-box { background: linear-gradient(135deg, #3B82F6, #2563EB); box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3); }
+        .c-dividend-inc .icon-box { background: linear-gradient(135deg, #60A5FA, #3B82F6); box-shadow: 0 2px 6px rgba(96, 165, 250, 0.3); }
+        .c-bad-debt-rec .icon-box { background: linear-gradient(135deg, #818CF8, #6366F1); box-shadow: 0 2px 6px rgba(129, 140, 248, 0.3); }
+        .c-gain-asset .icon-box { background: linear-gradient(135deg, #F59E0B, #D97706); box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3); }
+        .c-sundry-inc .icon-box { background: linear-gradient(135deg, #FBBF24, #F59E0B); box-shadow: 0 2px 6px rgba(251, 191, 36, 0.3); }
+
+        /* Expense */
+        .c-opening-stock .icon-box { background: linear-gradient(135deg, #6366F1, #4F46E5); box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3); }
+        .c-closing-stock .icon-box { background: linear-gradient(135deg, #818CF8, #6366F1); box-shadow: 0 2px 6px rgba(129, 140, 248, 0.3); }
+        .c-purchases .icon-box { background: linear-gradient(135deg, #E11D48, #BE123C); box-shadow: 0 2px 6px rgba(225, 29, 72, 0.3); }
+        .c-sales-ret .icon-box { background: linear-gradient(135deg, #F43F5E, #E11D48); box-shadow: 0 2px 6px rgba(244, 63, 94, 0.3); }
+        .c-ret-out .icon-box { background: linear-gradient(135deg, #FB7185, #F43F5E); box-shadow: 0 2px 6px rgba(251, 113, 133, 0.3); }
+        .c-carriage-in .icon-box { background: linear-gradient(135deg, #F472B6, #EC4899); box-shadow: 0 2px 6px rgba(244, 114, 182, 0.3); }
+        .c-wages .icon-box { background: linear-gradient(135deg, #EF4444, #DC2626); box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3); }
+        .c-rent-rates .icon-box { background: linear-gradient(135deg, #F87171, #EF4444); box-shadow: 0 2px 6px rgba(248, 113, 113, 0.3); }
+        .c-lighting .icon-box { background: linear-gradient(135deg, #FB923C, #F97316); box-shadow: 0 2px 6px rgba(251, 146, 60, 0.3); }
+        .c-electricity .icon-box { background: linear-gradient(135deg, #EAB308, #CA8A04); box-shadow: 0 2px 6px rgba(234, 179, 8, 0.3); }
+        .c-water .icon-box { background: linear-gradient(135deg, #0EA5E9, #0284C7); box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3); }
+        .c-telephone .icon-box { background: linear-gradient(135deg, #38BDF8, #0EA5E9); box-shadow: 0 2px 6px rgba(56, 189, 248, 0.3); }
+        .c-stationery .icon-box { background: linear-gradient(135deg, #A78BFA, #8B5CF6); box-shadow: 0 2px 6px rgba(167, 139, 250, 0.3); }
+        .c-postage .icon-box { background: linear-gradient(135deg, #C084FC, #A855F7); box-shadow: 0 2px 6px rgba(192, 132, 252, 0.3); }
+        .c-advertising .icon-box { background: linear-gradient(135deg, #E879F9, #D946EF); box-shadow: 0 2px 6px rgba(232, 121, 249, 0.3); }
+        .c-carriage-out .icon-box { background: linear-gradient(135deg, #F0ABFC, #E879F9); box-shadow: 0 2px 6px rgba(240, 171, 252, 0.3); }
+        .c-repairs .icon-box { background: linear-gradient(135deg, #FDA4AF, #FB7185); box-shadow: 0 2px 6px rgba(253, 164, 175, 0.3); }
+        .c-depreciation .icon-box { background: linear-gradient(135deg, #94A3B8, #64748B); box-shadow: 0 2px 6px rgba(148, 163, 184, 0.3); }
+        .c-insurance .icon-box { background: linear-gradient(135deg, #64748B, #475569); box-shadow: 0 2px 6px rgba(100, 116, 139, 0.3); }
+        .c-motor-veh .icon-box { background: linear-gradient(135deg, #4B5563, #374151); box-shadow: 0 2px 6px rgba(75, 85, 99, 0.3); }
+        .c-fuel .icon-box { background: linear-gradient(135deg, #D97706, #B45309); box-shadow: 0 2px 6px rgba(217, 119, 6, 0.3); }
+        .c-office-exp .icon-box { background: linear-gradient(135deg, #14B8A6, #0D9488); box-shadow: 0 2px 6px rgba(20, 184, 166, 0.3); }
+        .c-general-exp .icon-box { background: linear-gradient(135deg, #64748B, #475569); box-shadow: 0 2px 6px rgba(100, 116, 139, 0.3); }
+        .c-sundry-exp .icon-box { background: linear-gradient(135deg, #9CA3AF, #6B7280); box-shadow: 0 2px 6px rgba(156, 163, 175, 0.3); }
+        .c-bank-chg .icon-box { background: linear-gradient(135deg, #B45309, #92400E); box-shadow: 0 2px 6px rgba(180, 83, 9, 0.3); }
+        .c-bad-debts .icon-box { background: linear-gradient(135deg, #DC2626, #991B1B); box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3); }
+        .c-prov-dbts .icon-box { background: linear-gradient(135deg, #EF4444, #B91C1C); box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3); }
+        .c-directors .icon-box { background: linear-gradient(135deg, #1E40AF, #1E3A8A); box-shadow: 0 2px 6px rgba(30, 64, 175, 0.3); }
+        .c-debenture .icon-box { background: linear-gradient(135deg, #4338CA, #3730A3); box-shadow: 0 2px 6px rgba(67, 56, 202, 0.3); }
+        .c-warehouse .icon-box { background: linear-gradient(135deg, #7C3AED, #6D28D9); box-shadow: 0 2px 6px rgba(124, 58, 237, 0.3); }
+        .c-security .icon-box { background: linear-gradient(135deg, #0F172A, #020617); box-shadow: 0 2px 6px rgba(15, 23, 42, 0.3); }
+        .c-legal .icon-box { background: linear-gradient(135deg, #334155, #1E293B); box-shadow: 0 2px 6px rgba(51, 65, 85, 0.3); }
+        .c-audit .icon-box { background: linear-gradient(135deg, #475569, #334155); box-shadow: 0 2px 6px rgba(71, 85, 105, 0.3); }
+        .c-subscriptions .icon-box { background: linear-gradient(135deg, #0891B2, #0E7490); box-shadow: 0 2px 6px rgba(8, 145, 178, 0.3); }
+        .c-training .icon-box { background: linear-gradient(135deg, #7C2D12, #9A3412); box-shadow: 0 2px 6px rgba(124, 45, 18, 0.3); }
+        .c-travel .icon-box { background: linear-gradient(135deg, #0369A1, #075985); box-shadow: 0 2px 6px rgba(3, 105, 161, 0.3); }
+        .c-entertainment .icon-box { background: linear-gradient(135deg, #BE185D, #9D174D); box-shadow: 0 2px 6px rgba(190, 24, 93, 0.3); }
+        .c-corp-tax .icon-box { background: linear-gradient(135deg, #B91C1C, #7F1D1D); box-shadow: 0 2px 6px rgba(185, 28, 28, 0.3); }
+        .c-goodwill .icon-box { background: linear-gradient(135deg, #78716C, #57534E); box-shadow: 0 2px 6px rgba(120, 113, 108, 0.3); }
+        .c-pref-div .icon-box { background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 2px 6px rgba(5, 150, 105, 0.3); }
+        .c-ord-div .icon-box { background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3); }
+        .c-gen-res .icon-box { background: linear-gradient(135deg, #D97706, #B45309); box-shadow: 0 2px 6px rgba(217, 119, 6, 0.3); }
+        .c-retained .icon-box { background: linear-gradient(135deg, #0D9488, #0F766E); box-shadow: 0 2px 6px rgba(13, 148, 136, 0.3); }
+
+        /* Balance Sheet Colors */
+        
+        /* Current Assets */
+        .c-debtors .icon-box { background: linear-gradient(135deg, #0EA5E9, #0284C7); box-shadow: 0 2px 6px rgba(14, 165, 233, 0.3); }
+        .c-stock .icon-box { background: linear-gradient(135deg, #06B6D4, #0891B2); box-shadow: 0 2px 6px rgba(6, 182, 212, 0.3); }
+        .c-prepayments .icon-box { background: linear-gradient(135deg, #22D3EE, #06B6D4); box-shadow: 0 2px 6px rgba(34, 211, 238, 0.3); }
+        .c-accrued-inc .icon-box { background: linear-gradient(135deg, #38BDF8, #0EA5E9); box-shadow: 0 2px 6px rgba(56, 189, 248, 0.3); }
+
+        /* Non-Current Assets */
+        .c-land .icon-box { background: linear-gradient(135deg, #6366F1, #4F46E5); box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3); }
+        .c-buildings .icon-box { background: linear-gradient(135deg, #4F46E5, #4338CA); box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3); }
+        .c-plant .icon-box { background: linear-gradient(135deg, #818CF8, #6366F1); box-shadow: 0 2px 6px rgba(129, 140, 248, 0.3); }
+        .c-motor-veh-asset .icon-box { background: linear-gradient(135deg, #4338CA, #3730A3); box-shadow: 0 2px 6px rgba(67, 56, 202, 0.3); }
+        .c-furniture .icon-box { background: linear-gradient(135deg, #A78BFA, #8B5CF6); box-shadow: 0 2px 6px rgba(167, 139, 250, 0.3); }
+        .c-equipment .icon-box { background: linear-gradient(135deg, #8B5CF6, #7C3AED); box-shadow: 0 2px 6px rgba(139, 92, 246, 0.3); }
+        .c-goodwill-asset .icon-box { background: linear-gradient(135deg, #64748B, #475569); box-shadow: 0 2px 6px rgba(100, 116, 139, 0.3); }
+
+        /* Equity */
+        .c-capital .icon-box { background: linear-gradient(135deg, #D946EF, #C026D3); box-shadow: 0 2px 6px rgba(217, 70, 239, 0.3); }
+        .c-drawings .icon-box { background: linear-gradient(135deg, #E879F9, #D946EF); box-shadow: 0 2px 6px rgba(232, 121, 249, 0.3); }
+        .c-retained-earnings .icon-box { background: linear-gradient(135deg, #F472B6, #EC4899); box-shadow: 0 2px 6px rgba(244, 114, 182, 0.3); }
+
+        /* Current Liabilities */
+        .c-creditors .icon-box { background: linear-gradient(135deg, #F97316, #EA580C); box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3); }
+        .c-overdraft .icon-box { background: linear-gradient(135deg, #FB923C, #F97316); box-shadow: 0 2px 6px rgba(251, 146, 60, 0.3); }
+        .c-accrued-exp .icon-box { background: linear-gradient(135deg, #FDBA74, #FB923C); box-shadow: 0 2px 6px rgba(253, 186, 116, 0.3); }
+        .c-outstanding .icon-box { background: linear-gradient(135deg, #F87171, #EF4444); box-shadow: 0 2px 6px rgba(248, 113, 113, 0.3); }
+        .c-tax-payable .icon-box { background: linear-gradient(135deg, #DC2626, #B91C1C); box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3); }
+
+        /* Non-Current Liabilities */
+        .c-long-loan .icon-box { background: linear-gradient(135deg, #334155, #1E293B); box-shadow: 0 2px 6px rgba(51, 65, 85, 0.3); }
+        .c-mortgage .icon-box { background: linear-gradient(135deg, #475569, #334155); box-shadow: 0 2px 6px rgba(71, 85, 105, 0.3); }
+        .c-debentures .icon-box { background: linear-gradient(135deg, #64748B, #475569); box-shadow: 0 2px 6px rgba(100, 116, 139, 0.3); }
+
+        /* Contra Specifics */
+        .c-contra { border: 2px solid #6366F1; }
+        .c-contra .icon-box { background: linear-gradient(135deg, #4338CA, #312E81); box-shadow: 0 4px 8px rgba(67, 56, 202, 0.4); }
+        
+        /* Removed the inner green and orange button styles */
+        /* .btn-contra-deposit ... */
+        /* .btn-contra-withdraw ... */
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Transaction Type</h1>
+        <div class="subtitle">Select a category to proceed</div>
+    </header>
+
+    <!-- SEARCH INPUT -->
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Filter transactions (e.g., 'Sales', 'Capital', 'Rent')..." autocomplete="off">
+    </div>
+
+    <main>
+        
+        <!-- INCOME SECTION -->
+        <div class="section-header">
+            <span class="badge in">IN</span>
+            <h2>Income & Gains</h2>
+        </div>
+        <div class="grid-container">
+            <!-- Sales -->
+            <button class="btn-cat c-sales" onclick="goToAdd('IN', 'Sales')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 7-7"></path><path d="M14 4h7v7"></path></svg>
+                </div>
+                <span class="btn-text">Sales</span>
+            </button>
+            
+            <!-- Discount Received -->
+            <button class="btn-cat c-discount-rec" onclick="goToAdd('IN', 'Discount Received')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                </div>
+                <span class="btn-text">Discount Received</span>
+            </button>
+
+            <!-- Commission Received -->
+            <button class="btn-cat c-commission-rec" onclick="goToAdd('IN', 'Commission Received')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14.5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                </div>
+                <span class="btn-text">Commission Received</span>
+            </button>
+
+            <!-- Rent Received -->
+            <button class="btn-cat c-rent-rec" onclick="goToAdd('IN', 'Rent Received')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                </div>
+                <span class="btn-text">Rent Received</span>
+            </button>
+
+            <!-- Interest Received -->
+            <button class="btn-cat c-interest-rec" onclick="goToAdd('IN', 'Interest Received')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                </div>
+                <span class="btn-text">Interest Received</span>
+            </button>
+
+            <!-- Dividend Income -->
+            <button class="btn-cat c-dividend-inc" onclick="goToAdd('IN', 'Dividend Income')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+                </div>
+                <span class="btn-text">Dividend Income</span>
+            </button>
+
+            <!-- Bad Debts Recovered -->
+            <button class="btn-cat c-bad-debt-rec" onclick="goToAdd('IN', 'Bad Debts Recovered')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                </div>
+                <span class="btn-text">Bad Debts Recovered</span>
+            </button>
+
+            <!-- Gain on Sale of Asset -->
+            <button class="btn-cat c-gain-asset" onclick="goToAdd('IN', 'Gain on Sale of Asset')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                </div>
+                <span class="btn-text">Gain on Asset Sale</span>
+            </button>
+
+            <!-- Sundry Income -->
+            <button class="btn-cat c-sundry-inc" onclick="goToAdd('IN', 'Sundry Income')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                </div>
+                <span class="btn-text">Sundry Income</span>
+            </button>
+        </div>
+
+        <!-- EXPENSE SECTION -->
+        <div class="section-header">
+            <span class="badge out">OUT</span>
+            <h2>Expenses</h2>
+        </div>
+        
+        <!-- Opening/Closing Stock -->
+        <div class="grid-container" style="margin-bottom: 12px;">
+             <!-- Opening Stock -->
+             <button class="btn-cat c-opening-stock" onclick="goToAdd('OUT', 'Opening Stock')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                </div>
+                <span class="btn-text">Opening Stock</span>
+            </button>
+
+            <!-- Closing Stock -->
+            <button class="btn-cat c-closing-stock" onclick="goToAdd('OUT', 'Closing Stock')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                </div>
+                <span class="btn-text">Closing Stock</span>
+            </button>
+        </div>
+
+        <div class="grid-container">
+            <!-- Purchases -->
+            <button class="btn-cat c-purchases" onclick="goToAdd('OUT', 'Purchases')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                </div>
+                <span class="btn-text">Purchases</span>
+            </button>
+
+            <!-- Sales Returns -->
+            <button class="btn-cat c-sales-ret" onclick="goToAdd('OUT', 'Sales Returns')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M9 14l-4-4 4-4"></path><path d="M5 10h9a4 4 0 0 1 0 8H9"></path></svg>
+                </div>
+                <span class="btn-text">Sales Returns</span>
+            </button>
+
+            <!-- Returns Outwards -->
+            <button class="btn-cat c-ret-out" onclick="goToAdd('OUT', 'Returns Outwards')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                </div>
+                <span class="btn-text">Returns Outwards</span>
+            </button>
+
+            <!-- Carriage Inwards -->
+            <button class="btn-cat c-carriage-in" onclick="goToAdd('OUT', 'Carriage Inwards')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                </div>
+                <span class="btn-text">Carriage Inwards</span>
+            </button>
+
+            <!-- Wages & Salaries -->
+            <button class="btn-cat c-wages" onclick="goToAdd('OUT', 'Wages & Salaries')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                </div>
+                <span class="btn-text">Wages & Salaries</span>
+            </button>
+
+            <!-- Rent & Rates -->
+            <button class="btn-cat c-rent-rates" onclick="goToAdd('OUT', 'Rent & Rates')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M5 21V7l8-4 8 4v14"></path><path d="M17 21v-8H7v8"></path></svg>
+                </div>
+                <span class="btn-text">Rent & Rates</span>
+            </button>
+
+            <!-- Lighting & Heating -->
+            <button class="btn-cat c-lighting" onclick="goToAdd('OUT', 'Lighting & Heating')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.1.2-2.2.6-3.3a7 7 0 0 0 2.9.8z"></path></svg>
+                </div>
+                <span class="btn-text">Lighting & Heating</span>
+            </button>
+
+            <!-- Electricity & Gas -->
+            <button class="btn-cat c-electricity" onclick="goToAdd('OUT', 'Electricity & Gas')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                </div>
+                <span class="btn-text">Electricity & Gas</span>
+            </button>
+
+            <!-- Water Charges -->
+            <button class="btn-cat c-water" onclick="goToAdd('OUT', 'Water Charges')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+                </div>
+                <span class="btn-text">Water Charges</span>
+            </button>
+
+            <!-- Telephone & Internet -->
+            <button class="btn-cat c-telephone" onclick="goToAdd('OUT', 'Telephone & Internet')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                </div>
+                <span class="btn-text">Telephone & Internet</span>
+            </button>
+
+            <!-- Stationery -->
+            <button class="btn-cat c-stationery" onclick="goToAdd('OUT', 'Stationery')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M16 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2V9z"></path><polyline points="15 2 15 9 22 9"></polyline></svg>
+                </div>
+                <span class="btn-text">Stationery</span>
+            </button>
+
+            <!-- Postage & Courier -->
+            <button class="btn-cat c-postage" onclick="goToAdd('OUT', 'Postage & Courier')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
+                </div>
+                <span class="btn-text">Postage & Courier</span>
+            </button>
+
+            <!-- Advertising Expenses -->
+            <button class="btn-cat c-advertising" onclick="goToAdd('OUT', 'Advertising Expenses')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                </div>
+                <span class="btn-text">Advertising</span>
+            </button>
+
+            <!-- Carriage Outwards -->
+            <button class="btn-cat c-carriage-out" onclick="goToAdd('OUT', 'Carriage Outwards')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M3 13l2-6h14l2 6"></path><circle cx="7" cy="18" r="2"></circle><circle cx="17" cy="18" r="2"></circle><path d="M5 13h14v5H5z"></path></svg>
+                </div>
+                <span class="btn-text">Carriage Outwards</span>
+            </button>
+
+            <!-- Repairs & Maintenance -->
+            <button class="btn-cat c-repairs" onclick="goToAdd('OUT', 'Repairs & Maintenance')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                </div>
+                <span class="btn-text">Repairs & Maint.</span>
+            </button>
+
+            <!-- Depreciation -->
+            <button class="btn-cat c-depreciation" onclick="goToAdd('OUT', 'Depreciation')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                </div>
+                <span class="btn-text">Depreciation</span>
+            </button>
+
+            <!-- Insurance -->
+            <button class="btn-cat c-insurance" onclick="goToAdd('OUT', 'Insurance')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                </div>
+                <span class="btn-text">Insurance</span>
+            </button>
+
+            <!-- Motor Vehicle Expenses -->
+            <button class="btn-cat c-motor-veh" onclick="goToAdd('OUT', 'Motor Vehicle Expenses')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                </div>
+                <span class="btn-text">Motor Vehicle Exp.</span>
+            </button>
+
+            <!-- Fuel & Transport -->
+            <button class="btn-cat c-fuel" onclick="goToAdd('OUT', 'Fuel & Transport')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3z"></path><path d="M11 13h4"></path><path d="M15 13h6v5h-6z"></path><path d="M18 18v3"></path></svg>
+                </div>
+                <span class="btn-text">Fuel & Transport</span>
+            </button>
+
+            <!-- Office Expenses -->
+            <button class="btn-cat c-office-exp" onclick="goToAdd('OUT', 'Office Expenses')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                </div>
+                <span class="btn-text">Office Expenses</span>
+            </button>
+
+            <!-- General Expenses -->
+            <button class="btn-cat c-general-exp" onclick="goToAdd('OUT', 'General Expenses')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                </div>
+                <span class="btn-text">General Expenses</span>
+            </button>
+
+            <!-- Sundry Expenses -->
+            <button class="btn-cat c-sundry-exp" onclick="goToAdd('OUT', 'Sundry Expenses')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                </div>
+                <span class="btn-text">Sundry Expenses</span>
+            </button>
+
+            <!-- Bank Charges -->
+            <button class="btn-cat c-bank-chg" onclick="goToAdd('OUT', 'Bank Charges')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                </div>
+                <span class="btn-text">Bank Charges</span>
+            </button>
+
+            <!-- Bad Debts -->
+            <button class="btn-cat c-bad-debts" onclick="goToAdd('OUT', 'Bad Debts')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                </div>
+                <span class="btn-text">Bad Debts</span>
+            </button>
+
+            <!-- Provision for Doubtful Debts -->
+            <button class="btn-cat c-prov-dbts" onclick="goToAdd('OUT', 'Provision for Doubtful Debts')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                </div>
+                <span class="btn-text">Prov. for Bad Debts</span>
+            </button>
+
+            <!-- Directors’ Remuneration -->
+            <button class="btn-cat c-directors" onclick="goToAdd('OUT', 'Directors’ Remuneration')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+                <span class="btn-text">Directors’ Remuneration</span>
+            </button>
+
+            <!-- Debenture Interest -->
+            <button class="btn-cat c-debenture" onclick="goToAdd('OUT', 'Debenture Interest')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M12 8v4"></path><path d="M12 16h.01"></path></svg>
+                </div>
+                <span class="btn-text">Debenture Interest</span>
+            </button>
+
+            <!-- Warehouse Rent -->
+            <button class="btn-cat c-warehouse" onclick="goToAdd('OUT', 'Warehouse Rent')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M5 21V7l8-4 8 4v14"></path><path d="M17 21v-8H7v8"></path><path d="M3 7h18"></path></svg>
+                </div>
+                <span class="btn-text">Warehouse Rent</span>
+            </button>
+
+            <!-- Security Expenses -->
+            <button class="btn-cat c-security" onclick="goToAdd('OUT', 'Security Expenses')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
+                <span class="btn-text">Security Expenses</span>
+            </button>
+
+            <!-- Legal & Professional Fees -->
+            <button class="btn-cat c-legal" onclick="goToAdd('OUT', 'Legal & Professional Fees')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                </div>
+                <span class="btn-text">Legal & Prof. Fees</span>
+            </button>
+
+            <!-- Audit Fees -->
+            <button class="btn-cat c-audit" onclick="goToAdd('OUT', 'Audit Fees')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+                <span class="btn-text">Audit Fees</span>
+            </button>
+
+            <!-- Subscriptions -->
+            <button class="btn-cat c-subscriptions" onclick="goToAdd('OUT', 'Subscriptions')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M20 24H4V8.2l8-6.2 8 6.2z"></path><path d="M10 20h4"></path><path d="M12 20v-6"></path></svg>
+                </div>
+                <span class="btn-text">Subscriptions</span>
+            </button>
+
+            <!-- Training Expenses -->
+            <button class="btn-cat c-training" onclick="goToAdd('OUT', 'Training Expenses')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                </div>
+                <span class="btn-text">Training Expenses</span>
+            </button>
+
+            <!-- Travel & Accommodation -->
+            <button class="btn-cat c-travel" onclick="goToAdd('OUT', 'Travel & Accommodation')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path><path d="M15 10l5-5"></path><path d="M15 5h5v5"></path></svg>
+                </div>
+                <span class="btn-text">Travel & Accom.</span>
+            </button>
+
+            <!-- Entertainment Expenses -->
+            <button class="btn-cat c-entertainment" onclick="goToAdd('OUT', 'Entertainment Expenses')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+                </div>
+                <span class="btn-text">Entertainment Exp.</span>
+            </button>
+
+            <!-- Corporation Tax -->
+            <button class="btn-cat c-corp-tax" onclick="goToAdd('OUT', 'Corporation Tax')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </div>
+                <span class="btn-text">Corporation Tax</span>
+            </button>
+        </div>
+
+        <!-- Distribution & Reserves (OUT) -->
+        <div class="subsection-header">
+            <h3>Distribution & Reserves</h3>
+        </div>
+        <div class="grid-container">
+             <!-- Goodwill Written off -->
+             <button class="btn-cat c-goodwill" onclick="goToAdd('OUT', 'Goodwill Written off')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                </div>
+                <span class="btn-text">Goodwill Written off</span>
+            </button>
+
+            <!-- Preference Dividends -->
+            <button class="btn-cat c-pref-div" onclick="goToAdd('OUT', 'Preference Dividends')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                </div>
+                <span class="btn-text">Pref. Dividends</span>
+            </button>
+
+            <!-- Ordinary Dividends -->
+            <button class="btn-cat c-ord-div" onclick="goToAdd('OUT', 'Ordinary Dividends')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                </div>
+                <span class="btn-text">Ordinary Dividends</span>
+            </button>
+
+            <!-- General Reserve -->
+            <button class="btn-cat c-gen-res" onclick="goToAdd('OUT', 'General Reserve')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                </div>
+                <span class="btn-text">General Reserve</span>
+            </button>
+
+            <!-- Retained Profit -->
+            <button class="btn-cat c-retained" onclick="goToAdd('OUT', 'Retained Profit')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+                </div>
+                <span class="btn-text">Retained Profit</span>
+            </button>
+        </div>
+
+
+        <!-- ========================================== -->
+        /* NEW: BALANCE SHEET ITEMS (ASSETS/LIABS/EQUITY) */
+        /* ========================================== */
+
+        <!-- ASSETS SECTION -->
+        <div class="section-header">
+            <span class="badge asset">ASSETS</span>
+            <h2>Assets</h2>
+        </div>
+
+        <div class="subsection-header">
+            <h3>Current Assets</h3>
+        </div>
+        <div class="grid-container">
+            <!-- Debtors -->
+            <button class="btn-cat c-debtors" onclick="goToAdd('ASSET', 'Debtors')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                </div>
+                <span class="btn-text">Debtors</span>
+            </button>
+            <!-- Stock -->
+            <button class="btn-cat c-stock" onclick="goToAdd('ASSET', 'Stock')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                </div>
+                <span class="btn-text">Stock</span>
+            </button>
+            <!-- Prepayments -->
+            <button class="btn-cat c-prepayments" onclick="goToAdd('ASSET', 'Prepayments')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                </div>
+                <span class="btn-text">Prepayments</span>
+            </button>
+            <!-- Accrued Income -->
+            <button class="btn-cat c-accrued-inc" onclick="goToAdd('ASSET', 'Accrued Income')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                </div>
+                <span class="btn-text">Accrued Income</span>
+            </button>
+        </div>
+
+        <div class="subsection-header">
+            <h3>Non-Current Assets</h3>
+        </div>
+        <div class="grid-container">
+            <!-- Land -->
+            <button class="btn-cat c-land" onclick="goToAdd('ASSET', 'Land')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M2 20h20"></path><path d="m15.59 15.29-8.17-8.17a3 3 0 0 0-4.24 0L2 8.29V20h13.17l.42-.41Z"></path></svg>
+                </div>
+                <span class="btn-text">Land</span>
+            </button>
+            <!-- Buildings -->
+            <button class="btn-cat c-buildings" onclick="goToAdd('ASSET', 'Buildings')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M5 21V7l8-4 8 4v14"></path><path d="M17 21v-8H7v8"></path></svg>
+                </div>
+                <span class="btn-text">Buildings</span>
+            </button>
+            <!-- Plant & Machinery -->
+            <button class="btn-cat c-plant" onclick="goToAdd('ASSET', 'Plant & Machinery')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M12 9a4 4 0 0 0-2 7.5"></path><path d="M12 3v2"></path><path d="M6.6 18.4l-1.4 1.4"></path><path d="M20 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg>
+                </div>
+                <span class="btn-text">Plant & Machinery</span>
+            </button>
+            <!-- Motor Vehicles -->
+            <button class="btn-cat c-motor-veh-asset" onclick="goToAdd('ASSET', 'Motor Vehicles')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9L18 10l-3-5H4v14h2"></path><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle></svg>
+                </div>
+                <span class="btn-text">Motor Vehicles</span>
+            </button>
+            <!-- Furniture & Fittings -->
+            <button class="btn-cat c-furniture" onclick="goToAdd('ASSET', 'Furniture & Fittings')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M4 22v-4"></path><path d="M20 22v-4"></path><path d="M4 18V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12"></path><path d="M14 13a2 2 0 1 1-4 0"></path><path d="M8 13h8"></path></svg>
+                </div>
+                <span class="btn-text">Furniture & Fittings</span>
+            </button>
+            <!-- Equipment -->
+            <button class="btn-cat c-equipment" onclick="goToAdd('ASSET', 'Equipment')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                </div>
+                <span class="btn-text">Equipment</span>
+            </button>
+            <!-- Goodwill (Asset) -->
+            <button class="btn-cat c-goodwill-asset" onclick="goToAdd('ASSET', 'Goodwill')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M7 11v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3a4 4 0 0 0 4-4V6a4 4 0 0 0-4-4H4a2 2 0 0 0-2 2v12"></path><path d="M20 11v8a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3a4 4 0 0 0 4-4V6a4 4 0 0 0-4-4h-3a2 2 0 0 0-2 2v12"></path></svg>
+                </div>
+                <span class="btn-text">Goodwill</span>
+            </button>
+        </div>
+
+        <!-- EQUITY SECTION -->
+        <div class="section-header">
+            <span class="badge equity">EQTY</span>
+            <h2>Equity</h2>
+        </div>
+        <div class="grid-container">
+            <!-- Capital -->
+            <button class="btn-cat c-capital" onclick="goToAdd('EQUITY', 'Capital')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                </div>
+                <span class="btn-text">Capital</span>
+            </button>
+            <!-- Drawings -->
+            <button class="btn-cat c-drawings" onclick="goToAdd('EQUITY', 'Drawings')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"></path><path d="M18 12a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4v-8h-4z"></path></svg>
+                </div>
+                <span class="btn-text">Drawings</span>
+            </button>
+            <!-- Retained Earnings / Loss -->
+            <button class="btn-cat c-retained-earnings" onclick="goToAdd('EQUITY', 'Retained Earnings')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
+                </div>
+                <span class="btn-text">Retained Earnings/Loss</span>
+            </button>
+        </div>
+
+        <!-- LIABILITIES SECTION -->
+        <div class="section-header">
+            <span class="badge liab">LIAB</span>
+            <h2>Liabilities</h2>
+        </div>
+
+        <div class="subsection-header">
+            <h3>Current Liabilities</h3>
+        </div>
+        <div class="grid-container">
+            <!-- Creditors -->
+            <button class="btn-cat c-creditors" onclick="goToAdd('LIAB', 'Creditors')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                </div>
+                <span class="btn-text">Creditors</span>
+            </button>
+            <!-- Bank Overdraft -->
+            <button class="btn-cat c-overdraft" onclick="goToAdd('LIAB', 'Bank Overdraft')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line><line x1="12" y1="15" x2="12" y2="15"></line></svg>
+                </div>
+                <span class="btn-text">Bank Overdraft</span>
+            </button>
+            <!-- Accrued Expenses -->
+            <button class="btn-cat c-accrued-exp" onclick="goToAdd('LIAB', 'Accrued Expenses')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                </div>
+                <span class="btn-text">Accrued Expenses</span>
+            </button>
+            <!-- Outstanding Expenses -->
+            <button class="btn-cat c-outstanding" onclick="goToAdd('LIAB', 'Outstanding Expenses')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                </div>
+                <span class="btn-text">Outstanding Expenses</span>
+            </button>
+            <!-- Tax Payable -->
+            <button class="btn-cat c-tax-payable" onclick="goToAdd('LIAB', 'Tax Payable')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </div>
+                <span class="btn-text">Tax Payable</span>
+            </button>
+        </div>
+
+        <div class="subsection-header">
+            <h3>Long Term Liabilities</h3>
+        </div>
+        <div class="grid-container">
+            <!-- Long Term Loan -->
+            <button class="btn-cat c-long-loan" onclick="goToAdd('LIAB', 'Long Term Loan')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M2 20h20"></path><path d="M5 20V8l8-4 8 4v12"></path><rect x="9" y="13" width="6" height="7"></rect></svg>
+                </div>
+                <span class="btn-text">Long Term Loan</span>
+            </button>
+            <!-- Mortgage -->
+            <button class="btn-cat c-mortgage" onclick="goToAdd('LIAB', 'Mortgage')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M5 21V7l8-4 8 4v14"></path><path d="M17 21v-8H7v8"></path></svg>
+                </div>
+                <span class="btn-text">Mortgage</span>
+            </button>
+            <!-- Debentures -->
+            <button class="btn-cat c-debentures" onclick="goToAdd('LIAB', 'Debentures')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </div>
+                <span class="btn-text">Debentures</span>
+            </button>
+        </div>
+
+        <!-- NEW CONTRA SECTION -->
+        <div class="section-header">
+            <span class="badge asset">CONTRA</span>
+            <h2>Contra Entry</h2>
+        </div>
+        <div class="grid-container">
+            <!-- Cleaned up buttons: Logic on main button, no inner colored buttons -->
+            <button class="btn-cat c-contra" onclick="openContraModal('DEPOSIT')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                </div>
+                <span class="btn-text">Deposit Cash</span>
+            </button>
+
+            <button class="btn-cat c-contra" onclick="openContraModal('WITHDRAW')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                </div>
+                <span class="btn-text">Withdraw Cash</span>
+            </button>
+        </div>
+
+    </main>
+
+    <div class="footer-nav">
+        <a href="business.html" class="back-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Back to Dashboard
+        </a>
+    </div>
+
+    <!-- MODALS FOR CONTRA -->
+
+    <!-- Modal 1: Deposit -->
+    <div id="modal-deposit" class="modal-overlay">
+        <div class="modal-card">
+            <h3 class="modal-title">Deposit to Bank</h3>
+            <div class="form-group">
+                <label class="form-label">Organization Name</label>
+                <input type="text" id="dep-org" class="form-input" placeholder="e.g. ABC Bank">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Amount</label>
+                <input type="number" id="dep-amt" class="form-input" placeholder="0.00">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModals()">Cancel</button>
+                <button class="btn btn-primary" onclick="processDeposit()">Save Transaction</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Withdraw Initial -->
+    <div id="modal-withdraw" class="modal-overlay">
+        <div class="modal-card">
+            <h3 class="modal-title">Withdraw from Bank</h3>
+            <div class="form-group">
+                <label class="form-label">Amount</label>
+                <input type="number" id="wit-amt" class="form-input" placeholder="0.00">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModals()">Cancel</button>
+                <button class="btn btn-primary" onclick="processWithdrawStep1()">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Withdraw Options (With/Without Charges) -->
+    <div id="modal-withdraw-options" class="modal-overlay">
+        <div class="modal-card">
+            <h3 class="modal-title">Charges Applicable?</h3>
+            <div class="modal-actions" style="flex-direction: column;">
+                <button class="btn btn-primary" onclick="openChargesModal(false)">Without Charges</button>
+                <button class="btn btn-secondary" style="background:#EF4444; color:white" onclick="openChargesModal(true)">With Charges</button>
+                <button class="btn btn-secondary" onclick="closeModals()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 4: Charges Amount -->
+    <div id="modal-charges" class="modal-overlay">
+        <div class="modal-card">
+            <h3 class="modal-title">Enter Charges Amount</h3>
+            <div class="form-group">
+                <label class="form-label">Charges Amount</label>
+                <input type="number" id="chg-amt" class="form-input" placeholder="0.00">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeModals()">Cancel</button>
+                <button class="btn btn-primary" onclick="finalizeWithdraw()">Save Transaction</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- SEARCH FUNCTIONALITY ---
+        const searchInput = document.getElementById('searchInput');
+        const buttons = document.querySelectorAll('.btn-cat');
+        const headers = document.querySelectorAll('.section-header, .subsection-header');
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+
+            // 1. Filter Buttons
+            buttons.forEach(btn => {
+                const text = btn.querySelector('.btn-text').textContent.toLowerCase();
+                if(text.includes(query)) {
+                    btn.style.display = 'flex';
+                } else {
+                    btn.style.display = 'none';
+                }
+            });
+
+            // 2. Hide Headers if their sections are empty
+            headers.forEach(header => {
+                // Find the next sibling that is a grid container
+                const nextGrid = header.nextElementSibling;
+                if(nextGrid && nextGrid.classList.contains('grid-container')) {
+                    // Check if any buttons inside are visible (not display: none)
+                    const visibleButtons = Array.from(nextGrid.querySelectorAll('.btn-cat')).filter(btn => btn.style.display !== 'none');
+                    
+                    if(visibleButtons.length === 0) {
+                        header.style.display = 'none';
+                        nextGrid.style.display = 'none'; // Also hide empty grid container
+                    } else {
+                        header.style.display = 'flex';
+                        nextGrid.style.display = 'grid';
+                    }
+                }
+            });
+        });
+
+        // --- REDIRECT FUNCTION ---
+        function goToAdd(flow, detail) {
+            // --- INTERNAL LOGIC OVERRIDE ---
+            // This ensures that specific accounts are treated according to their 
+            // accounting nature, preventing them from being recorded in the Cash Book.
+            
+            let actualFlow = flow;
+
+            // Mapping specific details to their correct flow types
+            if (detail === 'Capital') actualFlow = 'EQUITY';
+            if (detail === 'Drawings') actualFlow = 'EQUITY';
+            if (detail === 'Retained Earnings') actualFlow = 'EQUITY';
+            
+            // Note: 'Goodwill' is handled correctly by the explicit calls:
+            // 1. In Expenses -> goToAdd('OUT', 'Goodwill Written off')
+            // 2. In Assets  -> goToAdd('ASSET', 'Goodwill')
+            
+            // Redirect to add-transaction.html with parameters
+            const url = `add-transaction.html?flow=${encodeURIComponent(actualFlow)}&detail=${encodeURIComponent(detail)}`;
+            window.location.href = url;
+        }
+
+        // --- CONTRA LOGIC START ---
+        
+        // Temporary state
+        let withdrawAmount = 0;
+
+        function openContraModal(type) {
+            closeModals();
+            if(type === 'DEPOSIT') {
+                document.getElementById('modal-deposit').classList.add('active');
+                document.getElementById('dep-org').value = '';
+                document.getElementById('dep-amt').value = '';
+            } else if(type === 'WITHDRAW') {
+                document.getElementById('modal-withdraw').classList.add('active');
+                document.getElementById('wit-amt').value = '';
+            }
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active'));
+            withdrawAmount = 0;
+        }
+
+        // Step 1: Handle Deposit
+        function processDeposit() {
+            const org = document.getElementById('dep-org').value.trim();
+            const amt = parseFloat(document.getElementById('dep-amt').value);
+
+            if(!org || isNaN(amt) || amt <= 0) {
+                alert('Please enter a valid organization name and amount.');
+                return;
+            }
+
+            // Record contra: Cash Increases, Bank Decreases (Logic: Bank is "Flow Form", Amount is recorded)
+            // Since this is a single file demo, we will log the transaction to console and alert the user.
+            
+            const transaction = {
+                sNo: generateSN(),
+                date: new Date().toLocaleDateString(),
+                detail: 'Contra Deposit',
+                flowType: 'CONTRA',
+                flowForm: 'Bank', // Bank decreases
+                name: org,
+                amount: amt,
+                action: 'Saved'
+            };
+
+            console.log("Transaction Saved:", transaction);
+            alert(`Transaction Saved:\n\nType: Contra (Deposit)\nDetail: Cash In, Bank Out\nOrg: ${org}\nAmount: ${amt}`);
+            closeModals();
+        }
+
+        // Step 2: Handle Withdrawal - Amount Entry
+        function processWithdrawStep1() {
+            const amt = parseFloat(document.getElementById('wit-amt').value);
+            if(isNaN(amt) || amt <= 0) {
+                alert('Please enter a valid amount.');
+                return;
+            }
+            withdrawAmount = amt;
+            document.getElementById('modal-withdraw').classList.remove('active');
+            document.getElementById('modal-withdraw-options').classList.add('active');
+        }
+
+        // Step 3: Handle Withdrawal - Charges Selection
+        function openChargesModal(hasCharges) {
+            document.getElementById('modal-withdraw-options').classList.remove('active');
+            
+            if(!hasCharges) {
+                // Withdraw without charges
+                // Record contra: Cash Increases, Bank Decreases
+                const transaction = {
+                    sNo: generateSN(),
+                    date: new Date().toLocaleDateString(),
+                    detail: 'Contra Withdrawal',
+                    flowType: 'CONTRA',
+                    flowForm: 'Bank',
+                    name: 'N/A',
+                    amount: withdrawAmount,
+                    action: 'Saved'
+                };
+                console.log("Transaction Saved:", transaction);
+                alert(`Transaction Saved:\n\nType: Contra (Withdraw)\nDetail: Cash In, Bank Out\nAmount: ${withdrawAmount}`);
+                closeModals();
+            } else {
+                // Withdraw with charges - Ask for charge amount
+                document.getElementById('modal-charges').classList.add('active');
+                document.getElementById('chg-amt').value = '';
+            }
+        }
+
+        // Step 4: Handle Withdrawal - Finalize with Charges
+        function finalizeWithdraw() {
+            const chgAmt = parseFloat(document.getElementById('chg-amt').value);
+            if(isNaN(chgAmt) || chgAmt < 0) {
+                alert('Please enter a valid charges amount.');
+                return;
+            }
+
+            // Record TWO transactions internally
+            
+            // 1. Normal Contra: Cash Increases, Bank Decreases (by main amount)
+            const contraTx = {
+                sNo: generateSN(),
+                date: new Date().toLocaleDateString(),
+                detail: 'Contra Withdrawal',
+                flowType: 'CONTRA',
+                flowForm: 'Bank',
+                name: 'N/A',
+                amount: withdrawAmount,
+                action: 'Saved'
+            };
+
+            // 2. Charges Entry: Bank is flow form, amount is charges
+            const chargeTx = {
+                sNo: generateSN() + 1, // Just for demo distinction
+                date: new Date().toLocaleDateString(),
+                detail: 'Bank Charges',
+                flowType: 'OUT', // Charges are an expense
+                flowForm: 'Bank',
+                name: 'Bank Charges',
+                amount: chgAmt,
+                action: 'Saved'
+            };
+
+            console.log("Transaction 1 (Contra) Saved:", contraTx);
+            console.log("Transaction 2 (Charges) Saved:", chargeTx);
+
+            alert(`Transactions Saved:\n\n1. Contra (Withdraw): ${withdrawAmount}\n2. Charges: ${chgAmt}`);
+            closeModals();
+        }
+
+        // Helper for Serial Number simulation
+        function generateSN() {
+            return Math.floor(Math.random() * 1000);
+        }
+
+        // --- CONTRA LOGIC END ---
+
+    </script>
+</body>
+</html>
