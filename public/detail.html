@@ -14,7 +14,7 @@
             --primary-hover: #2563EB;
             --success: #10B981;
             --danger: #EF4444;
-            --hybrid: #8B5CF6; 
+            /* Hybrid color removed */
         }
 
         * {
@@ -84,15 +84,6 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
-        /* Purchases Style */
-.c-purchase .icon-box { 
-    background: linear-gradient(135deg, #EF4444, #DC2626); 
-    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); 
-}
-
-.c-purchase:hover {
-    border: 1px solid #EF4444;
-}
         /* Main Content Area */
         main {
             flex: 1;
@@ -135,6 +126,7 @@
         }
         
         .badge.in { background-color: #10B981; }
+        .badge.out { background-color: #EF4444; }
 
         /* Grid Layout */
         .grid-container {
@@ -236,15 +228,7 @@
             background: #E5E7EB;
             color: #111827;
         }
-/* Capital Style */
-.c-capital .icon-box { 
-    background: linear-gradient(135deg, #8B5CF6, #7C3AED); 
-    box-shadow: 0 4px 10px rgba(139, 92, 246, 0.4); 
-}
 
-.c-capital:hover {
-    border: 1px solid #8B5CF6;
-}
         /* --------------------------- */
         /* BUTTON COLOR CLASSES       */
         /* --------------------------- */
@@ -256,6 +240,25 @@
         }
         .c-sales:hover {
             border: 1px solid #10B981;
+        }
+
+        /* Purchases Specific Style */
+        .c-purchase .icon-box { 
+            background: linear-gradient(135deg, #EF4444, #DC2626); 
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); 
+        }
+        .c-purchase:hover {
+            border: 1px solid #EF4444;
+        }
+
+        /* Capital Specific Style (Purple, but purely visual) */
+        .c-capital .icon-box { 
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED); 
+            box-shadow: 0 4px 10px rgba(139, 92, 246, 0.4); 
+        }
+
+        .c-capital:hover {
+            border: 1px solid #8B5CF6;
         }
 
         /* --------------------------- */
@@ -304,7 +307,7 @@
 
     <header>
         <h1>Transaction Type</h1>
-        <div class="subtitle">Select Sales to proceed</div>
+        <div class="subtitle">Select a category to proceed</div>
     </header>
 
     <!-- SEARCH INPUT -->
@@ -321,17 +324,17 @@
         </div>
         
         <div class="grid-container">
-            <!-- CAPITAL BUTTON -->
-<button class="btn-cat c-capital" data-type="IN" data-detail="Capital" onclick="goToAdd('IN', 'Capital')">
-    <div class="icon-box">
-        <!-- Capital Icon -->
-        <svg viewBox="0 0 24 24">
-            <path d="M12 1v22"></path>
-            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"></path>
-        </svg>
-    </div>
-    <span class="btn-text">Capital</span>
-</button>
+            <!-- CAPITAL BUTTON (Strictly IN) -->
+            <button class="btn-cat c-capital" data-type="IN" data-detail="Capital" onclick="goToAdd('IN', 'Capital')">
+                <div class="icon-box">
+                    <!-- Capital Icon -->
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 1v22"></path>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                </div>
+                <span class="btn-text">Capital</span>
+            </button>
 
             <button class="btn-cat c-sales" data-type="IN" data-detail="Sales" onclick="goToAdd('IN', 'Sales')">
                 <div class="icon-box">
@@ -345,24 +348,24 @@
             </button>
         </div>
 
-<!-- OUT SECTION -->
-<div class="section-header">
-    <span class="badge" style="background-color:#EF4444;">OUT</span>
-    <h2>Expenses</h2>
-</div>
-
-<div class="grid-container">
-    <!-- PURCHASES BUTTON -->
-    <button class="btn-cat c-purchase" data-type="OUT" data-detail="Purchases" onclick="goToAdd('OUT', 'Purchases')">
-        <div class="icon-box">
-            <svg viewBox="0 0 24 24">
-                <path d="M21 7l-6 6-4-4-7 7"></path>
-                <path d="M10 17H3v-7"></path>
-            </svg>
+        <!-- OUT SECTION -->
+        <div class="section-header">
+            <span class="badge out">OUT</span>
+            <h2>Expenses</h2>
         </div>
-        <span class="btn-text">Purchases</span>
-    </button>
-</div>
+
+        <div class="grid-container">
+            <!-- PURCHASES BUTTON -->
+            <button class="btn-cat c-purchase" data-type="OUT" data-detail="Purchases" onclick="goToAdd('OUT', 'Purchases')">
+                <div class="icon-box">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M21 7l-6 6-4-4-7 7"></path>
+                        <path d="M10 17H3v-7"></path>
+                    </svg>
+                </div>
+                <span class="btn-text">Purchases</span>
+            </button>
+        </div>
     </main>
 
     <div class="footer-nav">
@@ -418,20 +421,13 @@
             let skipPayment = false; 
 
             // ------------------------------------------------------------------
-            // REQUIREMENT 1 & 2: CAPITAL LOGIC (Kept from original code)
-            // Capital behaves as Equity (Balance Sheet) but is internally defined 
-            // as 'IN' (Receipts) for Cash Book execution.
+            // LOGIC: No Hybrid logic. Capital is strictly 'IN'.
             // ------------------------------------------------------------------
-            if (detail === 'Capital') {
-                actualFlow = 'HYBRID'; 
-            }
 
             // ------------------------------------------------------------------
-            // REQUIREMENT 3 & 5: SKIP PAYMENT METHOD LOGIC (Kept from original)
-            // Opening Stock, Closing Stock, and all Assets (Current/Non-Current)
-            // should NOT ask for Cash/Credit/Bank. They are neither of the three.
+            // REQUIREMENT: SKIP PAYMENT METHOD LOGIC
+            // Certain balance sheet items shouldn't ask for Cash/Credit/Bank.
             // ------------------------------------------------------------------
-            
             const skipPaymentItems = [
                 'Opening Stock', 'Closing Stock',
                 'Land', 'Buildings', 'Plant & Machinery', 'Motor Vehicles', 
@@ -444,7 +440,6 @@
             }
 
             // Redirect to add-transaction.html with parameters
-            // THIS IS THE ACTIVE REDIRECT LOGIC
             const url = `add-transaction.html?flow=${encodeURIComponent(actualFlow)}&detail=${encodeURIComponent(detail)}&skipPayment=${skipPayment}`;
             
             // Perform the redirect
