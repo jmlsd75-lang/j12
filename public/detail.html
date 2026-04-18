@@ -14,7 +14,7 @@
             --primary-hover: #2563EB;
             --success: #10B981;
             --danger: #EF4444;
-            --hybrid: #8B5CF6; /* Color for Capital/Equity dual usage */
+            --hybrid: #8B5CF6; 
         }
 
         * {
@@ -599,7 +599,7 @@
         <!-- Opening/Closing Stock -->
         <div class="grid-container" style="margin-bottom: 12px;">
              <!-- Opening Stock -->
-             <button class="btn-cat c-opening-stock" data-type="OUT" data-detail="Opening Stock" onclick="goToAdd('OUT', 'Opening Stock')">
+             <button class="btn-cat c-opening-stock" data-type="STOCK" data-detail="Opening Stock" onclick="goToAdd('STOCK', 'Opening Stock')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
                 </div>
@@ -607,7 +607,7 @@
             </button>
 
             <!-- Closing Stock -->
-            <button class="btn-cat c-closing-stock" data-type="OUT" data-detail="Closing Stock" onclick="goToAdd('OUT', 'Closing Stock')">
+            <button class="btn-cat c-closing-stock" data-type="STOCK" data-detail="Closing Stock" onclick="goToAdd('STOCK', 'Closing Stock')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
                 </div>
@@ -1057,7 +1057,7 @@
             <h2>Equity</h2>
         </div>
         <div class="grid-container">
-            <!-- Capital (HYBRID - EQUITY/CASH) -->
+            <!-- Capital (HYBRID) -->
             <button class="btn-cat c-capital" data-type="HYBRID" data-detail="Capital" onclick="goToAdd('HYBRID', 'Capital')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
@@ -1271,15 +1271,13 @@
 
             // 2. Hide Headers if their sections are empty
             headers.forEach(header => {
-                // Find the next sibling that is a grid container
                 const nextGrid = header.nextElementSibling;
                 if(nextGrid && nextGrid.classList.contains('grid-container')) {
-                    // Check if any buttons inside are visible (not display: none)
                     const visibleButtons = Array.from(nextGrid.querySelectorAll('.btn-cat')).filter(btn => btn.style.display !== 'none');
                     
                     if(visibleButtons.length === 0) {
                         header.style.display = 'none';
-                        nextGrid.style.display = 'none'; // Also hide empty grid container
+                        nextGrid.style.display = 'none';
                     } else {
                         header.style.display = 'flex';
                         nextGrid.style.display = 'grid';
@@ -1292,23 +1290,37 @@
         function goToAdd(flow, detail) {
             
             let actualFlow = flow;
+            let skipPayment = false; // Flag to skip Cash/Credit/Bank selection
 
             // ------------------------------------------------------------------
-            // CORE LOGIC UPDATE:
-            // Capital is a multi-use account.
-            // 1. In Balance Sheet (Accounting Equation), it is EQUITY.
-            // 2. In Cash Book (Double/Single Column), it functions as Receipt (IN).
+            // REQUIREMENT 1 & 2: CAPITAL LOGIC
+            // Capital behaves as Equity (Balance Sheet) but is internally defined 
+            // as 'IN' (Receipts) for Cash Book execution.
             // ------------------------------------------------------------------
             if (detail === 'Capital') {
-                actualFlow = 'HYBRID'; // Signals to the next page that this account behaves as both
+                actualFlow = 'HYBRID'; 
             }
 
-            // Mapping other specific details to correct flows (Standardizing)
-            if (detail === 'Drawings') actualFlow = 'EQUITY';
-            if (detail === 'Retained Earnings') actualFlow = 'EQUITY';
+            // ------------------------------------------------------------------
+            // REQUIREMENT 3 & 5: SKIP PAYMENT METHOD LOGIC
+            // Opening Stock, Closing Stock, and all Assets (Current/Non-Current)
+            // should NOT ask for Cash/Credit/Bank. They are neither of the three.
+            // ------------------------------------------------------------------
             
+            // List of items that bypass payment method selection
+            const skipPaymentItems = [
+                'Opening Stock', 'Closing Stock',
+                'Land', 'Buildings', 'Plant & Machinery', 'Motor Vehicles', 
+                'Furniture & Fittings', 'Equipment', 'Goodwill', 
+                'Debtors', 'Stock', 'Prepayments', 'Accrued Income'
+            ];
+
+            if (skipPaymentItems.includes(detail)) {
+                skipPayment = true;
+            }
+
             // Redirect to add-transaction.html with parameters
-            const url = `add-transaction.html?flow=${encodeURIComponent(actualFlow)}&detail=${encodeURIComponent(detail)}`;
+            const url = `add-transaction.html?flow=${encodeURIComponent(actualFlow)}&detail=${encodeURIComponent(detail)}&skipPayment=${skipPayment}`;
             window.location.href = url;
         }
 
@@ -1318,7 +1330,6 @@
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             
-            // Icon based on type
             let icon = '';
             if(type === 'success') icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
             else icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>';
@@ -1327,7 +1338,6 @@
             
             container.appendChild(toast);
 
-            // Remove after 3 seconds
             setTimeout(() => {
                 toast.style.animation = 'toastOut 0.3s forwards';
                 toast.addEventListener('animationend', () => {
@@ -1337,8 +1347,6 @@
         }
 
         // --- CONTRA LOGIC START ---
-        
-        // Temporary state
         let withdrawAmount = 0;
 
         function openContraModal(type) {
@@ -1358,7 +1366,6 @@
             withdrawAmount = 0;
         }
 
-        // Step 1: Handle Deposit
         function processDeposit() {
             const org = document.getElementById('dep-org').value.trim();
             const amt = parseFloat(document.getElementById('dep-amt').value);
@@ -1367,16 +1374,13 @@
                 showToast('Please enter a valid organization name and amount.', 'error');
                 return;
             }
-
-            // Record contra: Cash Increases, Bank Decreases (Logic: Bank is "Flow Form", Amount is recorded)
-            // Since this is a single file demo, we will log the transaction to console and toast the user.
             
             const transaction = {
                 sNo: generateSN(),
                 date: new Date().toLocaleDateString(),
                 detail: 'Contra Deposit',
                 flowType: 'CONTRA',
-                flowForm: 'Bank', // Bank decreases
+                flowForm: 'Bank',
                 name: org,
                 amount: amt,
                 action: 'Saved'
@@ -1387,7 +1391,6 @@
             closeModals();
         }
 
-        // Step 2: Handle Withdrawal - Amount Entry
         function processWithdrawStep1() {
             const amt = parseFloat(document.getElementById('wit-amt').value);
             if(isNaN(amt) || amt <= 0) {
@@ -1399,13 +1402,10 @@
             document.getElementById('modal-withdraw-options').classList.add('active');
         }
 
-        // Step 3: Handle Withdrawal - Charges Selection
         function openChargesModal(hasCharges) {
             document.getElementById('modal-withdraw-options').classList.remove('active');
             
             if(!hasCharges) {
-                // Withdraw without charges
-                // Record contra: Cash Increases, Bank Decreases
                 const transaction = {
                     sNo: generateSN(),
                     date: new Date().toLocaleDateString(),
@@ -1420,13 +1420,11 @@
                 showToast(`Withdrawal of ${withdrawAmount} saved`, 'success');
                 closeModals();
             } else {
-                // Withdraw with charges - Ask for charge amount
                 document.getElementById('modal-charges').classList.add('active');
                 document.getElementById('chg-amt').value = '';
             }
         }
 
-        // Step 4: Handle Withdrawal - Finalize with Charges
         function finalizeWithdraw() {
             const chgAmt = parseFloat(document.getElementById('chg-amt').value);
             if(isNaN(chgAmt) || chgAmt < 0) {
@@ -1434,9 +1432,6 @@
                 return;
             }
 
-            // Record TWO transactions internally
-            
-            // 1. Normal Contra: Cash Increases, Bank Decreases (by main amount)
             const contraTx = {
                 sNo: generateSN(),
                 date: new Date().toLocaleDateString(),
@@ -1448,12 +1443,11 @@
                 action: 'Saved'
             };
 
-            // 2. Charges Entry: Bank is flow form, amount is charges
             const chargeTx = {
-                sNo: generateSN() + 1, // Just for demo distinction
+                sNo: generateSN() + 1,
                 date: new Date().toLocaleDateString(),
                 detail: 'Bank Charges',
-                flowType: 'OUT', // Charges are an expense
+                flowType: 'OUT',
                 flowForm: 'Bank',
                 name: 'Bank Charges',
                 amount: chgAmt,
@@ -1467,12 +1461,9 @@
             closeModals();
         }
 
-        // Helper for Serial Number simulation
         function generateSN() {
             return Math.floor(Math.random() * 1000);
         }
-
-        // --- CONTRA LOGIC END ---
 
     </script>
 </body>
