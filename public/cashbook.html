@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cash Book</title>
+  <title>Cash Book (Cash Only)</title>
   <style>
     :root {
       --primary: #4285F4;
@@ -75,10 +75,18 @@
       text-align: center;
       font-size: 2rem;
       font-weight: 700;
-      margin-bottom: 2rem;
+      margin-bottom: 0.5rem;
       color: var(--text-main);
       text-transform: uppercase;
       letter-spacing: 1px;
+    }
+
+    .page-subtitle {
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+      font-style: italic;
     }
 
     /* ── Cash Book Layout (Single Table) ── */
@@ -125,7 +133,6 @@
     }
 
     /* Vertical Divider Line in Middle */
-    /* We apply a border-left to the first column of the Credit side (5th column effectively) */
     .divider-col {
       border-left: 2px solid var(--border-color) !important;
     }
@@ -138,7 +145,6 @@
       height: var(--row-height); /* Constant Height */
     }
 
-    /* Vertical border for cells in the middle column */
     td.divider-col {
       border-left: 2px solid var(--border-color);
     }
@@ -161,11 +167,8 @@
       font-weight: 700; 
       border-top: 2px solid #cbd5e0;
       color: #2d3748;
-      height: 50px; /* Slightly taller for total */
+      height: 50px; 
     }
-    
-    /* Remove bottom border for the very last row (Balance b/d usually) if desired, 
-       but keeping it is cleaner for separation. */
 
     /* Empty State */
     .empty-state {
@@ -199,9 +202,10 @@
 
   <main>
     <h1 class="page-title">Cash Book</h1>
+    <div class="page-subtitle">Cash Transactions Only (Excludes Bank & Credit)</div>
 
     <div class="empty-state" id="emptyState">
-      <p>No transactions found to generate Cash Book.</p>
+      <p>No CASH transactions found.</p>
     </div>
 
     <div class="cash-book-wrapper" id="cashBookWrapper">
@@ -332,11 +336,26 @@
       // 1. Process Transactions into separate arrays
       docs.forEach((doc) => {
         const data = doc.data();
+        
+        // ---------------------------------------------------------
+        // FILTER LOGIC: Only include CASH transactions
+        // ---------------------------------------------------------
+        // We expect the database field 'flowForm' to exist (e.g. "CASH", "BANK", "CREDIT")
+        // We normalize to uppercase to be safe.
+        const flowForm = (data.flowForm || "").toString().toUpperCase();
+
+        if (flowForm !== 'CASH') {
+          // Skip Bank and Credit transactions entirely
+          return; 
+        }
+        // ---------------------------------------------------------
+
         const amount = parseFloat(data.amount || 0);
         const type = (data.type || "IN").toUpperCase();
         
         let detail = data.detail || "-";
         // Clean name from detail for the particulars column
+        // e.g. "Sales (juma)" -> "Sales"
         const nameMatch = detail.match(/\(([^)]+)\)$/);
         let particulars = detail;
         if (nameMatch) {
@@ -354,6 +373,8 @@
           type: 'trans' // marker for normal transaction
         };
 
+        // Logic: 'IN' usually goes to Debit, everything else (OUT, EQUITY) to Credit
+        // based on your provided data structure
         if (type === 'IN') {
           totalDr += amount;
           drRows.push(rowObj);
