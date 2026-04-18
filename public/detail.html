@@ -14,7 +14,6 @@
             --primary-hover: #2563EB;
             --success: #10B981;
             --danger: #EF4444;
-            /* Hybrid color removed */
         }
 
         * {
@@ -233,7 +232,7 @@
         /* BUTTON COLOR CLASSES       */
         /* --------------------------- */
         
-        /* Sales Specific Style */
+        /* Sales Style (Green) */
         .c-sales .icon-box { 
             background: linear-gradient(135deg, #10B981, #059669); 
             box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4); 
@@ -242,7 +241,7 @@
             border: 1px solid #10B981;
         }
 
-        /* Purchases Specific Style */
+        /* Purchases Style (Red) */
         .c-purchase .icon-box { 
             background: linear-gradient(135deg, #EF4444, #DC2626); 
             box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); 
@@ -251,7 +250,7 @@
             border: 1px solid #EF4444;
         }
 
-        /* Capital Specific Style (Purple, but purely visual) */
+        /* Capital Style (Purple) - Strictly IN */
         .c-capital .icon-box { 
             background: linear-gradient(135deg, #8B5CF6, #7C3AED); 
             box-shadow: 0 4px 10px rgba(139, 92, 246, 0.4); 
@@ -336,6 +335,7 @@
                 <span class="btn-text">Capital</span>
             </button>
 
+            <!-- SALES BUTTON (Strictly IN) -->
             <button class="btn-cat c-sales" data-type="IN" data-detail="Sales" onclick="goToAdd('IN', 'Sales')">
                 <div class="icon-box">
                     <!-- Sales Icon (Chart/Up Trend) -->
@@ -355,7 +355,7 @@
         </div>
 
         <div class="grid-container">
-            <!-- PURCHASES BUTTON -->
+            <!-- PURCHASES BUTTON (Strictly OUT) -->
             <button class="btn-cat c-purchase" data-type="OUT" data-detail="Purchases" onclick="goToAdd('OUT', 'Purchases')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24">
@@ -421,7 +421,8 @@
             let skipPayment = false; 
 
             // ------------------------------------------------------------------
-            // LOGIC: No Hybrid logic. Capital is strictly 'IN'.
+            // DEFINITION: Capital is strictly defined as IN.
+            // No hybrid or conversion logic is applied.
             // ------------------------------------------------------------------
 
             // ------------------------------------------------------------------
