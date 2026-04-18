@@ -190,7 +190,7 @@
 <body>
 
   <header>
-    <a href="business file.html" class="back-btn">
+    <a href="business.html" class="back-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="19" y1="12" x2="5" y2="12"></line>
         <polyline points="12 19 5 12 12 5"></polyline>
@@ -266,9 +266,20 @@
       return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'TZS' }).format(amount);
     };
 
-    // Helper: Get Today's Date string
-    const getTodayDate = () => {
-      return new Date().toISOString().split('T')[0];
+    // Helper: Format Date (Extract just the YYYY-MM-DD part)
+    const formatDate = (dateStr) => {
+      if (!dateStr) return new Date().toISOString().split('T')[0];
+      // If it's a full string like "4/17/2026, 10:26:56 PM", try to parse it
+      // Otherwise return as is if it looks like a date
+      try {
+        const d = new Date(dateStr);
+        if (!isNaN(d.getTime())) {
+          return d.toISOString().split('T')[0];
+        }
+      } catch (e) {
+        // ignore
+      }
+      return dateStr;
     };
 
     // Auth Check
@@ -290,7 +301,7 @@
 
       // REAL-TIME LISTENER
       const transactionsRef = collection(db, "users", user.email, "transactions");
-      const q = query(transactionsRef, orderBy("date", "desc")); 
+      const q = query(transactionsRef, orderBy("createdAt", "desc")); // Order by creation time
 
       onSnapshot(q, (snapshot) => {
         renderCashBook(snapshot.docs);
@@ -301,9 +312,6 @@
 
     function renderCashBook(docs) {
       tableBody.innerHTML = "";
-
-      // Debugging Log
-      console.log("Fetched Docs:", docs.length);
 
       if (docs.length === 0) {
         emptyState.classList.add('visible');
@@ -334,51 +342,45 @@
         }
       };
 
-      const today = getTodayDate();
+      const today = new Date().toISOString().split('T')[0];
 
-      // 1. Process Transactions into separate arrays
+      // 1. Process Transactions
       docs.forEach((doc) => {
         const data = doc.data();
         
         // ---------------------------------------------------------
-        // ROBUST FILTER LOGIC
+        // FILTER LOGIC: Based on your Transaction Entry Form
         // ---------------------------------------------------------
-        // 1. Get flowForm. If missing, check 'flowType' or default to true (keep it).
-        // 2. Normalize to Uppercase.
-        // 3. Check if it contains "CASH".
-        
-        let flowForm = (data.flowForm || "").trim().toString().toUpperCase();
-        
-        // If flowForm is empty (old data), check flowType or default to keeping it
-        if (flowForm === "") {
-           // Check if there is another field indicating type, otherwise include by default
-           // Assuming if not specified as BANK/CREDIT, it is likely CASH for this legacy data fix.
-           console.log(`[WARNING] Transaction '${data.detail}' has no flowForm. Defaulting to CASH.`);
-           flowForm = "CASH"; 
-        }
+        // Your form saves the method in 'data.method' (e.g. "CASH", "BANK", "CREDIT")
+        const method = (data.method || "").toString().toUpperCase();
 
-        // STRICT FILTER: Only keep if it is CASH
-        // This explicitly filters out BANK and CREDIT
-        if (flowForm !== 'CASH') {
-          console.log(`[FILTERED] ${data.detail} is ${flowForm}. Skipping.`);
+        // Only proceed if method is explicitly "CASH"
+        if (method !== 'CASH') {
+          console.log(`Skipping non-cash transaction: ${data.detail} (${method})`);
           return; 
         }
         // ---------------------------------------------------------
 
         const amount = parseFloat(data.amount || 0);
-        const type = (data.type || "IN").toUpperCase();
+        const type = (data.type || "IN").toUpperCase(); // IN or OUT
         
         let detail = data.detail || "-";
-        // Clean name from detail for the particulars column
-        // e.g. "Sales (juma)" -> "Sales"
+        
+        // Clean name from detail if it contains brackets (e.g. "Sales (Juma)")
+        // We want to show "Sales" in particulars, but keep the original if needed.
+        // For Cash Book, usually we keep the detail as is or clean it.
+        // Let's keep it as is to ensure we know who the credit payer was, 
+        // OR clean it if strictly following accounting rules.
+        // Given your previous prompt, let's clean it to match the "Particulars" column style.
         const nameMatch = detail.match(/\(([^)]+)\)$/);
         let particulars = detail;
         if (nameMatch) {
+          // Remove the bracketed name for the Particulars column
           particulars = detail.replace(/\s*\([^)]+\)$/, ""); 
         }
 
         const folio = getFolio(particulars);
-        const dateStr = data.date || today;
+        const dateStr = formatDate(data.date);
 
         const rowObj = {
           date: dateStr,
@@ -388,7 +390,7 @@
           type: 'trans' // marker for normal transaction
         };
 
-        // Logic: 'IN' usually goes to Debit, everything else (OUT, EQUITY) to Credit
+        // Logic: 'IN' goes to Debit, 'OUT' goes to Credit
         if (type === 'IN') {
           totalDr += amount;
           drRows.push(rowObj);
@@ -397,8 +399,6 @@
           crRows.push(rowObj);
         }
       });
-
-      console.log(`Final Count: Debit Rows (${drRows.length}), Credit Rows (${crRows.length})`);
 
       // 2. Calculate Difference & Insert "Balance c/d"
       let diff = Math.abs(totalDr - totalCr);
