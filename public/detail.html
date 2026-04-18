@@ -14,6 +14,7 @@
             --primary-hover: #2563EB;
             --success: #10B981;
             --danger: #EF4444;
+            --hybrid: #8B5CF6; /* Color for Capital/Equity dual usage */
         }
 
         * {
@@ -357,6 +358,46 @@
         }
 
         /* --------------------------- */
+        /* TOAST NOTIFICATION        */
+        /* --------------------------- */
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: toastIn 0.3s forwards;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.success { background: #10B981; }
+        .toast.error { background: #EF4444; }
+
+        @keyframes toastIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes toastOut {
+            to { opacity: 0; transform: translateY(-20px); }
+        }
+
+        /* --------------------------- */
         /* BUTTON COLOR CLASSES       */
         /* --------------------------- */
 
@@ -433,10 +474,10 @@
         .c-equipment .icon-box { background: linear-gradient(135deg, #8B5CF6, #7C3AED); box-shadow: 0 2px 6px rgba(139, 92, 246, 0.3); }
         .c-goodwill-asset .icon-box { background: linear-gradient(135deg, #64748B, #475569); box-shadow: 0 2px 6px rgba(100, 116, 139, 0.3); }
 
-        /* Equity */
-        .c-capital .icon-box { background: linear-gradient(135deg, #D946EF, #C026D3); box-shadow: 0 2px 6px rgba(217, 70, 239, 0.3); }
-        .c-drawings .icon-box { background: linear-gradient(135deg, #E879F9, #D946EF); box-shadow: 0 2px 6px rgba(232, 121, 249, 0.3); }
-        .c-retained-earnings .icon-box { background: linear-gradient(135deg, #F472B6, #EC4899); box-shadow: 0 2px 6px rgba(244, 114, 182, 0.3); }
+        /* Equity - HYBRID COLORS */
+        .c-capital .icon-box { background: linear-gradient(135deg, #8B5CF6, #7C3AED); box-shadow: 0 2px 6px rgba(139, 92, 246, 0.4); }
+        .c-drawings .icon-box { background: linear-gradient(135deg, #A78BFA, #8B5CF6); box-shadow: 0 2px 6px rgba(167, 139, 250, 0.3); }
+        .c-retained-earnings .icon-box { background: linear-gradient(135deg, #C084FC, #A855F7); box-shadow: 0 2px 6px rgba(192, 132, 252, 0.3); }
 
         /* Current Liabilities */
         .c-creditors .icon-box { background: linear-gradient(135deg, #F97316, #EA580C); box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3); }
@@ -453,10 +494,6 @@
         /* Contra Specifics */
         .c-contra { border: 2px solid #6366F1; }
         .c-contra .icon-box { background: linear-gradient(135deg, #4338CA, #312E81); box-shadow: 0 4px 8px rgba(67, 56, 202, 0.4); }
-        
-        /* Removed the inner green and orange button styles */
-        /* .btn-contra-deposit ... */
-        /* .btn-contra-withdraw ... */
 
     </style>
 </head>
@@ -481,7 +518,7 @@
         </div>
         <div class="grid-container">
             <!-- Sales -->
-            <button class="btn-cat c-sales" onclick="goToAdd('IN', 'Sales')">
+            <button class="btn-cat c-sales" data-type="IN" data-detail="Sales" onclick="goToAdd('IN', 'Sales')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 7-7"></path><path d="M14 4h7v7"></path></svg>
                 </div>
@@ -489,7 +526,7 @@
             </button>
             
             <!-- Discount Received -->
-            <button class="btn-cat c-discount-rec" onclick="goToAdd('IN', 'Discount Received')">
+            <button class="btn-cat c-discount-rec" data-type="IN" data-detail="Discount Received" onclick="goToAdd('IN', 'Discount Received')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
                 </div>
@@ -497,7 +534,7 @@
             </button>
 
             <!-- Commission Received -->
-            <button class="btn-cat c-commission-rec" onclick="goToAdd('IN', 'Commission Received')">
+            <button class="btn-cat c-commission-rec" data-type="IN" data-detail="Commission Received" onclick="goToAdd('IN', 'Commission Received')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14.5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                 </div>
@@ -505,7 +542,7 @@
             </button>
 
             <!-- Rent Received -->
-            <button class="btn-cat c-rent-rec" onclick="goToAdd('IN', 'Rent Received')">
+            <button class="btn-cat c-rent-rec" data-type="IN" data-detail="Rent Received" onclick="goToAdd('IN', 'Rent Received')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                 </div>
@@ -513,7 +550,7 @@
             </button>
 
             <!-- Interest Received -->
-            <button class="btn-cat c-interest-rec" onclick="goToAdd('IN', 'Interest Received')">
+            <button class="btn-cat c-interest-rec" data-type="IN" data-detail="Interest Received" onclick="goToAdd('IN', 'Interest Received')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                 </div>
@@ -521,7 +558,7 @@
             </button>
 
             <!-- Dividend Income -->
-            <button class="btn-cat c-dividend-inc" onclick="goToAdd('IN', 'Dividend Income')">
+            <button class="btn-cat c-dividend-inc" data-type="IN" data-detail="Dividend Income" onclick="goToAdd('IN', 'Dividend Income')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
                 </div>
@@ -529,7 +566,7 @@
             </button>
 
             <!-- Bad Debts Recovered -->
-            <button class="btn-cat c-bad-debt-rec" onclick="goToAdd('IN', 'Bad Debts Recovered')">
+            <button class="btn-cat c-bad-debt-rec" data-type="IN" data-detail="Bad Debts Recovered" onclick="goToAdd('IN', 'Bad Debts Recovered')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
                 </div>
@@ -537,7 +574,7 @@
             </button>
 
             <!-- Gain on Sale of Asset -->
-            <button class="btn-cat c-gain-asset" onclick="goToAdd('IN', 'Gain on Sale of Asset')">
+            <button class="btn-cat c-gain-asset" data-type="IN" data-detail="Gain on Sale of Asset" onclick="goToAdd('IN', 'Gain on Sale of Asset')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
                 </div>
@@ -545,7 +582,7 @@
             </button>
 
             <!-- Sundry Income -->
-            <button class="btn-cat c-sundry-inc" onclick="goToAdd('IN', 'Sundry Income')">
+            <button class="btn-cat c-sundry-inc" data-type="IN" data-detail="Sundry Income" onclick="goToAdd('IN', 'Sundry Income')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
                 </div>
@@ -562,7 +599,7 @@
         <!-- Opening/Closing Stock -->
         <div class="grid-container" style="margin-bottom: 12px;">
              <!-- Opening Stock -->
-             <button class="btn-cat c-opening-stock" onclick="goToAdd('OUT', 'Opening Stock')">
+             <button class="btn-cat c-opening-stock" data-type="OUT" data-detail="Opening Stock" onclick="goToAdd('OUT', 'Opening Stock')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
                 </div>
@@ -570,7 +607,7 @@
             </button>
 
             <!-- Closing Stock -->
-            <button class="btn-cat c-closing-stock" onclick="goToAdd('OUT', 'Closing Stock')">
+            <button class="btn-cat c-closing-stock" data-type="OUT" data-detail="Closing Stock" onclick="goToAdd('OUT', 'Closing Stock')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
                 </div>
@@ -580,7 +617,7 @@
 
         <div class="grid-container">
             <!-- Purchases -->
-            <button class="btn-cat c-purchases" onclick="goToAdd('OUT', 'Purchases')">
+            <button class="btn-cat c-purchases" data-type="OUT" data-detail="Purchases" onclick="goToAdd('OUT', 'Purchases')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
                 </div>
@@ -588,7 +625,7 @@
             </button>
 
             <!-- Sales Returns -->
-            <button class="btn-cat c-sales-ret" onclick="goToAdd('OUT', 'Sales Returns')">
+            <button class="btn-cat c-sales-ret" data-type="OUT" data-detail="Sales Returns" onclick="goToAdd('OUT', 'Sales Returns')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M9 14l-4-4 4-4"></path><path d="M5 10h9a4 4 0 0 1 0 8H9"></path></svg>
                 </div>
@@ -596,7 +633,7 @@
             </button>
 
             <!-- Returns Outwards -->
-            <button class="btn-cat c-ret-out" onclick="goToAdd('OUT', 'Returns Outwards')">
+            <button class="btn-cat c-ret-out" data-type="OUT" data-detail="Returns Outwards" onclick="goToAdd('OUT', 'Returns Outwards')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                 </div>
@@ -604,7 +641,7 @@
             </button>
 
             <!-- Carriage Inwards -->
-            <button class="btn-cat c-carriage-in" onclick="goToAdd('OUT', 'Carriage Inwards')">
+            <button class="btn-cat c-carriage-in" data-type="OUT" data-detail="Carriage Inwards" onclick="goToAdd('OUT', 'Carriage Inwards')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
                 </div>
@@ -612,7 +649,7 @@
             </button>
 
             <!-- Wages & Salaries -->
-            <button class="btn-cat c-wages" onclick="goToAdd('OUT', 'Wages & Salaries')">
+            <button class="btn-cat c-wages" data-type="OUT" data-detail="Wages & Salaries" onclick="goToAdd('OUT', 'Wages & Salaries')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                 </div>
@@ -620,7 +657,7 @@
             </button>
 
             <!-- Rent & Rates -->
-            <button class="btn-cat c-rent-rates" onclick="goToAdd('OUT', 'Rent & Rates')">
+            <button class="btn-cat c-rent-rates" data-type="OUT" data-detail="Rent & Rates" onclick="goToAdd('OUT', 'Rent & Rates')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M5 21V7l8-4 8 4v14"></path><path d="M17 21v-8H7v8"></path></svg>
                 </div>
@@ -628,7 +665,7 @@
             </button>
 
             <!-- Lighting & Heating -->
-            <button class="btn-cat c-lighting" onclick="goToAdd('OUT', 'Lighting & Heating')">
+            <button class="btn-cat c-lighting" data-type="OUT" data-detail="Lighting & Heating" onclick="goToAdd('OUT', 'Lighting & Heating')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.1.2-2.2.6-3.3a7 7 0 0 0 2.9.8z"></path></svg>
                 </div>
@@ -636,7 +673,7 @@
             </button>
 
             <!-- Electricity & Gas -->
-            <button class="btn-cat c-electricity" onclick="goToAdd('OUT', 'Electricity & Gas')">
+            <button class="btn-cat c-electricity" data-type="OUT" data-detail="Electricity & Gas" onclick="goToAdd('OUT', 'Electricity & Gas')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
                 </div>
@@ -644,7 +681,7 @@
             </button>
 
             <!-- Water Charges -->
-            <button class="btn-cat c-water" onclick="goToAdd('OUT', 'Water Charges')">
+            <button class="btn-cat c-water" data-type="OUT" data-detail="Water Charges" onclick="goToAdd('OUT', 'Water Charges')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
                 </div>
@@ -652,7 +689,7 @@
             </button>
 
             <!-- Telephone & Internet -->
-            <button class="btn-cat c-telephone" onclick="goToAdd('OUT', 'Telephone & Internet')">
+            <button class="btn-cat c-telephone" data-type="OUT" data-detail="Telephone & Internet" onclick="goToAdd('OUT', 'Telephone & Internet')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                 </div>
@@ -660,7 +697,7 @@
             </button>
 
             <!-- Stationery -->
-            <button class="btn-cat c-stationery" onclick="goToAdd('OUT', 'Stationery')">
+            <button class="btn-cat c-stationery" data-type="OUT" data-detail="Stationery" onclick="goToAdd('OUT', 'Stationery')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M16 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2V9z"></path><polyline points="15 2 15 9 22 9"></polyline></svg>
                 </div>
@@ -668,7 +705,7 @@
             </button>
 
             <!-- Postage & Courier -->
-            <button class="btn-cat c-postage" onclick="goToAdd('OUT', 'Postage & Courier')">
+            <button class="btn-cat c-postage" data-type="OUT" data-detail="Postage & Courier" onclick="goToAdd('OUT', 'Postage & Courier')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
                 </div>
@@ -676,7 +713,7 @@
             </button>
 
             <!-- Advertising Expenses -->
-            <button class="btn-cat c-advertising" onclick="goToAdd('OUT', 'Advertising Expenses')">
+            <button class="btn-cat c-advertising" data-type="OUT" data-detail="Advertising Expenses" onclick="goToAdd('OUT', 'Advertising Expenses')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
                 </div>
@@ -684,7 +721,7 @@
             </button>
 
             <!-- Carriage Outwards -->
-            <button class="btn-cat c-carriage-out" onclick="goToAdd('OUT', 'Carriage Outwards')">
+            <button class="btn-cat c-carriage-out" data-type="OUT" data-detail="Carriage Outwards" onclick="goToAdd('OUT', 'Carriage Outwards')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M3 13l2-6h14l2 6"></path><circle cx="7" cy="18" r="2"></circle><circle cx="17" cy="18" r="2"></circle><path d="M5 13h14v5H5z"></path></svg>
                 </div>
@@ -692,7 +729,7 @@
             </button>
 
             <!-- Repairs & Maintenance -->
-            <button class="btn-cat c-repairs" onclick="goToAdd('OUT', 'Repairs & Maintenance')">
+            <button class="btn-cat c-repairs" data-type="OUT" data-detail="Repairs & Maintenance" onclick="goToAdd('OUT', 'Repairs & Maintenance')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
                 </div>
@@ -700,7 +737,7 @@
             </button>
 
             <!-- Depreciation -->
-            <button class="btn-cat c-depreciation" onclick="goToAdd('OUT', 'Depreciation')">
+            <button class="btn-cat c-depreciation" data-type="OUT" data-detail="Depreciation" onclick="goToAdd('OUT', 'Depreciation')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
                 </div>
@@ -708,7 +745,7 @@
             </button>
 
             <!-- Insurance -->
-            <button class="btn-cat c-insurance" onclick="goToAdd('OUT', 'Insurance')">
+            <button class="btn-cat c-insurance" data-type="OUT" data-detail="Insurance" onclick="goToAdd('OUT', 'Insurance')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                 </div>
@@ -716,7 +753,7 @@
             </button>
 
             <!-- Motor Vehicle Expenses -->
-            <button class="btn-cat c-motor-veh" onclick="goToAdd('OUT', 'Motor Vehicle Expenses')">
+            <button class="btn-cat c-motor-veh" data-type="OUT" data-detail="Motor Vehicle Expenses" onclick="goToAdd('OUT', 'Motor Vehicle Expenses')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
                 </div>
@@ -724,7 +761,7 @@
             </button>
 
             <!-- Fuel & Transport -->
-            <button class="btn-cat c-fuel" onclick="goToAdd('OUT', 'Fuel & Transport')">
+            <button class="btn-cat c-fuel" data-type="OUT" data-detail="Fuel & Transport" onclick="goToAdd('OUT', 'Fuel & Transport')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3z"></path><path d="M11 13h4"></path><path d="M15 13h6v5h-6z"></path><path d="M18 18v3"></path></svg>
                 </div>
@@ -732,7 +769,7 @@
             </button>
 
             <!-- Office Expenses -->
-            <button class="btn-cat c-office-exp" onclick="goToAdd('OUT', 'Office Expenses')">
+            <button class="btn-cat c-office-exp" data-type="OUT" data-detail="Office Expenses" onclick="goToAdd('OUT', 'Office Expenses')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
                 </div>
@@ -740,7 +777,7 @@
             </button>
 
             <!-- General Expenses -->
-            <button class="btn-cat c-general-exp" onclick="goToAdd('OUT', 'General Expenses')">
+            <button class="btn-cat c-general-exp" data-type="OUT" data-detail="General Expenses" onclick="goToAdd('OUT', 'General Expenses')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                 </div>
@@ -748,7 +785,7 @@
             </button>
 
             <!-- Sundry Expenses -->
-            <button class="btn-cat c-sundry-exp" onclick="goToAdd('OUT', 'Sundry Expenses')">
+            <button class="btn-cat c-sundry-exp" data-type="OUT" data-detail="Sundry Expenses" onclick="goToAdd('OUT', 'Sundry Expenses')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                 </div>
@@ -756,7 +793,7 @@
             </button>
 
             <!-- Bank Charges -->
-            <button class="btn-cat c-bank-chg" onclick="goToAdd('OUT', 'Bank Charges')">
+            <button class="btn-cat c-bank-chg" data-type="OUT" data-detail="Bank Charges" onclick="goToAdd('OUT', 'Bank Charges')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
                 </div>
@@ -764,7 +801,7 @@
             </button>
 
             <!-- Bad Debts -->
-            <button class="btn-cat c-bad-debts" onclick="goToAdd('OUT', 'Bad Debts')">
+            <button class="btn-cat c-bad-debts" data-type="OUT" data-detail="Bad Debts" onclick="goToAdd('OUT', 'Bad Debts')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
                 </div>
@@ -772,7 +809,7 @@
             </button>
 
             <!-- Provision for Doubtful Debts -->
-            <button class="btn-cat c-prov-dbts" onclick="goToAdd('OUT', 'Provision for Doubtful Debts')">
+            <button class="btn-cat c-prov-dbts" data-type="OUT" data-detail="Provision for Doubtful Debts" onclick="goToAdd('OUT', 'Provision for Doubtful Debts')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                 </div>
@@ -780,7 +817,7 @@
             </button>
 
             <!-- Directors’ Remuneration -->
-            <button class="btn-cat c-directors" onclick="goToAdd('OUT', 'Directors’ Remuneration')">
+            <button class="btn-cat c-directors" data-type="OUT" data-detail="Directors’ Remuneration" onclick="goToAdd('OUT', 'Directors’ Remuneration')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                 </div>
@@ -788,7 +825,7 @@
             </button>
 
             <!-- Debenture Interest -->
-            <button class="btn-cat c-debenture" onclick="goToAdd('OUT', 'Debenture Interest')">
+            <button class="btn-cat c-debenture" data-type="OUT" data-detail="Debenture Interest" onclick="goToAdd('OUT', 'Debenture Interest')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M12 8v4"></path><path d="M12 16h.01"></path></svg>
                 </div>
@@ -796,7 +833,7 @@
             </button>
 
             <!-- Warehouse Rent -->
-            <button class="btn-cat c-warehouse" onclick="goToAdd('OUT', 'Warehouse Rent')">
+            <button class="btn-cat c-warehouse" data-type="OUT" data-detail="Warehouse Rent" onclick="goToAdd('OUT', 'Warehouse Rent')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M5 21V7l8-4 8 4v14"></path><path d="M17 21v-8H7v8"></path><path d="M3 7h18"></path></svg>
                 </div>
@@ -804,7 +841,7 @@
             </button>
 
             <!-- Security Expenses -->
-            <button class="btn-cat c-security" onclick="goToAdd('OUT', 'Security Expenses')">
+            <button class="btn-cat c-security" data-type="OUT" data-detail="Security Expenses" onclick="goToAdd('OUT', 'Security Expenses')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                 </div>
@@ -812,7 +849,7 @@
             </button>
 
             <!-- Legal & Professional Fees -->
-            <button class="btn-cat c-legal" onclick="goToAdd('OUT', 'Legal & Professional Fees')">
+            <button class="btn-cat c-legal" data-type="OUT" data-detail="Legal & Professional Fees" onclick="goToAdd('OUT', 'Legal & Professional Fees')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
                 </div>
@@ -820,7 +857,7 @@
             </button>
 
             <!-- Audit Fees -->
-            <button class="btn-cat c-audit" onclick="goToAdd('OUT', 'Audit Fees')">
+            <button class="btn-cat c-audit" data-type="OUT" data-detail="Audit Fees" onclick="goToAdd('OUT', 'Audit Fees')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 </div>
@@ -828,7 +865,7 @@
             </button>
 
             <!-- Subscriptions -->
-            <button class="btn-cat c-subscriptions" onclick="goToAdd('OUT', 'Subscriptions')">
+            <button class="btn-cat c-subscriptions" data-type="OUT" data-detail="Subscriptions" onclick="goToAdd('OUT', 'Subscriptions')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M20 24H4V8.2l8-6.2 8 6.2z"></path><path d="M10 20h4"></path><path d="M12 20v-6"></path></svg>
                 </div>
@@ -836,7 +873,7 @@
             </button>
 
             <!-- Training Expenses -->
-            <button class="btn-cat c-training" onclick="goToAdd('OUT', 'Training Expenses')">
+            <button class="btn-cat c-training" data-type="OUT" data-detail="Training Expenses" onclick="goToAdd('OUT', 'Training Expenses')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
                 </div>
@@ -844,7 +881,7 @@
             </button>
 
             <!-- Travel & Accommodation -->
-            <button class="btn-cat c-travel" onclick="goToAdd('OUT', 'Travel & Accommodation')">
+            <button class="btn-cat c-travel" data-type="OUT" data-detail="Travel & Accommodation" onclick="goToAdd('OUT', 'Travel & Accommodation')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path><path d="M15 10l5-5"></path><path d="M15 5h5v5"></path></svg>
                 </div>
@@ -852,7 +889,7 @@
             </button>
 
             <!-- Entertainment Expenses -->
-            <button class="btn-cat c-entertainment" onclick="goToAdd('OUT', 'Entertainment Expenses')">
+            <button class="btn-cat c-entertainment" data-type="OUT" data-detail="Entertainment Expenses" onclick="goToAdd('OUT', 'Entertainment Expenses')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
                 </div>
@@ -860,7 +897,7 @@
             </button>
 
             <!-- Corporation Tax -->
-            <button class="btn-cat c-corp-tax" onclick="goToAdd('OUT', 'Corporation Tax')">
+            <button class="btn-cat c-corp-tax" data-type="OUT" data-detail="Corporation Tax" onclick="goToAdd('OUT', 'Corporation Tax')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                 </div>
@@ -874,7 +911,7 @@
         </div>
         <div class="grid-container">
              <!-- Goodwill Written off -->
-             <button class="btn-cat c-goodwill" onclick="goToAdd('OUT', 'Goodwill Written off')">
+             <button class="btn-cat c-goodwill" data-type="OUT" data-detail="Goodwill Written off" onclick="goToAdd('OUT', 'Goodwill Written off')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
                 </div>
@@ -882,7 +919,7 @@
             </button>
 
             <!-- Preference Dividends -->
-            <button class="btn-cat c-pref-div" onclick="goToAdd('OUT', 'Preference Dividends')">
+            <button class="btn-cat c-pref-div" data-type="OUT" data-detail="Preference Dividends" onclick="goToAdd('OUT', 'Preference Dividends')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                 </div>
@@ -890,7 +927,7 @@
             </button>
 
             <!-- Ordinary Dividends -->
-            <button class="btn-cat c-ord-div" onclick="goToAdd('OUT', 'Ordinary Dividends')">
+            <button class="btn-cat c-ord-div" data-type="OUT" data-detail="Ordinary Dividends" onclick="goToAdd('OUT', 'Ordinary Dividends')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                 </div>
@@ -898,7 +935,7 @@
             </button>
 
             <!-- General Reserve -->
-            <button class="btn-cat c-gen-res" onclick="goToAdd('OUT', 'General Reserve')">
+            <button class="btn-cat c-gen-res" data-type="OUT" data-detail="General Reserve" onclick="goToAdd('OUT', 'General Reserve')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
                 </div>
@@ -906,7 +943,7 @@
             </button>
 
             <!-- Retained Profit -->
-            <button class="btn-cat c-retained" onclick="goToAdd('OUT', 'Retained Profit')">
+            <button class="btn-cat c-retained" data-type="OUT" data-detail="Retained Profit" onclick="goToAdd('OUT', 'Retained Profit')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
                 </div>
@@ -916,7 +953,7 @@
 
 
         <!-- ========================================== -->
-        /* NEW: BALANCE SHEET ITEMS (ASSETS/LIABS/EQUITY) */
+        /* BALANCE SHEET ITEMS (ASSETS/LIABS/EQUITY) */
         /* ========================================== */
 
         <!-- ASSETS SECTION -->
@@ -930,28 +967,28 @@
         </div>
         <div class="grid-container">
             <!-- Debtors -->
-            <button class="btn-cat c-debtors" onclick="goToAdd('ASSET', 'Debtors')">
+            <button class="btn-cat c-debtors" data-type="ASSET" data-detail="Debtors" onclick="goToAdd('ASSET', 'Debtors')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                 </div>
                 <span class="btn-text">Debtors</span>
             </button>
             <!-- Stock -->
-            <button class="btn-cat c-stock" onclick="goToAdd('ASSET', 'Stock')">
+            <button class="btn-cat c-stock" data-type="ASSET" data-detail="Stock" onclick="goToAdd('ASSET', 'Stock')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
                 </div>
                 <span class="btn-text">Stock</span>
             </button>
             <!-- Prepayments -->
-            <button class="btn-cat c-prepayments" onclick="goToAdd('ASSET', 'Prepayments')">
+            <button class="btn-cat c-prepayments" data-type="ASSET" data-detail="Prepayments" onclick="goToAdd('ASSET', 'Prepayments')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                 </div>
                 <span class="btn-text">Prepayments</span>
             </button>
             <!-- Accrued Income -->
-            <button class="btn-cat c-accrued-inc" onclick="goToAdd('ASSET', 'Accrued Income')">
+            <button class="btn-cat c-accrued-inc" data-type="ASSET" data-detail="Accrued Income" onclick="goToAdd('ASSET', 'Accrued Income')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                 </div>
@@ -964,49 +1001,49 @@
         </div>
         <div class="grid-container">
             <!-- Land -->
-            <button class="btn-cat c-land" onclick="goToAdd('ASSET', 'Land')">
+            <button class="btn-cat c-land" data-type="ASSET" data-detail="Land" onclick="goToAdd('ASSET', 'Land')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M2 20h20"></path><path d="m15.59 15.29-8.17-8.17a3 3 0 0 0-4.24 0L2 8.29V20h13.17l.42-.41Z"></path></svg>
                 </div>
                 <span class="btn-text">Land</span>
             </button>
             <!-- Buildings -->
-            <button class="btn-cat c-buildings" onclick="goToAdd('ASSET', 'Buildings')">
+            <button class="btn-cat c-buildings" data-type="ASSET" data-detail="Buildings" onclick="goToAdd('ASSET', 'Buildings')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M5 21V7l8-4 8 4v14"></path><path d="M17 21v-8H7v8"></path></svg>
                 </div>
                 <span class="btn-text">Buildings</span>
             </button>
             <!-- Plant & Machinery -->
-            <button class="btn-cat c-plant" onclick="goToAdd('ASSET', 'Plant & Machinery')">
+            <button class="btn-cat c-plant" data-type="ASSET" data-detail="Plant & Machinery" onclick="goToAdd('ASSET', 'Plant & Machinery')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M12 9a4 4 0 0 0-2 7.5"></path><path d="M12 3v2"></path><path d="M6.6 18.4l-1.4 1.4"></path><path d="M20 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg>
                 </div>
                 <span class="btn-text">Plant & Machinery</span>
             </button>
             <!-- Motor Vehicles -->
-            <button class="btn-cat c-motor-veh-asset" onclick="goToAdd('ASSET', 'Motor Vehicles')">
+            <button class="btn-cat c-motor-veh-asset" data-type="ASSET" data-detail="Motor Vehicles" onclick="goToAdd('ASSET', 'Motor Vehicles')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9L18 10l-3-5H4v14h2"></path><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle></svg>
                 </div>
                 <span class="btn-text">Motor Vehicles</span>
             </button>
             <!-- Furniture & Fittings -->
-            <button class="btn-cat c-furniture" onclick="goToAdd('ASSET', 'Furniture & Fittings')">
+            <button class="btn-cat c-furniture" data-type="ASSET" data-detail="Furniture & Fittings" onclick="goToAdd('ASSET', 'Furniture & Fittings')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M4 22v-4"></path><path d="M20 22v-4"></path><path d="M4 18V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12"></path><path d="M14 13a2 2 0 1 1-4 0"></path><path d="M8 13h8"></path></svg>
                 </div>
                 <span class="btn-text">Furniture & Fittings</span>
             </button>
             <!-- Equipment -->
-            <button class="btn-cat c-equipment" onclick="goToAdd('ASSET', 'Equipment')">
+            <button class="btn-cat c-equipment" data-type="ASSET" data-detail="Equipment" onclick="goToAdd('ASSET', 'Equipment')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
                 </div>
                 <span class="btn-text">Equipment</span>
             </button>
             <!-- Goodwill (Asset) -->
-            <button class="btn-cat c-goodwill-asset" onclick="goToAdd('ASSET', 'Goodwill')">
+            <button class="btn-cat c-goodwill-asset" data-type="ASSET" data-detail="Goodwill" onclick="goToAdd('ASSET', 'Goodwill')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M7 11v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3a4 4 0 0 0 4-4V6a4 4 0 0 0-4-4H4a2 2 0 0 0-2 2v12"></path><path d="M20 11v8a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3a4 4 0 0 0 4-4V6a4 4 0 0 0-4-4h-3a2 2 0 0 0-2 2v12"></path></svg>
                 </div>
@@ -1020,22 +1057,22 @@
             <h2>Equity</h2>
         </div>
         <div class="grid-container">
-            <!-- Capital -->
-            <button class="btn-cat c-capital" onclick="goToAdd('EQUITY', 'Capital')">
+            <!-- Capital (HYBRID - EQUITY/CASH) -->
+            <button class="btn-cat c-capital" data-type="HYBRID" data-detail="Capital" onclick="goToAdd('HYBRID', 'Capital')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                 </div>
                 <span class="btn-text">Capital</span>
             </button>
             <!-- Drawings -->
-            <button class="btn-cat c-drawings" onclick="goToAdd('EQUITY', 'Drawings')">
+            <button class="btn-cat c-drawings" data-type="EQUITY" data-detail="Drawings" onclick="goToAdd('EQUITY', 'Drawings')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"></path><path d="M4 6v12a2 2 0 0 0 2 2h14v-4"></path><path d="M18 12a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4v-8h-4z"></path></svg>
                 </div>
                 <span class="btn-text">Drawings</span>
             </button>
             <!-- Retained Earnings / Loss -->
-            <button class="btn-cat c-retained-earnings" onclick="goToAdd('EQUITY', 'Retained Earnings')">
+            <button class="btn-cat c-retained-earnings" data-type="EQUITY" data-detail="Retained Earnings" onclick="goToAdd('EQUITY', 'Retained Earnings')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></svg>
                 </div>
@@ -1054,35 +1091,35 @@
         </div>
         <div class="grid-container">
             <!-- Creditors -->
-            <button class="btn-cat c-creditors" onclick="goToAdd('LIAB', 'Creditors')">
+            <button class="btn-cat c-creditors" data-type="LIAB" data-detail="Creditors" onclick="goToAdd('LIAB', 'Creditors')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
                 </div>
                 <span class="btn-text">Creditors</span>
             </button>
             <!-- Bank Overdraft -->
-            <button class="btn-cat c-overdraft" onclick="goToAdd('LIAB', 'Bank Overdraft')">
+            <button class="btn-cat c-overdraft" data-type="LIAB" data-detail="Bank Overdraft" onclick="goToAdd('LIAB', 'Bank Overdraft')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line><line x1="12" y1="15" x2="12" y2="15"></line></svg>
                 </div>
                 <span class="btn-text">Bank Overdraft</span>
             </button>
             <!-- Accrued Expenses -->
-            <button class="btn-cat c-accrued-exp" onclick="goToAdd('LIAB', 'Accrued Expenses')">
+            <button class="btn-cat c-accrued-exp" data-type="LIAB" data-detail="Accrued Expenses" onclick="goToAdd('LIAB', 'Accrued Expenses')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                 </div>
                 <span class="btn-text">Accrued Expenses</span>
             </button>
             <!-- Outstanding Expenses -->
-            <button class="btn-cat c-outstanding" onclick="goToAdd('LIAB', 'Outstanding Expenses')">
+            <button class="btn-cat c-outstanding" data-type="LIAB" data-detail="Outstanding Expenses" onclick="goToAdd('LIAB', 'Outstanding Expenses')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                 </div>
                 <span class="btn-text">Outstanding Expenses</span>
             </button>
             <!-- Tax Payable -->
-            <button class="btn-cat c-tax-payable" onclick="goToAdd('LIAB', 'Tax Payable')">
+            <button class="btn-cat c-tax-payable" data-type="LIAB" data-detail="Tax Payable" onclick="goToAdd('LIAB', 'Tax Payable')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                 </div>
@@ -1095,21 +1132,21 @@
         </div>
         <div class="grid-container">
             <!-- Long Term Loan -->
-            <button class="btn-cat c-long-loan" onclick="goToAdd('LIAB', 'Long Term Loan')">
+            <button class="btn-cat c-long-loan" data-type="LIAB" data-detail="Long Term Loan" onclick="goToAdd('LIAB', 'Long Term Loan')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M2 20h20"></path><path d="M5 20V8l8-4 8 4v12"></path><rect x="9" y="13" width="6" height="7"></rect></svg>
                 </div>
                 <span class="btn-text">Long Term Loan</span>
             </button>
             <!-- Mortgage -->
-            <button class="btn-cat c-mortgage" onclick="goToAdd('LIAB', 'Mortgage')">
+            <button class="btn-cat c-mortgage" data-type="LIAB" data-detail="Mortgage" onclick="goToAdd('LIAB', 'Mortgage')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M5 21V7l8-4 8 4v14"></path><path d="M17 21v-8H7v8"></path></svg>
                 </div>
                 <span class="btn-text">Mortgage</span>
             </button>
             <!-- Debentures -->
-            <button class="btn-cat c-debentures" onclick="goToAdd('LIAB', 'Debentures')">
+            <button class="btn-cat c-debentures" data-type="LIAB" data-detail="Debentures" onclick="goToAdd('LIAB', 'Debentures')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                 </div>
@@ -1117,13 +1154,12 @@
             </button>
         </div>
 
-        <!-- NEW CONTRA SECTION -->
+        <!-- CONTRA SECTION -->
         <div class="section-header">
             <span class="badge asset">CONTRA</span>
             <h2>Contra Entry</h2>
         </div>
         <div class="grid-container">
-            <!-- Cleaned up buttons: Logic on main button, no inner colored buttons -->
             <button class="btn-cat c-contra" onclick="openContraModal('DEPOSIT')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
@@ -1211,6 +1247,9 @@
         </div>
     </div>
 
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
+
     <script>
         // --- SEARCH FUNCTIONALITY ---
         const searchInput = document.getElementById('searchInput');
@@ -1251,24 +1290,50 @@
 
         // --- REDIRECT FUNCTION ---
         function goToAdd(flow, detail) {
-            // --- INTERNAL LOGIC OVERRIDE ---
-            // This ensures that specific accounts are treated according to their 
-            // accounting nature, preventing them from being recorded in the Cash Book.
             
             let actualFlow = flow;
 
-            // Mapping specific details to their correct flow types
-            if (detail === 'Capital') actualFlow = 'EQUITY';
+            // ------------------------------------------------------------------
+            // CORE LOGIC UPDATE:
+            // Capital is a multi-use account.
+            // 1. In Balance Sheet (Accounting Equation), it is EQUITY.
+            // 2. In Cash Book (Double/Single Column), it functions as Receipt (IN).
+            // ------------------------------------------------------------------
+            if (detail === 'Capital') {
+                actualFlow = 'HYBRID'; // Signals to the next page that this account behaves as both
+            }
+
+            // Mapping other specific details to correct flows (Standardizing)
             if (detail === 'Drawings') actualFlow = 'EQUITY';
             if (detail === 'Retained Earnings') actualFlow = 'EQUITY';
-            
-            // Note: 'Goodwill' is handled correctly by the explicit calls:
-            // 1. In Expenses -> goToAdd('OUT', 'Goodwill Written off')
-            // 2. In Assets  -> goToAdd('ASSET', 'Goodwill')
             
             // Redirect to add-transaction.html with parameters
             const url = `add-transaction.html?flow=${encodeURIComponent(actualFlow)}&detail=${encodeURIComponent(detail)}`;
             window.location.href = url;
+        }
+
+        // --- TOAST NOTIFICATION SYSTEM (No Native Alerts) ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            // Icon based on type
+            let icon = '';
+            if(type === 'success') icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+            else icon = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>';
+
+            toast.innerHTML = `${icon}<span>${message}</span>`;
+            
+            container.appendChild(toast);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.style.animation = 'toastOut 0.3s forwards';
+                toast.addEventListener('animationend', () => {
+                    toast.remove();
+                });
+            }, 3000);
         }
 
         // --- CONTRA LOGIC START ---
@@ -1299,12 +1364,12 @@
             const amt = parseFloat(document.getElementById('dep-amt').value);
 
             if(!org || isNaN(amt) || amt <= 0) {
-                alert('Please enter a valid organization name and amount.');
+                showToast('Please enter a valid organization name and amount.', 'error');
                 return;
             }
 
             // Record contra: Cash Increases, Bank Decreases (Logic: Bank is "Flow Form", Amount is recorded)
-            // Since this is a single file demo, we will log the transaction to console and alert the user.
+            // Since this is a single file demo, we will log the transaction to console and toast the user.
             
             const transaction = {
                 sNo: generateSN(),
@@ -1318,7 +1383,7 @@
             };
 
             console.log("Transaction Saved:", transaction);
-            alert(`Transaction Saved:\n\nType: Contra (Deposit)\nDetail: Cash In, Bank Out\nOrg: ${org}\nAmount: ${amt}`);
+            showToast(`Deposit of ${amt} saved for ${org}`, 'success');
             closeModals();
         }
 
@@ -1326,7 +1391,7 @@
         function processWithdrawStep1() {
             const amt = parseFloat(document.getElementById('wit-amt').value);
             if(isNaN(amt) || amt <= 0) {
-                alert('Please enter a valid amount.');
+                showToast('Please enter a valid amount.', 'error');
                 return;
             }
             withdrawAmount = amt;
@@ -1352,7 +1417,7 @@
                     action: 'Saved'
                 };
                 console.log("Transaction Saved:", transaction);
-                alert(`Transaction Saved:\n\nType: Contra (Withdraw)\nDetail: Cash In, Bank Out\nAmount: ${withdrawAmount}`);
+                showToast(`Withdrawal of ${withdrawAmount} saved`, 'success');
                 closeModals();
             } else {
                 // Withdraw with charges - Ask for charge amount
@@ -1365,7 +1430,7 @@
         function finalizeWithdraw() {
             const chgAmt = parseFloat(document.getElementById('chg-amt').value);
             if(isNaN(chgAmt) || chgAmt < 0) {
-                alert('Please enter a valid charges amount.');
+                showToast('Please enter a valid charges amount.', 'error');
                 return;
             }
 
@@ -1398,7 +1463,7 @@
             console.log("Transaction 1 (Contra) Saved:", contraTx);
             console.log("Transaction 2 (Charges) Saved:", chargeTx);
 
-            alert(`Transactions Saved:\n\n1. Contra (Withdraw): ${withdrawAmount}\n2. Charges: ${chgAmt}`);
+            showToast(`Withdrawal: ${withdrawAmount} + Charges: ${chgAmt} saved`, 'success');
             closeModals();
         }
 
