@@ -236,7 +236,15 @@
             background: #E5E7EB;
             color: #111827;
         }
+/* Capital Style */
+.c-capital .icon-box { 
+    background: linear-gradient(135deg, #8B5CF6, #7C3AED); 
+    box-shadow: 0 4px 10px rgba(139, 92, 246, 0.4); 
+}
 
+.c-capital:hover {
+    border: 1px solid #8B5CF6;
+}
         /* --------------------------- */
         /* BUTTON COLOR CLASSES       */
         /* --------------------------- */
@@ -313,7 +321,18 @@
         </div>
         
         <div class="grid-container">
-            <!-- SALES BUTTON ONLY -->
+            <!-- CAPITAL BUTTON -->
+<button class="btn-cat c-capital" data-type="IN" data-detail="Capital" onclick="goToAdd('IN', 'Capital')">
+    <div class="icon-box">
+        <!-- Capital Icon -->
+        <svg viewBox="0 0 24 24">
+            <path d="M12 1v22"></path>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"></path>
+        </svg>
+    </div>
+    <span class="btn-text">Capital</span>
+</button>
+
             <button class="btn-cat c-sales" data-type="IN" data-detail="Sales" onclick="goToAdd('IN', 'Sales')">
                 <div class="icon-box">
                     <!-- Sales Icon (Chart/Up Trend) -->
