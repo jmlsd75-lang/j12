@@ -202,7 +202,7 @@
 
   <main>
     <h1 class="page-title">Cash Book</h1>
-    <div class="page-subtitle">Cash Transactions Only (Excludes Bank & Credit)</div>
+    <div class="page-subtitle">Cash Transactions Only</div>
 
     <div class="empty-state" id="emptyState">
       <p>No CASH transactions found.</p>
@@ -302,6 +302,9 @@
     function renderCashBook(docs) {
       tableBody.innerHTML = "";
 
+      // Debugging Log
+      console.log("Fetched Docs:", docs.length);
+
       if (docs.length === 0) {
         emptyState.classList.add('visible');
         cashBookWrapper.style.display = 'none';
@@ -338,14 +341,26 @@
         const data = doc.data();
         
         // ---------------------------------------------------------
-        // FILTER LOGIC: Only include CASH transactions
+        // ROBUST FILTER LOGIC
         // ---------------------------------------------------------
-        // We expect the database field 'flowForm' to exist (e.g. "CASH", "BANK", "CREDIT")
-        // We normalize to uppercase to be safe.
-        const flowForm = (data.flowForm || "").toString().toUpperCase();
+        // 1. Get flowForm. If missing, check 'flowType' or default to true (keep it).
+        // 2. Normalize to Uppercase.
+        // 3. Check if it contains "CASH".
+        
+        let flowForm = (data.flowForm || "").trim().toString().toUpperCase();
+        
+        // If flowForm is empty (old data), check flowType or default to keeping it
+        if (flowForm === "") {
+           // Check if there is another field indicating type, otherwise include by default
+           // Assuming if not specified as BANK/CREDIT, it is likely CASH for this legacy data fix.
+           console.log(`[WARNING] Transaction '${data.detail}' has no flowForm. Defaulting to CASH.`);
+           flowForm = "CASH"; 
+        }
 
+        // STRICT FILTER: Only keep if it is CASH
+        // This explicitly filters out BANK and CREDIT
         if (flowForm !== 'CASH') {
-          // Skip Bank and Credit transactions entirely
+          console.log(`[FILTERED] ${data.detail} is ${flowForm}. Skipping.`);
           return; 
         }
         // ---------------------------------------------------------
@@ -374,7 +389,6 @@
         };
 
         // Logic: 'IN' usually goes to Debit, everything else (OUT, EQUITY) to Credit
-        // based on your provided data structure
         if (type === 'IN') {
           totalDr += amount;
           drRows.push(rowObj);
@@ -384,14 +398,13 @@
         }
       });
 
-      // 2. Calculate Difference & Insert "Balance c/d"
-      // Determine which side is smaller to add the balancing figure
-      let diff = Math.abs(totalDr - totalCr);
-      let balanceCdSide = null; // 'dr' or 'cr'
+      console.log(`Final Count: Debit Rows (${drRows.length}), Credit Rows (${crRows.length})`);
 
-      // c/d goes to the side with the SMALLER total to make them equal
+      // 2. Calculate Difference & Insert "Balance c/d"
+      let diff = Math.abs(totalDr - totalCr);
+      let balanceCdSide = null; 
+
       if (totalDr > totalCr) {
-        // Dr is bigger, add to Cr
         balanceCdSide = 'cr';
         crRows.push({
           date: today,
@@ -402,7 +415,6 @@
         });
         totalCr += diff;
       } else if (totalCr > totalDr) {
-        // Cr is bigger, add to Dr
         balanceCdSide = 'dr';
         drRows.push({
           date: today,
@@ -414,8 +426,7 @@
         totalDr += diff;
       }
 
-      // 3. Render Transaction Rows (with padding)
-      // We iterate up to the maximum length of the two arrays
+      // 3. Render Transaction Rows
       const maxRows = Math.max(drRows.length, crRows.length);
 
       for (let i = 0; i < maxRows; i++) {
@@ -433,7 +444,6 @@
             <td class="col-amount ${cellClass}">${formatCurrency(r.amount)}</td>
           `;
         } else {
-          // Empty Padding Cells
           rowHTML += `<td></td><td></td><td></td><td></td>`;
         }
 
@@ -442,7 +452,6 @@
           const r = crRows[i];
           const isBal = (r.type === 'bal_cd');
           const cellClass = isBal ? 'row-balance' : '';
-          // Add divider-col to the first cell of Credit side to maintain the vertical line
           rowHTML += `
             <td class="divider-col ${cellClass}">${r.date}</td>
             <td class="divider-col ${cellClass}">${r.detail}</td>
@@ -450,7 +459,6 @@
             <td class="col-amount divider-col ${cellClass}">${formatCurrency(r.amount)}</td>
           `;
         } else {
-          // Empty Padding Cells (with divider on first one)
           rowHTML += `<td class="divider-col"></td><td class="divider-col"></td><td class="divider-col"></td><td class="divider-col"></td>`;
         }
 
@@ -458,8 +466,8 @@
         tableBody.insertAdjacentHTML('beforeend', rowHTML);
       }
 
-      // 4. Render Total Row (Always on one line)
-      const finalTotal = formatCurrency(totalDr); // totals are equal now
+      // 4. Render Total Row
+      const finalTotal = formatCurrency(totalDr);
       const totalRowHTML = `
         <tr class="row-total">
           <td></td>
@@ -475,36 +483,28 @@
       `;
       tableBody.insertAdjacentHTML('beforeend', totalRowHTML);
 
-      // 5. Render Balance b/d (Brought Down)
-      // Rule: Show after totals, on side OPPOSITE to c/d. 
-      // If c/d was on Credit, b/d is on Debit.
+      // 5. Render Balance b/d
       if (diff > 0) {
         let bdSide = (balanceCdSide === 'cr') ? 'dr' : 'cr';
-        
         let bdRowHTML = "<tr>";
         
         if (bdSide === 'dr') {
-          // b/d on Left
           bdRowHTML += `
             <td>${today}</td>
             <td>Balance</td>
             <td class="col-folio">b/d</td>
             <td class="col-amount">${formatCurrency(diff)}</td>
-            <!-- Right side empty -->
             <td class="divider-col"></td>
             <td class="divider-col"></td>
             <td class="divider-col"></td>
             <td class="divider-col"></td>
           `;
         } else {
-          // b/d on Right
           bdRowHTML += `
-            <!-- Left side empty -->
             <td></td>
             <td></td>
             <td></td>
             <td></td>
-            <!-- Right side b/d -->
             <td class="divider-col">${today}</td>
             <td class="divider-col">Balance</td>
             <td class="col-folio divider-col">b/d</td>
