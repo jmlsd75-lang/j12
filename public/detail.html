@@ -1021,7 +1021,7 @@
         </div>
         <div class="grid-container">
             <!-- Capital -->
-            <button class="btn-cat c-capital" onclick="goToAdd('EQUITY', 'Capital')">
+            <button class="btn-cat c-capital" onclick="goToAdd('IN', 'Capital')">
                 <div class="icon-box">
                     <svg viewBox="0 0 24 24"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                 </div>
@@ -1252,22 +1252,43 @@
         // --- REDIRECT FUNCTION ---
         function goToAdd(flow, detail) {
             // --- INTERNAL LOGIC OVERRIDE ---
-            // This ensures that specific accounts are treated according to their 
-            // accounting nature, preventing them from being recorded in the Cash Book.
+            // This function handles dual-classification for accounts that behave 
+            // differently in the Cash Book vs Balance Sheet.
             
             let actualFlow = flow;
+            let bsCategory = flow; // Default Balance Sheet category is same as flow
 
-            // Mapping specific details to their correct flow types
-            if (detail === 'Capital') actualFlow = 'EQUITY';
-            if (detail === 'Drawings') actualFlow = 'EQUITY';
-            if (detail === 'Retained Earnings') actualFlow = 'EQUITY';
+            // --- DUAL CLASSIFICATION LOGIC ---
             
-            // Note: 'Goodwill' is handled correctly by the explicit calls:
-            // 1. In Expenses -> goToAdd('OUT', 'Goodwill Written off')
-            // 2. In Assets  -> goToAdd('ASSET', 'Goodwill')
+            // 1. CAPITAL
+            // Cash Book Behavior: 'IN' (Money coming into business)
+            // Balance Sheet Behavior: 'EQUITY' (Owner's claim)
+            if (detail === 'Capital') {
+                actualFlow = 'IN';       // Forces Cash Book to treat as Receipt
+                bsCategory = 'EQUITY';  // Forces Balance Sheet to classify as Equity
+            }
             
+            // 2. DRAWINGS
+            // Cash Book Behavior: 'OUT' (Money leaving business)
+            // Balance Sheet Behavior: 'EQUITY' (Reduces Owner's claim)
+            if (detail === 'Drawings') {
+                actualFlow = 'OUT';
+                bsCategory = 'EQUITY';
+            }
+
+            // 3. RETAINED EARNINGS
+            // Usually handled via adjustments, but if transacted:
+            // Cash Book: None (Non-cash), but if forced: 'OUT' (Loss) or 'IN' (Profit)
+            // Balance Sheet: 'EQUITY'
+            if (detail === 'Retained Earnings') {
+                actualFlow = flow; // Keep original flow passed in button
+                bsCategory = 'EQUITY';
+            }
+
             // Redirect to add-transaction.html with parameters
-            const url = `add-transaction.html?flow=${encodeURIComponent(actualFlow)}&detail=${encodeURIComponent(detail)}`;
+            // We pass 'actualFlow' for the Cash Book display
+            // We pass 'bsCategory' so the transaction knows where to go in the Balance Sheet
+            const url = `add-transaction.html?flow=${encodeURIComponent(actualFlow)}&bs_cat=${encodeURIComponent(bsCategory)}&detail=${encodeURIComponent(detail)}`;
             window.location.href = url;
         }
 
