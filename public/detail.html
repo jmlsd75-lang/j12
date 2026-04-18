@@ -84,6 +84,15 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
+        /* Purchases Style */
+.c-purchase .icon-box { 
+    background: linear-gradient(135deg, #EF4444, #DC2626); 
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4); 
+}
+
+.c-purchase:hover {
+    border: 1px solid #EF4444;
+}
         /* Main Content Area */
         main {
             flex: 1;
@@ -317,6 +326,24 @@
             </button>
         </div>
 
+<!-- OUT SECTION -->
+<div class="section-header">
+    <span class="badge" style="background-color:#EF4444;">OUT</span>
+    <h2>Expenses</h2>
+</div>
+
+<div class="grid-container">
+    <!-- PURCHASES BUTTON -->
+    <button class="btn-cat c-purchase" data-type="OUT" data-detail="Purchases" onclick="goToAdd('OUT', 'Purchases')">
+        <div class="icon-box">
+            <svg viewBox="0 0 24 24">
+                <path d="M21 7l-6 6-4-4-7 7"></path>
+                <path d="M10 17H3v-7"></path>
+            </svg>
+        </div>
+        <span class="btn-text">Purchases</span>
+    </button>
+</div>
     </main>
 
     <div class="footer-nav">
