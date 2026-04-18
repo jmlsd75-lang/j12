@@ -113,25 +113,6 @@
             letter-spacing: 0.05em;
         }
 
-        /* Subsection Headers */
-        .subsection-header {
-            display: flex;
-            align-items: center;
-            margin: 20px 0 10px 0;
-            width: 100%;
-            justify-content: flex-start;
-            padding-left: 5px;
-        }
-
-        .subsection-header h3 {
-            font-size: 0.8rem;
-            margin: 0;
-            color: #6B7280;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 600;
-        }
-
         .badge {
             display: inline-block;
             padding: 4px 10px;
@@ -144,12 +125,7 @@
             text-align: center;
         }
         
-        /* Badges */
         .badge.in { background-color: #10B981; }
-        .badge.out { background-color: #F43F5E; }
-        .badge.asset { background-color: #3B82F6; }
-        .badge.liab { background-color: #EC4899; }
-        .badge.equity { background-color: #8B5CF6; }
 
         /* Grid Layout */
         .grid-container {
@@ -391,16 +367,25 @@
 
         // --- REDIRECT FUNCTION ---
         function goToAdd(flow, detail) {
-            // Determine actual flow (keeping logic intact)
+            
             let actualFlow = flow;
-            let skipPayment = false;
+            let skipPayment = false; 
 
-            // Logic for handling specific items if they existed, 
-            // currently hardcoded to handle Sales normally.
+            // ------------------------------------------------------------------
+            // REQUIREMENT 1 & 2: CAPITAL LOGIC (Kept from original code)
+            // Capital behaves as Equity (Balance Sheet) but is internally defined 
+            // as 'IN' (Receipts) for Cash Book execution.
+            // ------------------------------------------------------------------
             if (detail === 'Capital') {
                 actualFlow = 'HYBRID'; 
             }
 
+            // ------------------------------------------------------------------
+            // REQUIREMENT 3 & 5: SKIP PAYMENT METHOD LOGIC (Kept from original)
+            // Opening Stock, Closing Stock, and all Assets (Current/Non-Current)
+            // should NOT ask for Cash/Credit/Bank. They are neither of the three.
+            // ------------------------------------------------------------------
+            
             const skipPaymentItems = [
                 'Opening Stock', 'Closing Stock',
                 'Land', 'Buildings', 'Plant & Machinery', 'Motor Vehicles', 
@@ -413,16 +398,11 @@
             }
 
             // Redirect to add-transaction.html with parameters
+            // THIS IS THE ACTIVE REDIRECT LOGIC
             const url = `add-transaction.html?flow=${encodeURIComponent(actualFlow)}&detail=${encodeURIComponent(detail)}&skipPayment=${skipPayment}`;
             
-            // Since this is a standalone demo, we will log to console instead of navigating
-            console.log(`Redirecting to: ${url}`);
-            
-            // In a real app, uncomment the line below:
-            // window.location.href = url;
-            
-            // Show a toast for demonstration
-            showToast(`Selected: ${detail}`, 'success');
+            // Perform the redirect
+            window.location.href = url;
         }
 
         // --- TOAST NOTIFICATION SYSTEM (No Native Alerts) ---
