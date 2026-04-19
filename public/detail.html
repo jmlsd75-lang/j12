@@ -445,8 +445,8 @@
                 amount: 0,
                 flowForm: '', 
                 creditName: '',
-                hasCharges: false, // Only relevant for OUT + Bank
-                chargesAmount: 0   // Only relevant for OUT + Bank
+                hasCharges: false, 
+                chargesAmount: 0   
             }
         };
 
@@ -461,7 +461,7 @@
 
         // --- Initialization ---
         window.addEventListener('DOMContentLoaded', () => {
-            goToStep(1); // Start at the selection screen
+            goToStep(1); 
         });
 
         function goToStep(stepNumber) {
@@ -471,7 +471,6 @@
                 next.classList.add('active');
                 state.step = stepNumber;
                 updateUI();
-                // Focus logic
                 if(stepNumber === 2) setTimeout(() => inputs.amount.focus(), 50);
                 if(stepNumber === 4) setTimeout(() => inputs.creditName.focus(), 50);
                 if(stepNumber === 6) setTimeout(() => inputs.charges.focus(), 50);
@@ -482,7 +481,7 @@
             if(state.step === 1) {
                 headerTitle.innerText = "Select Type";
                 mainActionBtn.classList.add('hidden');
-            } else if(state.step === 7) { // Confirmation step number changed
+            } else if(state.step === 7) { 
                 headerTitle.innerText = "Confirm Details";
                 mainActionBtn.classList.remove('hidden');
                 mainActionBtn.textContent = "Save Transaction";
@@ -494,23 +493,19 @@
             renderHistory();
         }
 
-        // --- Selection Logic ---
         window.selectType = function(flow, detail, btnEl) {
             state.data.flowType = flow;
             state.data.detail = detail;
             
-            // Reset charge state if going back to start
             state.data.hasCharges = false;
             state.data.chargesAmount = 0;
 
-            // Visual feedback
             document.querySelectorAll('.btn-cat').forEach(b => b.style.borderColor = 'transparent');
             btnEl.style.borderColor = 'var(--primary)';
             
             setTimeout(() => goToStep(2), 200);
         };
 
-        // --- Search Logic ---
         inputs.search.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
             const buttons = document.querySelectorAll('.btn-cat');
@@ -543,7 +538,6 @@
             checkAndHide(expenseHeader, expenseGrid);
         });
 
-        // --- Form Logic ---
         function createHistoryButton(label, value) {
             return `<div class="trail-btn"><span class="trail-label">${label}</span> ${value}</div>`;
         }
@@ -555,7 +549,6 @@
             const creditPill = (state.data.flowForm === 'Credit' && state.data.creditName) ? createHistoryButton('Lender', state.data.creditName) : '';
             const chargePill = (state.data.hasCharges && state.data.chargesAmount) ? createHistoryButton('Charges', state.data.chargesAmount) : '';
 
-            // Trail updates based on step
             if (state.step >= 2) document.getElementById('trail-2').innerHTML = typePill;
             if (state.step >= 3) document.getElementById('trail-3').innerHTML = typePill + amountPill;
             if (state.step >= 4) document.getElementById('trail-4').innerHTML = typePill + amountPill + formPill;
@@ -578,7 +571,6 @@
         window.selectForm = function(form, btnEl) {
             state.data.flowForm = form;
             
-            // Visual selection
             const container = document.getElementById('step-3');
             container.querySelectorAll('.option-btn').forEach(b => {
                 b.classList.remove('selected');
@@ -588,16 +580,12 @@
             btnEl.style.borderColor = 'var(--primary)'; btnEl.style.background = 'var(--primary)'; btnEl.style.color = '#fff';
 
             setTimeout(() => {
-                // Logic: If Form is Credit, ask Name. 
-                // Logic: If Form is Bank AND Type is OUT, ask about Charges.
-                // Logic: Otherwise (Cash or Bank + IN) go straight to Confirm.
-                
                 if (form === 'Credit') {
                     goToStep(4);
                 } else if (form === 'Bank' && state.data.flowType === 'OUT') {
-                    goToStep(5); // Charges Step
+                    goToStep(5); 
                 } else {
-                    goToStep(7); // Confirmation
+                    goToStep(7); 
                 }
             }, 150);
         };
@@ -607,18 +595,13 @@
                 const val = inputs.creditName.value.trim();
                 if (!val) return showToast("Please enter a name for the credit.");
                 state.data.creditName = val;
-                
-                // After Credit Name, check if Bank+OUT logic applies (though usually Credit and Bank are separate methods in UI, 
-                // strictly following flow: Credit Name -> Confirm)
                 goToStep(7);
             }
         });
 
-        // NEW LOGIC: Handle Charges Option (OUT + Bank)
         window.handleChargesOption = function(hasCharges, btnEl) {
             state.data.hasCharges = hasCharges;
 
-            // Visual feedback
             const container = document.getElementById('step-5');
             container.querySelectorAll('.option-btn').forEach(b => {
                 b.classList.remove('selected');
@@ -629,9 +612,9 @@
 
             setTimeout(() => {
                 if (hasCharges) {
-                    goToStep(6); // Go to amount input
+                    goToStep(6);
                 } else {
-                    goToStep(7); // Go to confirmation
+                    goToStep(7);
                 }
             }, 150);
         };
@@ -662,18 +645,20 @@
             const now = new Date();
             const timestamp = Date.now();
 
-            // Prepare Base Transaction Object
-            const createTransaction = (detail, type, amount, method) => ({
+            const createTransaction = (detail, type, amount, method, name = "") => ({
                 date: now.toLocaleString(),
                 detail: detail,
                 type: type,       
                 displayType: type === 'IN' ? 'Income' : 'Expense',  
                 method: method, 
                 amount: Number(amount),
+                name: name, // ADDED: Name field
                 createdAt: timestamp
             });
 
             let finalDetail = state.data.detail;
+            // If credit, name goes in parentheses for detail, or we rely on the separate 'name' field
+            // Previous logic put credit name in detail: "Purchases (Supplier A)"
             if (state.data.flowForm === 'Credit' && state.data.creditName) {
                 finalDetail += ` (${state.data.creditName})`;
             }
@@ -686,30 +671,31 @@
                     finalDetail, 
                     state.data.flowType, 
                     state.data.amount, 
-                    state.data.flowForm.toUpperCase()
+                    state.data.flowForm.toUpperCase(),
+                    "" // Name is empty for main transaction
                 );
                 batch.push(addDoc(collection(db, "users", user.email, "transactions"), mainTx));
 
-                // 2. The Charges Transaction (ONLY if OUT + Bank + HasCharges)
+                // 2. The Charges Transaction
                 if (state.data.flowType === 'OUT' && state.data.flowForm === 'Bank' && state.data.hasCharges) {
+                    
+                    // UPDATED LOGIC:
+                    // Detail: "Charges"
+                    // Name: "Purchases" (or whatever the cause was)
+                    
                     const chargesTx = createTransaction(
-                        'Charges', 
+                        'Charges',  // Detail is just "Charges"
                         'OUT', 
                         state.data.chargesAmount, 
-                        'BANK'
+                        'BANK',
+                        state.data.detail // Name is the cause (e.g. "Purchases")
                     );
-                    
-                    // Specific logic requirement: name == transaction detail namer cause it 
-                    // e.g. "Charges (Purchases)" or "Charges (Wages)"
-                    chargesTx.detail = `Charges ${state.data.detail}`; 
                     
                     batch.push(addDoc(collection(db, "users", user.email, "transactions"), chargesTx));
                 }
 
-                // Execute Writes
                 await Promise.all(batch);
                 
-                // Update stats
                 const incrementValue = state.data.hasCharges ? 2 : 1;
                 const userRef = doc(db, "users", user.email);
                 await updateDoc(userRef, { spaceUsed: increment(incrementValue) });
