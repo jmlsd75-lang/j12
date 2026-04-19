@@ -88,6 +88,7 @@
             display: none; 
             flex-direction: column;
             animation: slideUp 0.3s ease-out;
+            overflow-y: auto; 
         }
         .step-content.active { display: flex; }
         .centered-content { justify-content: center; align-items: center; }
@@ -112,6 +113,11 @@
         .search-container {
             width: 100%;
             margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            background: var(--bg-card);
+            z-index: 10;
+            padding-bottom: 10px;
         }
         #searchInput {
             width: 100%;
@@ -132,6 +138,10 @@
             padding-bottom: 8px;
             border-bottom: 2px solid #E5E7EB;
             width: 100%;
+            position: sticky;
+            top: 0;
+            background: var(--bg-card);
+            z-index: 9;
         }
         .section-header h2 {
             font-size: 1rem;
@@ -154,11 +164,11 @@
         .badge.in { background-color: #10B981; }
         .badge.out { background-color: #EF4444; }
 
-        /* Grid */
+        /* Grid - CHANGED TO 6 COLUMNS */
         .selection-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
+            grid-template-columns: repeat(6, 1fr); /* CHANGED: 6 columns */
+            gap: 8px;
             width: 100%;
             margin-bottom: 20px;
         }
@@ -169,17 +179,17 @@
             outline: none;
             cursor: pointer;
             background: white;
-            border-radius: 16px;
-            padding: 24px 16px;
+            border-radius: 10px; /* Adjusted for smaller size */
+            padding: 12px 4px; /* Adjusted padding */
             display: flex;
-            flex-direction: column;
+            flex-direction: column; /* Column layout (Icon top, text bottom) */
             align-items: center;
             justify-content: center;
             text-align: center;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             height: 100%;
-            min-height: 120px; 
+            min-height: 80px; /* Set min height for consistency */
             width: 100%;
             border: 2px solid transparent;
         }
@@ -189,23 +199,41 @@
 
         /* Icon Wrapper */
         .icon-box {
-            width: 48px;
-            height: 48px;
+            width: 28px; /* Smaller icon */
+            height: 28px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 12px;
+            margin-bottom: 6px;
             color: white;
+            flex-shrink: 0;
         }
-        .btn-text { font-size: 0.95rem; font-weight: 700; color: #374151; }
-        .icon-box svg { width: 24px; height: 24px; stroke-width: 2; stroke: currentColor; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .btn-text { 
+            font-size: 0.7rem; /* Very small font for long words */
+            font-weight: 600; 
+            color: #374151; 
+            line-height: 1.2;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Allow text to wrap to 2 lines if needed */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        } 
+        .icon-box svg { width: 16px; height: 16px; stroke-width: 2; stroke: currentColor; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
         /* Button Colors */
+        /* Specific hardcoded styles */
         .c-sales .icon-box { background: linear-gradient(135deg, #10B981, #059669); }
         .c-purchase .icon-box { background: linear-gradient(135deg, #EF4444, #DC2626); }
         .c-capital .icon-box { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
-        .c-capital:hover { border: 1px solid #8B5CF6; }
+
+        /* Generic styles for dynamically generated lists */
+        .c-generic-in .icon-box { background: linear-gradient(135deg, #10B981, #059669); }
+        .c-generic-in:hover { border-color: #10B981; }
+        
+        .c-generic-out .icon-box { background: linear-gradient(135deg, #EF4444, #DC2626); }
+        .c-generic-out:hover { border-color: #EF4444; }
+
 
         /* --- FORM STYLES --- */
         
@@ -293,7 +321,7 @@
                 
                 <!-- Search Filter -->
                 <div class="search-container">
-                    <input type="text" id="searchInput" placeholder="Filter transactions..." autocomplete="off">
+                    <input type="text" id="searchInput" placeholder="Search transactions..." autocomplete="off">
                 </div>
 
                 <!-- Income Section -->
@@ -301,19 +329,9 @@
                     <span class="badge in">IN</span>
                     <h2>Income</h2>
                 </div>
+                <!-- JS will populate this grid -->
                 <div class="grid-container selection-grid income-grid">
-                    <button class="btn-cat c-capital" data-type="IN" data-detail="Capital" onclick="selectType('IN', 'Capital', this)">
-                        <div class="icon-box">
-                            <svg viewBox="0 0 24 24"><path d="M12 1v22"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7H14a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                        </div>
-                        <span class="btn-text">Capital</span>
-                    </button>
-                    <button class="btn-cat c-sales" data-type="IN" data-detail="Sales" onclick="selectType('IN', 'Sales', this)">
-                        <div class="icon-box">
-                            <svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 7-7"></path><path d="M14 4h7v7"></path></svg>
-                        </div>
-                        <span class="btn-text">Sales</span>
-                    </button>
+                    <!-- Dynamic Buttons Will Appear Here -->
                 </div>
 
                 <!-- Out Section -->
@@ -321,26 +339,9 @@
                     <span class="badge out">OUT</span>
                     <h2>Expenses</h2>
                 </div>
+                <!-- JS will populate this grid -->
                 <div class="grid-container selection-grid expense-grid">
-                    <button class="btn-cat c-purchase" data-type="OUT" data-detail="Purchases" onclick="selectType('OUT', 'Purchases', this)">
-                        <div class="icon-box">
-                            <svg viewBox="0 0 24 24"><path d="M21 7l-6 6-4-4-7 7"></path><path d="M10 17H3v-7"></path></svg>
-                        </div>
-                        <span class="btn-text">Purchases</span>
-                    </button>
-                    <!-- Adding Wages and Other to match logic requirement examples -->
-                    <button class="btn-cat c-purchase" data-type="OUT" data-detail="Wages" onclick="selectType('OUT', 'Wages', this)">
-                        <div class="icon-box">
-                            <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-                        </div>
-                        <span class="btn-text">Wages</span>
-                    </button>
-                    <button class="btn-cat c-purchase" data-type="OUT" data-detail="Other" onclick="selectType('OUT', 'Other', this)">
-                        <div class="icon-box">
-                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                        </div>
-                        <span class="btn-text">Other</span>
-                    </button>
+                    <!-- Dynamic Buttons Will Appear Here -->
                 </div>
             </section>
 
@@ -437,6 +438,32 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
+        // --- DATA LISTS ---
+        const incomeList = [
+            "Discount Received", "Commission Received", "Rent Received", 
+            "Interest Received", "Dividend Income", "Bad Debts Recovered", 
+            "Gain on Sale of Asset", "Sundry Income"
+        ];
+
+        const expenseList = [
+            "Wages & Salaries", "Rent & Rates", "Lighting & Heating", "Electricity & Gas",
+            "Water Charges", "Telephone & Internet", "Stationery", "Postage & Courier",
+            "Advertising Expenses", "Carriage Outwards", "Repairs & Maintenance", "Depreciation",
+            "Insurance", "Motor Vehicle Expenses", "Fuel & Transport", "Office Expenses",
+            "General Expenses", "Sundry Expenses", "Charges", "Bad Debts",
+            "Provision for Doubtful Debts", "Directors’ Remuneration", "Debenture Interest",
+            "Warehouse Rent", "Security Expenses", "Legal & Professional Fees", "Audit Fees",
+            "Subscriptions", "Training Expenses", "Travel & Accommodation", "Entertainment Expenses"
+        ];
+
+        // --- ICONS (SVG Strings) ---
+        const icons = {
+            dollar: `<svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>`,
+            trendingUp: `<svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>`,
+            trendingDown: `<svg viewBox="0 0 24 24"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline></svg>`,
+            file: `<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`
+        };
+
         const state = {
             step: 1,
             data: {
@@ -459,8 +486,45 @@
         const mainActionBtn = document.getElementById('mainActionBtn');
         const headerTitle = document.getElementById('headerTitle');
 
+        // --- CATEGORY GENERATION ---
+        function generateCategoryButtons() {
+            const incomeGrid = document.querySelector('.income-grid');
+            const expenseGrid = document.querySelector('.expense-grid');
+
+            // Helper to create button
+            const createBtn = (name, type, iconSvg, customClass = '') => {
+                const btn = document.createElement('button');
+                const genericClass = type === 'IN' ? 'c-generic-in' : 'c-generic-out';
+                
+                btn.className = `btn-cat ${genericClass} ${customClass}`;
+                btn.setAttribute('data-type', type);
+                btn.setAttribute('data-detail', name);
+                btn.onclick = function() { selectType(type, name, this); };
+
+                btn.innerHTML = `
+                    <div class="icon-box">${iconSvg}</div>
+                    <span class="btn-text">${name}</span>
+                `;
+                return btn;
+            };
+
+            // Generate Income Buttons
+            incomeGrid.appendChild(createBtn("Capital", "IN", icons.dollar, "c-capital"));
+            incomeGrid.appendChild(createBtn("Sales", "IN", icons.trendingUp, "c-sales"));
+            incomeList.forEach(item => {
+                incomeGrid.appendChild(createBtn(item, "IN", icons.file));
+            });
+
+            // Generate Expense Buttons
+            expenseGrid.appendChild(createBtn("Purchases", "OUT", icons.trendingDown, "c-purchase"));
+            expenseList.forEach(item => {
+                expenseGrid.appendChild(createBtn(item, "OUT", icons.file));
+            });
+        }
+
         // --- Initialization ---
         window.addEventListener('DOMContentLoaded', () => {
+            generateCategoryButtons(); 
             goToStep(1); 
         });
 
@@ -652,13 +716,11 @@
                 displayType: type === 'IN' ? 'Income' : 'Expense',  
                 method: method, 
                 amount: Number(amount),
-                name: name, // ADDED: Name field
+                name: name, 
                 createdAt: timestamp
             });
 
             let finalDetail = state.data.detail;
-            // If credit, name goes in parentheses for detail, or we rely on the separate 'name' field
-            // Previous logic put credit name in detail: "Purchases (Supplier A)"
             if (state.data.flowForm === 'Credit' && state.data.creditName) {
                 finalDetail += ` (${state.data.creditName})`;
             }
@@ -666,29 +728,22 @@
             try {
                 const batch = [];
 
-                // 1. The Main Transaction
                 const mainTx = createTransaction(
                     finalDetail, 
                     state.data.flowType, 
                     state.data.amount, 
                     state.data.flowForm.toUpperCase(),
-                    "" // Name is empty for main transaction
+                    "" 
                 );
                 batch.push(addDoc(collection(db, "users", user.email, "transactions"), mainTx));
 
-                // 2. The Charges Transaction
                 if (state.data.flowType === 'OUT' && state.data.flowForm === 'Bank' && state.data.hasCharges) {
-                    
-                    // UPDATED LOGIC:
-                    // Detail: "Charges"
-                    // Name: "Purchases" (or whatever the cause was)
-                    
                     const chargesTx = createTransaction(
-                        'Charges',  // Detail is just "Charges"
+                        'Charges',  
                         'OUT', 
                         state.data.chargesAmount, 
                         'BANK',
-                        state.data.detail // Name is the cause (e.g. "Purchases")
+                        state.data.detail 
                     );
                     
                     batch.push(addDoc(collection(db, "users", user.email, "transactions"), chargesTx));
