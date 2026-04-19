@@ -106,7 +106,7 @@
         }
         .trail-label { color: var(--text-muted); font-size: 0.65rem; text-transform: uppercase; margin-right: 6px; }
 
-        /* --- SELECTION SCREEN STYLES (From Detail Page) --- */
+        /* --- SELECTION SCREEN STYLES --- */
         
         /* Search Bar */
         .search-container {
@@ -207,7 +207,7 @@
         .c-capital .icon-box { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
         .c-capital:hover { border: 1px solid #8B5CF6; }
 
-        /* --- FORM STYLES (From Add Transaction Page) --- */
+        /* --- FORM STYLES --- */
         
         label { display: block; font-size: 0.95rem; font-weight: 600; margin-bottom: 12px; color: var(--text-main); }
         
@@ -223,6 +223,10 @@
         .grid-options {
             display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 10px;
         }
+        .grid-options-2 {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;
+        }
+
         .option-btn {
             background: #F9FAFB; border: 2px solid var(--border); border-radius: 12px;
             padding: 20px 10px; text-align: center; cursor: pointer; transition: all 0.2s;
@@ -324,6 +328,19 @@
                         </div>
                         <span class="btn-text">Purchases</span>
                     </button>
+                    <!-- Adding Wages and Other to match logic requirement examples -->
+                    <button class="btn-cat c-purchase" data-type="OUT" data-detail="Wages" onclick="selectType('OUT', 'Wages', this)">
+                        <div class="icon-box">
+                            <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                        </div>
+                        <span class="btn-text">Wages</span>
+                    </button>
+                    <button class="btn-cat c-purchase" data-type="OUT" data-detail="Other" onclick="selectType('OUT', 'Other', this)">
+                        <div class="icon-box">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        </div>
+                        <span class="btn-text">Other</span>
+                    </button>
                 </div>
             </section>
 
@@ -354,16 +371,34 @@
                 <div class="hint">Press <b>Enter</b> to continue</div>
             </section>
 
-            <!-- STEP 5: Confirmation -->
+            <!-- STEP 5: Charges (Conditional for OUT + Bank) -->
             <section id="step-5" class="step-content">
-                <div class="trail-container" id="trail-5" style="justify-content: center; margin-bottom: 30px;"></div>
+                <div class="trail-container" id="trail-5"></div>
+                <label>Bank Charges?</label>
+                <div class="grid-options-2">
+                    <div class="option-btn" onclick="handleChargesOption(false, this)">Without Charges</div>
+                    <div class="option-btn" onclick="handleChargesOption(true, this)">With Charges</div>
+                </div>
+            </section>
+
+            <!-- STEP 6: Enter Charges Amount -->
+            <section id="step-6" class="step-content">
+                <div class="trail-container" id="trail-6"></div>
+                <label for="chargesInput">Enter Charges Amount</label>
+                <input type="number" id="chargesInput" placeholder="0.00" inputmode="decimal">
+                <div class="hint">Press <b>Enter</b> to continue</div>
+            </section>
+
+            <!-- STEP 7: Confirmation -->
+            <section id="step-7" class="step-content">
+                <div class="trail-container" id="trail-7" style="justify-content: center; margin-bottom: 30px;"></div>
                 <div style="text-align: center; color: var(--text-muted); font-size: 0.95rem;">
                     Please verify the transaction details above before saving.
                 </div>
             </section>
 
-            <!-- STEP 6: Success -->
-            <section id="step-6" class="step-content">
+            <!-- STEP 8: Success -->
+            <section id="step-8" class="step-content">
                 <div class="success-view">
                     <div class="success-icon">
                         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -409,14 +444,17 @@
                 detail: '',     
                 amount: 0,
                 flowForm: '', 
-                creditName: ''
+                creditName: '',
+                hasCharges: false, // Only relevant for OUT + Bank
+                chargesAmount: 0   // Only relevant for OUT + Bank
             }
         };
 
         const inputs = {
             amount: document.getElementById('amountInput'),
             creditName: document.getElementById('creditNameInput'),
-            search: document.getElementById('searchInput')
+            search: document.getElementById('searchInput'),
+            charges: document.getElementById('chargesInput')
         };
         const mainActionBtn = document.getElementById('mainActionBtn');
         const headerTitle = document.getElementById('headerTitle');
@@ -433,8 +471,10 @@
                 next.classList.add('active');
                 state.step = stepNumber;
                 updateUI();
+                // Focus logic
                 if(stepNumber === 2) setTimeout(() => inputs.amount.focus(), 50);
                 if(stepNumber === 4) setTimeout(() => inputs.creditName.focus(), 50);
+                if(stepNumber === 6) setTimeout(() => inputs.charges.focus(), 50);
             }
         }
 
@@ -442,7 +482,7 @@
             if(state.step === 1) {
                 headerTitle.innerText = "Select Type";
                 mainActionBtn.classList.add('hidden');
-            } else if(state.step === 5) {
+            } else if(state.step === 7) { // Confirmation step number changed
                 headerTitle.innerText = "Confirm Details";
                 mainActionBtn.classList.remove('hidden');
                 mainActionBtn.textContent = "Save Transaction";
@@ -454,16 +494,19 @@
             renderHistory();
         }
 
-        // --- Selection Logic (From Detail Page) ---
+        // --- Selection Logic ---
         window.selectType = function(flow, detail, btnEl) {
             state.data.flowType = flow;
             state.data.detail = detail;
             
-            // Visual feedback on selection
+            // Reset charge state if going back to start
+            state.data.hasCharges = false;
+            state.data.chargesAmount = 0;
+
+            // Visual feedback
             document.querySelectorAll('.btn-cat').forEach(b => b.style.borderColor = 'transparent');
             btnEl.style.borderColor = 'var(--primary)';
             
-            // Move to Step 2
             setTimeout(() => goToStep(2), 200);
         };
 
@@ -485,7 +528,6 @@
                 }
             });
 
-            // Hide sections if empty
             const checkAndHide = (header, grid) => {
                 const visibleButtons = Array.from(grid.querySelectorAll('.btn-cat')).filter(btn => btn.style.display !== 'none');
                 if (visibleButtons.length === 0) {
@@ -501,7 +543,7 @@
             checkAndHide(expenseHeader, expenseGrid);
         });
 
-        // --- Form Logic (From Add Transaction Page) ---
+        // --- Form Logic ---
         function createHistoryButton(label, value) {
             return `<div class="trail-btn"><span class="trail-label">${label}</span> ${value}</div>`;
         }
@@ -511,12 +553,16 @@
             const amountPill = state.data.amount ? createHistoryButton('Amount', state.data.amount) : '';
             const formPill = state.data.flowForm ? createHistoryButton('Method', state.data.flowForm) : '';
             const creditPill = (state.data.flowForm === 'Credit' && state.data.creditName) ? createHistoryButton('Lender', state.data.creditName) : '';
+            const chargePill = (state.data.hasCharges && state.data.chargesAmount) ? createHistoryButton('Charges', state.data.chargesAmount) : '';
 
+            // Trail updates based on step
             if (state.step >= 2) document.getElementById('trail-2').innerHTML = typePill;
             if (state.step >= 3) document.getElementById('trail-3').innerHTML = typePill + amountPill;
             if (state.step >= 4) document.getElementById('trail-4').innerHTML = typePill + amountPill + formPill;
-            if (state.step === 5) {
-                document.getElementById('trail-5').innerHTML = typePill + amountPill + formPill + creditPill;
+            if (state.step >= 5) document.getElementById('trail-5').innerHTML = typePill + amountPill + formPill + creditPill;
+            if (state.step >= 6) document.getElementById('trail-6').innerHTML = typePill + amountPill + formPill + creditPill;
+            if (state.step >= 7) {
+                document.getElementById('trail-7').innerHTML = typePill + amountPill + formPill + creditPill + chargePill;
             }
         }
 
@@ -531,6 +577,8 @@
 
         window.selectForm = function(form, btnEl) {
             state.data.flowForm = form;
+            
+            // Visual selection
             const container = document.getElementById('step-3');
             container.querySelectorAll('.option-btn').forEach(b => {
                 b.classList.remove('selected');
@@ -540,8 +588,17 @@
             btnEl.style.borderColor = 'var(--primary)'; btnEl.style.background = 'var(--primary)'; btnEl.style.color = '#fff';
 
             setTimeout(() => {
-                if (form === 'Credit') goToStep(4);
-                else goToStep(5);
+                // Logic: If Form is Credit, ask Name. 
+                // Logic: If Form is Bank AND Type is OUT, ask about Charges.
+                // Logic: Otherwise (Cash or Bank + IN) go straight to Confirm.
+                
+                if (form === 'Credit') {
+                    goToStep(4);
+                } else if (form === 'Bank' && state.data.flowType === 'OUT') {
+                    goToStep(5); // Charges Step
+                } else {
+                    goToStep(7); // Confirmation
+                }
             }, 150);
         };
 
@@ -550,7 +607,41 @@
                 const val = inputs.creditName.value.trim();
                 if (!val) return showToast("Please enter a name for the credit.");
                 state.data.creditName = val;
-                goToStep(5);
+                
+                // After Credit Name, check if Bank+OUT logic applies (though usually Credit and Bank are separate methods in UI, 
+                // strictly following flow: Credit Name -> Confirm)
+                goToStep(7);
+            }
+        });
+
+        // NEW LOGIC: Handle Charges Option (OUT + Bank)
+        window.handleChargesOption = function(hasCharges, btnEl) {
+            state.data.hasCharges = hasCharges;
+
+            // Visual feedback
+            const container = document.getElementById('step-5');
+            container.querySelectorAll('.option-btn').forEach(b => {
+                b.classList.remove('selected');
+                b.style.borderColor = 'var(--border)'; b.style.background = '#F9FAFB'; b.style.color = 'var(--text-main)';
+            });
+            btnEl.classList.add('selected');
+            btnEl.style.borderColor = 'var(--primary)'; btnEl.style.background = 'var(--primary)'; btnEl.style.color = '#fff';
+
+            setTimeout(() => {
+                if (hasCharges) {
+                    goToStep(6); // Go to amount input
+                } else {
+                    goToStep(7); // Go to confirmation
+                }
+            }, 150);
+        };
+
+        inputs.charges.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const val = parseFloat(inputs.charges.value);
+                if (!val || val <= 0) return showToast("Please enter a valid charge amount.");
+                state.data.chargesAmount = val.toFixed(2);
+                goToStep(7);
             }
         });
 
@@ -568,29 +659,63 @@
                 return;
             }
 
+            const now = new Date();
+            const timestamp = Date.now();
+
+            // Prepare Base Transaction Object
+            const createTransaction = (detail, type, amount, method) => ({
+                date: now.toLocaleString(),
+                detail: detail,
+                type: type,       
+                displayType: type === 'IN' ? 'Income' : 'Expense',  
+                method: method, 
+                amount: Number(amount),
+                createdAt: timestamp
+            });
+
             let finalDetail = state.data.detail;
             if (state.data.flowForm === 'Credit' && state.data.creditName) {
                 finalDetail += ` (${state.data.creditName})`;
             }
 
-            // Capital is IN, Sales is IN, Purchases is OUT (Strictly based on selection)
-            const transaction = {
-                date: new Date().toLocaleString(),
-                detail: finalDetail,
-                type: state.data.flowType,       
-                displayType: state.data.detail,  
-                method: state.data.flowForm.toUpperCase(), 
-                amount: Number(state.data.amount),
-                createdAt: Date.now()
-            };
-
             try {
-                await addDoc(collection(db, "users", user.email, "transactions"), transaction);
-                const userRef = doc(db, "users", user.email);
-                await updateDoc(userRef, { spaceUsed: increment(1) });
+                const batch = [];
 
-                console.log("Transaction Saved:", transaction);
-                goToStep(6);
+                // 1. The Main Transaction
+                const mainTx = createTransaction(
+                    finalDetail, 
+                    state.data.flowType, 
+                    state.data.amount, 
+                    state.data.flowForm.toUpperCase()
+                );
+                batch.push(addDoc(collection(db, "users", user.email, "transactions"), mainTx));
+
+                // 2. The Charges Transaction (ONLY if OUT + Bank + HasCharges)
+                if (state.data.flowType === 'OUT' && state.data.flowForm === 'Bank' && state.data.hasCharges) {
+                    const chargesTx = createTransaction(
+                        'Charges', 
+                        'OUT', 
+                        state.data.chargesAmount, 
+                        'BANK'
+                    );
+                    
+                    // Specific logic requirement: name == transaction detail namer cause it 
+                    // e.g. "Charges (Purchases)" or "Charges (Wages)"
+                    chargesTx.detail = `Charges ${state.data.detail}`; 
+                    
+                    batch.push(addDoc(collection(db, "users", user.email, "transactions"), chargesTx));
+                }
+
+                // Execute Writes
+                await Promise.all(batch);
+                
+                // Update stats
+                const incrementValue = state.data.hasCharges ? 2 : 1;
+                const userRef = doc(db, "users", user.email);
+                await updateDoc(userRef, { spaceUsed: increment(incrementValue) });
+
+                console.log("Transaction Saved");
+                goToStep(8);
                 setTimeout(() => { window.location.href = 'business.html'; }, 2000);
 
             } catch (error) {
@@ -606,7 +731,6 @@
             if(state.step === 1) {
                 window.location.href = 'business.html';
             } else {
-                // Go back one step
                 goToStep(state.step - 1);
             }
         };
