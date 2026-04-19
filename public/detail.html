@@ -91,7 +91,6 @@
             overflow-y: auto; 
         }
         .step-content.active { display: flex; }
-        .centered-content { justify-content: center; align-items: center; }
 
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(15px); }
@@ -164,10 +163,10 @@
         .badge.in { background-color: #10B981; }
         .badge.out { background-color: #EF4444; }
 
-        /* Grid - CHANGED TO 6 COLUMNS */
+        /* Grid - 6 COLUMNS */
         .selection-grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr); /* CHANGED: 6 columns */
+            grid-template-columns: repeat(6, 1fr); 
             gap: 8px;
             width: 100%;
             margin-bottom: 20px;
@@ -179,17 +178,17 @@
             outline: none;
             cursor: pointer;
             background: white;
-            border-radius: 10px; /* Adjusted for smaller size */
-            padding: 12px 4px; /* Adjusted padding */
+            border-radius: 10px; 
+            padding: 12px 4px; 
             display: flex;
-            flex-direction: column; /* Column layout (Icon top, text bottom) */
+            flex-direction: column; 
             align-items: center;
             justify-content: center;
             text-align: center;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             height: 100%;
-            min-height: 80px; /* Set min height for consistency */
+            min-height: 80px; 
             width: 100%;
             border: 2px solid transparent;
         }
@@ -199,7 +198,7 @@
 
         /* Icon Wrapper */
         .icon-box {
-            width: 28px; /* Smaller icon */
+            width: 28px; 
             height: 28px;
             border-radius: 50%;
             display: flex;
@@ -210,22 +209,22 @@
             flex-shrink: 0;
         }
         .btn-text { 
-            font-size: 0.7rem; /* Very small font for long words */
+            font-size: 0.7rem; 
             font-weight: 600; 
             color: #374151; 
             line-height: 1.2;
             display: -webkit-box;
-            -webkit-line-clamp: 2; /* Allow text to wrap to 2 lines if needed */
+            -webkit-line-clamp: 2; 
             -webkit-box-orient: vertical;
             overflow: hidden;
         } 
         .icon-box svg { width: 16px; height: 16px; stroke-width: 2; stroke: currentColor; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
         /* Button Colors */
-        /* Specific hardcoded styles */
         .c-sales .icon-box { background: linear-gradient(135deg, #10B981, #059669); }
         .c-purchase .icon-box { background: linear-gradient(135deg, #EF4444, #DC2626); }
         .c-capital .icon-box { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
+        .c-contra .icon-box { background: linear-gradient(135deg, #F59E0B, #D97706); } /* Amber for Contra */
 
         /* Generic styles for dynamically generated lists */
         .c-generic-in .icon-box { background: linear-gradient(135deg, #10B981, #059669); }
@@ -345,6 +344,16 @@
                 </div>
             </section>
 
+            <!-- STEP 1.5: Contra Options -->
+            <section id="step-1-5" class="step-content">
+                <div class="trail-container" id="trail-1-5"></div>
+                <label>Contra Type</label>
+                <div class="grid-options-2">
+                    <div class="option-btn" onclick="handleContraType('Deposit', this)">Deposit</div>
+                    <div class="option-btn" onclick="handleContraType('Withdraw', this)">Withdraw</div>
+                </div>
+            </section>
+
             <!-- STEP 2: Amount -->
             <section id="step-2" class="step-content">
                 <div class="trail-container" id="trail-2"></div>
@@ -372,10 +381,10 @@
                 <div class="hint">Press <b>Enter</b> to continue</div>
             </section>
 
-            <!-- STEP 5: Charges (Conditional for OUT + Bank) -->
+            <!-- STEP 5: Charges (Conditional for OUT + Bank) OR Contra Charges -->
             <section id="step-5" class="step-content">
                 <div class="trail-container" id="trail-5"></div>
-                <label>Bank Charges?</label>
+                <label id="chargesLabel">Bank Charges?</label>
                 <div class="grid-options-2">
                     <div class="option-btn" onclick="handleChargesOption(false, this)">Without Charges</div>
                     <div class="option-btn" onclick="handleChargesOption(true, this)">With Charges</div>
@@ -446,6 +455,7 @@
         ];
 
         const expenseList = [
+            "Contra Transaction", // Added Contra Transaction here
             "Wages & Salaries", "Rent & Rates", "Lighting & Heating", "Electricity & Gas",
             "Water Charges", "Telephone & Internet", "Stationery", "Postage & Courier",
             "Advertising Expenses", "Carriage Outwards", "Repairs & Maintenance", "Depreciation",
@@ -461,6 +471,7 @@
             dollar: `<svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>`,
             trendingUp: `<svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>`,
             trendingDown: `<svg viewBox="0 0 24 24"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline></svg>`,
+            swap: `<svg viewBox="0 0 24 24"><path d="M7 16V4M7 4L3 8M7 4L11 8M17 8v12M17 20l-4-4M17 20l4-4"></path></svg>`, // Contra Icon
             file: `<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`
         };
 
@@ -473,7 +484,9 @@
                 flowForm: '', 
                 creditName: '',
                 hasCharges: false, 
-                chargesAmount: 0   
+                chargesAmount: 0,
+                contraType: '', // 'Deposit', 'Withdraw', or ''
+                isContra: false // Helper flag
             }
         };
 
@@ -516,8 +529,13 @@
             });
 
             // Generate Expense Buttons
+            // Contra Transaction (First in list)
+            expenseGrid.appendChild(createBtn("Contra Transaction", "OUT", icons.swap, "c-contra"));
+            
+            // Rest of expenses
             expenseGrid.appendChild(createBtn("Purchases", "OUT", icons.trendingDown, "c-purchase"));
-            expenseList.forEach(item => {
+            
+            expenseList.slice(1).forEach(item => {
                 expenseGrid.appendChild(createBtn(item, "OUT", icons.file));
             });
         }
@@ -535,6 +553,8 @@
                 next.classList.add('active');
                 state.step = stepNumber;
                 updateUI();
+                
+                // Focus handling
                 if(stepNumber === 2) setTimeout(() => inputs.amount.focus(), 50);
                 if(stepNumber === 4) setTimeout(() => inputs.creditName.focus(), 50);
                 if(stepNumber === 6) setTimeout(() => inputs.charges.focus(), 50);
@@ -560,15 +580,53 @@
         window.selectType = function(flow, detail, btnEl) {
             state.data.flowType = flow;
             state.data.detail = detail;
-            
             state.data.hasCharges = false;
             state.data.chargesAmount = 0;
-
-            document.querySelectorAll('.btn-cat').forEach(b => b.style.borderColor = 'transparent');
-            btnEl.style.borderColor = 'var(--primary)';
             
-            setTimeout(() => goToStep(2), 200);
+            // Check if it's Contra Transaction
+            if (detail === "Contra Transaction") {
+                state.data.isContra = true;
+                // Reset Contra specifics
+                state.data.contraType = '';
+                // Highlight button
+                document.querySelectorAll('.btn-cat').forEach(b => b.style.borderColor = 'transparent');
+                btnEl.style.borderColor = 'var(--primary)';
+                
+                // Go to Contra Step
+                setTimeout(() => goToStep('1-5'), 200);
+            } else {
+                // Normal Flow
+                state.data.isContra = false;
+                document.querySelectorAll('.btn-cat').forEach(b => b.style.borderColor = 'transparent');
+                btnEl.style.borderColor = 'var(--primary)';
+                
+                setTimeout(() => goToStep(2), 200);
+            }
         };
+
+        window.handleContraType = function(contraType, btnEl) {
+            state.data.contraType = contraType;
+            
+            // UI Update
+            const container = document.getElementById('step-1-5');
+            container.querySelectorAll('.option-btn').forEach(b => {
+                b.classList.remove('selected');
+                b.style.borderColor = 'var(--border)'; b.style.background = '#F9FAFB'; b.style.color = 'var(--text-main)';
+            });
+            btnEl.classList.add('selected');
+            btnEl.style.borderColor = 'var(--primary)'; btnEl.style.background = 'var(--primary)'; btnEl.style.color = '#fff';
+
+            setTimeout(() => {
+                if (contraType === 'Withdraw') {
+                    // Ask amount -> Charges
+                    goToStep(2);
+                } else {
+                    // Deposit: Go straight to method selection (since amount entered or assumed later? usually need amount)
+                    // Assuming deposit also needs amount, same flow but logic differs on save
+                    goToStep(2);
+                }
+            }, 150);
+        }
 
         inputs.search.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
@@ -607,19 +665,31 @@
         }
 
         function renderHistory() {
-            const typePill = createHistoryButton('Type', state.data.detail);
+            const typePill = createHistoryButton('Type', state.data.detail + (state.data.isContra ? ` (${state.data.contraType})` : ''));
             const amountPill = state.data.amount ? createHistoryButton('Amount', state.data.amount) : '';
             const formPill = state.data.flowForm ? createHistoryButton('Method', state.data.flowForm) : '';
             const creditPill = (state.data.flowForm === 'Credit' && state.data.creditName) ? createHistoryButton('Lender', state.data.creditName) : '';
             const chargePill = (state.data.hasCharges && state.data.chargesAmount) ? createHistoryButton('Charges', state.data.chargesAmount) : '';
 
-            if (state.step >= 2) document.getElementById('trail-2').innerHTML = typePill;
-            if (state.step >= 3) document.getElementById('trail-3').innerHTML = typePill + amountPill;
-            if (state.step >= 4) document.getElementById('trail-4').innerHTML = typePill + amountPill + formPill;
-            if (state.step >= 5) document.getElementById('trail-5').innerHTML = typePill + amountPill + formPill + creditPill;
-            if (state.step >= 6) document.getElementById('trail-6').innerHTML = typePill + amountPill + formPill + creditPill;
-            if (state.step >= 7) {
-                document.getElementById('trail-7').innerHTML = typePill + amountPill + formPill + creditPill + chargePill;
+            // Trail rendering logic
+            const trail1_5 = document.getElementById('trail-1-5');
+            const trail2 = document.getElementById('trail-2');
+            const trail3 = document.getElementById('trail-3');
+            const trail4 = document.getElementById('trail-4');
+            const trail5 = document.getElementById('trail-5');
+            const trail6 = document.getElementById('trail-6');
+            const trail7 = document.getElementById('trail-7');
+
+            if(trail1_5 && state.step >= 1.5) trail1_5.innerHTML = typePill;
+            if(state.step >= 2) {
+                if(trail2) trail2.innerHTML = typePill;
+            }
+            if(state.step >= 3) trail3.innerHTML = typePill + amountPill;
+            if(state.step >= 4) trail4.innerHTML = typePill + amountPill + formPill;
+            if(state.step >= 5) trail5.innerHTML = typePill + amountPill + formPill + creditPill;
+            if(state.step >= 6) trail6.innerHTML = typePill + amountPill + formPill + creditPill;
+            if(state.step >= 7) {
+                trail7.innerHTML = typePill + amountPill + formPill + creditPill + chargePill;
             }
         }
 
@@ -628,7 +698,13 @@
                 const val = parseFloat(inputs.amount.value);
                 if (!val || val <= 0) return showToast("Please enter a valid amount greater than 0.");
                 state.data.amount = val.toFixed(2);
-                goToStep(3);
+                
+                // Logic branching based on Contra Type
+                if (state.data.isContra && state.data.contraType === 'Withdraw') {
+                    goToStep(5); // Ask charges immediately for withdraw
+                } else {
+                    goToStep(3); // Normal flow (Method)
+                }
             }
         });
 
@@ -646,10 +722,13 @@
             setTimeout(() => {
                 if (form === 'Credit') {
                     goToStep(4);
-                } else if (form === 'Bank' && state.data.flowType === 'OUT') {
-                    goToStep(5); 
                 } else {
-                    goToStep(7); 
+                    // Contra Deposit or Normal Bank/Cash
+                    if (form === 'Bank' && state.data.flowType === 'OUT' && !state.data.isContra) {
+                        goToStep(5); 
+                    } else {
+                        goToStep(7); 
+                    }
                 }
             }, 150);
         };
@@ -720,38 +799,88 @@
                 createdAt: timestamp
             });
 
-            let finalDetail = state.data.detail;
-            if (state.data.flowForm === 'Credit' && state.data.creditName) {
-                finalDetail += ` (${state.data.creditName})`;
-            }
-
             try {
                 const batch = [];
+                let incrementValue = 1;
 
-                const mainTx = createTransaction(
-                    finalDetail, 
-                    state.data.flowType, 
-                    state.data.amount, 
-                    state.data.flowForm.toUpperCase(),
-                    "" 
-                );
-                batch.push(addDoc(collection(db, "users", user.email, "transactions"), mainTx));
+                // --- CONTRA LOGIC ---
+                if (state.data.isContra) {
+                    if (state.data.contraType === 'Withdraw') {
+                        if (state.data.hasCharges) {
+                            // 1. Main Contra Transaction (Business System)
+                            const contraTx = createTransaction(
+                                'Contra', 
+                                'OUT', 
+                                state.data.amount, 
+                                'BANK', // Assuming Bank for Withdraw
+                                'Business System'
+                            );
+                            batch.push(addDoc(collection(db, "users", user.email, "transactions"), contraTx));
 
-                if (state.data.flowType === 'OUT' && state.data.flowForm === 'Bank' && state.data.hasCharges) {
-                    const chargesTx = createTransaction(
-                        'Charges',  
-                        'OUT', 
-                        state.data.chargesAmount, 
-                        'BANK',
-                        state.data.detail 
+                            // 2. Charges Transaction (Other Charges)
+                            const chargesTx = createTransaction(
+                                'Other Charges', 
+                                'OUT', 
+                                state.data.chargesAmount, 
+                                'BANK',
+                                'Contra Charges' // Name indicates origin
+                            );
+                            batch.push(addDoc(collection(db, "users", user.email, "transactions"), chargesTx));
+                            
+                            incrementValue = 2;
+                        } else {
+                            // Withdraw Without Charges: Record as Contra
+                            const contraTx = createTransaction(
+                                'Contra', 
+                                'OUT', 
+                                state.data.amount, 
+                                'BANK',
+                                '' 
+                            );
+                            batch.push(addDoc(collection(db, "users", user.email, "transactions"), contraTx));
+                        }
+                    } else if (state.data.contraType === 'Deposit') {
+                        // Deposit: Record as Contra
+                        const contraTx = createTransaction(
+                            'Contra', 
+                            'IN', 
+                            state.data.amount, 
+                            'BANK',
+                            ''
+                        );
+                        batch.push(addDoc(collection(db, "users", user.email, "transactions"), contraTx));
+                    }
+                } else {
+                    // --- STANDARD LOGIC ---
+                    let finalDetail = state.data.detail;
+                    if (state.data.flowForm === 'Credit' && state.data.creditName) {
+                        finalDetail += ` (${state.data.creditName})`;
+                    }
+
+                    const mainTx = createTransaction(
+                        finalDetail, 
+                        state.data.flowType, 
+                        state.data.amount, 
+                        state.data.flowForm.toUpperCase(),
+                        "" 
                     );
-                    
-                    batch.push(addDoc(collection(db, "users", user.email, "transactions"), chargesTx));
+                    batch.push(addDoc(collection(db, "users", user.email, "transactions"), mainTx));
+
+                    if (state.data.flowType === 'OUT' && state.data.flowForm === 'Bank' && state.data.hasCharges) {
+                        const chargesTx = createTransaction(
+                            'Charges',  
+                            'OUT', 
+                            state.data.chargesAmount, 
+                            'BANK',
+                            state.data.detail 
+                        );
+                        
+                        batch.push(addDoc(collection(db, "users", user.email, "transactions"), chargesTx));
+                        incrementValue = 2;
+                    }
                 }
 
                 await Promise.all(batch);
-                
-                const incrementValue = state.data.hasCharges ? 2 : 1;
                 const userRef = doc(db, "users", user.email);
                 await updateDoc(userRef, { spaceUsed: increment(incrementValue) });
 
@@ -771,8 +900,19 @@
         window.goBack = function() {
             if(state.step === 1) {
                 window.location.href = 'business.html';
+            } else if(state.step === '1-5') {
+                goToStep(1); // Back to type selection
             } else {
-                goToStep(state.step - 1);
+                // If we are on step 2 (Amount) and it's a Withdraw Contra, back to 1.5
+                if(state.step === 2 && state.data.isContra && state.data.contraType === 'Withdraw') {
+                    goToStep('1-5');
+                } else if (state.step === 5) {
+                     // Step 5 logic for back navigation
+                     if(state.data.isContra) goToStep(2);
+                     else goToStep(3);
+                } else {
+                    goToStep(state.step - 1);
+                }
             }
         };
 
