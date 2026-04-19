@@ -857,7 +857,7 @@
                         if (state.data.hasCharges) {
                             const contraTx = createTransaction('Contra', 'OUT', state.data.amount, 'BANK', 'Business System');
                             batch.push(addDoc(collection(db, "users", user.email, "transactions"), contraTx));
-                            const chargesTx = createTransaction('Other Charges', 'OUT', state.data.chargesAmount, 'BANK', 'Contra Charges');
+                            const chargesTx = createTransaction('Charges', 'OUT', state.data.chargesAmount, 'BANK', 'Contra Charges');
                             batch.push(addDoc(collection(db, "users", user.email, "transactions"), chargesTx));
                             incrementValue = 2;
                         } else {
