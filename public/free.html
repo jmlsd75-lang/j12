@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Free Session</title>
+    <title>Free Session Timer</title>
     <style>
         :root {
             --bg-color: #121212;
             --surface-color: #1e1e1e;
+            --surface-elevated: #2c2c2c;
             --primary-color: #3f51b5;
+            --primary-variant: #303f9f;
             --error-color: #cf6679;
+            --success-color: #4caf50;
             --text-primary: #ffffff;
             --text-secondary: #b0b0b0;
             --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -29,13 +32,13 @@
             overflow: hidden;
         }
 
-        /* --- Top Buttons --- */
+        /* --- Top Navigation --- */
         .top-nav {
             position: absolute;
             top: 20px;
             left: 0;
             right: 0;
-            padding: 0 20px;
+            padding: 0 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -44,14 +47,15 @@
         }
 
         .btn-nav {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
             padding: 8px 16px;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 14px;
-            transition: all 0.2s;
+            font-weight: 500;
+            transition: all 0.2s ease;
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -59,18 +63,19 @@
         }
 
         .btn-nav:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* Specific style for Logout to distinguish it */
         .btn-logout {
-            border-color: rgba(207, 102, 121, 0.5);
+            border-color: rgba(207, 102, 121, 0.3);
             color: #ff8a80;
-            background: rgba(207, 102, 121, 0.1);
+            background: rgba(207, 102, 121, 0.05);
         }
         
         .btn-logout:hover {
-            background: rgba(207, 102, 121, 0.2);
+            background: rgba(207, 102, 121, 0.15);
             border-color: #ff8a80;
         }
 
@@ -79,7 +84,7 @@
             display: inline-block;
             width: 18px;
             height: 2px;
-            background: white;
+            background: currentColor;
             position: relative;
         }
         .menu-icon::before, .menu-icon::after {
@@ -87,8 +92,9 @@
             position: absolute;
             width: 18px;
             height: 2px;
-            background: white;
+            background: currentColor;
             left: 0;
+            transition: transform 0.2s;
         }
         .menu-icon::before { top: -6px; }
         .menu-icon::after { top: 6px; }
@@ -96,68 +102,90 @@
         /* --- Main Container --- */
         .container {
             background-color: var(--surface-color);
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            padding: 48px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
             text-align: center;
-            max-width: 500px;
+            max-width: 480px;
             width: 90%;
             position: relative;
             z-index: 1;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: border-color 0.3s;
+        }
+
+        .container.locked {
+            border-color: var(--error-color);
+            box-shadow: 0 10px 40px rgba(207, 102, 121, 0.1);
         }
 
         h1 {
-            margin: 0 0 10px 0;
-            font-size: 24px;
-            font-weight: 500;
+            margin: 0 0 8px 0;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
         p {
             color: var(--text-secondary);
-            margin-bottom: 30px;
+            margin-bottom: 32px;
             font-size: 14px;
+            line-height: 1.5;
         }
 
         .timer-display {
-            font-size: 64px;
+            font-size: 72px;
             font-weight: 700;
             font-variant-numeric: tabular-nums;
-            margin: 20px 0;
-            letter-spacing: 2px;
+            margin: 10px 0 30px 0;
+            letter-spacing: -2px;
             line-height: 1;
+            font-feature-settings: "tnum";
+            transition: color 0.3s;
         }
 
         .timer-display.urgent {
             color: var(--error-color);
-            animation: pulse 1s infinite;
+            animation: pulse-red 1s infinite;
         }
 
         .status-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            font-size: 12px;
-            margin-bottom: 15px;
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            background-color: rgba(63, 81, 181, 0.15);
+            color: #8c9eff;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 24px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.2px;
+            border: 1px solid rgba(63, 81, 181, 0.2);
+        }
+
+        .status-badge.status-locked {
+            background-color: rgba(207, 102, 121, 0.15);
+            color: #ff8a80;
+            border-color: rgba(207, 102, 121, 0.2);
         }
 
         .controls {
             display: flex;
-            gap: 15px;
+            gap: 16px;
             justify-content: center;
-            margin-top: 30px;
+            margin-top: 20px;
         }
 
         button {
-            padding: 12px 24px;
+            padding: 14px 28px;
             border: none;
-            border-radius: 6px;
-            font-size: 16px;
+            border-radius: 8px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
+            width: 100%;
         }
 
         button:disabled {
@@ -167,62 +195,90 @@
         }
 
         .btn-pay {
-            background-color: #4caf50;
+            background-color: var(--success-color);
             color: white;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
         }
 
         .btn-pay:hover {
             background-color: #43a047;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 6px 16px rgba(76, 175, 80, 0.3);
         }
 
         .btn-await {
-            background-color: #9e9e9e;
-            color: #424242;
+            background-color: var(--surface-elevated);
+            color: var(--text-secondary);
             cursor: default;
         }
 
         .tab-info {
-            margin-top: 20px;
+            margin-top: 24px;
             font-size: 12px;
             color: var(--text-secondary);
-            opacity: 0.7;
+            opacity: 0.6;
+            background: rgba(0,0,0,0.2);
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
         }
 
         .hidden {
             display: none !important;
         }
 
+        /* --- Locked Overlay Content --- */
+        #lockedMessage {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--error-color);
+            margin: 20px 0;
+        }
+
         /* --- Loading Overlay --- */
         #loadingOverlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(18, 18, 18, 0.9);
+            backdrop-filter: blur(4px);
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 10;
-            border-radius: 12px;
+            z-index: 20;
+            border-radius: 16px;
         }
 
         .spinner {
-            width: 30px;
-            height: 30px;
-            border: 3px solid rgba(255,255,255,0.3);
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.1);
             border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
+            border-top-color: var(--primary-color);
+            animation: spin 0.8s ease-in-out infinite;
+            margin-bottom: 16px;
+        }
+
+        .loading-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+            animation: pulse 1.5s infinite;
         }
 
         /* Animations */
         @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+        @keyframes pulse-red { 
+            0% { transform: scale(1); opacity: 1; } 
+            50% { transform: scale(1.05); opacity: 0.8; } 
+            100% { transform: scale(1); opacity: 1; } 
+        }
 
         /* Responsive */
         @media (max-width: 600px) {
-            .timer-display { font-size: 48px; }
-            .container { padding: 25px; }
+            .timer-display { font-size: 56px; }
+            .container { padding: 30px 20px; }
         }
     </style>
 </head>
@@ -230,39 +286,58 @@
 
     <!-- Top Navigation Bar -->
     <div class="top-nav">
-        <!-- Logout Button (Left) -->
+        <!-- Logout Button -->
         <button class="btn-nav btn-logout" id="logoutBtn">
             Logout
         </button>
         
-        <!-- Menu Button (Right) -->
+        <!-- Menu Button -->
         <a href="men.html" class="btn-nav" id="menuBtn">
             <span class="menu-icon"></span> Menu
         </a>
     </div>
 
-    <div class="container">
-        <div id="loadingOverlay" class="hidden">
+    <div class="container" id="mainContainer">
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay">
             <div class="spinner"></div>
+            <div class="loading-text">SYNCING SESSION...</div>
         </div>
 
-        <div class="status-badge" id="statusBadge">Active Session</div>
-        <h1 id="pageTitle">Time Remaining</h1>
-        
-        <!-- Main Countdown Wrapper -->
-        <div id="mainTimerWrapper">
+        <!-- ACTIVE STATE UI -->
+        <div id="activeStateUI">
+            <div class="status-badge" id="statusBadgeActive">Session Active</div>
+            <h1>Time Remaining</h1>
+            
             <div class="timer-display" id="mainTimer">00:03:00</div>
-            <p>Do not close this tab. Speed increases with more tabs.</p>
-            <div class="tab-info">Active Tabs Detected: <span id="tabCount">1</span></div>
+            
+            <p>
+                Do not close this tab.<br>
+                <span style="font-size:12px; opacity:0.8;">Speed increases with multiple open tabs.</span>
+            </p>
+            
+            <div class="tab-info">
+                Active Tabs Detected: <span id="tabCount">1</span> (Speed Multiplier)
+            </div>
         </div>
 
-        <!-- Await State Wrapper -->
-        <div id="awaitTimerWrapper" class="hidden">
-            <div class="timer-display" id="awaitTimer">24:00:00</div>
-            <p>Access locked. Waiting for cooldown.</p>
+        <!-- AWAIT / LOCKED STATE UI -->
+        <div id="awaitStateUI" class="hidden">
+            <div class="status-badge status-locked" id="statusBadgeLocked">LOCKED</div>
+            <h1>Access Denied</h1>
+            
+            <div class="timer-display" id="awaitTimer" style="font-size: 48px; color: var(--text-secondary);">24:00:00</div>
+            
+            <p>
+                Your free session has expired.<br>
+                You are currently in the cooldown period.
+            </p>
+
+            <div id="lockedMessage">TIME UP</div>
+
             <div class="controls">
-                <button class="btn-await" id="awaitBtn" disabled>Await</button>
-                <button class="btn-pay" id="payBtn">Pay</button>
+                <button class="btn-await" id="awaitBtn" disabled>Awaiting Reset</button>
+                <button class="btn-pay" id="payBtn">Pay to Unlock</button>
             </div>
         </div>
     </div>
@@ -285,7 +360,7 @@
             serverTimestamp 
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // ── Firebase Configuration (From your login.js) ──
+        // ── Firebase Configuration ──
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
             authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -307,11 +382,13 @@
         const TAB_ID = 'tab_' + Math.random().toString(36).substr(2, 9);
         
         // ── DOM Elements ──
-        const elMainWrapper = document.getElementById('mainTimerWrapper');
-        const elAwaitWrapper = document.getElementById('awaitTimerWrapper');
+        const elContainer = document.getElementById('mainContainer');
+        const elActiveUI = document.getElementById('activeStateUI');
+        const elAwaitUI = document.getElementById('awaitStateUI');
         const elMainTimer = document.getElementById('mainTimer');
         const elAwaitTimer = document.getElementById('awaitTimer');
-        const elStatusBadge = document.getElementById('statusBadge');
+        const elStatusBadgeActive = document.getElementById('statusBadgeActive');
+        const elStatusBadgeLocked = document.getElementById('statusBadgeLocked');
         const elTabCount = document.getElementById('tabCount');
         const elPayBtn = document.getElementById('payBtn');
         const elLoading = document.getElementById('loadingOverlay');
@@ -324,20 +401,20 @@
         let appMode = MODE_ACTIVE;
         
         // Timer variables
-        let activeTimeLeft = 3 * 60; // Seconds
+        let activeTimeLeft = 3 * 60; // Seconds (Initial value, overwritten by server logic)
         let awaitTimeLeft = 24 * 60 * 60; // Seconds
         let tabMultiplier = 1;
+        let timerInterval = null;
 
-        // These will be populated from Firestore to ensure persistence across refreshes
+        // Persistent State vars
         let serverStartTime = 0; 
-        let activeDurationAtStart = 0; // Expected duration in ms
+        let activeDurationAtStart = 0; 
         let awaitStartTime = 0;
         let awaitDurationAtStart = 0;
 
         // ── Auth Check ──
         onAuthStateChanged(auth, (user) => {
             if (!user) {
-                // If not logged in, redirect to index immediately
                 window.location.replace('index.html');
                 return;
             }
@@ -350,20 +427,26 @@
         async function initApp() {
             showLoading(true);
             try {
-                // 1. Load persistent state from Firestore
+                // 1. Load persistent state from Firestore (CRITICAL: Determines if we show Active or Locked UI)
                 await loadStateFromFirestore();
                 
                 // 2. Setup local tab tracking logic
                 setupTabTracking();
                 
-                // 3. Start the visual timers
-                startTimers();
-                
-                // 4. Attach interactions
+                // 3. Attach interactions
                 setupEventListeners();
+
+                // 4. Start the visual timers (only if active)
+                if (appMode === MODE_ACTIVE) {
+                    startTimers();
+                } else {
+                    // If in await mode, we run a separate timer for the countdown clock
+                    startAwaitTimer();
+                }
+
             } catch (error) {
                 console.error("Init Error:", error);
-                alert("Error loading session. Please refresh.");
+                alert("Error loading session state. Please refresh.");
             } finally {
                 showLoading(false);
             }
@@ -373,7 +456,6 @@
         async function handleLogout() {
             try {
                 await signOut(auth);
-                localStorage.removeItem("userSession"); // Clean up session storage if used
                 window.location.replace('index.html');
             } catch (error) {
                 console.error("Logout Error:", error);
@@ -382,26 +464,29 @@
 
         // ── Tab Tracking Logic ──
         function setupTabTracking() {
-            // Set a heartbeat for this specific tab
+            // Unique ID for this tab instance
             localStorage.setItem(TAB_ID, Date.now());
             
-            const now = Date.now();
-            // Cleanup dead tabs (older than 5 seconds)
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith('tab_')) {
-                    const val = parseInt(localStorage.getItem(key));
-                    if (now - val > 5000) {
-                        localStorage.removeItem(key);
+            const cleanupDeadTabs = () => {
+                const now = Date.now();
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith('tab_')) {
+                        const val = parseInt(localStorage.getItem(key));
+                        // If heartbeat older than 5 seconds, remove tab
+                        if (now - val > 5000) {
+                            localStorage.removeItem(key);
+                        }
                     }
                 }
-            }
-            updateTabCount();
+                updateTabCount();
+            };
+
+            cleanupDeadTabs();
             
-            // Listen for storage events (tabs opening/closing)
-            window.addEventListener('storage', () => updateTabCount());
+            window.addEventListener('storage', cleanupDeadTabs);
             
-            // Heartbeat pulse
+            // Keep this tab alive
             setInterval(() => localStorage.setItem(TAB_ID, Date.now()), 1000);
         }
 
@@ -410,11 +495,12 @@
             for (let i = 0; i < localStorage.length; i++) {
                 if (localStorage.key(i).startsWith('tab_')) count++;
             }
+            // Ensure minimum speed is 1, but multiplier affects speed
             tabMultiplier = count > 0 ? count : 1;
             elTabCount.textContent = tabMultiplier;
         }
 
-        // ── Firestore State Management (Persistence Core) ──
+        // ── Firestore State Management ──
         async function loadStateFromFirestore() {
             const userRef = doc(db, "users", currentUserEmail);
             const docSnap = await getDoc(userRef);
@@ -422,8 +508,8 @@
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 
+                // LOGIC: If DB says AWAIT, force UI to Locked state immediately
                 if (data.mode === MODE_AWAIT) {
-                    // --- AWAIT MODE LOGIC ---
                     appMode = MODE_AWAIT;
                     awaitStartTime = data.awaitStartTime || Date.now();
                     awaitDurationAtStart = data.awaitDuration || (24 * 60 * 60 * 1000);
@@ -432,65 +518,51 @@
                     const elapsed = now - awaitStartTime;
                     const remainingMs = awaitDurationAtStart - elapsed;
 
+                    // If wait time is over, reset to Active immediately
                     if (remainingMs <= 0) {
                         await resetToActiveState(userRef);
                     } else {
                         awaitTimeLeft = Math.floor(remainingMs / 1000);
+                        updateUI(); // Switch to Locked UI
                     }
                 } else {
-                    // --- ACTIVE MODE LOGIC ---
+                    // DB says ACTIVE
                     appMode = MODE_ACTIVE;
-                    // Use Firestore timestamp for "No Refresh" guarantee
                     serverStartTime = data.activeStartTime || Date.now();
                     activeDurationAtStart = data.activeDuration || (3 * 60 * 1000);
                     
                     const now = Date.now();
                     const elapsed = now - serverStartTime;
-                    const remainingMs = activeDurationAtStart - elapsed;
+                    const remainingMs = activeDurationAtStart - (elapsed * tabMultiplier); // Adjust for tabs
 
+                    // If time ran out while offline/closed, switch to Await
                     if (remainingMs <= 0) {
                         await switchToAwaitState(userRef);
                     } else {
                         activeTimeLeft = Math.floor(remainingMs / 1000);
+                        updateUI(); // Switch to Active UI
                     }
                 }
             } else {
-                // First time user: Create document with Active State
+                // First time user
                 const initialData = {
                     mode: MODE_ACTIVE,
                     activeStartTime: Date.now(),
-                    activeDuration: 3 * 60 * 1000 // 3 minutes in ms
+                    activeDuration: 3 * 60 * 1000 
                 };
                 await setDoc(userRef, initialData, { merge: true });
                 serverStartTime = initialData.activeStartTime;
                 activeDurationAtStart = initialData.activeDuration;
+                updateUI();
             }
-            updateUI();
         }
 
-        async function resetToActiveState(userRef) {
-            console.log("Resetting to Active State");
-            appMode = MODE_ACTIVE;
-            activeTimeLeft = 3 * 60; // 3 minutes
-            serverStartTime = Date.now();
-            activeDurationAtStart = 3 * 60 * 1000;
-
-            const updateData = {
-                mode: MODE_ACTIVE,
-                activeStartTime: serverStartTime,
-                activeDuration: activeDurationAtStart,
-                awaitStartTime: null,
-                awaitDuration: null
-            };
-            
-            if (!userRef) userRef = doc(db, "users", currentUserEmail);
-            await updateDoc(userRef, updateData);
-        }
-
+        // ── TRANSITION: Switch to Await (Locked) ──
         async function switchToAwaitState(userRef) {
-            console.log("Switching to Await State");
+            console.log("Time Expired. Switching to AWAIT State.");
+            
             appMode = MODE_AWAIT;
-            awaitTimeLeft = 24 * 60 * 60; // 24 hours
+            awaitTimeLeft = 24 * 60 * 60; 
             awaitStartTime = Date.now();
             awaitDurationAtStart = 24 * 60 * 60 * 1000;
 
@@ -504,53 +576,106 @@
 
             if (!userRef) userRef = doc(db, "users", currentUserEmail);
             await updateDoc(userRef, updateData);
+            
+            // Force UI Update immediately
             updateUI();
+            
+            // Stop active timer
+            if (timerInterval) clearInterval(timerInterval);
+            
+            // Start the countdown timer for the lock
+            startAwaitTimer();
+        }
+
+        async function resetToActiveState(userRef) {
+            console.log("Cooldown finished. Resetting to ACTIVE.");
+            appMode = MODE_ACTIVE;
+            activeTimeLeft = 3 * 60; 
+            serverStartTime = Date.now();
+            activeDurationAtStart = 3 * 60 * 1000;
+
+            const updateData = {
+                mode: MODE_ACTIVE,
+                activeStartTime: serverStartTime,
+                activeDuration: activeDurationAtStart,
+                awaitStartTime: null,
+                awaitDuration: null
+            };
+            
+            if (!userRef) userRef = doc(db, "users", currentUserEmail);
+            await updateDoc(userRef, updateData);
+            
+            updateUI();
+            startTimers();
         }
 
         // ── Timer Logic ──
         function startTimers() {
+            if (timerInterval) clearInterval(timerInterval);
+            
             let lastTick = Date.now();
-            const timerLoop = setInterval(() => {
+            
+            timerInterval = setInterval(() => {
                 const now = Date.now();
                 const deltaMs = now - lastTick;
                 lastTick = now;
 
-                if (appMode === MODE_ACTIVE) {
-                    // Calculate decrement based on real time passed * tab multiplier
-                    const realSecondsPassed = deltaMs / 1000;
-                    const deductedSeconds = realSecondsPassed * tabMultiplier;
+                // Decrease time based on real delta * multiplier
+                const realSecondsPassed = deltaMs / 1000;
+                const deductedSeconds = realSecondsPassed * tabMultiplier;
+                
+                activeTimeLeft -= deductedSeconds;
+
+                if (activeTimeLeft <= 0) {
+                    activeTimeLeft = 0;
+                    updateDisplay(activeTimeLeft, elMainTimer);
                     
-                    activeTimeLeft -= deductedSeconds;
-
-                    if (activeTimeLeft <= 0) {
-                        activeTimeLeft = 0;
-                        updateDisplay(activeTimeLeft, elMainTimer);
-                        clearInterval(timerLoop);
-                        switchToAwaitState();
-                    } else {
-                        updateDisplay(activeTimeLeft, elMainTimer);
-                    }
-                } else if (appMode === MODE_AWAIT) {
-                    // Await timer counts down in real time regardless of tabs
-                    const realSecondsPassed = deltaMs / 1000;
-                    awaitTimeLeft -= realSecondsPassed;
-
-                    if (awaitTimeLeft <= 0) {
-                        awaitTimeLeft = 0;
-                        updateDisplay(awaitTimeLeft, elAwaitTimer);
-                        clearInterval(timerLoop);
-                        handleAwaitFinish();
-                    } else {
-                        updateDisplay(awaitTimeLeft, elAwaitTimer);
-                    }
+                    // TRIGGER THE "CLOSE / AWAIT" SEQUENCE
+                    clearInterval(timerInterval);
+                    handleSessionExpiration();
+                } else {
+                    updateDisplay(activeTimeLeft, elMainTimer);
                 }
             }, 100);
         }
 
-        function handleAwaitFinish() {
+        function startAwaitTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            let lastTick = Date.now();
+            timerInterval = setInterval(() => {
+                const now = Date.now();
+                const deltaMs = now - lastTick;
+                lastTick = now;
+
+                const realSecondsPassed = deltaMs / 1000;
+                awaitTimeLeft -= realSecondsPassed;
+
+                if (awaitTimeLeft <= 0) {
+                    awaitTimeLeft = 0;
+                    updateDisplay(awaitTimeLeft, elAwaitTimer);
+                    clearInterval(timerInterval);
+                    // Reset to active automatically after 24h
+                    resetToActiveState(); 
+                } else {
+                    updateDisplay(awaitTimeLeft, elAwaitTimer);
+                }
+            }, 100);
+        }
+
+        // ── EXPIRATION HANDLER ──
+        function handleSessionExpiration() {
+            console.log("Session ended. Attempting to close/redirect.");
+            
+            // 1. Update Database to lock the user out across all tabs
             const userRef = doc(db, "users", currentUserEmail);
-            resetToActiveState(userRef).then(() => {
-                startTimers();
+            switchToAwaitState(userRef).then(() => {
+                // 2. Attempt to close window (Browser security may block this)
+                try {
+                    window.close(); 
+                } catch(e) {
+                    console.log("Browser blocked window.close()");
+                }
             });
         }
 
@@ -566,34 +691,39 @@
 
             element.textContent = `${fH}:${fM}:${fS}`;
 
-            if (seconds < 60) {
-                element.classList.add('urgent');
-            } else {
-                element.classList.remove('urgent');
+            if (element === elMainTimer) {
+                if (seconds < 60) {
+                    element.classList.add('urgent');
+                    elStatusBadgeActive.style.color = "#ff8a80";
+                    elStatusBadgeActive.style.backgroundColor = "rgba(207, 102, 121, 0.15)";
+                } else {
+                    element.classList.remove('urgent');
+                    elStatusBadgeActive.style.color = "#8c9eff";
+                    elStatusBadgeActive.style.backgroundColor = "rgba(63, 81, 181, 0.15)";
+                }
             }
         }
 
         function updateUI() {
             if (appMode === MODE_ACTIVE) {
-                elMainWrapper.classList.remove('hidden');
-                elAwaitWrapper.classList.add('hidden');
-                elStatusBadge.textContent = "Active Session";
-                elStatusBadge.style.backgroundColor = "rgba(63, 81, 181, 0.3)";
-                elStatusBadge.style.color = "#8c9eff";
-                updateDisplay(activeTimeLeft, elMainTimer);
+                elActiveUI.classList.remove('hidden');
+                elAwaitUI.classList.add('hidden');
+                elContainer.classList.remove('locked');
                 
-                // Show Menu and Logout buttons
+                // Navigation: Show Menu and Logout
                 elMenuBtn.classList.remove('hidden');
                 elLogoutBtn.classList.remove('hidden');
-            } else {
-                elMainWrapper.classList.add('hidden');
-                elAwaitWrapper.classList.remove('hidden');
-                elStatusBadge.textContent = "Locked - Awaiting";
-                elStatusBadge.style.backgroundColor = "rgba(207, 102, 121, 0.3)";
-                elStatusBadge.style.color = "#ff8a80";
-                updateDisplay(awaitTimeLeft, elAwaitTimer);
                 
-                // Hide Menu (locked state), but KEEP LOGOUT visible
+                updateDisplay(activeTimeLeft, elMainTimer);
+            } else {
+                // --- LOCKED STATE UI ---
+                elActiveUI.classList.add('hidden');
+                elAwaitUI.classList.remove('hidden');
+                elContainer.classList.add('locked');
+                
+                updateDisplay(awaitTimeLeft, elAwaitTimer);
+
+                // Navigation: Hide Menu (Lock user out), Keep Logout
                 elMenuBtn.classList.add('hidden');
                 elLogoutBtn.classList.remove('hidden'); 
             }
