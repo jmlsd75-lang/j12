@@ -486,7 +486,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, addDoc, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
         const firebaseConfig = {
@@ -835,6 +835,9 @@
 
             const now = new Date();
             const timestamp = Date.now();
+            const userEmail = user.email;
+            const txCollection = collection(db, "users", userEmail, "transactions");
+            const userRef = doc(db, "users", userEmail);
 
             const createTransaction = (detail, type, amount, method, name = "") => ({
                 date: now.toLocaleString(),
@@ -848,25 +851,27 @@
             });
 
             try {
-                const batch = [];
+                const promises = [];
                 let incrementValue = 1;
 
                 // --- CONTRA LOGIC ---
                 if (state.data.isContra) {
                     if (state.data.contraType === 'Withdraw') {
+                        // Generate ID instantly on client for speed
+                        const contraRef = doc(txCollection);
+                        const contraTx = createTransaction('Contra', 'OUT', state.data.amount, 'BANK', 'Business System');
+                        promises.push(setDoc(contraRef, contraTx));
+
                         if (state.data.hasCharges) {
-                            const contraTx = createTransaction('Contra', 'OUT', state.data.amount, 'BANK', 'Business System');
-                            batch.push(addDoc(collection(db, "users", user.email, "transactions"), contraTx));
+                            const chargesRef = doc(txCollection);
                             const chargesTx = createTransaction('Charges', 'OUT', state.data.chargesAmount, 'BANK', 'Contra Charges');
-                            batch.push(addDoc(collection(db, "users", user.email, "transactions"), chargesTx));
+                            promises.push(setDoc(chargesRef, chargesTx));
                             incrementValue = 2;
-                        } else {
-                            const contraTx = createTransaction('Contra', 'OUT', state.data.amount, 'BANK', '');
-                            batch.push(addDoc(collection(db, "users", user.email, "transactions"), contraTx));
                         }
                     } else if (state.data.contraType === 'Deposit') {
+                        const depositRef = doc(txCollection);
                         const contraTx = createTransaction('Contra', 'IN', state.data.amount, 'BANK', '');
-                        batch.push(addDoc(collection(db, "users", user.email, "transactions"), contraTx));
+                        promises.push(setDoc(depositRef, contraTx));
                     }
                 } else {
                     // --- STANDARD LOGIC ---
@@ -875,23 +880,31 @@
                         finalDetail += ` (${state.data.creditName})`;
                     }
 
+                    const mainRef = doc(txCollection);
                     const mainTx = createTransaction(finalDetail, state.data.flowType, state.data.amount, state.data.flowForm.toUpperCase(), "");
-                    batch.push(addDoc(collection(db, "users", user.email, "transactions"), mainTx));
+                    promises.push(setDoc(mainRef, mainTx));
 
                     if (state.data.flowType === 'OUT' && state.data.flowForm === 'Bank' && state.data.hasCharges) {
+                        const chargesRef = doc(txCollection);
                         const chargesTx = createTransaction('Charges', 'OUT', state.data.chargesAmount, 'BANK', state.data.detail);
-                        batch.push(addDoc(collection(db, "users", user.email, "transactions"), chargesTx));
+                        promises.push(setDoc(chargesRef, chargesTx));
                         incrementValue = 2;
                     }
                 }
 
-                await Promise.all(batch);
-                const userRef = doc(db, "users", user.email);
-                await updateDoc(userRef, { spaceUsed: increment(incrementValue) });
+                // Add stats update to the same batch of promises
+                promises.push(updateDoc(userRef, { spaceUsed: increment(incrementValue) }));
+
+                // Execute all writes in parallel
+                await Promise.all(promises);
 
                 console.log("Transaction Saved");
+                
+                // Show Success Screen Immediately
                 goToStep(8);
-                setTimeout(() => { window.location.href = 'business.html'; }, 2000);
+                
+                // Use a shorter timeout for redirect; data is already safe
+                setTimeout(() => { window.location.href = 'business.html'; }, 1500);
 
             } catch (error) {
                 console.error("Error:", error);
