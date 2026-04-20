@@ -163,7 +163,7 @@
         }
         .badge.in { background-color: var(--success); }
         .badge.out { background-color: var(--danger); }
-        .badge.contra { background-color: var(--warning); } /* NEW: Contra Badge */
+        .badge.contra { background-color: var(--warning); }
 
         /* Grid - 6 COLUMNS (Default for Categories) */
         .selection-grid {
@@ -176,7 +176,7 @@
 
         /* OVERRIDE FOR STEP 1-5 (Contra) to be 2 Columns & Large */
         #step-1-5 .selection-grid {
-            grid-template-columns: 1fr 1fr; /* 2 large columns */
+            grid-template-columns: 1fr 1fr; 
             gap: 16px;
         }
 
@@ -196,7 +196,7 @@
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
             height: 100%;
-            min-height: 80px; /* Default small height */
+            min-height: 80px; 
             width: 100%;
             border: 2px solid transparent;
         }
@@ -230,7 +230,7 @@
 
         /* Large Button Overrides for Step 1.5 */
         #step-1-5 .btn-cat {
-            min-height: 130px; /* Taller */
+            min-height: 130px;
             padding: 24px;
             border-radius: 16px;
         }
@@ -244,7 +244,7 @@
             height: 28px;
         }
         #step-1-5 .btn-text {
-            font-size: 1.1rem; /* Larger text */
+            font-size: 1.1rem;
             -webkit-line-clamp: 1;
         }
 
@@ -252,7 +252,7 @@
         .c-sales .icon-box { background: linear-gradient(135deg, #10B981, #059669); }
         .c-purchase .icon-box { background: linear-gradient(135deg, #EF4444, #DC2626); }
         .c-capital .icon-box { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
-        .c-contra .icon-box { background: linear-gradient(135deg, #F59E0B, #D97706); } /* Amber for Contra */
+        .c-contra .icon-box { background: linear-gradient(135deg, #F59E0B, #D97706); }
 
         /* Generic styles for dynamically generated lists */
         .c-generic-in .icon-box { background: linear-gradient(135deg, #10B981, #059669); }
@@ -430,7 +430,6 @@
 
             <!-- STEP 4: Credit Name -->
             <section id="step-4" class="step-content">
-                "l.f==c" has to be recorde in name column"
                 <div class="trail-container" id="trail-4"></div>
                 <label for="creditNameInput">Credit Name / Lender</label>
                 <input type="text" id="creditNameInput" placeholder="e.g. Supplier A" autocomplete="off">
@@ -449,7 +448,7 @@
 
             <!-- STEP 6: Enter Charges Amount -->
             <section id="step-6" class="step-content">
-                <div class="trail-container" id="trail-6"></d iv>
+                <div class="trail-container" id="trail-6"></div>
                 <label for="chargesInput">Enter Charges Amount</label>
                 <input type="number" id="chargesInput" placeholder="0.00" inputmode="decimal">
                 <div class="hint">Press <b>Enter</b> to continue</div>
@@ -568,7 +567,6 @@
             // Helper to create button
             const createBtn = (name, type, iconSvg, customClass = '') => {
                 const btn = document.createElement('button');
-                // We use generic class mapping or pass specific class
                 btn.className = `btn-cat ${customClass}`;
                 btn.setAttribute('data-type', type);
                 btn.setAttribute('data-detail', name);
@@ -589,7 +587,8 @@
             });
 
             // 2. Generate Expense Buttons (Standard expenses only)
-            expenseGrid.appendChild(createBtn("Purchases", "OUT", icons.trendingOut, "c-purchase"));
+            // Fixed variable name: trendingDown instead of trendingOut
+            expenseGrid.appendChild(createBtn("Purchases", "OUT", icons.trendingDown, "c-purchase"));
             expenseList.forEach(item => {
                 expenseGrid.appendChild(createBtn(item, "OUT", icons.file, "c-generic-out"));
             });
@@ -681,7 +680,7 @@
             // Selectors for all 3 groups
             const incomeHeader = document.querySelector('.income-section');
             const incomeGrid = document.querySelector('.income-grid');
-            the expenseHeader = document.querySelector('.expense-section');
+            const expenseHeader = document.querySelector('.expense-section');
             const expenseGrid = document.querySelector('.expense-grid');
             const contraHeader = document.querySelector('.contra-section');
             const contraGrid = document.querySelector('.contra-grid');
@@ -767,7 +766,10 @@
                 b.style.borderColor = 'var(--border)'; b.style.background = '#F9FAFB'; b.style.color = 'var(--text-main)';
             });
             btnEl.classList.add('selected');
-            btnEl.style.borderColor = 'var(--primary)'; btnEl.style.background = 'var(--primary)'; btnStyle.color = '#fff';
+            // Fixed variable: btnEl.style.color instead of btnStyle.color
+            btnEl.style.borderColor = 'var(--primary)'; 
+            btnEl.style.background = 'var(--primary)'; 
+            btnEl.style.color = '#fff';
 
             setTimeout(() => {
                 if (form === 'Credit') {
@@ -803,9 +805,10 @@
             btnEl.style.borderColor = 'var(--primary)'; btnEl.style.background = 'var(--primary)'; btnEl.style.color = '#fff';
 
             setTimeout(() => {
+                // Fixed: 'else' instead of 'there'
                 if (hasCharges) {
                     goToStep(6);
-                } there {
+                } else {
                     goToStep(7);
                 }
             }, 150);
@@ -856,19 +859,19 @@
                 const promises = [];
                 let incrementValue = 0;
 
-                // --- CONTRA LOGIC: Two Clear Transactions ---
+                // --- CONTRA LOGIC: Two Clear Transactions with "C" in Name ---
                 if (state.data.isContra) {
                     
                     if (state.data.contraType === 'Withdraw') {
                         // 1. CASH ENTRY: Cash Increases (IN)
                         const cashRef = doc(txCollection);
-                        const cashTx = createTransaction('Contra', 'IN', state.data.amount, 'CASH', 'C');
+                        const cashTx = createTransaction('Contra', 'IN', state.data.amount, 'CASH', 'C'); 
                         promises.push(setDoc(cashRef, cashTx));
                         incrementValue++;
 
                         // 2. BANK ENTRY: Bank Decreases (OUT)
                         const bankRef = doc(txCollection);
-                        const bankTx = createTransaction('Contra', 'OUT', state.data.amount, 'BANK', 'C');
+                        const bankTx = createTransaction('Contra', 'OUT', state.data.amount, 'BANK', 'C'); 
                         promises.push(setDoc(bankRef, bankTx));
                         incrementValue++;
 
@@ -883,13 +886,13 @@
                     } else if (state.data.contraType === 'Deposit') {
                         // 1. BANK ENTRY: Bank Increases (IN)
                         const bankRef = doc(txCollection);
-                        const bankTx = createTransaction('Contra', 'IN', state.data.amount, 'BANK', 'C');
+                        const bankTx = createTransaction('Contra', 'IN', state.data.amount, 'BANK', 'C'); 
                         promises.push(setDoc(bankRef, bankTx));
                         incrementValue++;
 
                         // 2. CASH ENTRY: Cash Decreases (OUT)
                         const cashRef = doc(txCollection);
-                        const cashTx = createTransaction('Contra', 'OUT', state.data.amount, 'CASH', 'C');
+                        const cashTx = createTransaction('Contra', 'OUT', state.data.amount, 'CASH', 'C'); 
                         promises.push(setDoc(cashRef, cashTx));
                         incrementValue++;
                     }
@@ -924,6 +927,7 @@
                 console.log("Transaction Saved");
                 
                 // Show Success Screen
+                // Fixed: goToStep instead of ofGoToStep
                 goToStep(8);
                 
                 // Use a shorter timeout for redirect; data is already safe
