@@ -255,51 +255,109 @@
       tableBody.innerHTML = `<tr><td colspan="2" class="loading-msg">Processing...</td></tr>`;
       
       try {
-        // 1. Fetch All Data
+        // 1. Fetch All Transactions
         const transactionsRef = collection(db, "users", userEmail, "transactions");
         const q = query(transactionsRef, orderBy("date", "asc"));
         const querySnapshot = await getDocs(q);
 
-        const accounts = {};
-        
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          const amount = parseFloat(data.amount || 0);
-          const type = (data.type || "IN").toUpperCase();
-          let detail = data.detail || "General";
-
-          // Clean Detail Name
-          const nameMatch = detail.match(/\(([^)]+)\)$/);
-          if (nameMatch) {
-            detail = detail.replace(/\s*\([^)]+\)$/, "").trim();
-          }
-
-          if (!accounts[detail]) accounts[detail] = { dr: 0, cr: 0 };
-
-          if (type === 'OUT') accounts[detail].dr += amount;
-          else accounts[detail].cr += amount;
-        });
-
-        const getAbsBal = (name) => {
-          const acc = accounts[name] || { dr: 0, cr: 0 };
-          return Math.abs(acc.dr - acc.cr);
+        // Helper to get absolute balance from raw transaction list
+        const getAbsBal = (detailName) => {
+          let dr = 0, cr = 0;
+          querySnapshot.forEach(doc => {
+            const d = doc.data();
+            // Simple check based on exact detail name match
+            if ((d.detail || "").trim() === detailName) {
+              if ((d.type || "").toUpperCase() === 'OUT') dr += parseFloat(d.amount || 0);
+              else cr += parseFloat(d.amount || 0);
+            }
+          });
+          return Math.abs(dr - cr);
         };
 
-        // ---------------------------------------------------------
-        // 2. INTERNAL CALCULATION (DO NOT DISPLAY IN TABLE)
-        // ---------------------------------------------------------
+        // Helper to calculate totals based on Journal Logic
+        // This simulates extracting data from your specific journals
+        
+        // --- A. DEBTORS (Sales Journal + General) ---
+        let totalDebtors = 0;
+
+        // 1. Sales Debtors: Type='IN', Method='CREDIT'
+        querySnapshot.forEach(doc => {
+          const d = doc.data();
+          if ((d.type || "").toUpperCase() === 'IN' && (d.method || "").toUpperCase() === 'CREDIT') {
+            // Assuming these are Sales (Purchases filtered out by detail name usually, but logic here covers credit sales)
+            // Check if it is NOT a purchase just in case
+            if (!(d.detail || "").toLowerCase().includes("purchase")) {
+              totalDebtors += parseFloat(d.amount || 0);
+            }
+          }
+        });
+
+        // 2. General Journal Debtors: Type='OUT', Method='CREDIT', NOT Purchase
+        // Logic: Expenses on credit create debtors
+        querySnapshot.forEach(doc => {
+          const d = doc.data();
+          const type = (d.type || "").toUpperCase();
+          const method = (d.method || "").toUpperCase();
+          const detail = (d.detail || "").toLowerCase();
+          
+          if (type === 'OUT' && method === 'CREDIT' && !detail.includes("purchase")) {
+            // Exclude Cash/Bank related expenses if method is strict, but here Method=Credit ensures creditor
+            // Actually, Expense on Credit = Creditor. 
+            // BUT, if it is "Bad Debts Recovered" or "Rent Received" on Credit, it creates a Debtor.
+            if (detail.includes("rent received") || detail.includes("commission received") || detail.includes("bad debts recovered")) {
+               totalDebtors += parseFloat(d.amount || 0);
+            }
+          }
+        });
+
+
+        // --- B. CREDITORS (Purchases Journal + General) ---
+        let totalCreditors = 0;
+
+        // 1. Purchases Creditors: Detail contains "Purchase", Type='OUT', Method='CREDIT'
+        querySnapshot.forEach(doc => {
+          const d = doc.data();
+          const detail = (d.detail || "").toLowerCase();
+          const type = (d.type || "").toUpperCase();
+          const method = (d.method || "").toUpperCase();
+
+          if (detail.includes("purchase") && type === 'OUT' && method === 'CREDIT') {
+             totalCreditors += parseFloat(d.amount || 0);
+          }
+        });
+
+        // 2. General Journal Creditors: Expenses on Credit
+        // Logic: Rent (Expense) on Credit = Creditor (Landlord)
+        querySnapshot.forEach(doc => {
+          const d = doc.data();
+          const detail = (d.detail || "").toLowerCase();
+          const type = (d.type || "").toUpperCase();
+          const method = (d.method || "").toUpperCase();
+
+          // Exclude Purchases (handled above)
+          if (detail.includes("purchase")) return;
+
+          // If Type is OUT (Expense) and Method is CREDIT -> It creates a Creditor
+          if (type === 'OUT' && method === 'CREDIT') {
+             totalCreditors += parseFloat(d.amount || 0);
+          }
+        });
+
+
+        // --- C. OTHER ASSETS & LIABILITIES (Static extraction) ---
         
         // Trading A/C Items
         const sales = getAbsBal("Sales");
         const salesReturns = getAbsBal("Sales Returns");
         const openingStock = getAbsBal("Opening Stock");
-        const purchases = getAbsBal("Purchases");
+        // Note: Purchases balance is derived from creditors usually, but here we fetch the 'Purchases' account explicitly if it exists separate from creditors
+        const purchases = getAbsBal("Purchases"); 
         const returnsOut = getAbsBal("Returns Outwards");
         const carriageIn = getAbsBal("Carriage Inwards");
         const closingStock = getAbsBal("Closing Stock");
         
         const netSales = sales - salesReturns;
-        const purchasesNet = purchases - returnsOut;
+        const purchasesNet = purchases - returnsOut; // Note: this is book value, creditors are liability
         const cogs = openingStock + purchasesNet + carriageIn - closingStock;
         const grossProfit = netSales - cogs;
 
@@ -322,59 +380,57 @@
         const currentRetainedEarnings = netProfit - (corpTax + genRes + prefDiv + ordDiv);
 
         // ---------------------------------------------------------
-        // 3. BALANCE SHEET DEFINITIONS (ONLY THESE SHOW IN TABLE)
+        // 2. ASSETS LOGIC (Including Debtors)
         // ---------------------------------------------------------
-
-        // === ASSETS ===
-        const currentAssets = [
-          "Cash", "Bank", "Debtors", "Accounts Receivable", "Prepayments", 
-          "Inventory", "Closing Stock", "Accrued Income", "Cash at Bank"
-        ];
+        const currentAssetsList = ["Cash", "Bank", "Prepayments", "Inventory", "Closing Stock", "Accrued Income", "Cash at Bank"];
+        let totalCurrentAssets = 0;
         
+        // Add list items
+        currentAssetsList.forEach(acc => totalCurrentAssets += getAbsBal(acc));
+        // Add Calculated Debtors
+        totalCurrentAssets += totalDebtors;
+
         const nonCurrentAssets = [
           "Land", "Buildings", "Plant & Machinery", "Motor Vehicles", "Furniture & Fittings", 
           "Equipment", "Office Equipment", "Computers", "Fixtures", "Goodwill", "Patents"
         ];
+        let totalNonCurrentAssets = 0;
+        nonCurrentAssets.forEach(acc => totalNonCurrentAssets += getAbsBal(acc));
+        
+        const totalAssets = totalCurrentAssets + totalNonCurrentAssets;
 
-        // === LIABILITIES ===
-        const currentLiabilities = [
-          "Creditors", "Accounts Payable", "Bank Overdraft", "Short Term Loans", 
-          "Accrued Expenses", "Outstanding Expenses", "Taxation Payable"
-        ];
+        // ---------------------------------------------------------
+        // 3. LIABILITIES LOGIC (Including Creditors)
+        // ---------------------------------------------------------
+        const currentLiabilitiesList = ["Bank Overdraft", "Short Term Loans", "Taxation Payable"];
+        let totalCurrentLiabilities = 0;
+        
+        // Add list items
+        currentLiabilitiesList.forEach(acc => totalCurrentLiabilities += getAbsBal(acc));
+        // Add Calculated Creditors
+        totalCurrentLiabilities += totalCreditors;
 
         const nonCurrentLiabilities = [
           "Long Term Loan", "Mortgage", "Debentures", "Bank Loan"
         ];
+        let totalNonCurrentLiabilities = 0;
+        nonCurrentLiabilities.forEach(acc => totalNonCurrentLiabilities += getAbsBal(acc));
+        
+        const totalLiabilities = totalCurrentLiabilities + totalNonCurrentLiabilities;
 
-        // === EQUITY ===
+        // ---------------------------------------------------------
+        // 4. EQUITY LOGIC
+        // ---------------------------------------------------------
         const equityItems = [
           "Capital", "Drawings", "Share Capital", "Preference Share Capital", "Ordinary Share Capital"
         ];
-
-        // ---------------------------------------------------------
-        // 4. CALCULATE TOTALS FOR DISPLAY
-        // ---------------------------------------------------------
-
-        let totalCurrentAssets = 0;
-        currentAssets.forEach(acc => totalCurrentAssets += getAbsBal(acc));
-
-        let totalNonCurrentAssets = 0;
-        nonCurrentAssets.forEach(acc => totalNonCurrentAssets += getAbsBal(acc));
-        const totalAssets = totalCurrentAssets + totalNonCurrentAssets;
-
-        let totalCurrentLiabilities = 0;
-        currentLiabilities.forEach(acc => totalCurrentLiabilities += getAbsBal(acc));
-
-        let totalNonCurrentLiabilities = 0;
-        nonCurrentLiabilities.forEach(acc => totalNonCurrentLiabilities += getAbsBal(acc));
-        const totalLiabilities = totalCurrentLiabilities + totalNonCurrentLiabilities;
-
         let totalEquityInput = 0;
         equityItems.forEach(acc => totalEquityInput += getAbsBal(acc));
         const totalEquity = totalEquityInput + currentRetainedEarnings;
 
+
         // ---------------------------------------------------------
-        // 5. BUILD HTML (STRICTLY ASSETS, LIABILITIES, EQUITY)
+        // 5. BUILD HTML
         // ---------------------------------------------------------
         let html = "";
 
@@ -382,15 +438,17 @@
         html += createSectionHeader("Assets");
         
         html += createRow("<strong>Current Assets:</strong>", 0);
-        let hasCurrentAssets = false;
-        currentAssets.forEach(acc => {
+        // Standard Items
+        currentAssetsList.forEach(acc => {
           const val = getAbsBal(acc);
-          if (val > 0) {
-            html += createRow(acc, val);
-            hasCurrentAssets = true;
-          }
+          if (val > 0) html += createRow(acc, val);
         });
-        if(hasCurrentAssets) html += createRow("<strong>Total Current Assets</strong>", totalCurrentAssets, true);
+        // *** SHOW DEBTORS ***
+        if (totalDebtors > 0) {
+            html += createRow("Debtors / Accounts Receivable", totalDebtors);
+        }
+
+        if(totalCurrentAssets > 0) html += createRow("<strong>Total Current Assets</strong>", totalCurrentAssets, true);
         html += createSpacer();
 
         html += createRow("<strong>Non-Current Assets:</strong>", 0);
@@ -402,7 +460,7 @@
             hasNonCurrentAssets = true;
           }
         });
-        if(hasNonCurrentAssets) html += createRow("<strong>Total Non-Current Assets</strong>", totalNonCurrentAssets, true);
+        if(hasNonCurrentAssets || totalNonCurrentAssets > 0) html += createRow("<strong>Total Non-Current Assets</strong>", totalNonCurrentAssets, true);
         html += createSpacer();
 
         html += createRow("<strong>Total Assets</strong>", totalAssets, true);
@@ -422,7 +480,7 @@
           }
         });
         
-        // Display Retained Earnings (Result of P&L calculation)
+        // Retained Earnings
         let retLabel = "Retained Earnings (Current Year)";
         let retVal = currentRetainedEarnings;
         if (retVal < 0) {
@@ -434,19 +492,21 @@
             hasEquity = true;
         }
 
-        if(hasEquity) html += createRow("<strong>Total Equity</strong>", totalEquity, true);
+        if(hasEquity || totalEquity > 0) html += createRow("<strong>Total Equity</strong>", totalEquity, true);
         html += createSpacer();
 
         html += createRow("<strong>Current Liabilities:</strong>", 0);
-        let hasCurrentLiab = false;
-        currentLiabilities.forEach(acc => {
+        // Standard Items
+        currentLiabilitiesList.forEach(acc => {
           const val = getAbsBal(acc);
-          if (val > 0) {
-            html += createRow(acc, val);
-            hasCurrentLiab = true;
-          }
+          if (val > 0) html += createRow(acc, val);
         });
-        if(hasCurrentLiab) html += createRow("<strong>Total Current Liabilities</strong>", totalCurrentLiabilities, true);
+        // *** SHOW CREDITORS ***
+        if (totalCreditors > 0) {
+            html += createRow("Creditors / Accounts Payable", totalCreditors);
+        }
+
+        if(totalCurrentLiabilities > 0) html += createRow("<strong>Total Current Liabilities</strong>", totalCurrentLiabilities, true);
         html += createSpacer();
 
         html += createRow("<strong>Non-Current Liabilities:</strong>", 0);
@@ -458,13 +518,12 @@
             hasNonCurrentLiab = true;
           }
         });
-        if(hasNonCurrentLiab) html += createRow("<strong>Total Non-Current Liabilities</strong>", totalNonCurrentLiabilities, true);
+        if(hasNonCurrentLiab || totalNonCurrentLiabilities > 0) html += createRow("<strong>Total Non-Current Liabilities</strong>", totalNonCurrentLiabilities, true);
         html += createSpacer();
 
         const totalEquityAndLiabilities = totalEquity + totalLiabilities;
         html += createRow("<strong>Total Equity & Liabilities</strong>", totalEquityAndLiabilities, true);
 
-        // Render
         tableBody.innerHTML = html;
         hideStatus();
 
