@@ -50,7 +50,7 @@
       padding: 8px 16px;
       border-radius: 6px;
       transition: background 0.2s;
-      border: 1px solid transparent;
+      border:1px solid transparent;
     }
     .back-btn:hover { background-color: #f0f2f5; }
     .back-btn svg { width: 20px; height: 20px; }
@@ -68,7 +68,7 @@
 
     .page-title {
       text-align: center;
-      font-size: 1.8rem;
+      font-size:1.8rem;
       font-weight: 700;
       margin-bottom: 2rem;
       color: var(--text-main);
@@ -164,7 +164,7 @@
 <body>
 
   <header>
-    <a href="business file.html" class="back-btn">
+    <a href="business.html" class="back-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="19" y1="12" x2="5" y2="12"></line>
         <polyline points="12 19 5 12 12 5"></polyline>
@@ -226,10 +226,8 @@
     // --- ROW BUILDERS ---
 
     const createRow = (op, detail, dr, cr, amt, isTotal = false) => {
-      // Modified logic: If value is 0, return empty string instead of '-'
       const drStr = dr > 0 ? formatCurrency(dr) : "";
       const crStr = cr > 0 ? formatCurrency(cr) : "";
-      
       const amtStr = amt !== null && amt !== undefined ? formatCurrency(amt) : '-';
       const cssClass = isTotal ? 'grand-total' : (amt !== null ? 'sub-total' : '');
       
@@ -274,6 +272,7 @@
         const querySnapshot = await getDocs(q);
 
         const accounts = {};
+        let corpTaxRate = 0; // Variable to hold the fetched percentage
         
         querySnapshot.forEach((doc) => {
           const data = doc.data();
@@ -292,9 +291,14 @@
           // Ledger Rule: OUT = DR, IN = CR
           if (type === 'OUT') accounts[detail].dr += amount;
           else accounts[detail].cr += amount;
+
+          // Fetch Corporation Tax Rate if found
+          if (detail === "Corporation Tax" && data.taxPercentage) {
+            corpTaxRate = parseFloat(data.taxPercentage);
+          }
         });
 
-        // Helper: Get Absolute Balance (assuming account is Dr balance if Dr>Cr, else Cr balance)
+        // Helper: Get Absolute Balance
         const getAbsBal = (name) => {
           const acc = accounts[name] || { dr: 0, cr: 0 };
           return Math.abs(acc.dr - acc.cr);
@@ -331,12 +335,11 @@
         ];
 
         // Appropriation Data
-        const corpTax = getAbsBal("Corporation Tax");
         const genRes = getAbsBal("General Reserve");
         const goodwill = getAbsBal("Goodwill Written off");
         const prefDiv = getAbsBal("Preference Dividends");
         const ordDiv = getAbsBal("Ordinary Dividends");
-        const retainedBF = getAbsBal("Retained Profit"); // Assuming account name exists
+        const retainedBF = getAbsBal("Retained Profit");
 
         // --- 3. Build HTML String ---
 
@@ -364,12 +367,11 @@
 
         const grossProfit = netSales - cogs;
         
-        // LOGIC CHANGE: Check for Gross Loss
         let grossLabel = "Gross Profit";
         let grossVal = grossProfit;
         if (grossProfit < 0) {
           grossLabel = "Gross Loss";
-          grossVal = Math.abs(grossProfit); // Make positive
+          grossVal = Math.abs(grossProfit);
         }
         
         html += createRow("", `<strong>${grossLabel}</strong>`, 0, grossVal, grossVal, true);
@@ -404,15 +406,14 @@
         html += createRow("", "<strong>Total Expenses</strong>", 0, 0, totalExp);
         html += createSpacer();
 
-        // Note: grossProfit variable used here preserves negative value if it exists
+        // Calculate Net Profit
         const netProfit = grossProfit + totalIncome - totalExp;
         
-        // LOGIC CHANGE: Check for Net Loss
         let netLabel = "Net Profit for the Year";
         let netVal = netProfit;
         if (netProfit < 0) {
           netLabel = "Net Loss for the Year";
-          netVal = Math.abs(netProfit); // Make positive
+          netVal = Math.abs(netProfit);
         }
 
         html += createRow("", `<strong>${netLabel}</strong>`, 0, 0, netVal, true);
@@ -422,20 +423,29 @@
         html += createSectionHeader("Appropriation Account");
 
         html += createRow("Add", "Retained Profit b/f", 0, retainedBF, null);
-        html += createRow("Less", "Corporation Tax", corpTax, 0, null);
+        
+        // --- CALCULATION LOGIC FOR CORPORATION TAX ---
+        let calculatedCorpTax = 0;
+
+        // Only calculate if there is a Net Profit (not a loss) and a rate exists
+        if (netProfit > 0 && corpTaxRate > 0) {
+          calculatedCorpTax = netProfit * (corpTaxRate / 100);
+        }
+        
+        html += createRow("Less", "Corporation Tax", calculatedCorpTax, 0, null);
+        
         html += createRow("Less", "Transfer to General Reserve", genRes, 0, null);
         html += createRow("Less", "Goodwill Written off", goodwill, 0, null);
         html += createRow("Less", "Preference Dividends", prefDiv, 0, null);
         html += createRow("Less", "Ordinary Dividends", ordDiv, 0, null);
         
-        const retainedCF = retainedBF + netProfit - (corpTax + genRes + goodwill + prefDiv + ordDiv);
+        const retainedCF = retainedBF + netProfit - (calculatedCorpTax + genRes + goodwill + prefDiv + ordDiv);
         
-        // LOGIC CHANGE: Check for Retained Loss
         let retLabel = "Retained Profit c/f";
         let retVal = retainedCF;
         if (retainedCF < 0) {
           retLabel = "Retained Loss c/f";
-          retVal = Math.abs(retainedCF); // Make positive
+          retVal = Math.abs(retainedCF);
         }
 
         html += createRow("", `<strong>${retLabel}</strong>`, 0, 0, retVal, true);
