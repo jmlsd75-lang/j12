@@ -3,20 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Balance Sheet</title>
+  <title>Financial Balance Sheet</title>
   <style>
     :root {
       --primary: #2c3e50;
+      --secondary: #34495e;
       --accent: #3498db;
-      --bg-body: #f0f2f5;
+      --bg-body: #f4f7f6;
       --bg-card: #ffffff;
-      --text-main: #2c3e50;
+      --text-main: #333333;
       --text-muted: #7f8c8d;
-      --border-color: #dfe6e9;
-      --header-bg: #ffffff;
-      --section-bg: #f8f9fa;
+      --border-color: #000000; /* High contrast for financial docs */
+      --header-bg: #ecf0f1;
       --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
       --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --success-color: #27ae60;
+      --danger-color: #c0392b;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -30,47 +32,44 @@
       flex-direction: column;
     }
 
-    /* Header */
+    /* --- Header --- */
     header {
-      background: var(--header-bg);
+      background: var(--bg-card);
       padding: 1rem 2rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
       display: flex;
       align-items: center;
       justify-content: space-between;
       position: sticky;
       top: 0;
       z-index: 100;
+      border-bottom: 1px solid #ddd;
     }
 
-    .back-btn {
+    .nav-link {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       text-decoration: none;
-      color: var(--text-main);
+      color: var(--primary);
       font-weight: 600;
-      font-size: 0.95rem;
       padding: 8px 16px;
       border-radius: 6px;
-      transition: all 0.2s ease;
-      border: 1px solid #e0e0e0;
-      background: #fff;
+      transition: background 0.2s;
+      border: 1px solid transparent;
+      cursor: pointer;
     }
-    .back-btn:hover { background-color: var(--bg-body); transform: translateY(-1px); }
-    .back-btn svg { width: 18px; height: 18px; }
+    .nav-link:hover { background-color: #f0f2f5; }
+    .nav-link svg { width: 18px; height: 18px; stroke-width: 2.5; }
 
-    .user-profile { display: flex; align-items: center; gap: 12px; }
-    .user-name { font-weight: 600; font-size: 0.9rem; }
-    .user-avatar { 
-      width: 36px; height: 36px; border-radius: 50%; object-fit: cover; 
-      border: 2px solid var(--border-color);
-    }
+    .user-profile { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: var(--text-muted); }
+    .user-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); background: #ddd; }
+    .user-name { font-weight: 600; color: var(--text-main); }
 
-    /* Main Content */
+    /* --- Main Content --- */
     main {
       flex: 1;
-      padding: 2rem 1rem;
+      padding: 2rem;
       max-width: 1000px;
       margin: 0 auto;
       width: 100%;
@@ -79,154 +78,181 @@
     .page-header {
       text-align: center;
       margin-bottom: 2rem;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 1rem;
     }
+
     .page-title {
-      font-size: 1.8rem;
+      font-size: 2rem;
       font-weight: 800;
+      color: var(--primary);
       text-transform: uppercase;
       letter-spacing: 1px;
-      color: var(--primary);
-    }
-    .report-date { color: var(--text-muted); margin-top: 5px; font-size: 0.9rem; }
-
-    /* Report Card */
-    .balance-sheet-card {
-      background: var(--bg-card);
-      border-radius: 8px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      border: 1px solid var(--border-color);
     }
 
-    /* Table Styles */
-    table { width: 100%; border-collapse: collapse; }
-    
-    th, td {
-      padding: 14px 20px;
-      text-align: left;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .col-item { width: 60%; font-weight: 500; }
-    .col-amt { width: 40%; text-align: right; font-family: 'Consolas', 'Monaco', monospace; font-weight: 600; letter-spacing: -0.5px; }
-
-    thead { background-color: var(--section-bg); border-bottom: 2px solid var(--border-color); }
-    thead th { font-weight: 700; text-transform: uppercase; font-size: 0.85rem; color: var(--text-muted); }
-
-    /* Specific Rows */
-    .section-header {
-      background-color: var(--primary) !important;
-      color: white !important;
-      font-weight: 700;
-      text-transform: uppercase;
+    .date-display {
+      text-align: right;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
       font-size: 0.9rem;
-      letter-spacing: 1px;
-      padding: 12px 20px !important;
-    }
-    .section-header td { border: none; }
-
-    .subcategory-header {
-      background-color: #f1f2f6;
-      color: var(--primary);
-      font-weight: 700;
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      border-top: 1px solid var(--border-color);
     }
 
-    .total-row {
-      background-color: #f8f9fa;
-      font-weight: 800;
-      border-top: 1px solid #ccc;
-      border-bottom: 2px solid var(--primary);
-    }
-    .grand-total {
-      background-color: #e8f0fe;
-      color: var(--primary);
-      font-size: 1.1rem;
-      border-top: 2px solid var(--primary);
-    }
-
-    /* Utility */
-    .text-right { text-align: right; }
-    .hidden { display: none; }
-    
-    /* Status Messages */
-    #status-container {
-      max-width: 600px;
-      margin: 0 auto 2rem auto;
-      padding: 1rem;
-      border-radius: 6px;
+    /* --- Status Bar --- */
+    #status-bar {
       text-align: center;
-      font-weight: 500;
+      margin-bottom: 1.5rem;
+      padding: 12px;
+      border-radius: 6px;
+      font-weight: 600;
       display: none;
+      transition: all 0.3s ease;
     }
-    .status-error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
-    .status-loading { background-color: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
+    .status-loading { color: #2980b9; background: #ebf5fb; border-left: 5px solid #2980b9; }
+    .status-error { color: #c0392b; background: #fadbd8; border-left: 5px solid #c0392b; }
+    .status-info { color: #27ae60; background: #e9f7ef; border-left: 5px solid #27ae60; }
 
-    /* Print Media */
+    /* --- Table Styles --- */
+    .report-container {
+      background: var(--bg-card);
+      padding: 40px;
+      border-radius: 4px; /* Slight radius for screen, flat for print */
+      box-shadow: var(--shadow);
+      border: 2px solid var(--border-color); /* Black border for formal look */
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      border: 1px solid #999; /* Slightly lighter border for grid, main border is black */
+      padding: 10px 14px;
+      vertical-align: top;
+    }
+
+    /* Top and Bottom main border override */
+    .report-container { border: 2px solid #000; }
+    thead tr:first-child th { border-top: none; }
+    tbody tr:last-child td { border-bottom: none; }
+    td:first-child, th:first-child { border-left: none; }
+    td:last-child, th:last-child { border-right: none; }
+
+    thead th {
+      background-color: var(--header-bg);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #000;
+      border-top: 2px solid #000;
+    }
+
+    .col-detail { width: 65%; text-align: left; }
+    .col-amt { width: 35%; text-align: right; font-weight: bold; font-family: 'Courier New', monospace; letter-spacing: -0.5px; }
+
+    /* Row Types */
+    .row-header td {
+      background-color: var(--header-bg);
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 1rem;
+      padding: 12px;
+      border-bottom: 2px solid #000;
+      border-top: 2px solid #000;
+      color: #000;
+    }
+
+    .row-subhead td {
+      font-weight: 700;
+      background-color: #f9f9f9;
+      font-style: italic;
+      color: var(--secondary);
+      font-size: 0.9rem;
+    }
+
+    .row-total td {
+      background-color: #f0f0f0;
+      font-weight: 800;
+      border-top: 1px solid #000;
+      border-bottom: 1px double #000;
+    }
+
+    .row-grand-total td {
+      background-color: #e0e0e0;
+      font-weight: 900;
+      font-size: 1.1rem;
+      border-top: 2px solid #000;
+      border-bottom: 2px solid #000;
+    }
+    
+    .row-indent { padding-left: 30px; color: #555; font-size: 0.9rem; }
+
+    /* --- Print Styles --- */
     @media print {
-      body { background: white; }
-      header, #status-container { display: none !important; }
-      main { padding: 0; }
-      .balance-sheet-card { box-shadow: none; border: none; }
-      .section-header { color: black !important; background-color: #ddd !important; -webkit-print-color-adjust: exact; }
-      .grand-total { background-color: #eee !important; -webkit-print-color-adjust: exact; }
+      body { background-color: white; -webkit-print-color-adjust: exact; }
+      header, #status-bar { display: none; }
+      main { padding: 0; margin: 0; max-width: 100%; }
+      .report-container { box-shadow: none; border: 2px solid #000; width: 100%; margin: 0; }
+      .page-title { font-size: 1.5rem; }
     }
   </style>
 </head>
 <body>
 
+  <!-- Header -->
   <header>
-    <a href="business file.html" class="back-btn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-      Menu
+    <a href="business file.html" class="nav-link">
+      <!-- Back Arrow Icon -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Dashboard
     </a>
     
     <div class="user-profile" id="userInfoDisplay">
-      <!-- Injected via JS -->
+      <span class="user-name">Loading User...</span>
+      <img src="https://picsum.photos/seed/placeholder/36/36" alt="Avatar" class="user-avatar">
     </div>
   </header>
 
+  <!-- Main Application -->
   <main>
-    <div id="status-container"></div>
-    
+    <div id="status-bar"></div>
+
     <div class="page-header">
       <h1 class="page-title">Balance Sheet</h1>
-      <div class="report-date" id="currentDate"></div>
+      <div class="date-display" id="reportDate">Date: --/--/----</div>
     </div>
 
-    <div class="balance-sheet-card">
+    <div class="report-container">
       <table>
         <thead>
           <tr>
-            <th class="col-item">Assets</th>
+            <th class="col-detail">Particulars</th>
             <th class="col-amt">Amount (TZS)</th>
           </tr>
         </thead>
-        <tbody id="assetsBody">
-          <!-- Populated by JS -->
-        </tbody>
-        
-        <thead>
+        <tbody id="balanceSheetBody">
           <tr>
-            <th class="col-item">Equity & Liabilities</th>
-            <th class="col-amt">Amount (TZS)</th>
+            <td colspan="2" style="text-align:center; padding: 30px; color: #777;">
+              Fetching data from Firestore...
+            </td>
           </tr>
-        </thead>
-        <tbody id="liabilitiesBody">
-          <!-- Populated by JS -->
         </tbody>
       </table>
     </div>
   </main>
 
-  <!-- Firebase & Logic -->
+  <!-- Application Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+    // --- Firebase Configuration ---
     const firebaseConfig = {
       apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
       authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -236,375 +262,343 @@
       appId: "1:167159607898:web:23ca11366b88868b085e63"
     };
 
+    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // DOM Elements
-    const assetsBody = document.getElementById('assetsBody');
-    const liabilitiesBody = document.getElementById('liabilitiesBody');
-    const statusContainer = document.getElementById('status-container');
+    // --- DOM Elements ---
+    const tableBody = document.getElementById('balanceSheetBody');
+    const statusBar = document.getElementById('status-bar');
     const userInfoDisplay = document.getElementById('userInfoDisplay');
-    document.getElementById('currentDate').textContent = new Date().toLocaleDateString();
+    const reportDateDisplay = document.getElementById('reportDate');
 
-    // Utility: Format Currency
-    const formatTZS = (amount) => {
-      if (!amount && amount !== 0) return '-';
-      return new Intl.NumberFormat('en-TZ', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+    // --- Utilities ---
+    
+    // Format currency to TZS
+    const formatCurrency = (amount) => {
+      if (amount === null || amount === undefined) return '-';
+      return new Intl.NumberFormat('en-TZ', { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
       }).format(amount);
     };
 
-    // Utility: Create HTML Row
-    const createRow = (label, amount, isClass = '') => {
-      return `<tr class="${isClass}">
-        <td class="col-item">${label}</td>
-        <td class="col-amt">${formatTZS(amount)}</td>
+    // Helper to generate Table Rows
+    const createRow = (detail, amt, type = 'normal') => {
+      let cssClass = '';
+      if (type === 'header') cssClass = 'row-header';
+      else if (type === 'subhead') cssClass = 'row-subhead';
+      else if (type === 'total') cssClass = 'row-total';
+      else if (type === 'grand') cssClass = 'row-grand-total';
+      else if (type === 'indent') cssClass = 'row-indent';
+
+      const amtStr = amt !== null && amt !== undefined ? formatCurrency(amt) : '';
+      
+      return `<tr class="${cssClass}">
+        <td>${detail}</td>
+        <td class="col-amt">${amtStr}</td>
       </tr>`;
     };
 
-    // Utility: Create Section Header
-    const createSection = (title) => {
-      return `<tr class="section-header"><td colspan="2">${title}</td></tr>`;
-    };
-    
-    // Utility: Create Subcategory Header
-    const createSubHeader = (title) => {
-      return `<tr class="subcategory-header"><td colspan="2">${title}</td></tr>`;
+    const createSpacer = () => `<tr><td colspan="2" style="border:none; height: 10px;"></td></tr>`;
+
+    const showStatus = (msg, type = 'loading') => {
+      statusBar.style.display = 'block';
+      statusBar.textContent = msg;
+      statusBar.className = ''; // reset
+      if (type === 'loading') statusBar.classList.add('status-loading');
+      if (type === 'error') statusBar.classList.add('status-error');
+      if (type === 'info') statusBar.classList.add('status-info');
     };
 
-    // UI Helpers
-    const showStatus = (msg, type) => {
-      statusContainer.style.display = 'block';
-      statusContainer.textContent = msg;
-      statusContainer.className = type === 'error' ? 'status-error' : 'status-loading';
-    };
-    const clearStatus = () => { statusContainer.style.display = 'none'; };
+    const hideStatus = () => { statusBar.style.display = 'none'; };
 
-    // Auth Check & Init
+    // --- Core Application Logic ---
+
     onAuthStateChanged(auth, (user) => {
       if (!user) {
-        window.location.href = "index.html";
+        window.location.href = "index.html"; // Redirect if not logged in
         return;
       }
-      loadUserData(user);
-      processBalanceSheet(user.email);
-    });
-
-    async function loadUserData(user) {
-      const session = localStorage.getItem("userSession");
-      if (session) {
-        const data = JSON.parse(session);
+      
+      // Load User Profile from LocalStorage or use Default
+      const sessionData = localStorage.getItem("userSession");
+      if (sessionData) {
+        const parsed = JSON.parse(sessionData);
         userInfoDisplay.innerHTML = `
-          <span class="user-name">${data.name || user.email}</span>
-          <img src="${data.photo || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.email)}" class="user-avatar" alt="User">
-        `;
-      } else {
-        userInfoDisplay.innerHTML = `
-          <span class="user-name">${user.email}</span>
-          <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(user.email)}" class="user-avatar" alt="User">
+          <span class="user-name">${parsed.name || "Accountant"}</span>
+          <img src="${parsed.photo || 'https://picsum.photos/seed/accountant/36/36'}" class="user-avatar" alt="User">
         `;
       }
-    }
 
-    async function processBalanceSheet(userEmail) {
-      showStatus("Extracting & Analyzing Financial Data...", "loading");
-      assetsBody.innerHTML = `<tr><td colspan="2" style="text-align:center; padding: 2rem;">Loading Assets...</td></tr>`;
-      liabilitiesBody.innerHTML = `<tr><td colspan="2" style="text-align:center; padding: 2rem;">Loading Liabilities...</td></tr>`;
+      // Set Date
+      const today = new Date();
+      reportDateDisplay.textContent = `As of: ${today.toLocaleDateString()}`;
+
+      // Generate Statement
+      generateBalanceSheet(user.email);
+    });
+
+    async function generateBalanceSheet(userEmail) {
+      showStatus("Extracting journals and calculating balances...", "loading");
+      tableBody.innerHTML = `<tr><td colspan="2" style="text-align:center; padding:40px;">Processing Data...</td></tr>`;
 
       try {
-        // 1. Extract Information from Firestore
-        const transRef = collection(db, "users", userEmail, "transactions");
-        const q = query(transRef, orderBy("date", "asc"));
-        const snapshot = await getDocs(q);
+        // 1. Fetch Data from Firestore
+        const transactionsRef = collection(db, "users", userEmail, "transactions");
+        // Order by date to ensure chronological processing if needed
+        const q = query(transactionsRef, orderBy("date", "asc"));
+        const querySnapshot = await getDocs(q);
 
-        // Data Structures
-        const ledger = {}; // General Ledger { "Account Name": { dr: 0, cr: 0 } }
+        // 2. Classify and Aggregate Data
+        // We need to track: Debtors (People who owe us), Creditors (People we owe), and other fixed assets
         
-        // Known Account Categories for Classification
-        const categories = {
-          currentAssets: ["Cash", "Bank", "Inventory", "Closing Stock", "Prepayments", "Accrued Income"],
-          fixedAssets: ["Land", "Buildings", "Motor Vehicles", "Plant & Machinery", "Furniture", "Equipment"],
-          currentLiabilities: ["Accounts Payable", "Tax Payable", "Accrued Expenses", "Bank Overdraft"],
-          longTermLiabilities: ["Long Term Loan", "Mortgage", "Debentures"],
-          equity: ["Capital", "Share Capital", "Retained Earnings"]
-        };
+        const ledger = {}; 
+        // Structure: ledger['Account Name'] = { type: 'asset'|'liability'|'equity', dr: 0, cr: 0, category: 'current'|'non-current' }
 
-        // Helper: Get or Create Account
-        const getAccount = (name) => {
-          if (!ledger[name]) ledger[name] = { dr: 0, cr: 0 };
-          return ledger[name];
-        };
+        // Keywords for Auto-Detection
+        const debtorKeywords = ["Sales", "Debtor", "Account Receivable", "Debtors"];
+        const creditorKeywords = ["Purchases", "Creditor", "Account Payable", "Creditors", "Expense"];
 
-        // 2. Process Transactions
-        snapshot.forEach(doc => {
-          const t = doc.data();
-          const amt = parseFloat(t.amount) || 0;
-          const type = (t.type || "IN").toUpperCase();
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const amount = parseFloat(data.amount || 0);
+          if (amount === 0) return;
+
+          const type = (data.type || "IN").toUpperCase(); // IN (Credit side usually for Income/Sales) or OUT (Debit side)
+          let detail = (data.detail || "General").trim();
+
+          // Clean up detail: Remove extra spaces
+          detail = detail.replace(/\s+/g, ' ');
+
+          // --- Classification Logic (Requirement 1 & 4) ---
+          let accountName = detail;
+          let accountType = 'asset'; // Default
+          let category = 'current';
+
+          // Logic: Detect if it is a specific person or a general account
+          // If detail contains "Debtor: John", the account is "John". 
+          // If detail is just "Sales", account is "Sales".
           
-          // Normalize Detail Name (Remove parentheticals for grouping if necessary, or keep specific)
-          // Here we keep specific names to identify specific Debtors/Creditors
-          let detail = (t.detail || "General").trim();
+          const isDebtorTx = debtorKeywords.some(k => detail.toLowerCase().includes(k.toLowerCase()));
+          const isCreditorTx = creditorKeywords.some(k => detail.toLowerCase().includes(k.toLowerCase()));
 
-          // Basic Accounting Logic
-          if (type === 'OUT') {
-            // Debit Expense/Asset or Credit Liability/Equity
-            // Assuming 'OUT' is money leaving the bank -> Debit specific account
-            getAccount(detail).dr += amt;
-          } else {
-            // 'IN' is money entering -> Credit specific account
-            getAccount(detail).cr += amt;
-          }
-        });
-
-        // 3. Identify Debtors and Creditors & Classify
-        // We map "Sales" related specific names to Debtors, "Purchases" to Creditors
-        // We assume standard accounts like "Sales", "Purchases" exist as aggregators or we infer type from detail strings if keywords match.
-        // For this implementation, we will treat any account that isn't a known standard account as a "Control Account" candidate
-        // OR specifically identify "Sales" vs "Purchases" journal sources if the data structure supports it.
-        
-        // Logic: We will iterate through ledger. If name matches standard list, use it. 
-        // Otherwise, we check if it looks like a Debtor/Creditor.
-        
-        // Note: In a flat transaction list without explicit "Journal Type", we infer:
-        // If detail name is a generic "Sales", "Rent", etc -> P&L or B/S item.
-        // If detail name is "John Doe", we need to know if he bought (Debtor) or sold (Creditor).
-        // *Assumption for this code*: We will calculate Net Balance.
-        // However, standard practice: 
-        // Sales Journal -> Dr Debtors / Cr Sales.
-        // Purchase Journal -> Dr Purchases / Cr Creditors.
-        
-        // Let's create specific buckets for the display:
-        let debtorsList = {};
-        let creditorsList = {};
-        let classified = {}; // Final classified buckets
-
-        // Helper to get net balance (DR - CR)
-        const getNet = (name) => {
-          const acc = ledger[name] || {dr:0, cr:0};
-          return acc.dr - acc.cr;
-        };
-
-        // Iterate ledger to Classify
-        Object.keys(ledger).forEach(accName => {
-          const net = getNet(accName);
-          
-          // RULE 2: If account is fully paid/settled (net approx 0), remove from records (skip display)
-          if (Math.abs(net) < 0.01) return; 
-
-          // Classification Logic
-          let isStandard = false;
-
-          // Check Standard Lists
-          if (categories.currentAssets.includes(accName)) {
-            classified.currentAssets = classified.currentAssets || {};
-            classified.currentAssets[accName] = net;
-            isStandard = true;
-          } else if (categories.fixedAssets.includes(accName)) {
-            classified.fixedAssets = classified.fixedAssets || {};
-            classified.fixedAssets[accName] = net;
-            isStandard = true;
-          } else if (categories.currentLiabilities.includes(accName)) {
-            classified.currentLiabilities = classified.currentLiabilities || {};
-            classified.currentLiabilities[accName] = Math.abs(net); // Liabilities usually credit balances
-            isStandard = true;
-          } else if (categories.longTermLiabilities.includes(accName)) {
-            classified.longTermLiabilities = classified.longTermLiabilities || {};
-            classified.longTermLiabilities[accName] = Math.abs(net);
-            isStandard = true;
-          } else if (categories.equity.includes(accName)) {
-            classified.equity = classified.equity || {};
-            classified.equity[accName] = net;
-            isStandard = true;
-          }
-
-          // If not standard, identify as Debtor or Creditor based on nature of balance
-          // If Net Positive (Debit Balance) -> Likely Asset (Debtor)
-          // If Net Negative (Credit Balance) -> Likely Liability (Creditor)
-          if (!isStandard) {
-            if (net > 0) {
-              debtorsList[accName] = net;
-            } else {
-              creditorsList[accName] = Math.abs(net);
+          // Extract specific name if format is "Type: Name"
+          let subName = "";
+          if (detail.includes(":")) {
+            const parts = detail.split(":");
+            if (parts.length > 1) {
+              // Assume the first part is the category (Sales, Purchases) and the rest is the name
+              // But if the user just typed "Sales", keep it.
+              const potentialName = parts.slice(1).join(":").trim();
+              if(potentialName.length > 0) {
+                accountName = potentialName;
+              }
             }
           }
-        });
 
-        // 4. Calculate Net Profit (Simplified P&L) for Retained Earnings
-        // We need to sum all Income (Credit Balances in P&L) and Expenses (Debit Balances in P&L)
-        // P&L Accounts usually: Sales, Purchases, Expenses, Income.
-        // We need to explicitly filter them out of the Balance Sheet items above, 
-        // OR we assume the user only entered B/S items and we calculate P&L from hidden "Sales"/"Expense" accounts.
-        
-        // For this script, we look for specific P&L keywords in the ledger to calculate Retained Earnings
-        const p&LItems = {}; 
-        // We'll simply look for accounts that ARE NOT in our B/S categories and NOT in Debtors/Creditors lists?
-        // Actually, in step 3 we put unknowns into Debtors/Creditors. 
-        // This implies we need a list of P&L items to exclude from B/S.
-        
-        const expenseKeywords = ["Wages", "Rent", "Salaries", "Electricity", "Stationery", "Repairs", "Insurance", "Bad Debts", "Depreciation", "Carriage"];
-        const incomeKeywords = ["Sales", "Discount Received", "Commission Received", "Interest Received", "Gain"];
-        
-        let totalExpenses = 0;
-        let totalIncome = 0;
+          // Determine nature based on original keywords
+          if (isDebtorTx) {
+            accountType = 'asset';
+            category = 'current'; // Debtors are usually current assets
+          } else if (isCreditorTx) {
+            accountType = 'liability';
+            category = 'current'; // Creditors are usually current liabilities
+          } else {
+            // Fallback for hardcoded Assets/Liabilities not caught by keywords
+            // Known Assets
+            if (["Cash", "Bank", "Inventory", "Stock", "Land", "Building", "Motor Vehicle", "Furniture", "Equipment", "Machine"].some(k => detail.toLowerCase().includes(k))) {
+              accountType = 'asset';
+              category = ["Land", "Building", "Motor Vehicle", "Furniture", "Equipment", "Machine"].some(k => detail.toLowerCase().includes(k)) ? 'non-current' : 'current';
+              accountName = detail; // Keep exact name for Fixed Assets
+            }
+            // Known Liabilities
+            else if (["Loan", "Mortgage", "Capital", "Drawings", "Equity"].some(k => detail.toLowerCase().includes(k))) {
+              accountType = (detail.toLowerCase().includes("capital") || detail.toLowerCase().includes("equity")) ? 'equity' : 'liability';
+              category = (detail.toLowerCase().includes("long") || detail.toLowerCase().includes("mortgage")) ? 'non-current' : 'current';
+              accountName = detail;
+            }
+          }
 
-        // Re-scan ledger for P&L items
-        Object.keys(ledger).forEach(accName => {
-          const lower = accName.toLowerCase();
-          const isExpense = expenseKeywords.some(k => lower.includes(k.toLowerCase()));
-          const isIncome = incomeKeywords.some(k => lower.includes(k.toLowerCase()));
+          // Initialize ledger entry if not exists
+          if (!ledger[accountName]) {
+            ledger[accountName] = { dr: 0, cr: 0, type: accountType, category: category };
+          }
 
-          if (isExpense) {
-            totalExpenses += getNet(accName);
-          } else if (isIncome) {
-            // Income accounts usually have Credit balances (negative net in our Dr-Cr logic)
-            totalIncome += Math.abs(getNet(accName));
+          // Double Entry Logic Simulation
+          // If Type is OUT (Expense/Asset Increase): Debit the account
+          // If Type is IN (Income/Liability Increase): Credit the account
+          
+          if (type === 'OUT') {
+            ledger[accountName].dr += amount;
+          } else {
+            ledger[accountName].cr += amount;
           }
         });
-        
-        // Cost of Goods Sold Calculation (Simplified)
-        const purchases = getNet("Purchases");
-        const openingStock = getNet("Opening Stock");
-        const closingStock = getNet("Closing Stock"); // Might be in currentAssets already
-        const cogs = (openingStock + purchases) - closingStock;
 
-        const grossProfit = totalIncome - cogs;
-        const netProfit = grossProfit - totalExpenses;
+        // --- Requirement 2: Remove Settled Accounts & Calculate Net Balances ---
+        const cleanAssets = { current: [], nonCurrent: [] };
+        const cleanLiabilities = { current: [], nonCurrent: [] };
+        const cleanEquity = [];
 
-        // Update Retained Earnings for Balance Sheet
-        if (!classified.equity) classified.equity = {};
-        // Add to existing Retained Earnings if present, or create it
-        classified.equity["Retained Earnings (Current Year)"] = netProfit;
-        classified.equity["Net Profit for the Year"] = 0; // Label placeholder
+        const totalBalances = { assets: 0, liabilities: 0, equity: 0 };
 
-        // 5. Generate HTML Tables
-        
-        // --- ASSETS SIDE ---
-        let assetsHtml = "";
+        for (const [name, acc] of Object.entries(ledger)) {
+          const netBalance = acc.dr - acc.cr;
+          
+          // Helper to check outstanding balance
+          const hasOutstandingBalance = Math.abs(netBalance) > 0.01; // Tolerance for floating point
 
-        // Non-Current Assets
-        assetsHtml += createSection("Non-Current Assets");
-        if (classified.fixedAssets && Object.keys(classified.fixedAssets).length > 0) {
-          let totalFixed = 0;
-          for (const [name, amt] of Object.entries(classified.fixedAssets)) {
-            assetsHtml += createRow(name, amt);
-            totalFixed += amt;
+          // Logic: If asset, Dr is positive (+). If Liability, Cr is positive (+).
+          // However, our net is dr - cr.
+          // If Asset: Net > 0 means Debit Balance (We are owed). Net < 0 means Overpayment (We owe them -> Liability).
+          // But for simplicity in this Balance Sheet, we usually show the Net position.
+
+          if (acc.type === 'asset') {
+            // Normal Asset Balance: Debit (+)
+            if (hasOutstandingBalance && netBalance > 0) {
+              const item = { name: name, amount: netBalance };
+              if (acc.category === 'current') cleanAssets.current.push(item);
+              else cleanAssets.nonCurrent.push(item);
+              totalBalances.assets += netBalance;
+            } 
+            // If netBalance < 0, it means we overpaid or it's a liability source. 
+            // In strict accounting, you wouldn't net this off usually, but for this view, we might hide or move it.
+            // Let's assume strict removal: if zero, remove.
+          } 
+          else if (acc.type === 'liability') {
+            // Normal Liability Balance: Credit (+). Since Net = dr - cr, Credit balance is Negative.
+            if (hasOutstandingBalance && netBalance < 0) {
+              const item = { name: name, amount: Math.abs(netBalance) };
+              if (acc.category === 'current') cleanLiabilities.current.push(item);
+              else cleanLiabilities.nonCurrent.push(item);
+              totalBalances.liabilities += Math.abs(netBalance);
+            }
+            // If netBalance > 0, it's a Debit balance (Prepayment? or Asset).
           }
-          assetsHtml += createRow("Total Non-Current Assets", totalFixed, "total-row");
-        } else {
-          assetsHtml += createRow("None", 0);
+          else if (acc.type === 'equity') {
+             if (hasOutstandingBalance) {
+               // Equity usually has credit balance (Net < 0)
+               const amt = (netBalance < 0) ? Math.abs(netBalance) : netBalance;
+               cleanEquity.push({ name: name, amount: amt });
+               totalBalances.equity += amt;
+             }
+          }
         }
+
+        // --- Requirement 3: Construct the Balance Sheet HTML ---
+        let html = "";
+
+        // === ASSETS SECTION ===
+        html += createRow("ASSETS", null, 'header');
 
         // Current Assets
-        assetsHtml += createSection("Current Assets");
-        let totalCurrent = 0;
+        let currentAssetsTotal = 0;
+        html += createRow("Current Assets", null, 'subhead');
         
-        // Group: Cash/Bank
-        if (classified.currentAssets) {
-          ["Cash", "Bank", "Cash at Bank"].forEach(name => {
-            if (classified.currentAssets[name]) {
-              assetsHtml += createRow(name, classified.currentAssets[name]);
-              totalCurrent += classified.currentAssets[name];
-              // Remove from list so we don't print twice
-              delete classified.currentAssets[name];
-            }
-          });
+        // Cash & Bank (Special handling for Cash/Bank if they exist in ledger, else 0)
+        // Note: They are already in cleanAssets.current if they had transactions.
+        
+        if (cleanAssets.current.length === 0) {
+           html += createRow("(No outstanding current assets)", null, 'indent');
+        } else {
+           cleanAssets.current.forEach(item => {
+             html += createRow(item.name, item.amount, 'indent');
+             currentAssetsTotal += item.amount;
+           });
         }
+        html += createRow("Total Current Assets", currentAssetsTotal, 'total');
+        html += createSpacer();
 
-        // Group: Inventory
-        const closingStockVal = ledger["Closing Stock"] ? getNet("Closing Stock") : 0;
-        if (closingStockVal > 0) {
-          assetsHtml += createRow("Inventory / Closing Stock", closingStockVal);
-          totalCurrent += closingStockVal;
+        // Non-Current Assets
+        let nonCurrentAssetsTotal = 0;
+        html += createRow("Non-Current Assets", null, 'subhead');
+        
+        if (cleanAssets.nonCurrent.length === 0) {
+           html += createRow("(No non-current assets recorded)", null, 'indent');
+        } else {
+           cleanAssets.nonCurrent.forEach(item => {
+             html += createRow(item.name, item.amount, 'indent');
+             nonCurrentAssetsTotal += item.amount;
+           });
         }
+        html += createRow("Total Non-Current Assets", nonCurrentAssetsTotal, 'total');
+        html += createSpacer();
 
-        // Group: Debtors (Identified in Step 3)
-        assetsHtml += createSubHeader("Trade Debtors (Accounts Receivable)");
-        let totalDebtors = 0;
-        if (Object.keys(debtorsList).length > 0) {
-          for (const [name, amt] of Object.entries(debtorsList)) {
-            assetsHtml += createRow(name, amt);
-            totalDebtors += amt;
-          }
-        }
-        assetsHtml += createRow("Total Debtors", totalDebtors, "total-row"); // Subtotal for debtors
-        totalCurrent += totalDebtors;
+        const grandTotalAssets = currentAssetsTotal + nonCurrentAssetsTotal;
+        html += createRow("TOTAL ASSETS", grandTotalAssets, 'grand');
+        html += createSpacer();
+        html += createSpacer();
 
-        // Other Current Assets
-        if (classified.currentAssets) {
-          for (const [name, amt] of Object.entries(classified.currentAssets)) {
-            assetsHtml += createRow(name, amt);
-            totalCurrent += amt;
-          }
-        }
-
-        assetsHtml += createRow("Total Current Assets", totalCurrent, "total-row");
-        assetsHtml += createRow("<strong>TOTAL ASSETS</strong>", totalCurrent + (classified.fixedAssets ? Object.values(classified.fixedAssets).reduce((a,b)=>a+b,0) : 0), "grand-total");
-
-        assetsBody.innerHTML = assetsHtml;
-
-        // --- LIABILITIES & EQUITY SIDE ---
-        let liabHtml = "";
+        // === EQUITY & LIABILITIES SECTION ===
+        html += createRow("EQUITY & LIABILITIES", null, 'header');
 
         // Equity
-        liabHtml += createSection("Equity");
-        let totalEquity = 0;
-        if (classified.equity) {
-          for (const [name, amt] of Object.entries(classified.equity)) {
-            liabHtml += createRow(name, amt);
-            totalEquity += amt;
-          }
+        let equityTotal = 0;
+        html += createRow("Owner's Equity", null, 'subhead');
+        if (cleanEquity.length === 0) {
+           html += createRow("(No equity transactions found)", null, 'indent');
+        } else {
+           cleanEquity.forEach(item => {
+             html += createRow(item.name, item.amount, 'indent');
+             equityTotal += item.amount;
+           });
         }
-        liabHtml += createRow("Total Equity", totalEquity, "total-row");
+        html += createRow("Total Equity", equityTotal, 'total');
+        html += createSpacer();
+
+        // Current Liabilities (Creditors)
+        let currentLiabTotal = 0;
+        html += createRow("Current Liabilities", null, 'subhead');
+        
+        if (cleanLiabilities.current.length === 0) {
+           html += createRow("(No outstanding creditors)", null, 'indent');
+        } else {
+           cleanLiabilities.current.forEach(item => {
+             html += createRow(item.name, item.amount, 'indent');
+             currentLiabTotal += item.amount;
+           });
+        }
+        html += createRow("Total Current Liabilities", currentLiabTotal, 'total');
+        html += createSpacer();
 
         // Non-Current Liabilities
-        liabHtml += createSection("Non-Current Liabilities");
-        let totalNonCurrentLiab = 0;
-        if (classified.longTermLiabilities) {
-          for (const [name, amt] of Object.entries(classified.longTermLiabilities)) {
-            liabHtml += createRow(name, amt);
-            totalNonCurrentLiab += amt;
-          }
+        let nonCurrentLiabTotal = 0;
+        html += createRow("Non-Current Liabilities", null, 'subhead');
+        
+        if (cleanLiabilities.nonCurrent.length === 0) {
+           html += createRow("(No long-term liabilities)", null, 'indent');
+        } else {
+           cleanLiabilities.nonCurrent.forEach(item => {
+             html += createRow(item.name, item.amount, 'indent');
+             nonCurrentLiabTotal += item.amount;
+           });
         }
-        liabHtml += createRow("Total Non-Current Liabilities", totalNonCurrentLiab, "total-row");
+        html += createRow("Total Non-Current Liabilities", nonCurrentLiabTotal, 'total');
+        html += createSpacer();
 
-        // Current Liabilities
-        liabHtml += createSection("Current Liabilities");
-        let totalCurrentLiab = 0;
+        const grandTotalEquityLiab = equityTotal + currentLiabTotal + nonCurrentLiabTotal;
+        html += createRow("TOTAL EQUITY & LIABILITIES", grandTotalEquityLiab, 'grand');
 
-        // Group: Creditors (Identified in Step 3)
-        liabHtml += createSubHeader("Trade Creditors (Accounts Payable)");
-        let totalCreditors = 0;
-        if (Object.keys(creditorsList).length > 0) {
-          for (const [name, amt] of Object.entries(creditorsList)) {
-            liabHtml += createRow(name, amt);
-            totalCreditors += amt;
-          }
+        // --- Render ---
+        tableBody.innerHTML = html;
+        hideStatus();
+
+        // Check if Balance Sheet balances (Optional Logic Check)
+        const diff = Math.abs(grandTotalAssets - grandTotalEquityLiab);
+        if (diff > 1) {
+            showStatus(`Warning: Balance sheet is off by ${formatCurrency(diff)}. Check retained earnings or unaccounted transactions.`, 'error');
+        } else {
+            showStatus("Balance sheet calculated successfully.", 'info');
+            // Auto hide info message after 3 seconds
+            setTimeout(() => { hideStatus(); }, 3000);
         }
-        liabHtml += createRow("Total Creditors", totalCreditors, "total-row");
-        totalCurrentLiab += totalCreditors;
-
-        // Other Current Liabilities
-        if (classified.currentLiabilities) {
-          for (const [name, amt] of Object.entries(classified.currentLiabilities)) {
-            liabHtml += createRow(name, amt);
-            totalCurrentLiab += amt;
-          }
-        }
-
-        liabHtml += createRow("Total Current Liabilities", totalCurrentLiab, "total-row");
-        liabHtml += createRow("<strong>TOTAL EQUITY & LIABILITIES</strong>", totalEquity + totalNonCurrentLiab + totalCurrentLiab, "grand-total");
-
-        liabilitiesBody.innerHTML = liabHtml;
-
-        clearStatus();
 
       } catch (error) {
-        console.error(error);
-        showStatus("Error processing financials: " + error.message, "error");
-        assetsBody.innerHTML = `<tr><td colspan="2" class="error-row">Failed to load data.</td></tr>`;
-        liabilitiesBody.innerHTML = "";
+        console.error("Error generating balance sheet:", error);
+        showStatus("Error: " + error.message, 'error');
+        tableBody.innerHTML = `<tr><td colspan="2" style="text-align:center; color:red;">Failed to load data. Check console.</td></tr>`;
       }
     }
   </script>
