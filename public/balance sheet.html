@@ -70,11 +70,19 @@
       text-align: center;
       font-size: 1.8rem;
       font-weight: 700;
-      margin-bottom: 2rem;
+      margin-bottom: 0.5rem;
       color: var(--text-main);
       text-transform: uppercase;
       text-decoration: underline;
       text-underline-offset: 6px;
+    }
+
+    .last-updated {
+        text-align: center;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 2rem;
+        font-style: italic;
     }
 
     .report-wrapper {
@@ -133,6 +141,13 @@
       border-top: 2px solid var(--border-color);
       border-bottom: 2px solid var(--border-color);
     }
+    
+    /* Indented style for sub-items */
+    .sub-item {
+        padding-left: 30px !important;
+        color: #444;
+        font-size: 0.9rem;
+    }
 
     .loading-msg, .empty-msg {
       text-align: center;
@@ -147,14 +162,15 @@
       padding: 10px;
       border-radius: 4px;
       font-weight: bold;
-      display: none;
+      font-size: 0.9rem;
     }
-    .msg-error { color: #c0392b; background: #fadbd8; display: block !important; }
-    .msg-loading { color: var(--primary); background: #e8f0fe; display: block !important; }
+    .msg-error { color: #c0392b; background: #fadbd8; }
+    .msg-loading { color: var(--primary); background: #e8f0fe; }
+    .msg-updating { color: #27ae60; background: #d5f5e3; }
 
     @media print {
       body { background-color: white; }
-      header, #status-msg { display: none; }
+      header, #status-msg, .last-updated { display: none; }
       main { padding: 0; }
       .report-wrapper { box-shadow: none; border: none; padding: 0; }
     }
@@ -177,6 +193,7 @@
   <main>
     <div id="status-msg"></div>
     <h1 class="page-title">Balance Sheet</h1>
+    <div id="lastUpdated" class="last-updated"></div>
 
     <div class="report-wrapper">
       <table>
@@ -187,7 +204,7 @@
           </tr>
         </thead>
         <tbody id="statementBody">
-          <tr><td colspan="2" class="loading-msg">Calculating Financials...</td></tr>
+          <!-- Content loads instantly here -->
         </tbody>
       </table>
     </div>
@@ -214,14 +231,18 @@
     const tableBody = document.getElementById('statementBody');
     const statusMsg = document.getElementById('status-msg');
     const userInfoDisplay = document.getElementById('userInfoDisplay');
+    const lastUpdatedEl = document.getElementById('lastUpdated');
 
     const formatCurrency = (amount) => {
       return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
     };
 
-    const createRow = (detail, amt, isTotal = false) => {
+    const createRow = (detail, amt, isTotal = false, isSubItem = false) => {
       const amtStr = amt !== null && amt !== undefined ? formatCurrency(amt) : '';
-      const cssClass = isTotal ? 'grand-total' : (amt !== null ? 'sub-total' : '');
+      let cssClass = '';
+      if (isTotal) cssClass = 'grand-total';
+      else if (isSubItem) cssClass = 'sub-item';
+      else cssClass = 'sub-total';
       
       return `<tr class="${cssClass}">
         <td>${detail}</td>
@@ -237,230 +258,45 @@
       return `<tr><td colspan="2" style="padding: 5px; background: #fafafa; border:none;"></td></tr>`;
     };
 
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.href = "index.html";
-        return;
-      }
-      const sessionData = localStorage.getItem("userSession");
-      if (sessionData) {
-        const parsed = JSON.parse(sessionData);
-        userInfoDisplay.innerHTML = `<span>${parsed.name || "User"}</span><img src="${parsed.photo || 'https://picsum.photos/seed/user/32/32'}" class="user-avatar">`;
-      }
-      generateStatement(user.email);
-    });
+    // ==========================================
+    // RENDER FUNCTION (Handles HTML Generation)
+    // ==========================================
+    function renderTable(data, isCached = false) {
+        const {
+            totalCurrentAssets, totalNonCurrentAssets, totalAssets,
+            totalCurrentLiabilities, totalNonCurrentLiabilities, totalLiabilities,
+            totalEquity, currentRetainedEarnings,
+            detailedDebtors, detailedCreditors,
+            assetsList, liabilitiesList, equityList
+        } = data;
 
-    async function generateStatement(userEmail) {
-      showStatus("Calculating Financials...", false);
-      tableBody.innerHTML = `<tr><td colspan="2" class="loading-msg">Processing...</td></tr>`;
-      
-      try {
-        // 1. Fetch All Transactions
-        const transactionsRef = collection(db, "users", userEmail, "transactions");
-        const q = query(transactionsRef, orderBy("date", "asc"));
-        const querySnapshot = await getDocs(q);
-
-        // Helper to get absolute balance from raw transaction list
-        const getAbsBal = (detailName) => {
-          let dr = 0, cr = 0;
-          querySnapshot.forEach(doc => {
-            const d = doc.data();
-            // Simple check based on exact detail name match
-            if ((d.detail || "").trim() === detailName) {
-              if ((d.type || "").toUpperCase() === 'OUT') dr += parseFloat(d.amount || 0);
-              else cr += parseFloat(d.amount || 0);
-            }
-          });
-          return Math.abs(dr - cr);
-        };
-
-        // Helper to calculate totals based on Journal Logic
-        // This simulates extracting data from your specific journals
-        
-        // --- A. DEBTORS (Sales Journal + General) ---
-        let totalDebtors = 0;
-
-        // 1. Sales Debtors: Type='IN', Method='CREDIT'
-        querySnapshot.forEach(doc => {
-          const d = doc.data();
-          if ((d.type || "").toUpperCase() === 'IN' && (d.method || "").toUpperCase() === 'CREDIT') {
-            // Assuming these are Sales (Purchases filtered out by detail name usually, but logic here covers credit sales)
-            // Check if it is NOT a purchase just in case
-            if (!(d.detail || "").toLowerCase().includes("purchase")) {
-              totalDebtors += parseFloat(d.amount || 0);
-            }
-          }
-        });
-
-        // 2. General Journal Debtors: Type='OUT', Method='CREDIT', NOT Purchase
-        // Logic: Expenses on credit create debtors
-        querySnapshot.forEach(doc => {
-          const d = doc.data();
-          const type = (d.type || "").toUpperCase();
-          const method = (d.method || "").toUpperCase();
-          const detail = (d.detail || "").toLowerCase();
-          
-          if (type === 'OUT' && method === 'CREDIT' && !detail.includes("purchase")) {
-            // Exclude Cash/Bank related expenses if method is strict, but here Method=Credit ensures creditor
-            // Actually, Expense on Credit = Creditor. 
-            // BUT, if it is "Bad Debts Recovered" or "Rent Received" on Credit, it creates a Debtor.
-            if (detail.includes("rent received") || detail.includes("commission received") || detail.includes("bad debts recovered")) {
-               totalDebtors += parseFloat(d.amount || 0);
-            }
-          }
-        });
-
-
-        // --- B. CREDITORS (Purchases Journal + General) ---
-        let totalCreditors = 0;
-
-        // 1. Purchases Creditors: Detail contains "Purchase", Type='OUT', Method='CREDIT'
-        querySnapshot.forEach(doc => {
-          const d = doc.data();
-          const detail = (d.detail || "").toLowerCase();
-          const type = (d.type || "").toUpperCase();
-          const method = (d.method || "").toUpperCase();
-
-          if (detail.includes("purchase") && type === 'OUT' && method === 'CREDIT') {
-             totalCreditors += parseFloat(d.amount || 0);
-          }
-        });
-
-        // 2. General Journal Creditors: Expenses on Credit
-        // Logic: Rent (Expense) on Credit = Creditor (Landlord)
-        querySnapshot.forEach(doc => {
-          const d = doc.data();
-          const detail = (d.detail || "").toLowerCase();
-          const type = (d.type || "").toUpperCase();
-          const method = (d.method || "").toUpperCase();
-
-          // Exclude Purchases (handled above)
-          if (detail.includes("purchase")) return;
-
-          // If Type is OUT (Expense) and Method is CREDIT -> It creates a Creditor
-          if (type === 'OUT' && method === 'CREDIT') {
-             totalCreditors += parseFloat(d.amount || 0);
-          }
-        });
-
-
-        // --- C. OTHER ASSETS & LIABILITIES (Static extraction) ---
-        
-        // Trading A/C Items
-        const sales = getAbsBal("Sales");
-        const salesReturns = getAbsBal("Sales Returns");
-        const openingStock = getAbsBal("Opening Stock");
-        // Note: Purchases balance is derived from creditors usually, but here we fetch the 'Purchases' account explicitly if it exists separate from creditors
-        const purchases = getAbsBal("Purchases"); 
-        const returnsOut = getAbsBal("Returns Outwards");
-        const carriageIn = getAbsBal("Carriage Inwards");
-        const closingStock = getAbsBal("Closing Stock");
-        
-        const netSales = sales - salesReturns;
-        const purchasesNet = purchases - returnsOut; // Note: this is book value, creditors are liability
-        const cogs = openingStock + purchasesNet + carriageIn - closingStock;
-        const grossProfit = netSales - cogs;
-
-        // Income & Expense Items
-        const incomeList = ["Discount Received", "Commission Received", "Rent Received", "Interest Received", "Dividend Income", "Bad Debts Recovered", "Gain on Sale of Asset", "Sundry Income"];
-        const expenseList = ["Wages & Salaries", "Rent & Rates", "Lighting & Heating", "Electricity & Gas", "Water Charges", "Telephone & Internet", "Stationery", "Postage & Courier", "Advertising Expenses", "Carriage Outwards", "Repairs & Maintenance", "Depreciation", "Insurance", "Motor Vehicle Expenses", "Fuel & Transport", "Office Expenses", "General Expenses", "Sundry Expenses", "Bank Charges", "Bad Debts", "Provision for Doubtful Debts", "Directors’ Remuneration", "Debenture Interest", "Warehouse Rent", "Security Expenses", "Legal & Professional Fees", "Audit Fees", "Subscriptions", "Training Expenses", "Travel & Accommodation", "Entertainment Expenses"];
-        
-        let totalInc = 0;
-        incomeList.forEach(inc => totalInc += getAbsBal(inc));
-        let totalExp = 0;
-        expenseList.forEach(exp => totalExp += getAbsBal(exp));
-        
-        // Appropriation
-        const corpTax = getAbsBal("Corporation Tax");
-        const genRes = getAbsBal("General Reserve");
-        const prefDiv = getAbsBal("Preference Dividends");
-        const ordDiv = getAbsBal("Ordinary Dividends");
-        
-        const netProfit = grossProfit + totalInc - totalExp;
-        const currentRetainedEarnings = netProfit - (corpTax + genRes + prefDiv + ordDiv);
-
-        // ---------------------------------------------------------
-        // 2. ASSETS LOGIC (Including Debtors)
-        // ---------------------------------------------------------
-        const currentAssetsList = ["Cash", "Bank", "Prepayments", "Inventory", "Closing Stock", "Accrued Income", "Cash at Bank"];
-        let totalCurrentAssets = 0;
-        
-        // Add list items
-        currentAssetsList.forEach(acc => totalCurrentAssets += getAbsBal(acc));
-        // Add Calculated Debtors
-        totalCurrentAssets += totalDebtors;
-
-        const nonCurrentAssets = [
-          "Land", "Buildings", "Plant & Machinery", "Motor Vehicles", "Furniture & Fittings", 
-          "Equipment", "Office Equipment", "Computers", "Fixtures", "Goodwill", "Patents"
-        ];
-        let totalNonCurrentAssets = 0;
-        nonCurrentAssets.forEach(acc => totalNonCurrentAssets += getAbsBal(acc));
-        
-        const totalAssets = totalCurrentAssets + totalNonCurrentAssets;
-
-        // ---------------------------------------------------------
-        // 3. LIABILITIES LOGIC (Including Creditors)
-        // ---------------------------------------------------------
-        const currentLiabilitiesList = ["Bank Overdraft", "Short Term Loans", "Taxation Payable"];
-        let totalCurrentLiabilities = 0;
-        
-        // Add list items
-        currentLiabilitiesList.forEach(acc => totalCurrentLiabilities += getAbsBal(acc));
-        // Add Calculated Creditors
-        totalCurrentLiabilities += totalCreditors;
-
-        const nonCurrentLiabilities = [
-          "Long Term Loan", "Mortgage", "Debentures", "Bank Loan"
-        ];
-        let totalNonCurrentLiabilities = 0;
-        nonCurrentLiabilities.forEach(acc => totalNonCurrentLiabilities += getAbsBal(acc));
-        
-        const totalLiabilities = totalCurrentLiabilities + totalNonCurrentLiabilities;
-
-        // ---------------------------------------------------------
-        // 4. EQUITY LOGIC
-        // ---------------------------------------------------------
-        const equityItems = [
-          "Capital", "Drawings", "Share Capital", "Preference Share Capital", "Ordinary Share Capital"
-        ];
-        let totalEquityInput = 0;
-        equityItems.forEach(acc => totalEquityInput += getAbsBal(acc));
-        const totalEquity = totalEquityInput + currentRetainedEarnings;
-
-
-        // ---------------------------------------------------------
-        // 5. BUILD HTML
-        // ---------------------------------------------------------
         let html = "";
 
         // === ASSETS SIDE ===
         html += createSectionHeader("Assets");
-        
         html += createRow("<strong>Current Assets:</strong>", 0);
-        // Standard Items
-        currentAssetsList.forEach(acc => {
-          const val = getAbsBal(acc);
-          if (val > 0) html += createRow(acc, val);
+        
+        // Standard Current Assets
+        assetsList.current.forEach(acc => {
+            if (acc.val > 0) html += createRow(acc.name, acc.val);
         });
-        // *** SHOW DEBTORS ***
-        if (totalDebtors > 0) {
-            html += createRow("Debtors / Accounts Receivable", totalDebtors);
+
+        // *** SHOW INDIVIDUAL DEBTORS ***
+        if (detailedDebtors.length > 0) {
+            html += createRow("Debtors (Accounts Receivable):", 0);
+            detailedDebtors.forEach(d => {
+                html += createRow(d.name, d.amount, false, true); // true = indented sub-item
+            });
         }
 
         if(totalCurrentAssets > 0) html += createRow("<strong>Total Current Assets</strong>", totalCurrentAssets, true);
         html += createSpacer();
 
         html += createRow("<strong>Non-Current Assets:</strong>", 0);
-        let hasNonCurrentAssets = false;
-        nonCurrentAssets.forEach(acc => {
-          const val = getAbsBal(acc);
-          if (val > 0) {
-            html += createRow(acc, val);
-            hasNonCurrentAssets = true;
-          }
+        assetsList.nonCurrent.forEach(acc => {
+            if (acc.val > 0) html += createRow(acc.name, acc.val);
         });
-        if(hasNonCurrentAssets || totalNonCurrentAssets > 0) html += createRow("<strong>Total Non-Current Assets</strong>", totalNonCurrentAssets, true);
+        if(totalNonCurrentAssets > 0) html += createRow("<strong>Total Non-Current Assets</strong>", totalNonCurrentAssets, true);
         html += createSpacer();
 
         html += createRow("<strong>Total Assets</strong>", totalAssets, true);
@@ -471,72 +307,317 @@
         html += createSectionHeader("Equity & Liabilities");
         
         html += createRow("<strong>Shareholders' Equity:</strong>", 0);
-        let hasEquity = false;
-        equityItems.forEach(acc => {
-          const val = getAbsBal(acc);
-          if (val > 0) {
-            html += createRow(acc, val);
-            hasEquity = true;
-          }
+        equityList.forEach(acc => {
+            if (acc.val > 0) html += createRow(acc.name, acc.val);
         });
         
         // Retained Earnings
         let retLabel = "Retained Earnings (Current Year)";
         let retVal = currentRetainedEarnings;
         if (retVal < 0) {
-           retLabel = "Retained Loss (Current Year)";
-           retVal = Math.abs(retVal);
+            retLabel = "Retained Loss (Current Year)";
+            retVal = Math.abs(retVal);
         }
-        if (retVal !== 0) {
-            html += createRow(retLabel, retVal);
-            hasEquity = true;
-        }
+        if (retVal !== 0) html += createRow(retLabel, retVal);
 
-        if(hasEquity || totalEquity > 0) html += createRow("<strong>Total Equity</strong>", totalEquity, true);
+        if(totalEquity > 0) html += createRow("<strong>Total Equity</strong>", totalEquity, true);
         html += createSpacer();
 
         html += createRow("<strong>Current Liabilities:</strong>", 0);
-        // Standard Items
-        currentLiabilitiesList.forEach(acc => {
-          const val = getAbsBal(acc);
-          if (val > 0) html += createRow(acc, val);
+        liabilitiesList.current.forEach(acc => {
+            if (acc.val > 0) html += createRow(acc.name, acc.val);
         });
-        // *** SHOW CREDITORS ***
-        if (totalCreditors > 0) {
-            html += createRow("Creditors / Accounts Payable", totalCreditors);
+
+        // *** SHOW INDIVIDUAL CREDITORS ***
+        if (detailedCreditors.length > 0) {
+            html += createRow("Creditors (Accounts Payable):", 0);
+            detailedCreditors.forEach(c => {
+                html += createRow(c.name, c.amount, false, true); // true = indented sub-item
+            });
         }
 
         if(totalCurrentLiabilities > 0) html += createRow("<strong>Total Current Liabilities</strong>", totalCurrentLiabilities, true);
         html += createSpacer();
 
         html += createRow("<strong>Non-Current Liabilities:</strong>", 0);
-        let hasNonCurrentLiab = false;
-        nonCurrentLiabilities.forEach(acc => {
-          const val = getAbsBal(acc);
-          if (val > 0) {
-            html += createRow(acc, val);
-            hasNonCurrentLiab = true;
-          }
+        liabilitiesList.nonCurrent.forEach(acc => {
+            if (acc.val > 0) html += createRow(acc.name, acc.val);
         });
-        if(hasNonCurrentLiab || totalNonCurrentLiabilities > 0) html += createRow("<strong>Total Non-Current Liabilities</strong>", totalNonCurrentLiabilities, true);
+        if(totalNonCurrentLiabilities > 0) html += createRow("<strong>Total Non-Current Liabilities</strong>", totalNonCurrentLiabilities, true);
         html += createSpacer();
 
         const totalEquityAndLiabilities = totalEquity + totalLiabilities;
         html += createRow("<strong>Total Equity & Liabilities</strong>", totalEquityAndLiabilities, true);
 
         tableBody.innerHTML = html;
-        hideStatus();
+
+        if (isCached) {
+            lastUpdatedEl.textContent = `Showing saved data (Last synced: ${data.timestamp})`;
+            statusMsg.innerHTML = "Syncing latest changes...";
+            statusMsg.className = "msg-updating";
+            statusMsg.style.display = "block";
+        } else {
+            lastUpdatedEl.textContent = `Updated: Just now`;
+            hideStatus();
+        }
+    }
+
+    // ==========================================
+    // MAIN LOGIC
+    // ==========================================
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+        return;
+      }
+      const sessionData = localStorage.getItem("userSession");
+      if (sessionData) {
+        const parsed = JSON.parse(sessionData);
+        userInfoDisplay.innerHTML = `<span>${parsed.name || "User"}</span><img src="${parsed.photo || 'https://picsum.photos/seed/user/32/32'}" class="user-avatar">`;
+      }
+      
+      // 1. INSTANT DISPLAY (Load from Cache first)
+      const cacheKey = `bs_cache_${user.email}`;
+      const cachedData = localStorage.getItem(cacheKey);
+      
+      if (cachedData) {
+          renderTable(JSON.parse(cachedData), true);
+      } else {
+          showStatus("Calculating Financials (First Run)...", false);
+          tableBody.innerHTML = `<tr><td colspan="2" class="loading-msg">Loading data...</td></tr>`;
+      }
+
+      // 2. BACKGROUND CALCULATION (Fetch fresh data)
+      processData(user.email, cacheKey);
+    });
+
+    async function processData(userEmail, cacheKey) {
+      try {
+        const transactionsRef = collection(db, "users", userEmail, "transactions");
+        const q = query(transactionsRef, orderBy("date", "asc"));
+        const querySnapshot = await getDocs(q);
+
+        const getAbsBal = (detailName) => {
+          let dr = 0, cr = 0;
+          querySnapshot.forEach(doc => {
+            const d = doc.data();
+            if ((d.detail || "").trim() === detailName) {
+              if ((d.type || "").toUpperCase() === 'OUT') dr += parseFloat(d.amount || 0);
+              else cr += parseFloat(d.amount || 0);
+            }
+          });
+          return Math.abs(dr - cr);
+        };
+
+        // ==========================================
+        // DETAILED DEBTORS LOGIC
+        // ==========================================
+        // Stores objects: { name: "John Doe", amount: 5000 }
+        let detailedDebtorsMap = {}; 
+
+        querySnapshot.forEach(doc => {
+          const d = doc.data();
+          const type = (d.type || "").toUpperCase();
+          const method = (d.method || "").toUpperCase();
+          const detail = d.detail || "";
+          
+          // Parse Name from "Detail (Name)" or just "Name"
+          let name = "";
+          const nameMatch = detail.match(/\(([^)]+)\)$/);
+          if (nameMatch) {
+            name = nameMatch[1].trim();
+          } else {
+            // If no parenthesis, maybe the detail IS the name? 
+            // Usually in journals, detail is "Sales (Name)".
+            // If it's just "Sales", we can't list a name, so skip listing individual.
+            // We assume name exists for tracking.
+            return; 
+          }
+
+          // Rule 1: Sales on Credit
+          if (type === 'IN' && method === 'CREDIT') {
+             if(!detailedDebtorsMap[name]) detailedDebtorsMap[name] = 0;
+             detailedDebtorsMap[name] += parseFloat(d.amount || 0);
+          }
+          
+          // Rule 2: Specific Incomes received on credit (Creates Debtor)
+          // e.g. "Rent Received (John)"
+          const lowerDetail = detail.toLowerCase();
+          if (type === 'OUT' && method === 'CREDIT' && 
+             (lowerDetail.includes("rent received") || lowerDetail.includes("commission received"))) {
+             if(!detailedDebtorsMap[name]) detailedDebtorsMap[name] = 0;
+             detailedDebtorsMap[name] += parseFloat(d.amount || 0);
+          }
+        });
+
+        // Convert Map to Array
+        let detailedDebtors = Object.keys(detailedDebtorsMap).map(name => ({
+            name: name,
+            amount: detailedDebtorsMap[name]
+        }));
+        // Filter out zero balances
+        detailedDebtors = detailedDebtors.filter(d => d.amount > 0);
+
+
+        // ==========================================
+        // DETAILED CREDITORS LOGIC
+        // ==========================================
+        let detailedCreditorsMap = {};
+
+        querySnapshot.forEach(doc => {
+          const d = doc.data();
+          const type = (d.type || "").toUpperCase();
+          const method = (d.method || "").toUpperCase();
+          const detail = d.detail || "";
+
+          // Parse Name
+          let name = "";
+          const nameMatch = detail.match(/\(([^)]+)\)$/);
+          if (nameMatch) {
+            name = nameMatch[1].trim();
+          } else {
+            // Cannot track individual if no name
+            return; 
+          }
+
+          // Rule 1: Purchases on Credit
+          if (detail.toLowerCase().includes("purchase") && type === 'OUT' && method === 'CREDIT') {
+             if(!detailedCreditorsMap[name]) detailedCreditorsMap[name] = 0;
+             detailedCreditorsMap[name] += parseFloat(d.amount || 0);
+          }
+
+          // Rule 2: Expenses on Credit (Creates Creditor)
+          // Exclude Purchases (handled above)
+          if (!detail.toLowerCase().includes("purchase") && type === 'OUT' && method === 'CREDIT') {
+             // Ensure it's not a "Received" item (handled in Debtors)
+             if (!detail.toLowerCase().includes("received")) {
+                if(!detailedCreditorsMap[name]) detailedCreditorsMap[name] = 0;
+                detailedCreditorsMap[name] += parseFloat(d.amount || 0);
+             }
+          }
+        });
+
+        let detailedCreditors = Object.keys(detailedCreditorsMap).map(name => ({
+            name: name,
+            amount: detailedCreditorsMap[name]
+        }));
+        detailedCreditors = detailedCreditors.filter(c => c.amount > 0);
+
+
+        // --- CALCULATE TOTALS FOR SUMMARY ---
+        const totalDebtors = detailedDebtors.reduce((sum, item) => sum + item.amount, 0);
+        const totalCreditors = detailedCreditors.reduce((sum, item) => sum + item.amount, 0);
+
+
+        // --- TRADING & P&L ---
+        const sales = getAbsBal("Sales");
+        const salesReturns = getAbsBal("Sales Returns");
+        const openingStock = getAbsBal("Opening Stock");
+        const purchases = getAbsBal("Purchases"); 
+        const returnsOut = getAbsBal("Returns Outwards");
+        const carriageIn = getAbsBal("Carriage Inwards");
+        const closingStock = getAbsBal("Closing Stock");
+        
+        const netSales = sales - salesReturns;
+        const purchasesNet = purchases - returnsOut;
+        const cogs = openingStock + purchasesNet + carriageIn - closingStock;
+        const grossProfit = netSales - cogs;
+
+        const incomeList = ["Discount Received", "Commission Received", "Rent Received", "Interest Received", "Dividend Income", "Bad Debts Recovered", "Gain on Sale of Asset", "Sundry Income"];
+        const expenseList = ["Wages & Salaries", "Rent & Rates", "Lighting & Heating", "Electricity & Gas", "Water Charges", "Telephone & Internet", "Stationery", "Postage & Courier", "Advertising Expenses", "Carriage Outwards", "Repairs & Maintenance", "Depreciation", "Insurance", "Motor Vehicle Expenses", "Fuel & Transport", "Office Expenses", "General Expenses", "Sundry Expenses", "Bank Charges", "Bad Debts", "Provision for Doubtful Debts", "Directors’ Remuneration", "Debenture Interest", "Warehouse Rent", "Security Expenses", "Legal & Professional Fees", "Audit Fees", "Subscriptions", "Training Expenses", "Travel & Accommodation", "Entertainment Expenses"];
+        
+        let totalInc = 0;
+        incomeList.forEach(inc => totalInc += getAbsBal(inc));
+        let totalExp = 0;
+        expenseList.forEach(exp => totalExp += getAbsBal(exp));
+        
+        const corpTax = getAbsBal("Corporation Tax");
+        const genRes = getAbsBal("General Reserve");
+        const prefDiv = getAbsBal("Preference Dividends");
+        const ordDiv = getAbsBal("Ordinary Dividends");
+        
+        const netProfit = grossProfit + totalInc - totalExp;
+        const currentRetainedEarnings = netProfit - (corpTax + genRes + prefDiv + ordDiv);
+
+        // --- ASSETS ---
+        const currentAssetsList = ["Cash", "Bank", "Prepayments", "Inventory", "Closing Stock", "Accrued Income", "Cash at Bank"];
+        let totalCurrentAssets = 0;
+        let finalCurrentAssets = [];
+        currentAssetsList.forEach(acc => {
+            const val = getAbsBal(acc);
+            if(val > 0) finalCurrentAssets.push({name: acc, val: val});
+            totalCurrentAssets += val;
+        });
+        totalCurrentAssets += totalDebtors;
+
+        const nonCurrentAssetsList = ["Land", "Buildings", "Plant & Machinery", "Motor Vehicles", "Furniture & Fittings", "Equipment", "Office Equipment", "Computers", "Fixtures", "Goodwill", "Patents"];
+        let totalNonCurrentAssets = 0;
+        let finalNonCurrentAssets = [];
+        nonCurrentAssetsList.forEach(acc => {
+            const val = getAbsBal(acc);
+            if(val > 0) finalNonCurrentAssets.push({name: acc, val: val});
+            totalNonCurrentAssets += val;
+        });
+        const totalAssets = totalCurrentAssets + totalNonCurrentAssets;
+
+        // --- LIABILITIES ---
+        const currentLiabilitiesList = ["Bank Overdraft", "Short Term Loans", "Taxation Payable"];
+        let totalCurrentLiabilities = 0;
+        let finalCurrentLiabilities = [];
+        currentLiabilitiesList.forEach(acc => {
+            const val = getAbsBal(acc);
+            if(val > 0) finalCurrentLiabilities.push({name: acc, val: val});
+            totalCurrentLiabilities += val;
+        });
+        totalCurrentLiabilities += totalCreditors;
+
+        const nonCurrentLiabilitiesList = ["Long Term Loan", "Mortgage", "Debentures", "Bank Loan"];
+        let totalNonCurrentLiabilities = 0;
+        let finalNonCurrentLiabilities = [];
+        nonCurrentLiabilitiesList.forEach(acc => {
+            const val = getAbsBal(acc);
+            if(val > 0) finalNonCurrentLiabilities.push({name: acc, val: val});
+            totalNonCurrentLiabilities += val;
+        });
+        const totalLiabilities = totalCurrentLiabilities + totalNonCurrentLiabilities;
+
+        // --- EQUITY ---
+        const equityItems = ["Capital", "Drawings", "Share Capital", "Preference Share Capital", "Ordinary Share Capital"];
+        let totalEquityInput = 0;
+        let finalEquity = [];
+        equityItems.forEach(acc => {
+            const val = getAbsBal(acc);
+            if(val > 0) finalEquity.push({name: acc, val: val});
+            totalEquityInput += val;
+        });
+        const totalEquity = totalEquityInput + currentRetainedEarnings;
+
+        // --- PACKAGE DATA ---
+        const finalData = {
+            timestamp: new Date().toLocaleString(),
+            totalCurrentAssets, totalNonCurrentAssets, totalAssets,
+            totalCurrentLiabilities, totalNonCurrentLiabilities, totalLiabilities,
+            totalEquity, currentRetainedEarnings,
+            detailedDebtors, detailedCreditors,
+            assetsList: { current: finalCurrentAssets, nonCurrent: finalNonCurrentAssets },
+            liabilitiesList: { current: finalCurrentLiabilities, nonCurrent: finalNonCurrentLiabilities },
+            equityList: finalEquity
+        };
+
+        // 3. UPDATE UI AND CACHE
+        renderTable(finalData, false);
+        localStorage.setItem(cacheKey, JSON.stringify(finalData));
 
       } catch (error) {
         console.error(error);
-        showStatus("Error generating statement: " + error.message, true);
-        tableBody.innerHTML = `<tr><td colspan="2" class="empty-msg" style="color:red">Error loading data.</td></tr>`;
+        showStatus("Error updating: " + error.message, true);
       }
     }
 
     function showStatus(msg, isError) {
       statusMsg.textContent = msg;
       statusMsg.className = isError ? 'msg-error' : 'msg-loading';
+      statusMsg.style.display = "block";
     }
     function hideStatus() { statusMsg.style.display = 'none'; }
 
