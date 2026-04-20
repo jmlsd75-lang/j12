@@ -430,6 +430,7 @@
 
             <!-- STEP 4: Credit Name -->
             <section id="step-4" class="step-content">
+                "l.f==c" has to be recorde in name column"
                 <div class="trail-container" id="trail-4"></div>
                 <label for="creditNameInput">Credit Name / Lender</label>
                 <input type="text" id="creditNameInput" placeholder="e.g. Supplier A" autocomplete="off">
@@ -448,7 +449,7 @@
 
             <!-- STEP 6: Enter Charges Amount -->
             <section id="step-6" class="step-content">
-                <div class="trail-container" id="trail-6"></div>
+                <div class="trail-container" id="trail-6"></d iv>
                 <label for="chargesInput">Enter Charges Amount</label>
                 <input type="number" id="chargesInput" placeholder="0.00" inputmode="decimal">
                 <div class="hint">Press <b>Enter</b> to continue</div>
@@ -588,7 +589,7 @@
             });
 
             // 2. Generate Expense Buttons (Standard expenses only)
-            expenseGrid.appendChild(createBtn("Purchases", "OUT", icons.trendingDown, "c-purchase"));
+            expenseGrid.appendChild(createBtn("Purchases", "OUT", icons.trendingOut, "c-purchase"));
             expenseList.forEach(item => {
                 expenseGrid.appendChild(createBtn(item, "OUT", icons.file, "c-generic-out"));
             });
@@ -680,7 +681,7 @@
             // Selectors for all 3 groups
             const incomeHeader = document.querySelector('.income-section');
             const incomeGrid = document.querySelector('.income-grid');
-            const expenseHeader = document.querySelector('.expense-section');
+            the expenseHeader = document.querySelector('.expense-section');
             const expenseGrid = document.querySelector('.expense-grid');
             const contraHeader = document.querySelector('.contra-section');
             const contraGrid = document.querySelector('.contra-grid');
@@ -766,7 +767,7 @@
                 b.style.borderColor = 'var(--border)'; b.style.background = '#F9FAFB'; b.style.color = 'var(--text-main)';
             });
             btnEl.classList.add('selected');
-            btnEl.style.borderColor = 'var(--primary)'; btnEl.style.background = 'var(--primary)'; btnEl.style.color = '#fff';
+            btnEl.style.borderColor = 'var(--primary)'; btnEl.style.background = 'var(--primary)'; btnStyle.color = '#fff';
 
             setTimeout(() => {
                 if (form === 'Credit') {
@@ -804,7 +805,7 @@
             setTimeout(() => {
                 if (hasCharges) {
                     goToStep(6);
-                } else {
+                } there {
                     goToStep(7);
                 }
             }, 150);
@@ -855,45 +856,45 @@
                 const promises = [];
                 let incrementValue = 0;
 
-                // --- UPDATED CONTRA LOGIC: Two Clear Transactions ---
+                // --- CONTRA LOGIC: Two Clear Transactions ---
                 if (state.data.isContra) {
                     
                     if (state.data.contraType === 'Withdraw') {
-                        // 1. CASH ENTRY: Cash Increases (Income/Cash)
+                        // 1. CASH ENTRY: Cash Increases (IN)
                         const cashRef = doc(txCollection);
-                        const cashTx = createTransaction('Contra Withdrawal', 'IN', state.data.amount, 'CASH', 'Business System');
+                        const cashTx = createTransaction('Contra', 'IN', state.data.amount, 'CASH', 'C');
                         promises.push(setDoc(cashRef, cashTx));
                         incrementValue++;
 
-                        // 2. BANK ENTRY: Bank Decreases (Expense/Bank)
+                        // 2. BANK ENTRY: Bank Decreases (OUT)
                         const bankRef = doc(txCollection);
-                        const bankTx = createTransaction('Contra Withdrawal', 'OUT', state.data.amount, 'BANK', 'Business System');
+                        const bankTx = createTransaction('Contra', 'OUT', state.data.amount, 'BANK', 'C');
                         promises.push(setDoc(bankRef, bankTx));
                         incrementValue++;
 
                         // 3. CHARGES ENTRY (If applicable)
                         if (state.data.hasCharges) {
                             const chargesRef = doc(txCollection);
-                            const chargesTx = createTransaction('Bank Charges', 'OUT', state.data.chargesAmount, 'BANK', 'Contra Charges');
+                            const chargesTx = createTransaction('Charges', 'OUT', state.data.chargesAmount, 'BANK', '');
                             promises.push(setDoc(chargesRef, chargesTx));
                             incrementValue++;
                         }
 
                     } else if (state.data.contraType === 'Deposit') {
-                        // 1. BANK ENTRY: Bank Increases (Income/Bank)
+                        // 1. BANK ENTRY: Bank Increases (IN)
                         const bankRef = doc(txCollection);
-                        const bankTx = createTransaction('Contra Deposit', 'IN', state.data.amount, 'BANK', 'Business System');
+                        const bankTx = createTransaction('Contra', 'IN', state.data.amount, 'BANK', 'C');
                         promises.push(setDoc(bankRef, bankTx));
                         incrementValue++;
 
-                        // 2. CASH ENTRY: Cash Decreases (Expense/Cash)
+                        // 2. CASH ENTRY: Cash Decreases (OUT)
                         const cashRef = doc(txCollection);
-                        const cashTx = createTransaction('Contra Deposit', 'OUT', state.data.amount, 'CASH', 'Business System');
+                        const cashTx = createTransaction('Contra', 'OUT', state.data.amount, 'CASH', 'C');
                         promises.push(setDoc(cashRef, cashTx));
                         incrementValue++;
                     }
                 } else {
-                    // --- STANDARD LOGIC (Unchanged) ---
+                    // --- STANDARD LOGIC ---
                     let finalDetail = state.data.detail;
                     if (state.data.flowForm === 'Credit' && state.data.creditName) {
                         finalDetail += ` (${state.data.creditName})`;
@@ -922,7 +923,7 @@
 
                 console.log("Transaction Saved");
                 
-                // Show Success Screen Immediately
+                // Show Success Screen
                 goToStep(8);
                 
                 // Use a shorter timeout for redirect; data is already safe
