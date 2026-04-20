@@ -13,7 +13,7 @@
             --primary-hover: #4338CA;
             --danger: #EF4444;
             --success: #10B981;
-            --warning: #F59E0B; /* Amber for Contra */
+            --warning: #F59E0B;
             --bg-body: #F3F4F6;
             --bg-card: #FFFFFF;
             --text-main: #1F2937;
@@ -164,6 +164,7 @@
         .badge.in { background-color: var(--success); }
         .badge.out { background-color: var(--danger); }
         .badge.contra { background-color: var(--warning); }
+        .badge.tax { background-color: #8B5CF6; } /* Purple for Tax */
 
         /* Grid - 6 COLUMNS (Default for Categories) */
         .selection-grid {
@@ -176,6 +177,12 @@
 
         /* OVERRIDE FOR STEP 1-5 (Contra) to be 2 Columns & Large */
         #step-1-5 .selection-grid {
+            grid-template-columns: 1fr 1fr; 
+            gap: 16px;
+        }
+        
+        /* OVERRIDE FOR STEP 1-TAX (Tax Options) */
+        #step-1-tax .selection-grid {
             grid-template-columns: 1fr 1fr; 
             gap: 16px;
         }
@@ -247,12 +254,33 @@
             font-size: 1.1rem;
             -webkit-line-clamp: 1;
         }
+        
+        /* Large Button Overrides for Step 1-Tax */
+        #step-1-tax .btn-cat {
+            min-height: 130px;
+            padding: 24px;
+            border-radius: 16px;
+        }
+        #step-1-tax .icon-box {
+            width: 56px;
+            height: 56px;
+            margin-bottom: 12px;
+        }
+        #step-1-tax .icon-box svg {
+            width: 28px;
+            height: 28px;
+        }
+        #step-1-tax .btn-text {
+            font-size: 1.1rem;
+            -webkit-line-clamp: 1;
+        }
 
         /* Button Colors */
         .c-sales .icon-box { background: linear-gradient(135deg, #10B981, #059669); }
         .c-purchase .icon-box { background: linear-gradient(135deg, #EF4444, #DC2626); }
         .c-capital .icon-box { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
         .c-contra .icon-box { background: linear-gradient(135deg, #F59E0B, #D97706); }
+        .c-tax .icon-box { background: linear-gradient(135deg, #8B5CF6, #6D28D9); } /* Purple for Tax */
 
         /* Generic styles for dynamically generated lists */
         .c-generic-in .icon-box { background: linear-gradient(135deg, #10B981, #059669); }
@@ -377,7 +405,38 @@
                 <div class="grid-container selection-grid contra-grid">
                     <!-- Dynamic Contra Buttons -->
                 </div>
+            </section>
 
+            <!-- STEP 1-TAX: Tax Options -->
+            <section id="step-1-tax" class="step-content">
+                <div class="trail-container" id="trail-1-tax"></div>
+                <label style="text-align: center; margin-bottom: 20px;">Select Tax Type</label>
+                
+                <!-- Styled as Main Category Buttons -->
+                <div class="selection-grid">
+                    <button class="btn-cat c-tax" onclick="handleTaxType('Normal Tax', this)">
+                        <div class="icon-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="12" y1="18" x2="12" y2="12"></line>
+                                <line x1="9" y1="15" x2="15" y2="15"></line>
+                            </svg>
+                        </div>
+                        <span class="btn-text">Normal Tax</span>
+                    </button>
+
+                    <button class="btn-cat c-tax" onclick="handleTaxType('Corporation Tax', this)">
+                        <div class="icon-box">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 21h18"/>
+                                <path d="M5 21V7l8-4 8 4v14"/>
+                                <path d="M17 21v-8.5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0-.5.5V21"/>
+                            </svg>
+                        </div>
+                        <span class="btn-text">Corporation Tax</span>
+                    </button>
+                </div>
             </section>
 
             <!-- STEP 1.5: Contra Options -->
@@ -385,7 +444,6 @@
                 <div class="trail-container" id="trail-1-5"></div>
                 <label style="text-align: center; margin-bottom: 20px;">Select Contra Type</label>
                 
-                <!-- Styled as Main Category Buttons -->
                 <div class="selection-grid">
                     <button class="btn-cat c-contra" onclick="handleContraType('Withdraw', this)">
                         <div class="icon-box">
@@ -415,6 +473,14 @@
                 <label for="amountInput">Enter Amount</label>
                 <input type="number" id="amountInput" placeholder="0.00" inputmode="decimal">
                 <div class="hint">Press <b>Enter</b> to continue</div>
+            </section>
+
+            <!-- STEP 2-TAX: Tax Percentage (Only for Corporation Tax) -->
+            <section id="step-2-tax" class="step-content">
+                <div class="trail-container" id="trail-2-tax"></div>
+                <label for="taxPercentageInput">Enter Tax Percentage (%)</label>
+                <input type="number" id="taxPercentageInput" placeholder="e.g. 18" inputmode="decimal">
+                <div class="hint">Press <b>Enter</b> to calculate and save</div>
             </section>
 
             <!-- STEP 3: Form (Payment Method) -->
@@ -531,7 +597,8 @@
             trendingUp: `<svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>`,
             trendingDown: `<svg viewBox="0 0 24 24"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline></svg>`,
             swap: `<svg viewBox="0 0 24 24"><path d="M7 16V4M7 4L3 8M7 4L11 8M17 8v12M17 20l-4-4M17 20l4-4"></path></svg>`,
-            file: `<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`
+            file: `<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`,
+            percent: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"></line><circle cx="6.5" cy="6.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg>`
         };
 
         const state = {
@@ -545,7 +612,10 @@
                 hasCharges: false, 
                 chargesAmount: 0,
                 contraType: '',
-                isContra: false 
+                isContra: false,
+                isTax: false,
+                taxType: '',
+                taxPercentage: 0
             }
         };
 
@@ -553,7 +623,8 @@
             amount: document.getElementById('amountInput'),
             creditName: document.getElementById('creditNameInput'),
             search: document.getElementById('searchInput'),
-            charges: document.getElementById('chargesInput')
+            charges: document.getElementById('chargesInput'),
+            taxPercentage: document.getElementById('taxPercentageInput')
         };
         const mainActionBtn = document.getElementById('mainActionBtn');
         const headerTitle = document.getElementById('headerTitle');
@@ -586,14 +657,15 @@
                 incomeGrid.appendChild(createBtn(item, "IN", icons.file, "c-generic-in"));
             });
 
-            // 2. Generate Expense Buttons (Standard expenses only)
-            // Fixed variable name: trendingDown instead of trendingOut
+            // 2. Generate Expense Buttons
+            // PLACED TAX BUTTON FIRST TO ENSURE IT IS SEEN
+            expenseGrid.appendChild(createBtn("Tax", "OUT", icons.percent, "c-tax"));
             expenseGrid.appendChild(createBtn("Purchases", "OUT", icons.trendingDown, "c-purchase"));
             expenseList.forEach(item => {
                 expenseGrid.appendChild(createBtn(item, "OUT", icons.file, "c-generic-out"));
             });
 
-            // 3. Generate Contra Buttons (New Group)
+            // 3. Generate Contra Buttons
             contraList.forEach(item => {
                 contraGrid.appendChild(createBtn(item, "CONTRA", icons.swap, "c-contra"));
             });
@@ -614,6 +686,7 @@
                 updateUI();
                 
                 if(stepNumber === 2) setTimeout(() => inputs.amount.focus(), 50);
+                if(stepNumber === '2-tax') setTimeout(() => inputs.taxPercentage.focus(), 50);
                 if(stepNumber === 4) setTimeout(() => inputs.creditName.focus(), 50);
                 if(stepNumber === 6) setTimeout(() => inputs.charges.focus(), 50);
             }
@@ -636,14 +709,25 @@
         }
 
         window.selectType = function(flow, detail, btnEl) {
-            state.data.flowType = flow; // Will be 'IN', 'OUT', or 'CONTRA'
+            state.data.flowType = flow;
             state.data.detail = detail;
             state.data.hasCharges = false;
             state.data.chargesAmount = 0;
             
-            // Check if it's Contra Transaction
-            if (detail === "Contra Transaction") {
+            // Check if it's Tax
+            if (detail === "Tax") {
+                state.data.isTax = true;
+                state.data.isContra = false;
+                state.data.taxType = '';
+                document.querySelectorAll('.btn-cat').forEach(b => b.style.borderColor = 'transparent');
+                btnEl.style.borderColor = 'var(--primary)';
+                
+                setTimeout(() => goToStep('1-tax'), 200);
+            } 
+            // Check if it's Contra
+            else if (detail === "Contra Transaction") {
                 state.data.isContra = true;
+                state.data.isTax = false;
                 state.data.contraType = '';
                 document.querySelectorAll('.btn-cat').forEach(b => b.style.borderColor = 'transparent');
                 btnEl.style.borderColor = 'var(--primary)';
@@ -652,12 +736,42 @@
             } else {
                 // Normal Flow
                 state.data.isContra = false;
+                state.data.isTax = false;
                 document.querySelectorAll('.btn-cat').forEach(b => b.style.borderColor = 'transparent');
                 btnEl.style.borderColor = 'var(--primary)';
                 
                 setTimeout(() => goToStep(2), 200);
             }
         };
+
+        window.handleTaxType = function(taxType, btnEl) {
+            state.data.taxType = taxType;
+            
+            document.querySelectorAll('.btn-cat').forEach(b => {
+                b.style.borderColor = 'transparent'; 
+                b.style.backgroundColor = 'white';
+            });
+            btnEl.style.borderColor = 'var(--primary)';
+
+            if (taxType === 'Corporation Tax') {
+                // Jump to percentage step
+                setTimeout(() => goToStep('2-tax'), 150);
+            } else {
+                // Normal Tax - Go to Amount
+                setTimeout(() => goToStep(2), 150);
+            }
+        }
+        
+        inputs.taxPercentage.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const val = parseFloat(inputs.taxPercentage.value);
+                if (!val || val <= 0) return showToast("Please enter a valid percentage.");
+                state.data.taxPercentage = val.toFixed(2);
+                
+                // Go to confirmation to save
+                goToStep(7);
+            }
+        });
 
         window.handleContraType = function(contraType, btnEl) {
             state.data.contraType = contraType;
@@ -677,7 +791,7 @@
             const query = e.target.value.toLowerCase().trim();
             const buttons = document.querySelectorAll('.btn-cat');
             
-            // Selectors for all 3 groups
+            // Selectors for all groups
             const incomeHeader = document.querySelector('.income-section');
             const incomeGrid = document.querySelector('.income-grid');
             const expenseHeader = document.querySelector('.expense-section');
@@ -705,7 +819,6 @@
                 }
             };
 
-            // Check all 3 groups
             checkAndHide(incomeHeader, incomeGrid);
             checkAndHide(expenseHeader, expenseGrid);
             checkAndHide(contraHeader, contraGrid);
@@ -716,14 +829,24 @@
         }
 
         function renderHistory() {
-            const typePill = createHistoryButton('Type', state.data.detail + (state.data.isContra ? ` (${state.data.contraType})` : ''));
+            let typePill = '';
+            
+            if (state.data.isTax) {
+                typePill = createHistoryButton('Type', state.data.taxType || state.data.detail);
+            } else {
+                typePill = createHistoryButton('Type', state.data.detail + (state.data.isContra ? ` (${state.data.contraType})` : ''));
+            }
+
             const amountPill = state.data.amount ? createHistoryButton('Amount', state.data.amount) : '';
             const formPill = state.data.flowForm ? createHistoryButton('Method', state.data.flowForm) : '';
             const creditPill = (state.data.flowForm === 'Credit' && state.data.creditName) ? createHistoryButton('Lender', state.data.creditName) : '';
             const chargePill = (state.data.hasCharges && state.data.chargesAmount) ? createHistoryButton('Charges', state.data.chargesAmount) : '';
+            const percentPill = (state.data.isTax && state.data.taxType === 'Corporation Tax' && state.data.taxPercentage) ? createHistoryButton('Percentage', state.data.taxPercentage + '%') : '';
 
             const trail1_5 = document.getElementById('trail-1-5');
+            const trail1_tax = document.getElementById('trail-1-tax');
             const trail2 = document.getElementById('trail-2');
+            const trail2_tax = document.getElementById('trail-2-tax');
             const trail3 = document.getElementById('trail-3');
             const trail4 = document.getElementById('trail-4');
             const trail5 = document.getElementById('trail-5');
@@ -731,15 +854,18 @@
             const trail7 = document.getElementById('trail-7');
 
             if(trail1_5 && state.step >= 1.5) trail1_5.innerHTML = typePill;
-            if(state.step >= 2) {
+            if(trail1_tax && state.step >= '1-tax') trail1_tax.innerHTML = typePill;
+            
+            if(state.step >= 2 || state.step === '2-tax') {
                 if(trail2) trail2.innerHTML = typePill;
+                if(trail2_tax) trail2_tax.innerHTML = typePill + percentPill;
             }
             if(state.step >= 3) trail3.innerHTML = typePill + amountPill;
             if(state.step >= 4) trail4.innerHTML = typePill + amountPill + formPill;
             if(state.step >= 5) trail5.innerHTML = typePill + amountPill + formPill + creditPill;
             if(state.step >= 6) trail6.innerHTML = typePill + amountPill + formPill + creditPill;
             if(state.step >= 7) {
-                trail7.innerHTML = typePill + amountPill + formPill + creditPill + chargePill;
+                trail7.innerHTML = typePill + amountPill + formPill + creditPill + chargePill + percentPill;
             }
         }
 
@@ -766,7 +892,6 @@
                 b.style.borderColor = 'var(--border)'; b.style.background = '#F9FAFB'; b.style.color = 'var(--text-main)';
             });
             btnEl.classList.add('selected');
-            // Fixed variable: btnEl.style.color instead of btnStyle.color
             btnEl.style.borderColor = 'var(--primary)'; 
             btnEl.style.background = 'var(--primary)'; 
             btnEl.style.color = '#fff';
@@ -805,7 +930,6 @@
             btnEl.style.borderColor = 'var(--primary)'; btnEl.style.background = 'var(--primary)'; btnEl.style.color = '#fff';
 
             setTimeout(() => {
-                // Fixed: 'else' instead of 'there'
                 if (hasCharges) {
                     goToStep(6);
                 } else {
@@ -854,13 +978,44 @@
                 name: name, 
                 createdAt: timestamp
             });
+            
+            // Helper for Corporation Tax (Special Record)
+            const createCorporationTaxTx = (percentage) => ({
+                date: now.toLocaleString(),
+                detail: 'Corporation Tax',
+                type: 'PERCENTAGE',
+                displayType: 'Tax',
+                method: '',
+                amount: 0, 
+                taxPercentage: Number(percentage),
+                name: '',
+                createdAt: timestamp
+            });
 
             try {
                 const promises = [];
                 let incrementValue = 0;
 
-                // --- CONTRA LOGIC: Two Clear Transactions with "C" in Name ---
-                if (state.data.isContra) {
+                // 1. CORPORATION TAX LOGIC
+                if (state.data.isTax && state.data.taxType === 'Corporation Tax') {
+                     const taxRef = doc(txCollection);
+                     const taxTx = createCorporationTaxTx(state.data.taxPercentage);
+                     promises.push(setDoc(taxRef, taxTx));
+                     incrementValue++;
+                }
+                // 2. NORMAL TAX LOGIC (Follows standard flow)
+                else if (state.data.isTax && state.data.taxType === 'Normal Tax') {
+                    let finalDetail = "Normal Tax";
+                    if (state.data.flowForm === 'Credit' && state.data.creditName) {
+                        finalDetail += ` (${state.data.creditName})`;
+                    }
+                    const mainRef = doc(txCollection);
+                    const mainTx = createTransaction(finalDetail, state.data.flowType, state.data.amount, state.data.flowForm.toUpperCase(), "");
+                    promises.push(setDoc(mainRef, mainTx));
+                    incrementValue++;
+                }
+                // 3. CONTRA LOGIC
+                else if (state.data.isContra) {
                     
                     if (state.data.contraType === 'Withdraw') {
                         // 1. CASH ENTRY: Cash Increases (IN)
@@ -916,7 +1071,7 @@
                     }
                 }
 
-                // Add stats update to the same batch of promises
+                // Add stats update to same batch of promises
                 if (incrementValue > 0) {
                     promises.push(updateDoc(userRef, { spaceUsed: increment(incrementValue) }));
                 }
@@ -925,12 +1080,8 @@
                 await Promise.all(promises);
 
                 console.log("Transaction Saved");
-                
-                // Show Success Screen
-                // Fixed: goToStep instead of ofGoToStep
                 goToStep(8);
                 
-                // Use a shorter timeout for redirect; data is already safe
                 setTimeout(() => { window.location.href = 'business.html'; }, 1500);
 
             } catch (error) {
@@ -945,10 +1096,14 @@
         window.goBack = function() {
             if(state.step === 1) {
                 window.location.href = 'business.html';
+            } else if(state.step === '1-tax') {
+                goToStep(1);
             } else if(state.step === '1-5') {
                 goToStep(1);
             } else {
-                if(state.step === 2 && state.data.isContra && state.data.contraType === 'Withdraw') {
+                if(state.step === '2-tax') {
+                    goToStep('1-tax');
+                } else if(state.step === 2 && state.data.isContra && state.data.contraType === 'Withdraw') {
                     goToStep('1-5');
                 } else if (state.step === 5) {
                      if(state.data.isContra) goToStep(2);
