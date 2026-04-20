@@ -839,6 +839,7 @@
             const txCollection = collection(db, "users", userEmail, "transactions");
             const userRef = doc(db, "users", userEmail);
 
+            // Helper function to create consistent transaction objects
             const createTransaction = (detail, type, amount, method, name = "") => ({
                 date: now.toLocaleString(),
                 detail: detail,
@@ -852,29 +853,47 @@
 
             try {
                 const promises = [];
-                let incrementValue = 1;
+                let incrementValue = 0;
 
-                // --- CONTRA LOGIC ---
+                // --- UPDATED CONTRA LOGIC: Two Clear Transactions ---
                 if (state.data.isContra) {
+                    
                     if (state.data.contraType === 'Withdraw') {
-                        // Generate ID instantly on client for speed
-                        const contraRef = doc(txCollection);
-                        const contraTx = createTransaction('Contra', 'OUT', state.data.amount, 'BANK', 'Business System');
-                        promises.push(setDoc(contraRef, contraTx));
+                        // 1. CASH ENTRY: Cash Increases (Income/Cash)
+                        const cashRef = doc(txCollection);
+                        const cashTx = createTransaction('Contra Withdrawal', 'IN', state.data.amount, 'CASH', 'Business System');
+                        promises.push(setDoc(cashRef, cashTx));
+                        incrementValue++;
 
+                        // 2. BANK ENTRY: Bank Decreases (Expense/Bank)
+                        const bankRef = doc(txCollection);
+                        const bankTx = createTransaction('Contra Withdrawal', 'OUT', state.data.amount, 'BANK', 'Business System');
+                        promises.push(setDoc(bankRef, bankTx));
+                        incrementValue++;
+
+                        // 3. CHARGES ENTRY (If applicable)
                         if (state.data.hasCharges) {
                             const chargesRef = doc(txCollection);
-                            const chargesTx = createTransaction('Charges', 'OUT', state.data.chargesAmount, 'BANK', 'Contra Charges');
+                            const chargesTx = createTransaction('Bank Charges', 'OUT', state.data.chargesAmount, 'BANK', 'Contra Charges');
                             promises.push(setDoc(chargesRef, chargesTx));
-                            incrementValue = 2;
+                            incrementValue++;
                         }
+
                     } else if (state.data.contraType === 'Deposit') {
-                        const depositRef = doc(txCollection);
-                        const contraTx = createTransaction('Contra', 'IN', state.data.amount, 'BANK', '');
-                        promises.push(setDoc(depositRef, contraTx));
+                        // 1. BANK ENTRY: Bank Increases (Income/Bank)
+                        const bankRef = doc(txCollection);
+                        const bankTx = createTransaction('Contra Deposit', 'IN', state.data.amount, 'BANK', 'Business System');
+                        promises.push(setDoc(bankRef, bankTx));
+                        incrementValue++;
+
+                        // 2. CASH ENTRY: Cash Decreases (Expense/Cash)
+                        const cashRef = doc(txCollection);
+                        const cashTx = createTransaction('Contra Deposit', 'OUT', state.data.amount, 'CASH', 'Business System');
+                        promises.push(setDoc(cashRef, cashTx));
+                        incrementValue++;
                     }
                 } else {
-                    // --- STANDARD LOGIC ---
+                    // --- STANDARD LOGIC (Unchanged) ---
                     let finalDetail = state.data.detail;
                     if (state.data.flowForm === 'Credit' && state.data.creditName) {
                         finalDetail += ` (${state.data.creditName})`;
@@ -883,17 +902,20 @@
                     const mainRef = doc(txCollection);
                     const mainTx = createTransaction(finalDetail, state.data.flowType, state.data.amount, state.data.flowForm.toUpperCase(), "");
                     promises.push(setDoc(mainRef, mainTx));
+                    incrementValue++;
 
                     if (state.data.flowType === 'OUT' && state.data.flowForm === 'Bank' && state.data.hasCharges) {
                         const chargesRef = doc(txCollection);
                         const chargesTx = createTransaction('Charges', 'OUT', state.data.chargesAmount, 'BANK', state.data.detail);
                         promises.push(setDoc(chargesRef, chargesTx));
-                        incrementValue = 2;
+                        incrementValue++;
                     }
                 }
 
                 // Add stats update to the same batch of promises
-                promises.push(updateDoc(userRef, { spaceUsed: increment(incrementValue) }));
+                if (incrementValue > 0) {
+                    promises.push(updateDoc(userRef, { spaceUsed: increment(incrementValue) }));
+                }
 
                 // Execute all writes in parallel
                 await Promise.all(promises);
