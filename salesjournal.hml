@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Sales Journal</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Icons: FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- CSS Variables & Reset --- */
+        :root {
+            --primary: #4F46E5;       /* Indigo */
+            --primary-hover: #4338ca;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --success: #10b981;       /* Emerald */
+            --success-bg: #ecfdf5;
+            --danger: #ef4444;        /* Red */
+            --danger-bg: #fef2f2;
+            --warning: #f59e0b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- Header --- */
+        header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        /* --- Navigation Back Button --- */
+        .nav-back {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 500;
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-back:hover {
+            background-color: var(--bg-body);
+            color: var(--primary);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info {
+            text-align: right;
+            display: none; /* Hidden until loaded */
+        }
+
+        .user-info .name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .user-info .email {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e7ff;
+            color: var(--primary);
+            display: none; /* Flex when loaded */
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1rem;
+            border: 2px solid var(--border);
+            overflow: hidden;
+        }
+        
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: inherit;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border-color: #fca5a5;
+        }
+
+        /* --- Main Layout --- */
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1280px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .page-header {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+        }
+
+        .page-title p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary); 
+            color: white; 
+            text-decoration: none;
+            padding: 0.6rem 1.25rem; 
+            border-radius: 6px; 
+            font-weight: 600; 
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s, transform 0.1s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-primary:active { transform: scale(0.98); }
+
+        /* --- Card & Table --- */
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            position: relative;
+            min-height: 300px;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            min-width: 800px;
+        }
+
+        thead {
+            background-color: #f9fafb;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            padding: 1rem 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        /* Total Row Styling */
+        tr.total-row td {
+            background-color: #f8fafc;
+            font-weight: 700;
+            border-top: 2px solid var(--border);
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover:not(.total-row) { background-color: #f8fafc; }
+
+        .amount-cell {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+            font-size: 0.95rem;
+        }
+
+        .col-actions { width: 120px; text-align: right; white-space: nowrap; }
+
+        /* --- Badges --- */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-credit {
+            background-color: #e0e7ff;
+            color: var(--primary);
+        }
+        
+        .badge-icon {
+            margin-right: 4px;
+        }
+
+        /* --- Action Icons --- */
+        .action-link {
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center;
+            width: 36px; 
+            height: 36px; 
+            border-radius: 6px; 
+            color: var(--text-muted);
+            text-decoration: none; 
+            transition: all 0.2s ease; 
+            margin-left: 4px;
+            background: transparent; 
+            border: 1px solid transparent;
+        }
+
+        .action-link:hover { background-color: #f3f4f6; color: var(--primary); }
+        .action-link.delete-link:hover { background-color: var(--danger-bg); color: var(--danger); }
+        .action-link svg { width: 18px; height: 18px; }
+
+        /* --- Feedback States --- */
+        .loading-container, .empty-state {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+        
+        .loading-container.active, .empty-state.active { display: flex; }
+
+        .spinner {
+            width: 40px; height: 40px; 
+            border: 3px solid #e5e7eb; 
+            border-top: 3px solid var(--primary);
+            border-radius: 50%; 
+            animation: spin 1s linear infinite;
+        }
+
+        .empty-state i { font-size: 3rem; margin-bottom: 1rem; color: #d1d5db; }
+        .empty-state h3 { margin-bottom: 0.5rem; color: var(--text-main); }
+        .empty-state p { color: var(--text-muted); font-size: 0.9rem; max-width: 400px; }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- Toast Notification --- */
+        #toast-container { 
+            position: fixed; bottom: 24px; right: 24px; z-index: 100; 
+            display: flex; flex-direction: column; gap: 10px; 
+        }
+
+        .toast {
+            background: #1f2937; color: white; padding: 12px 20px; 
+            border-radius: 8px; font-size: 0.9rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            display: flex; align-items: center; gap: 12px;
+            animation: slideIn 0.3s ease-out forwards; 
+            min-width: 300px;
+        }
+        
+        .toast.error { background: var(--danger); }
+        .toast.success { background: var(--success); }
+        
+        @keyframes slideIn { 
+            from { transform: translateY(20px); opacity: 0; } 
+            to { transform: translateY(0); opacity: 1; } 
+        }
+
+        /* --- Mobile Responsive --- */
+        @media (max-width: 640px) {
+            main { padding: 1rem; }
+            .page-header { flex-direction: column; align-items: stretch; }
+            .btn-primary { justify-content: center; }
+            .user-info { display: none !important; }
+            
+            /* Adjust back button text for mobile */
+            .nav-back span { display: none; } 
+            .nav-back i { margin: 0; font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <!-- Updated: Replaced Brand with Back Button -->
+        <a href="business file.html" class="nav-back" title="Back to Business Dashboard">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>back</span></span>
+        </a>
+
+        <div class="user-menu">
+            <div class="user-info" id="userInfo">
+                <div class="name" id="userName">User Name</div>
+                <div class="email" id="userEmail">user@email.com</div>
+            </div>
+            
+            <div id="userAvatar" class="avatar">
+                <img id="avatarImg" src="" alt="Profile" style="display:none;">
+                <span id="avatarInitials">U</span>
+            </div>
+
+            <button class="btn-logout" id="logoutBtn" title="Sign Out">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span style="display:none;">Sign Out</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="page-header">
+            <div class="page-title">
+                <h1>Credit Sales</h1>
+                <p>A record of all sales made on credit.</p>
+            </div>
+            
+            <a href="add-transaction.html" class="btn-primary">
+                <i class="fa-solid fa-plus"></i> New Sale
+            </a>
+        </div>
+
+        <div class="card">
+            <!-- Table Display -->
+            <div class="table-container" id="tableContainer">
+                <table id="salesTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 140px;">Date</th>
+                            <th>Transaction Detail</th>
+                            <th style="width: 200px;">Customer</th>
+                            <th style="width: 160px; text-align: right;">Amount</th>
+                            <th class="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Rows will be injected here via JS -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-container">
+                <div class="spinner"></div>
+                <p style="margin-top: 1rem; color: var(--text-muted);">Fetching transactions from database...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state">
+                <i class="fa-regular fa-folder-open"></i>
+                <h3>No Credit Sales Found</h3>
+                <p>We couldn't find any transactions with Payment Method "Credit".</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Firebase Application Logic -->
+    <script type="module">
+        // Import Firebase SDKs
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // ── Firebase Configuration ──
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
+
+        // ── Initialization ──
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // ── DOM Elements ──
+        const tableBody = document.getElementById('tableBody');
+        const loadingState = document.getElementById('loadingState');
+        const emptyState = document.getElementById('emptyState');
+        const tableContainer = document.getElementById('tableContainer');
+        const userNameEl = document.getElementById('userName');
+        const userEmailEl = document.getElementById('userEmail');
+        const avatarImg = document.getElementById('avatarImg');
+        const avatarInitials = document.getElementById('avatarInitials');
+        const userInfoEl = document.getElementById('userInfo');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // ── Authentication State ──
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "index.html";
+                return;
+            }
+
+            setupUserProfile(user);
+            listenToCreditSales(user.email);
+        });
+
+        // ── UI Setup ──
+        function setupUserProfile(user) {
+            const displayName = user.displayName || "User";
+            const email = user.email || "";
+            const photoURL = user.photoURL;
+
+            userNameEl.textContent = displayName;
+            userEmailEl.textContent = email;
+            userInfoEl.style.display = "block";
+
+            if (photoURL) {
+                avatarImg.src = photoURL;
+                avatarImg.style.display = "block";
+                avatarInitials.style.display = "none";
+            } else {
+                const initials = displayName.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+                avatarInitials.textContent = initials || "U";
+                avatarImg.style.display = "none";
+                avatarInitials.style.display = "block";
+            }
+        }
+
+        // ── Real-time Data Listener ──
+        function listenToCreditSales(userEmail) {
+            loadingState.classList.add('active');
+            tableContainer.style.display = 'none';
+            emptyState.classList.remove('active');
+
+            const transactionsRef = collection(db, "users", userEmail, "transactions");
+            
+            // Order by Date Descending (Newest first for Journal)
+            const q = query(transactionsRef, orderBy("date", "desc"));
+
+            // Real-time Listener
+            onSnapshot(q, (snapshot) => {
+                tableBody.innerHTML = ""; // Clear existing rows
+                let totalSales = 0;
+                let foundItems = false;
+
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    
+                    // ── FILTER LOGIC ──
+                    // Must be 'IN' (Income/Sale) and Method must be 'CREDIT'
+                    const type = (data.type || "").toUpperCase();
+                    const method = (data.method || "").toUpperCase();
+
+                    if (type === 'IN' && method === 'CREDIT') {
+                        foundItems = true;
+                        const amount = parseFloat(data.amount || 0);
+                        totalSales += amount;
+                        renderRow(doc.id, data);
+                    }
+                });
+
+                // Render Total Row if items exist
+                if (foundItems) {
+                    renderTotalRow(totalSales);
+                    tableContainer.style.display = 'block';
+                    emptyState.classList.remove('active');
+                } else {
+                    tableContainer.style.display = 'none';
+                    emptyState.classList.add('active');
+                }
+                
+                loadingState.classList.remove('active');
+
+            }, (error) => {
+                console.error("Error listening to sales:", error);
+                loadingState.classList.remove('active');
+                showToast("Error loading data: " + error.message, true);
+            });
+        }
+
+        // ── Render Table Row ──
+        function renderRow(docId, data) {
+            const dateStr = data.date || new Date().toLocaleDateString();
+            const amount = parseFloat(data.amount || 0);
+            const formattedAmount = new Intl.NumberFormat('en-US', { 
+                style: 'currency', 
+                currency: 'TZS',
+                minimumFractionDigits: 0 
+            }).format(amount);
+
+            // Parse Customer Name
+            let cleanDetail = data.detail || "Unknown Sale";
+            let customerName = "Walk-in Customer";
+            
+            const nameMatch = cleanDetail.match(/\(([^)]+)\)$/);
+            if (nameMatch) {
+                customerName = nameMatch[1];
+                cleanDetail = cleanDetail.replace(/\s*\([^)]+\)$/, ""); 
+            }
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="color: var(--text-muted); font-size: 0.85rem;">${dateStr}</td>
+                <td>
+                    <div style="font-weight: 600; color: var(--text-main); margin-bottom: 4px;">${cleanDetail}</div>
+                    <span class="badge badge-credit"><i class="fa-solid fa-credit-card badge-icon"></i> Credit</span>
+                </td>
+                <td style="color: var(--text-main);">${customerName}</td>
+                <td class="amount-cell" style="text-align: right; color: var(--success);">+${formattedAmount}</td>
+                <td class="col-actions">
+                    <a href="businessedit.html?id=${docId}" class="action-link" title="Edit">
+                        <i class="fa-solid fa-pen"></i>
+                    </a>
+                    <a href="businessdelete.html?id=${docId}" class="action-link delete-link" title="Delete">
+                        <i class="fa-solid fa-trash"></i>
+                    </a>
+                </td>
+            `;
+            tableBody.appendChild(tr);
+        }
+
+        // ── Render Total Row ──
+        function renderTotalRow(total) {
+            const formattedTotal = new Intl.NumberFormat('en-US', { 
+                style: 'currency', 
+                currency: 'TZS',
+                minimumFractionDigits: 0 
+            }).format(total);
+
+            const tr = document.createElement('tr');
+            tr.className = 'total-row';
+            tr.innerHTML = `
+                <td colspan="3" style="text-align: right; padding-right: 2rem;">Total Credit Sales:</td>
+                <td class="amount-cell" style="text-align: right;">${formattedTotal}</td>
+                <td></td>
+            `;
+            tableBody.appendChild(tr);
+        }
+
+        // ── Logout Handler ──
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                localStorage.removeItem("userSession");
+                window.location.href = "index.html";
+            } catch (error) {
+                console.error("Logout Error", error);
+                showToast("Failed to logout", true);
+            }
+        });
+
+        // ── Toast Notification System ──
+        function showToast(message, isError = false) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const icon = isError 
+                ? '<i class="fa-solid fa-circle-exclamation"></i>' 
+                : '<i class="fa-solid fa-circle-check"></i>';
+
+            toast.className = `toast ${isError ? 'error' : 'success'}`;
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                toast.style.transform = "translateY(20px)";
+                toast.addEventListener('transitionend', () => toast.remove());
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
