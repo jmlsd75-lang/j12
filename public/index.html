@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multisystem Management</title>
+
+    <!-- Link to external login script -->
+    <script src="login.js" defer></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            text-align: center;
+        }
+
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px 10px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .top-bar {
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .instruction-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .whatsapp-btn {
+            background-color: #25D366;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .login-section {
+            margin-top: 50px;
+        }
+
+        .login-message {
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .google-btn {
+            background-color: #db4437;
+            color: white;
+            font-size: 16px;
+        }
+
+        .icon {
+            width: 18px;
+            height: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <h1>JAMALI SAIDI KAZEMBE MULTISYSTEM MANAGEMENT</h1>
+
+        <div class="top-bar">
+            <!-- Instruction Button -->
+            <button class="btn instruction-btn" onclick="window.location.href='instruction.html'">
+                Instruction
+            </button>
+
+            <!-- WhatsApp Button -->
+            <button class="btn whatsapp-btn" onclick="window.location.href='whatsapp.html'">
+                📱 Contact us for more help
+            </button>
+        </div>
+    </header>
+
+    <!-- LOGIN SECTION -->
+    <div class="login-section">
+        <!-- Message above login -->
+        <div class="login-message">
+            Please log in to start using the system and to save and secure your information.
+        </div>
+
+        <!-- Google Login Button -->
+        <button class="btn google-btn" onclick="handleGoogleLogin()">
+            🔐 Login with Google
+        </button>
+    </div>
+
+    <!-- Script fallback if not in login.js -->
+    <script>
+        function handleGoogleLogin() {
+            if (typeof googleLogin === "function") {
+                googleLogin(); // Call function from login.js
+            } else {
+                alert("Login function not found in login.js");
+            }
+        }
+    </script>
+
+</body>
+</html>
