@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Health | Education | Business</title>
+    <title>JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT</title>
     <style>
         * {
             margin: 0;
@@ -18,9 +18,11 @@
             min-height: 100vh;
             background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
+            overflow: hidden; /* Prevent scrollbars from floating animations */
+            position: relative;
         }
 
+        /* --- BACKGROUND ANIMATION --- */
         .bg-animation {
             position: fixed;
             top: 0;
@@ -29,6 +31,7 @@
             height: 100%;
             z-index: 0;
             overflow: hidden;
+            pointer-events: none;
         }
 
         .bg-circle {
@@ -70,6 +73,7 @@
             50% { transform: scale(1.2); opacity: 0.15; }
         }
 
+        /* --- MAIN LAYOUT --- */
         .main-container {
             display: flex;
             align-items: center;
@@ -78,8 +82,11 @@
             flex-wrap: wrap;
             justify-content: center;
             padding: 20px;
+            width: 100%;
+            max-width: 1200px;
         }
 
+        /* --- ILLUSTRATIONS SECTION --- */
         .illustrations {
             display: flex;
             flex-direction: column;
@@ -112,6 +119,8 @@
             text-transform: uppercase;
         }
 
+        /* --- ICON CSS CONSTRUCTION --- */
+        /* Health */
         .health-icon {
             position: relative;
             width: 80px;
@@ -216,6 +225,7 @@
             border-radius: 2px;
         }
 
+        /* Education */
         .education-icon {
             position: relative;
             width: 80px;
@@ -334,6 +344,7 @@
             border-radius: 2px 0 0 2px;
         }
 
+        /* Business */
         .business-icon {
             position: relative;
             width: 80px;
@@ -466,15 +477,27 @@
             50% { opacity: 0.6; transform: translateY(-3px); }
         }
 
+        /* --- LOGIN CARD --- */
         .login-card {
             background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 50px 40px;
+            padding: 40px 35px;
             border-radius: 24px;
             text-align: center;
             min-width: 350px;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .page-title {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.3;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
 
         .login-card h1 {
@@ -487,26 +510,44 @@
         .login-card p {
             color: rgba(255, 255, 255, 0.6);
             font-size: 14px;
-            margin-bottom: 35px;
+            margin-bottom: 30px;
             line-height: 1.6;
         }
 
-        .google-login-btn {
+        /* Buttons */
+        .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 14px;
-            padding: 14px 28px;
-            background-color: #ffffff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            color: #3c4043;
-            transition: all 0.3s ease;
             width: 100%;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            border: none;
+            outline: none;
+            margin-bottom: 15px;
+        }
+
+        .instruction-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .instruction-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .google-login-btn {
+            background-color: #ffffff;
+            color: #3c4043;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            gap: 12px;
         }
 
         .google-login-btn:hover {
@@ -530,6 +571,7 @@
             height: 22px;
         }
 
+        /* Divider */
         .divider {
             display: flex;
             align-items: center;
@@ -552,6 +594,7 @@
             padding: 0 15px;
         }
 
+        /* Features */
         .features-list {
             text-align: left;
             display: flex;
@@ -578,6 +621,7 @@
         .feature-dot.education { background: #3498db; }
         .feature-dot.business { background: #f39c12; }
 
+        /* Error */
         .login-error {
             color: #ff6b6b;
             font-size: 13px;
@@ -593,6 +637,60 @@
         @keyframes errorIn {
             from { opacity: 0; transform: translateY(-8px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- WHATSAPP FLOATING BUTTON --- */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #25d366;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .whatsapp-float:hover {
+            transform: scale(1.05) translateY(-5px);
+            background-color: #128C7E;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .whatsapp-icon {
+            width: 32px;
+            height: 32px;
+            fill: white;
+        }
+
+        .whatsapp-text {
+            font-weight: 600;
+            font-size: 14px;
+            color: #fff;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+            .whatsapp-float {
+                padding: 8px 15px;
+                bottom: 20px;
+                right: 20px;
+            }
+            .whatsapp-text {
+                display: none; /* Hide text on very small screens if needed, or keep if fits */
+            }
+            .whatsapp-float .whatsapp-text {
+                display: block; /* Keeping text visible on mobile */
+                font-size: 12px;
+            }
         }
 
         @media (max-width: 768px) {
@@ -615,12 +713,14 @@
             .login-card {
                 min-width: 300px;
                 padding: 35px 25px;
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
 
+    <!-- Background Animation -->
     <div class="bg-animation">
         <div class="bg-circle"></div>
         <div class="bg-circle"></div>
@@ -629,8 +729,8 @@
 
     <div class="main-container">
 
+        <!-- Left Side: Illustrations -->
         <div class="illustrations">
-
             <div class="illustration-item">
                 <div class="health-icon">
                     <div class="heart"></div>
@@ -677,14 +777,27 @@
                 </div>
                 <span class="illustration-label" style="color: #f39c12;">Business</span>
             </div>
-
         </div>
 
+        <!-- Right Side: Login Card -->
         <div class="login-card">
+            <!-- 1. UPDATED TITLE -->
+            <h2 class="page-title">JAMAL SAID KAZEMBE<br>MULTISYSTEM MANAGEMENT</h2>
+            
             <h1>Welcome</h1>
             <p>Access your dashboard for Health, Education & Business tools</p>
 
-            <button class="google-login-btn" id="googleLoginBtn" onclick="handleGoogleLogin()">
+            <!-- 2. INSTRUCTION BUTTON -->
+            <a href="instruction.html" class="btn instruction-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                View Instructions
+            </a>
+
+            <button class="btn google-login-btn" id="googleLoginBtn" onclick="handleGoogleLogin()">
                 <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -716,7 +829,16 @@
 
     </div>
 
-    <!-- Added type="module" so ES6 imports in login.js work properly -->
+    <!-- 3. WHATSAPP FLOATING BUTTON -->
+    <a href="whatsapp.html" class="whatsapp-float">
+        <svg class="whatsapp-icon" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 2C8.268 2 2 8.268 2 16c0 2.65.768 5.126 2.1 7.216L2.5 29.5l6.476-1.634A13.91 13.91 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.2c-2.332 0-4.52-.68-6.402-1.846l-3.592.906.958-3.506A11.91 11.91 0 0 1 4.1 16C4.1 9.432 9.432 4.1 16 4.1c6.568 0 11.9 5.332 11.9 11.9 0 6.568-5.332 11.2-11.9 11.2z"/>
+            <path d="M22.05 19.35c-.272-.136-1.608-.792-1.856-.882-.248-.09-.428-.136-.608.136-.18.272-.698.882-.856 1.062-.158.18-.316.204-.588.068-.272-.136-1.148-.424-2.188-1.35-.81-.722-1.358-1.614-1.516-1.886-.158-.272-.016-.42.12-.556.124-.124.272-.316.408-.474.136-.158.182-.272.272-.452.09-.18.045-.338-.022-.474-.068-.136-.608-1.464-.834-2.004-.22-.528-.444-.456-.608-.464l-.518-.01c-.18 0-.472.068-.72.338-.248.272-.948.926-.948 2.258 0 1.332.97 2.618 1.106 2.8.136.18 1.91 2.916 4.63 4.088 1.824.788 2.196.63 2.588.592.918-.086 1.608-.658 1.834-1.29.226-.634.226-1.176.158-1.29-.068-.116-.248-.182-.52-.318z"/>
+        </svg>
+        <span class="whatsapp-text">Contact sales for more help</span>
+    </a>
+
+    <!-- Module Script -->
     <script type="module" src="login.js"></script>
 </body>
 </html>
