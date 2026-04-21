@@ -464,26 +464,6 @@
             overflow: hidden;
         }
 
-        /* Ripple effect placeholder */
-        .btn::after {
-            content: "";
-            position: absolute;
-            background: rgba(255, 255, 255, 0.2);
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            transform: scale(0);
-            opacity: 0;
-            transition: transform 0.5s, opacity 0.5s;
-            pointer-events: none;
-        }
-
-        .btn:active::after {
-            transform: scale(2);
-            opacity: 1;
-            transition: 0s;
-        }
-
         .instruction-btn {
             background: rgba(255, 255, 255, 0.05);
             color: #fff;
@@ -742,7 +722,8 @@
                 View Instructions
             </a>
 
-            <button class="btn google-login-btn" id="googleLoginBtn">
+            <!-- MODIFIED: This button now calls the function from login.js -->
+            <button id="googleLoginBtn" class="btn google-login-btn" onclick="handleGoogleLogin()">
                 <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
                     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -783,47 +764,13 @@
         <span class="whatsapp-text">Contact Support</span>
     </a>
 
-    <!-- Interactive Logic (Replaces external login.js) -->
-    <script>
-        document.getElementById('googleLoginBtn').addEventListener('click', function(e) {
-            const btn = this;
-            const originalContent = btn.innerHTML;
-            
-            // Visual feedback for "loading" state
-            btn.disabled = true;
-            btn.style.opacity = '0.8';
-            btn.innerHTML = `
-                <svg class="google-icon" style="animation: spin 1s linear infinite;" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="#ccc" stroke-width="4" stroke-opacity="0.3"></circle>
-                    <path d="M12 2C6.48 2 2 6.48 2 12" stroke="#4285F4" stroke-width="4" stroke-linecap="round"></path>
-                </svg>
-                Connecting...
-            `;
-            
-            // Simulate network request
-            setTimeout(() => {
-                btn.innerHTML = `
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                    </svg>
-                    Redirecting...
-                `;
-                btn.style.backgroundColor = '#e6f4ea';
-                btn.style.color = '#1e8e3e';
-                
-                // Here you would normally redirect: window.location.href = "/dashboard";
-            }, 1500);
-        });
-
-        // Add keyframes for spinner dynamically
-        const styleSheet = document.createElement("style");
-        styleSheet.innerText = `
-            @keyframes spin { 
-                100% { transform: rotate(360deg); } 
-            }
-        `;
-        document.head.appendChild(styleSheet);
-    </script>
+    <!-- LINKED EXTERNAL SCRIPT -->
+    <script src="login.js"></script>
+    <!-- Added CSS for spinner dynamically -->
+    <style>
+        @keyframes spin { 
+            100% { transform: rotate(360deg); } 
+        }
+    </style>
 </body>
 </html>
