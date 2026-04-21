@@ -1,162 +1,182 @@
-// Firebase (MODULAR CDN)
+// ========================================
+// FIREBASE — ALL FROM CLOUD CDN
+// ========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-    getAuth,
-    GoogleAuthProvider,
-    signInWithPopup,
-    setPersistence,
-    browserLocalPersistence,
-    onAuthStateChanged // <--- Added this import
+  getAuth,
+  GoogleAuthProvider,
+  signInWithRedirect,
+  getRedirectResult,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
-    getFirestore,
-    doc,
-    getDoc,
-    setDoc,
-    updateDoc,
-    serverTimestamp
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// ── CONFIG ──
+// ========================================
+// YOUR EXACT FIREBASE CONFIG
+// ========================================
 const firebaseConfig = {
-    apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-    authDomain: "my-project-66803-95cb3.firebaseapp.com",
-    projectId: "my-project-66803-95cb3",
-    storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-    messagingSenderId: "167159607898",
-    appId: "1:167159607898:web:23ca11366b88868b085e63"
+  apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+  authDomain: "my-project-66803-95cb3.firebaseapp.com",
+  projectId: "my-project-66803-95cb3",
+  storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+  messagingSenderId: "167159607898",
+  appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
-const ADMIN_EMAILS = [
-    "jmlsd75@gmail.com",
-    "mohd.khamis18.mk@gmail.com"
-];
+// ========================================
+// YOUR EXACT ADMIN EMAIL
+// ========================================
+const ADMIN_EMAIL = "camelkazembe1@gmail.com";
 
-// ── INIT ──
+// ========================================
+// INITIALIZE
+// ========================================
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
+const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// ── PERSISTENCE ──
-// Keeps user logged in even after closing the browser
-setPersistence(auth, browserLocalPersistence)
-    .then(() => {
-        console.log("Persistence set to Local");
-    })
-    .catch((err) => {
-        console.error("Persistence error:", err);
+// ========================================
+// DOM
+// ========================================
+const errorMsg = document.getElementById("errorMsg");
+const loadingOverlay = document.getElementById("loadingOverlay");
+const loadingText = document.getElementById("loadingText");
+
+// ========================================
+// HELPERS
+// ========================================
+function showError(msg) {
+  errorMsg.textContent = msg;
+  errorMsg.classList.remove("hidden");
+  setTimeout(() => errorMsg.classList.add("hidden"), 5000);
+}
+
+function showLoading(text) {
+  loadingText.textContent = text;
+  loadingOverlay.style.display = "flex";
+}
+
+function hideLoading() {
+  loadingOverlay.style.display = "none";
+}
+
+// ========================================
+// SAVE LOGIN TO FIRESTORE
+// ========================================
+async function saveLogin(user) {
+  if (!user) return;
+  try {
+    await addDoc(collection(db, "users", user.uid, "logins"), {
+      name: user.displayName,
+      email: user.email,
+      userId: user.uid,
+      createdAt: serverTimestamp()
     });
-
-// ─── HELPERS ───
-function isAdmin(email) {
-    return ADMIN_EMAILS.includes(email);
+    console.log("Login saved:", user.email);
+  } catch (e) {
+    console.error("Save login error:", e);
+  }
 }
 
-async function syncUser(user) {
-    const ref = doc(db, "users", user.email);
-    const snap = await getDoc(ref);
+// ========================================
+// MAIN FLOW — sequential, no race condition
+// ========================================
+(async () => {
 
-    if (snap.exists()) {
-        await updateDoc(ref, { lastVisit: serverTimestamp() });
-        return snap.data();
-    } else {
-        const data = {
-            email: user.email,
-            name: user.displayName || "User",
-            createdAt: serverTimestamp(),
-            lastVisit: serverTimestamp(),
-            lastPayment: null
-        };
-        await setDoc(ref, data);
-        return data;
+  // ── STEP 1: Wait for redirect result COMPLETELY ──
+  let redirectResult = null;
+  try {
+    redirectResult = await getRedirectResult(auth);
+  } catch (error) {
+    hideLoading();
+    console.error("Redirect result error:", error.code, error.message);
+
+    switch (error.code) {
+      case "auth/redirect-cancelled-by-user":
+        showError("You cancelled the login. Please try again.");
+        break;
+      case "auth/credential-already-in-use":
+        showError("This account is already linked. Try again.");
+        break;
+      case "auth/network-request-failed":
+        showError("Network error. Check your connection.");
+        break;
+      case "auth/too-many-requests":
+        showError("Too many attempts. Wait a moment.");
+        break;
+      default:
+        showError("Login failed. Please try again.");
     }
-}
+    return; // Stop — don't proceed to step 2
+  }
 
-// ─── LOGIN LOGIC (CENTRALIZED) ───
-// Lock to prevent double-execution when login popup closes and observer fires
-let isRedirecting = false;
+  // ── STEP 2: User just came back from Google ──
+  if (redirectResult && redirectResult.user) {
+    showLoading("Verifying login...");
 
-async function processLogin(user) {
-    if (isRedirecting) return;
-    isRedirecting = true;
+    const user = redirectResult.user;
+    console.log("Returned from Google:", user.email);
+    console.log("Is admin:", user.email === ADMIN_EMAIL);
 
-    const btn = document.getElementById("googleLoginBtn");
+    // Save to Firestore
+    await saveLogin(user);
 
-    try {
-        // 1. Sync Data with Firestore
-        const dbData = await syncUser(user);
+    // ★ Flag so index.html knows this is a FRESH login ★
+    sessionStorage.setItem("justLoggedIn", "1");
 
-        // 2. Create Session Object
-        const session = {
-            email: user.email,
-            name: user.displayName,
-            isAdmin: isAdmin(user.email),
-            db: dbData
-        };
+    // Brief pause so user sees "Verifying login..."
+    await new Promise(r => setTimeout(r, 800));
 
-        // 3. Save to LocalStorage (Your original requirement)
-        localStorage.setItem("session", JSON.stringify(session));
+    // Redirect to the main system page
+    window.location.href = "index.html";
+    return; // Done — don't go to step 3
+  }
 
-        // 4. UI Feedback
-        if (btn) {
-            btn.innerHTML = "✓ Success";
-            btn.disabled = true;
-        }
+  // ── STEP 3: No redirect result — check if already logged in ──
+  await new Promise((resolve) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe(); // Stop listening immediately
 
-        // 5. Redirect
+      if (user) {
+        // Already logged in — send to index.html
+        console.log("Already authenticated:", user.email);
         setTimeout(() => {
-            const destination = isAdmin(user.email) ? "admin.html" : "free.html";
-            window.location.href = destination;
-        }, 800);
+          window.location.href = "index.html";
+        }, 1200);
+      }
 
-    } catch (error) {
-        console.error("Login processing error:", error);
-        isRedirecting = false; // Unlock on failure so they can try again
-        if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = "Sign in with Google";
-        }
-        alert("Error preparing session: " + error.message);
-    }
-}
+      resolve();
+    });
+  });
 
-// ─── AUTH STATE OBSERVER ───
-// This runs automatically when the page loads to check saved state
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        // User is already logged in, restore state and redirect
-        processLogin(user);
-    } else {
-        // User is signed out, ensure button is ready
-        isRedirecting = false;
-        const btn = document.getElementById("googleLoginBtn");
-        if (btn) {
-            btn.disabled = false;
-        }
-    }
-});
+})();
 
-// ─── BUTTON CLICK HANDLER ───
-document.getElementById("googleLoginBtn").addEventListener("click", async () => {
-    const btn = document.getElementById("googleLoginBtn");
-    const oldContent = btn.innerHTML;
+// ========================================
+// BUTTON CLICK → SEND TO GOOGLE
+// ========================================
+window.addEventListener("DOMContentLoaded", () => {
+  const googleBtn = document.getElementById("googleLoginBtn");
 
-    btn.disabled = true;
-    btn.innerHTML = `<span class="spinner"></span> Signing in...`;
+  if (!googleBtn) {
+    console.error("googleLoginBtn not found in HTML");
+    return;
+  }
 
-    try {
-        // Trigger Google Popup
-        await signInWithPopup(auth, provider);
-        
-        // Note: We do NOT need to manually call processLogin here.
-        // The 'onAuthStateChanged' listener above will detect the login 
-        // automatically and trigger processLogin for us.
-        
-    } catch (err) {
-        console.error(err);
-        btn.disabled = false;
-        btn.innerHTML = oldContent;
-        alert("Login failed: " + err.message);
-    }
+  googleBtn.addEventListener("click", () => {
+    console.log("CLICK WORKING");
+
+    googleBtn.disabled = true;
+    googleBtn.style.opacity = "0.5";
+    googleBtn.style.pointerEvents = "none";
+
+    showLoading("Redirecting to Google...");
+
+    signInWithRedirect(auth, provider);
+  });
 });
