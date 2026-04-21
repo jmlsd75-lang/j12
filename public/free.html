@@ -57,9 +57,15 @@
             font-weight: 500;
             transition: all 0.2s ease;
             text-decoration: none;
-            display: flex;
+            display: flex; /* Ensures button behaves like the flex link */
             align-items: center;
             gap: 8px;
+        }
+
+        .btn-nav:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
         .btn-logout {
@@ -214,7 +220,6 @@
             transition: all 0.3s;
         }
 
-        /* Highlight tab info when speed is increased */
         .tab-info.warning {
             background: rgba(255, 152, 0, 0.15);
             color: var(--warning-color);
@@ -288,9 +293,11 @@
 
     <div class="top-nav">
         <button class="btn-nav btn-logout" id="logoutBtn">Logout</button>
-        <a href="men.html" class="btn-nav" id="menuBtn">
+        
+        <!-- Menu Button: Now a button tag, requires click to redirect -->
+        <button class="btn-nav" id="menuBtn">
             <span class="menu-icon"></span> Menu
-        </a>
+        </button>
     </div>
 
     <div class="container" id="mainContainer">
@@ -375,7 +382,6 @@
         const MODE_ACTIVE = 'ACTIVE';
         const MODE_AWAIT = 'AWAIT';
         const TAB_PREFIX = 'tab_';
-        const TAB_HEARTBEAT_KEY = 'heartbeat';
         
         // ── DOM Elements ──
         const elContainer = document.getElementById('mainContainer');
@@ -399,8 +405,8 @@
         let thisTabId = TAB_PREFIX + Math.random().toString(36).substr(2, 9);
         
         // Timer variables
-        let activeTimeLeft = 3 * 60; // Seconds
-        let awaitTimeLeft = 24 * 60 * 60; // Seconds
+        let activeTimeLeft = 3 * 60; 
+        let awaitTimeLeft = 24 * 60 * 60; 
         let tabMultiplier = 1;
         let timerInterval = null;
 
@@ -434,12 +440,11 @@
                 // 3. Attach interactions
                 setupEventListeners();
 
-                // 4. Start appropriate timer
+                // 4. Logic check
                 if (appMode === MODE_ACTIVE) {
                     startTimers();
                 } else {
-                    // If we loaded in AWAIT mode, force redirect to await.html immediately
-                    // This handles the case where a user bookmarked the timer page or reopened it
+                    // If locked, redirect to await page immediately
                     window.location.replace('await.html'); 
                 }
 
@@ -447,7 +452,6 @@
                 console.error("Init Error:", error);
                 alert("Error loading session state. Please refresh.");
             } finally {
-                // Only hide loading if we are staying in active mode
                 if(appMode === MODE_ACTIVE) showLoading(false);
             }
         }
@@ -464,27 +468,18 @@
 
         // ── Tab Tracking Logic ──
         function setupTabTracking() {
-            // Create an entry for this tab
-            const tabData = {
-                id: thisTabId,
-                timestamp: Date.now()
-            };
+            const tabData = { id: thisTabId, timestamp: Date.now() };
             localStorage.setItem(thisTabId, JSON.stringify(tabData));
             
-            // Listen for changes in other tabs to update speed immediately
-            window.addEventListener('storage', (e) => {
-                updateTabCount();
-            });
+            window.addEventListener('storage', () => updateTabCount());
 
-            // Keep this tab alive
             setInterval(() => {
                 const current = JSON.parse(localStorage.getItem(thisTabId));
                 current.timestamp = Date.now();
                 localStorage.setItem(thisTabId, JSON.stringify(current));
-                updateTabCount(); // Check dead tabs every second
+                updateTabCount();
             }, 1000);
 
-            // Cleanup on close
             window.addEventListener('beforeunload', () => {
                 localStorage.removeItem(thisTabId);
             });
@@ -494,30 +489,20 @@
             const now = Date.now();
             let count = 0;
             
-            // Iterate through localStorage to find active tabs
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 if (key.startsWith(TAB_PREFIX)) {
                     try {
                         const val = JSON.parse(localStorage.getItem(key));
-                        // If heartbeat older than 3 seconds, consider tab dead
-                        if (now - val.timestamp < 3000) {
-                            count++;
-                        } else {
-                            // Cleanup dead tab
-                            localStorage.removeItem(key);
-                        }
-                    } catch(e) {
-                        // Cleanup malformed data
-                        localStorage.removeItem(key);
-                    }
+                        if (now - val.timestamp < 3000) count++;
+                        else localStorage.removeItem(key);
+                    } catch(e) { localStorage.removeItem(key); }
                 }
             }
 
             tabMultiplier = count > 0 ? count : 1;
             elTabCount.textContent = tabMultiplier;
 
-            // UI Feedback based on multiplier
             if (tabMultiplier > 1) {
                 elTimerLabel.textContent = "SPEED UP! Tabs Detected";
                 elTimerLabel.classList.add('speed-warning');
@@ -536,26 +521,15 @@
 
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                
                 if (data.mode === MODE_AWAIT) {
-                    // Logic: If DB says AWAIT, we MUST be on await.html
-                    // We set mode to AWAIT here, initApp will handle the redirect
-                    appMode = MODE_AWAIT; 
+                    appMode = MODE_AWAIT;
                 } else {
-                    // DB says ACTIVE
                     appMode = MODE_ACTIVE;
                     serverStartTime = data.activeStartTime || Date.now();
                     activeDurationAtStart = data.activeDuration || (3 * 60 * 1000);
                     
                     const now = Date.now();
                     const elapsed = now - serverStartTime;
-                    
-                    // Calculate time left based on theoretical single tab usage
-                    // Note: In a real rigorous system, you'd track total accumulated time in DB, 
-                    // but for this speed-mechanic, we calculate 'current expected remaining'.
-                    // We subtract the *elapsed* time. If tabs were open during the elapsed time, 
-                    // the user effectively lost more time. 
-                    
                     let remainingMs = activeDurationAtStart - elapsed;
 
                     if (remainingMs <= 0) {
@@ -566,7 +540,6 @@
                     }
                 }
             } else {
-                // First time user
                 const initialData = {
                     mode: MODE_ACTIVE,
                     activeStartTime: Date.now(),
@@ -599,13 +572,11 @@
             if (!userRef) userRef = doc(db, "users", currentUserEmail);
             await updateDoc(userRef, updateData);
             
-            // EXPIRATION ACTIONS
+            // Handle Lockdown
             handleSessionExpiration();
         }
 
         async function resetToActiveState(userRef) {
-            // This function is kept for DB cleanup if needed, 
-            // but usually the user lands on await.html which handles the reset logic.
             console.log("Resetting to ACTIVE.");
             appMode = MODE_ACTIVE;
             activeTimeLeft = 3 * 60; 
@@ -638,7 +609,6 @@
                 const deltaMs = now - lastTick;
                 lastTick = now;
 
-                // Speed Logic: Reduce time by (delta * tab count)
                 const realSecondsPassed = deltaMs / 1000;
                 const deductedSeconds = realSecondsPassed * tabMultiplier;
                 
@@ -647,8 +617,6 @@
                 if (activeTimeLeft <= 0) {
                     activeTimeLeft = 0;
                     updateDisplay(activeTimeLeft, elMainTimer);
-                    
-                    // TRIGGER LOCK
                     clearInterval(timerInterval);
                     
                     const userRef = doc(db, "users", currentUserEmail);
@@ -663,17 +631,10 @@
         function handleSessionExpiration() {
             console.log("Session ended. Closing tabs.");
             
-            // 1. Try to close the window (Works best if script opened it)
-            try {
-                window.close(); 
-            } catch(e) {
-                console.log("Browser blocked window.close()");
-            }
+            // 1. Try to close window
+            try { window.close(); } catch(e) {}
 
-            // 2. FORCE REDIRECT
-            // If window.close() is blocked (common in modern browsers), 
-            // we force the browser to go to the await page.
-            // We add a small delay to ensure DB write started, but it's critical.
+            // 2. Force redirect to await page
             setTimeout(() => {
                 window.location.href = 'await.html';
             }, 100);
@@ -710,13 +671,14 @@
                 elAwaitUI.classList.add('hidden');
                 elContainer.classList.remove('locked');
                 
+                // Show Menu and Logout
                 elMenuBtn.classList.remove('hidden');
                 elLogoutBtn.classList.remove('hidden');
                 
                 updateDisplay(activeTimeLeft, elMainTimer);
-                updateTabCount(); // Update initial UI state for tabs
+                updateTabCount();
             } else {
-                // Should redirect to await.html, not show UI here
+                // Hide Menu when locked
                 elActiveUI.classList.add('hidden');
                 elAwaitUI.classList.remove('hidden');
                 elContainer.classList.add('locked');
@@ -730,6 +692,11 @@
         }
 
         function setupEventListeners() {
+            // MENU BUTTON CLICK: Redirects to men.html ONLY when clicked
+            elMenuBtn.addEventListener('click', () => {
+                window.location.href = 'men.html';
+            });
+
             elPayBtn.addEventListener('click', () => {
                 window.location.href = 'pay.html';
             });
