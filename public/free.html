@@ -10,8 +10,8 @@
             --surface-color: #1e1e1e;
             --surface-elevated: #2c2c2c;
             --primary-color: #3f51b5;
+            --primary-variant: #303f9f;
             --error-color: #cf6679;
-            --warning-color: #ff9800;
             --success-color: #4caf50;
             --text-primary: #ffffff;
             --text-secondary: #b0b0b0;
@@ -57,7 +57,7 @@
             font-weight: 500;
             transition: all 0.2s ease;
             text-decoration: none;
-            display: flex; /* Ensures button behaves like the flex link */
+            display: flex;
             align-items: center;
             gap: 8px;
         }
@@ -74,6 +74,11 @@
             background: rgba(207, 102, 121, 0.05);
         }
         
+        .btn-logout:hover {
+            background: rgba(207, 102, 121, 0.15);
+            border-color: #ff8a80;
+        }
+
         /* Menu Icon CSS */
         .menu-icon {
             display: inline-block;
@@ -119,13 +124,6 @@
             font-size: 22px;
             font-weight: 600;
             letter-spacing: 0.5px;
-            transition: color 0.3s;
-        }
-
-        /* Speed Warning Class */
-        h1.speed-warning {
-            color: var(--warning-color);
-            animation: pulse-text 1s infinite;
         }
 
         p {
@@ -202,6 +200,12 @@
             box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
         }
 
+        .btn-pay:hover {
+            background-color: #43a047;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(76, 175, 80, 0.3);
+        }
+
         .btn-await {
             background-color: var(--surface-elevated);
             color: var(--text-secondary);
@@ -217,20 +221,13 @@
             display: inline-block;
             padding: 6px 12px;
             border-radius: 4px;
-            transition: all 0.3s;
-        }
-
-        .tab-info.warning {
-            background: rgba(255, 152, 0, 0.15);
-            color: var(--warning-color);
-            opacity: 1;
-            border: 1px solid rgba(255, 152, 0, 0.3);
         }
 
         .hidden {
             display: none !important;
         }
 
+        /* --- Locked Overlay Content --- */
         #lockedMessage {
             font-size: 32px;
             font-weight: 700;
@@ -277,12 +274,8 @@
             50% { transform: scale(1.05); opacity: 0.8; } 
             100% { transform: scale(1); opacity: 1; } 
         }
-        @keyframes pulse-text {
-            0% { opacity: 1; }
-            50% { opacity: 0.6; }
-            100% { opacity: 1; }
-        }
 
+        /* Responsive */
         @media (max-width: 600px) {
             .timer-display { font-size: 56px; }
             .container { padding: 30px 20px; }
@@ -291,13 +284,17 @@
 </head>
 <body>
 
+    <!-- Top Navigation Bar -->
     <div class="top-nav">
-        <button class="btn-nav btn-logout" id="logoutBtn">Logout</button>
-        
-        <!-- Menu Button: Now a button tag, requires click to redirect -->
-        <button class="btn-nav" id="menuBtn">
-            <span class="menu-icon"></span> Menu
+        <!-- Logout Button -->
+        <button class="btn-nav btn-logout" id="logoutBtn">
+            Logout
         </button>
+        
+        <!-- Menu Button -->
+        <a href="men.html" class="btn-nav" id="menuBtn">
+            <span class="menu-icon"></span> Menu
+        </a>
     </div>
 
     <div class="container" id="mainContainer">
@@ -310,7 +307,7 @@
         <!-- ACTIVE STATE UI -->
         <div id="activeStateUI">
             <div class="status-badge" id="statusBadgeActive">Session Active</div>
-            <h1 id="timerLabel">Time Remaining</h1>
+            <h1>Time Remaining</h1>
             
             <div class="timer-display" id="mainTimer">00:03:00</div>
             
@@ -319,7 +316,7 @@
                 <span style="font-size:12px; opacity:0.8;">Speed increases with multiple open tabs.</span>
             </p>
             
-            <div class="tab-info" id="tabInfo">
+            <div class="tab-info">
                 Active Tabs Detected: <span id="tabCount">1</span> (Speed Multiplier)
             </div>
         </div>
@@ -363,7 +360,7 @@
             serverTimestamp 
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // ── Firebase Configuration (REPLACE WITH YOUR KEYS) ──
+        // ── Firebase Configuration ──
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
             authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -381,7 +378,8 @@
         // ── State Constants ──
         const MODE_ACTIVE = 'ACTIVE';
         const MODE_AWAIT = 'AWAIT';
-        const TAB_PREFIX = 'tab_';
+        const ACTIVE_TAB_COUNT_KEY = 'active_tab_count';
+        const TAB_ID = 'tab_' + Math.random().toString(36).substr(2, 9);
         
         // ── DOM Elements ──
         const elContainer = document.getElementById('mainContainer');
@@ -389,9 +387,8 @@
         const elAwaitUI = document.getElementById('awaitStateUI');
         const elMainTimer = document.getElementById('mainTimer');
         const elAwaitTimer = document.getElementById('awaitTimer');
-        const elTimerLabel = document.getElementById('timerLabel');
         const elStatusBadgeActive = document.getElementById('statusBadgeActive');
-        const elTabInfo = document.getElementById('tabInfo');
+        const elStatusBadgeLocked = document.getElementById('statusBadgeLocked');
         const elTabCount = document.getElementById('tabCount');
         const elPayBtn = document.getElementById('payBtn');
         const elLoading = document.getElementById('loadingOverlay');
@@ -402,11 +399,10 @@
         let currentUser = null;
         let currentUserEmail = null;
         let appMode = MODE_ACTIVE;
-        let thisTabId = TAB_PREFIX + Math.random().toString(36).substr(2, 9);
         
         // Timer variables
-        let activeTimeLeft = 3 * 60; 
-        let awaitTimeLeft = 24 * 60 * 60; 
+        let activeTimeLeft = 3 * 60; // Seconds (Initial value, overwritten by server logic)
+        let awaitTimeLeft = 24 * 60 * 60; // Seconds
         let tabMultiplier = 1;
         let timerInterval = null;
 
@@ -431,28 +427,28 @@
         async function initApp() {
             showLoading(true);
             try {
-                // 1. Load persistent state
+                // 1. Load persistent state from Firestore (CRITICAL: Determines if we show Active or Locked UI)
                 await loadStateFromFirestore();
                 
-                // 2. Setup local tab tracking
+                // 2. Setup local tab tracking logic
                 setupTabTracking();
                 
                 // 3. Attach interactions
                 setupEventListeners();
 
-                // 4. Logic check
+                // 4. Start the visual timers (only if active)
                 if (appMode === MODE_ACTIVE) {
                     startTimers();
                 } else {
-                    // If locked, redirect to await page immediately
-                    window.location.replace('await.html'); 
+                    // If in await mode, we run a separate timer for the countdown clock
+                    startAwaitTimer();
                 }
 
             } catch (error) {
                 console.error("Init Error:", error);
                 alert("Error loading session state. Please refresh.");
             } finally {
-                if(appMode === MODE_ACTIVE) showLoading(false);
+                showLoading(false);
             }
         }
 
@@ -468,50 +464,40 @@
 
         // ── Tab Tracking Logic ──
         function setupTabTracking() {
-            const tabData = { id: thisTabId, timestamp: Date.now() };
-            localStorage.setItem(thisTabId, JSON.stringify(tabData));
+            // Unique ID for this tab instance
+            localStorage.setItem(TAB_ID, Date.now());
             
-            window.addEventListener('storage', () => updateTabCount());
-
-            setInterval(() => {
-                const current = JSON.parse(localStorage.getItem(thisTabId));
-                current.timestamp = Date.now();
-                localStorage.setItem(thisTabId, JSON.stringify(current));
+            const cleanupDeadTabs = () => {
+                const now = Date.now();
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith('tab_')) {
+                        const val = parseInt(localStorage.getItem(key));
+                        // If heartbeat older than 5 seconds, remove tab
+                        if (now - val > 5000) {
+                            localStorage.removeItem(key);
+                        }
+                    }
+                }
                 updateTabCount();
-            }, 1000);
+            };
 
-            window.addEventListener('beforeunload', () => {
-                localStorage.removeItem(thisTabId);
-            });
+            cleanupDeadTabs();
+            
+            window.addEventListener('storage', cleanupDeadTabs);
+            
+            // Keep this tab alive
+            setInterval(() => localStorage.setItem(TAB_ID, Date.now()), 1000);
         }
 
         function updateTabCount() {
-            const now = Date.now();
             let count = 0;
-            
             for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith(TAB_PREFIX)) {
-                    try {
-                        const val = JSON.parse(localStorage.getItem(key));
-                        if (now - val.timestamp < 3000) count++;
-                        else localStorage.removeItem(key);
-                    } catch(e) { localStorage.removeItem(key); }
-                }
+                if (localStorage.key(i).startsWith('tab_')) count++;
             }
-
+            // Ensure minimum speed is 1, but multiplier affects speed
             tabMultiplier = count > 0 ? count : 1;
             elTabCount.textContent = tabMultiplier;
-
-            if (tabMultiplier > 1) {
-                elTimerLabel.textContent = "SPEED UP! Tabs Detected";
-                elTimerLabel.classList.add('speed-warning');
-                elTabInfo.classList.add('warning');
-            } else {
-                elTimerLabel.textContent = "Time Remaining";
-                elTimerLabel.classList.remove('speed-warning');
-                elTabInfo.classList.remove('warning');
-            }
         }
 
         // ── Firestore State Management ──
@@ -521,25 +507,44 @@
 
             if (docSnap.exists()) {
                 const data = docSnap.data();
+                
+                // LOGIC: If DB says AWAIT, force UI to Locked state immediately
                 if (data.mode === MODE_AWAIT) {
                     appMode = MODE_AWAIT;
+                    awaitStartTime = data.awaitStartTime || Date.now();
+                    awaitDurationAtStart = data.awaitDuration || (24 * 60 * 60 * 1000);
+                    
+                    const now = Date.now();
+                    const elapsed = now - awaitStartTime;
+                    const remainingMs = awaitDurationAtStart - elapsed;
+
+                    // If wait time is over, reset to Active immediately
+                    if (remainingMs <= 0) {
+                        await resetToActiveState(userRef);
+                    } else {
+                        awaitTimeLeft = Math.floor(remainingMs / 1000);
+                        updateUI(); // Switch to Locked UI
+                    }
                 } else {
+                    // DB says ACTIVE
                     appMode = MODE_ACTIVE;
                     serverStartTime = data.activeStartTime || Date.now();
                     activeDurationAtStart = data.activeDuration || (3 * 60 * 1000);
                     
                     const now = Date.now();
                     const elapsed = now - serverStartTime;
-                    let remainingMs = activeDurationAtStart - elapsed;
+                    const remainingMs = activeDurationAtStart - (elapsed * tabMultiplier); // Adjust for tabs
 
+                    // If time ran out while offline/closed, switch to Await
                     if (remainingMs <= 0) {
                         await switchToAwaitState(userRef);
                     } else {
                         activeTimeLeft = Math.floor(remainingMs / 1000);
-                        updateUI();
+                        updateUI(); // Switch to Active UI
                     }
                 }
             } else {
+                // First time user
                 const initialData = {
                     mode: MODE_ACTIVE,
                     activeStartTime: Date.now(),
@@ -572,12 +577,18 @@
             if (!userRef) userRef = doc(db, "users", currentUserEmail);
             await updateDoc(userRef, updateData);
             
-            // Handle Lockdown
-            handleSessionExpiration();
+            // Force UI Update immediately
+            updateUI();
+            
+            // Stop active timer
+            if (timerInterval) clearInterval(timerInterval);
+            
+            // Start the countdown timer for the lock
+            startAwaitTimer();
         }
 
         async function resetToActiveState(userRef) {
-            console.log("Resetting to ACTIVE.");
+            console.log("Cooldown finished. Resetting to ACTIVE.");
             appMode = MODE_ACTIVE;
             activeTimeLeft = 3 * 60; 
             serverStartTime = Date.now();
@@ -609,6 +620,7 @@
                 const deltaMs = now - lastTick;
                 lastTick = now;
 
+                // Decrease time based on real delta * multiplier
                 const realSecondsPassed = deltaMs / 1000;
                 const deductedSeconds = realSecondsPassed * tabMultiplier;
                 
@@ -617,27 +629,54 @@
                 if (activeTimeLeft <= 0) {
                     activeTimeLeft = 0;
                     updateDisplay(activeTimeLeft, elMainTimer);
-                    clearInterval(timerInterval);
                     
-                    const userRef = doc(db, "users", currentUserEmail);
-                    switchToAwaitState(userRef);
+                    // TRIGGER THE "CLOSE / AWAIT" SEQUENCE
+                    clearInterval(timerInterval);
+                    handleSessionExpiration();
                 } else {
                     updateDisplay(activeTimeLeft, elMainTimer);
                 }
             }, 100);
         }
 
+        function startAwaitTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            let lastTick = Date.now();
+            timerInterval = setInterval(() => {
+                const now = Date.now();
+                const deltaMs = now - lastTick;
+                lastTick = now;
+
+                const realSecondsPassed = deltaMs / 1000;
+                awaitTimeLeft -= realSecondsPassed;
+
+                if (awaitTimeLeft <= 0) {
+                    awaitTimeLeft = 0;
+                    updateDisplay(awaitTimeLeft, elAwaitTimer);
+                    clearInterval(timerInterval);
+                    // Reset to active automatically after 24h
+                    resetToActiveState(); 
+                } else {
+                    updateDisplay(awaitTimeLeft, elAwaitTimer);
+                }
+            }, 100);
+        }
+
         // ── EXPIRATION HANDLER ──
         function handleSessionExpiration() {
-            console.log("Session ended. Closing tabs.");
+            console.log("Session ended. Attempting to close/redirect.");
             
-            // 1. Try to close window
-            try { window.close(); } catch(e) {}
-
-            // 2. Force redirect to await page
-            setTimeout(() => {
-                window.location.href = 'await.html';
-            }, 100);
+            // 1. Update Database to lock the user out across all tabs
+            const userRef = doc(db, "users", currentUserEmail);
+            switchToAwaitState(userRef).then(() => {
+                // 2. Attempt to close window (Browser security may block this)
+                try {
+                    window.close(); 
+                } catch(e) {
+                    console.log("Browser blocked window.close()");
+                }
+            });
         }
 
         // ── UI Updates ──
@@ -671,18 +710,22 @@
                 elAwaitUI.classList.add('hidden');
                 elContainer.classList.remove('locked');
                 
-                // Show Menu and Logout
+                // Navigation: Show Menu and Logout
                 elMenuBtn.classList.remove('hidden');
                 elLogoutBtn.classList.remove('hidden');
                 
                 updateDisplay(activeTimeLeft, elMainTimer);
-                updateTabCount();
             } else {
-                // Hide Menu when locked
+                // --- LOCKED STATE UI ---
                 elActiveUI.classList.add('hidden');
                 elAwaitUI.classList.remove('hidden');
                 elContainer.classList.add('locked');
+                
+                updateDisplay(awaitTimeLeft, elAwaitTimer);
+
+                // Navigation: Hide Menu (Lock user out), Keep Logout
                 elMenuBtn.classList.add('hidden');
+                elLogoutBtn.classList.remove('hidden'); 
             }
         }
 
@@ -692,11 +735,6 @@
         }
 
         function setupEventListeners() {
-            // MENU BUTTON CLICK: Redirects to men.html ONLY when clicked
-            elMenuBtn.addEventListener('click', () => {
-                window.location.href = 'men.html';
-            });
-
             elPayBtn.addEventListener('click', () => {
                 window.location.href = 'pay.html';
             });
