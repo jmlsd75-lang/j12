@@ -841,4 +841,847 @@
     <!-- Module Script -->
     <script type="module" src="login.js"></script>
 </body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JAMAL SAID KAZEMBE MULTISYSTEM MANAGEMENT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden; /* Prevent scrollbars from floating animations */
+            position: relative;
+        }
+
+        /* --- BACKGROUND ANIMATION --- */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: bgPulse 8s ease-in-out infinite;
+        }
+
+        .bg-circle:nth-child(1) {
+            width: 400px;
+            height: 400px;
+            background: #e74c3c;
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .bg-circle:nth-child(2) {
+            width: 300px;
+            height: 300px;
+            background: #3498db;
+            top: 50%;
+            right: -80px;
+            animation-delay: 2s;
+        }
+
+        .bg-circle:nth-child(3) {
+            width: 350px;
+            height: 350px;
+            background: #2ecc71;
+            bottom: -100px;
+            left: 30%;
+            animation-delay: 4s;
+        }
+
+        @keyframes bgPulse {
+            0%, 100% { transform: scale(1); opacity: 0.1; }
+            50% { transform: scale(1.2); opacity: 0.15; }
+        }
+
+        /* --- MAIN LAYOUT --- */
+        .main-container {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            z-index: 1;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        /* --- ILLUSTRATIONS SECTION --- */
+        .illustrations {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .illustration-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s ease;
+        }
+
+        .illustration-item:hover {
+            transform: translateX(10px);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .illustration-label {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* --- ICON CSS CONSTRUCTION --- */
+        /* Health */
+        .health-icon {
+            position: relative;
+            width: 80px;
+            height: 70px;
+        }
+
+        .heart {
+            position: absolute;
+            width: 50px;
+            height: 45px;
+            top: 5px;
+            left: 15px;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        .heart::before,
+        .heart::after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 40px;
+            background: #e74c3c;
+            border-radius: 25px 25px 0 0;
+        }
+
+        .heart::before {
+            left: 25px;
+            transform: rotate(-45deg);
+            transform-origin: 0 100%;
+        }
+
+        .heart::after {
+            left: 0;
+            transform: rotate(45deg);
+            transform-origin: 100% 100%;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            15% { transform: scale(1.15); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.1); }
+        }
+
+        .pulse-line {
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            width: 80px;
+            height: 20px;
+        }
+
+        .pulse-line::before {
+            content: '';
+            position: absolute;
+            bottom: 8px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #e74c3c;
+        }
+
+        .pulse-line::after {
+            content: '';
+            position: absolute;
+            bottom: 8px;
+            left: 30px;
+            width: 15px;
+            height: 15px;
+            border-left: 2px solid #e74c3c;
+            border-top: 2px solid #e74c3c;
+            background: transparent;
+            transform: rotate(45deg);
+        }
+
+        .health-cross {
+            position: absolute;
+            top: 18px;
+            left: 32px;
+            z-index: 2;
+        }
+
+        .health-cross::before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 4px;
+            background: #fff;
+            top: 4px;
+            left: -1px;
+            border-radius: 2px;
+        }
+
+        .health-cross::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            height: 12px;
+            background: #fff;
+            top: 0;
+            left: 3px;
+            border-radius: 2px;
+        }
+
+        /* Education */
+        .education-icon {
+            position: relative;
+            width: 80px;
+            height: 70px;
+        }
+
+        .grad-cap {
+            position: absolute;
+            top: 8px;
+            left: 10px;
+        }
+
+        .cap-top {
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            background: #3498db;
+            transform: rotate(45deg);
+            top: 0;
+            left: 5px;
+            border-radius: 3px;
+        }
+
+        .cap-top::after {
+            content: '';
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #5dade2, #2e86c1);
+            transform: rotate(0deg);
+            border-radius: 3px;
+        }
+
+        .cap-base {
+            position: absolute;
+            width: 35px;
+            height: 10px;
+            background: #2c3e50;
+            top: 28px;
+            left: 10px;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .tassel {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+
+        .tassel-line {
+            position: absolute;
+            width: 2px;
+            height: 25px;
+            background: #f1c40f;
+            top: 0;
+            left: 0;
+            transform-origin: top;
+            animation: tasselSwing 2s ease-in-out infinite;
+        }
+
+        .tassel-ball {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #f1c40f;
+            border-radius: 50%;
+            top: 23px;
+            left: -3px;
+            animation: tasselSwing 2s ease-in-out infinite;
+        }
+
+        @keyframes tasselSwing {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        .edu-book {
+            position: absolute;
+            bottom: 5px;
+            left: 8px;
+        }
+
+        .edu-book-page {
+            position: absolute;
+            width: 40px;
+            height: 8px;
+            border-radius: 2px;
+        }
+
+        .edu-book-page:nth-child(1) {
+            background: #ecf0f1;
+            bottom: 0;
+            left: 0;
+        }
+
+        .edu-book-page:nth-child(2) {
+            background: #bdc3c7;
+            bottom: 3px;
+            left: 2px;
+        }
+
+        .edu-book-page:nth-child(3) {
+            background: #3498db;
+            bottom: 6px;
+            left: 4px;
+            width: 36px;
+        }
+
+        .edu-book-spine {
+            position: absolute;
+            width: 5px;
+            height: 20px;
+            background: #2980b9;
+            bottom: 0;
+            left: 0;
+            border-radius: 2px 0 0 2px;
+        }
+
+        /* Business */
+        .business-icon {
+            position: relative;
+            width: 80px;
+            height: 70px;
+        }
+
+        .briefcase {
+            position: absolute;
+            top: 15px;
+            left: 5px;
+        }
+
+        .briefcase-body {
+            width: 50px;
+            height: 35px;
+            background: linear-gradient(180deg, #f39c12, #e67e22);
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .briefcase-body::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 8px;
+            background: #d35400;
+            top: 13px;
+        }
+
+        .briefcase-body::after {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #f1c40f;
+            border-radius: 50%;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 2px solid #d35400;
+        }
+
+        .briefcase-handle {
+            position: absolute;
+            width: 20px;
+            height: 12px;
+            border: 3px solid #d35400;
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: transparent;
+        }
+
+        .briefcase-lock {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .briefcase-lock::before {
+            content: '';
+            width: 12px;
+            height: 6px;
+            background: #d35400;
+            display: block;
+            border-radius: 0 0 3px 3px;
+        }
+
+        .chart-bars {
+            position: absolute;
+            bottom: 5px;
+            right: 0;
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .bar {
+            width: 8px;
+            border-radius: 2px 2px 0 0;
+            animation: barGrow 2s ease-in-out infinite;
+        }
+
+        .bar:nth-child(1) {
+            height: 15px;
+            background: #2ecc71;
+            animation-delay: 0s;
+        }
+
+        .bar:nth-child(2) {
+            height: 25px;
+            background: #27ae60;
+            animation-delay: 0.2s;
+        }
+
+        .bar:nth-child(3) {
+            height: 20px;
+            background: #2ecc71;
+            animation-delay: 0.4s;
+        }
+
+        .bar:nth-child(4) {
+            height: 30px;
+            background: #27ae60;
+            animation-delay: 0.6s;
+        }
+
+        @keyframes barGrow {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.7); }
+        }
+
+        .trend-arrow {
+            position: absolute;
+            top: 8px;
+            right: 5px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 12px solid #2ecc71;
+            animation: trendPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes trendPulse {
+            0%, 100% { opacity: 1; transform: translateY(0); }
+            50% { opacity: 0.6; transform: translateY(-3px); }
+        }
+
+        /* --- LOGIN CARD --- */
+        .login-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 40px 35px;
+            border-radius: 24px;
+            text-align: center;
+            min-width: 350px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .page-title {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.3;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .login-card h1 {
+            color: #ffffff;
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .login-card p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            border: none;
+            outline: none;
+            margin-bottom: 15px;
+        }
+
+        .instruction-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .instruction-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .google-login-btn {
+            background-color: #ffffff;
+            color: #3c4043;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            gap: 12px;
+        }
+
+        .google-login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            background-color: #f8f9fa;
+        }
+
+        .google-login-btn:active {
+            transform: translateY(0);
+        }
+
+        .google-login-btn:disabled {
+            cursor: wait;
+            transform: none !important;
+            opacity: 0.7;
+        }
+
+        .google-icon {
+            width: 22px;
+            height: 22px;
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .divider span {
+            padding: 0 15px;
+        }
+
+        /* Features */
+        .features-list {
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+        }
+
+        .feature-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .feature-dot.health { background: #e74c3c; }
+        .feature-dot.education { background: #3498db; }
+        .feature-dot.business { background: #f39c12; }
+
+        /* Error */
+        .login-error {
+            color: #ff6b6b;
+            font-size: 13px;
+            margin-top: 14px;
+            padding: 10px 14px;
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.25);
+            border-radius: 8px;
+            text-align: center;
+            animation: errorIn 0.3s ease;
+        }
+
+        @keyframes errorIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- WHATSAPP FLOATING BUTTON --- */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: #25d366;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .whatsapp-float:hover {
+            transform: scale(1.05) translateY(-5px);
+            background-color: #128C7E;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .whatsapp-icon {
+            width: 32px;
+            height: 32px;
+            fill: white;
+        }
+
+        .whatsapp-text {
+            font-weight: 600;
+            font-size: 14px;
+            color: #fff;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 768px) {
+            .whatsapp-float {
+                padding: 8px 15px;
+                bottom: 20px;
+                right: 20px;
+            }
+            .whatsapp-text {
+                display: none; /* Hide text on very small screens if needed, or keep if fits */
+            }
+            .whatsapp-float .whatsapp-text {
+                display: block; /* Keeping text visible on mobile */
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .illustrations {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .illustration-item {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .login-card {
+                min-width: 300px;
+                padding: 35px 25px;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Background Animation -->
+    <div class="bg-animation">
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+        <div class="bg-circle"></div>
+    </div>
+
+    <div class="main-container">
+
+        <!-- Left Side: Illustrations -->
+        <div class="illustrations">
+            <div class="illustration-item">
+                <div class="health-icon">
+                    <div class="heart"></div>
+                    <div class="health-cross"></div>
+                    <div class="pulse-line"></div>
+                </div>
+                <span class="illustration-label" style="color: #e74c3c;">Health</span>
+            </div>
+
+            <div class="illustration-item">
+                <div class="education-icon">
+                    <div class="grad-cap">
+                        <div class="cap-top"></div>
+                        <div class="cap-base"></div>
+                        <div class="tassel">
+                            <div class="tassel-line"></div>
+                            <div class="tassel-ball"></div>
+                        </div>
+                    </div>
+                    <div class="edu-book">
+                        <div class="edu-book-page"></div>
+                        <div class="edu-book-page"></div>
+                        <div class="edu-book-page"></div>
+                        <div class="edu-book-spine"></div>
+                    </div>
+                </div>
+                <span class="illustration-label" style="color: #3498db;">Education</span>
+            </div>
+
+            <div class="illustration-item">
+                <div class="business-icon">
+                    <div class="briefcase">
+                        <div class="briefcase-handle"></div>
+                        <div class="briefcase-body"></div>
+                        <div class="briefcase-lock"></div>
+                    </div>
+                    <div class="trend-arrow"></div>
+                    <div class="chart-bars">
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                    </div>
+                </div>
+                <span class="illustration-label" style="color: #f39c12;">Business</span>
+            </div>
+        </div>
+
+        <!-- Right Side: Login Card -->
+        <div class="login-card">
+            <!-- 1. UPDATED TITLE -->
+            <h2 class="page-title">JAMAL SAID KAZEMBE<br>MULTISYSTEM MANAGEMENT</h2>
+            
+            <h1>Welcome</h1>
+            <p>Access your dashboard for Health, Education & Business tools</p>
+
+            <!-- 2. INSTRUCTION BUTTON -->
+            <a href="instruction.html" class="btn instruction-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                View Instructions
+            </a>
+
+            <button class="btn google-login-btn" id="googleLoginBtn" onclick="handleGoogleLogin()">
+                <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                </svg>
+                Sign in with Google
+            </button>
+
+            <div class="divider">
+                <span>Features</span>
+            </div>
+
+            <div class="features-list">
+                <div class="feature-item">
+                    <div class="feature-dot health"></div>
+                    Health tracking & wellness tools
+                </div>
+                <div class="feature-item">
+                    <div class="feature-dot education"></div>
+                    Learning courses & certifications
+                </div>
+                <div class="feature-item">
+                    <div class="feature-dot business"></div>
+                    Analytics & growth insights
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 3. WHATSAPP FLOATING BUTTON -->
+    <a href="whatsapp.html" class="whatsapp-float">
+        <svg class="whatsapp-icon" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 2C8.268 2 2 8.268 2 16c0 2.65.768 5.126 2.1 7.216L2.5 29.5l6.476-1.634A13.91 13.91 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.2c-2.332 0-4.52-.68-6.402-1.846l-3.592.906.958-3.506A11.91 11.91 0 0 1 4.1 16C4.1 9.432 9.432 4.1 16 4.1c6.568 0 11.9 5.332 11.9 11.9 0 6.568-5.332 11.2-11.9 11.2z"/>
+            <path d="M22.05 19.35c-.272-.136-1.608-.792-1.856-.882-.248-.09-.428-.136-.608.136-.18.272-.698.882-.856 1.062-.158.18-.316.204-.588.068-.272-.136-1.148-.424-2.188-1.35-.81-.722-1.358-1.614-1.516-1.886-.158-.272-.016-.42.12-.556.124-.124.272-.316.408-.474.136-.158.182-.272.272-.452.09-.18.045-.338-.022-.474-.068-.136-.608-1.464-.834-2.004-.22-.528-.444-.456-.608-.464l-.518-.01c-.18 0-.472.068-.72.338-.248.272-.948.926-.948 2.258 0 1.332.97 2.618 1.106 2.8.136.18 1.91 2.916 4.63 4.088 1.824.788 2.196.63 2.588.592.918-.086 1.608-.658 1.834-1.29.226-.634.226-1.176.158-1.29-.068-.116-.248-.182-.52-.318z"/>
+        </svg>
+        <span class="whatsapp-text">Contact sales for more help</span>
+    </a>
+
+    <!-- Module Script -->
+    <script type="module" src="login.js"></script>
+</body>
 </html>
