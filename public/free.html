@@ -10,7 +10,6 @@
             --surface-color: #1e1e1e;
             --primary-color: #bb86fc;
             --secondary-color: #03dac6;
-            --error-color: #cf6679;
             --text-color: #ffffff;
             --text-secondary: #b0b0b0;
             --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -32,7 +31,7 @@
             overflow: hidden;
         }
 
-        /* Header / Rate Counter Area */
+        /* Header */
         header {
             padding: 20px;
             background-color: var(--surface-color);
@@ -40,7 +39,6 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #333;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         .user-info {
@@ -60,13 +58,7 @@
             gap: 8px;
         }
 
-        .rate-counter span {
-            color: var(--text-color);
-            font-weight: normal;
-            font-size: 1rem;
-        }
-
-        /* Main Content Area */
+        /* Main Content */
         main {
             flex: 1;
             display: flex;
@@ -77,7 +69,6 @@
             text-align: center;
         }
 
-        /* Timer Display */
         .timer-display {
             font-size: 5rem;
             font-weight: 700;
@@ -97,21 +88,18 @@
             font-size: 4rem;
         }
 
-        /* Status Message */
         .status-message {
             margin-bottom: 30px;
             font-size: 1.2rem;
             color: var(--text-secondary);
-            max-width: 600px;
-            line-height: 1.5;
         }
 
         /* Buttons */
         .action-area {
             display: flex;
             gap: 20px;
-            flex-wrap: wrap;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .btn {
@@ -119,14 +107,11 @@
             font-size: 1.2rem;
             border: none;
             border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
             text-transform: uppercase;
             font-weight: bold;
-            letter-spacing: 1px;
-            min-width: 150px;
             text-decoration: none;
             display: inline-block;
+            cursor: pointer;
         }
 
         .btn-menu {
@@ -137,7 +122,6 @@
 
         .btn-menu:hover {
             border-color: var(--text-color);
-            background-color: #2c2c2c;
         }
 
         .btn-await {
@@ -154,56 +138,23 @@
 
         .btn-pay:hover {
             background-color: #a370db;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(187, 134, 252, 0.4);
-        }
-
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: var(--surface-color);
-            color: var(--text-color);
-            padding: 12px 24px;
-            border-radius: 50px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-            border: 1px solid #333;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            z-index: 2000;
-        }
-
-        .toast.visible {
-            opacity: 1;
         }
 
         @keyframes pulse {
             0% { opacity: 1; }
-            50% { opacity: 0.7; }
+            50% { opacity: 0.8; }
             100% { opacity: 1; }
         }
 
-        /* Responsive */
         @media (max-width: 600px) {
-            .timer-display {
-                font-size: 3.5rem;
-            }
-            .action-area {
-                flex-direction: column;
-                width: 100%;
-            }
-            .btn {
-                width: 100%;
-            }
+            .timer-display { font-size: 3.5rem; }
+            .action-area { flex-direction: column; width: 100%; }
+            .btn { width: 100%; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
     <header>
         <div class="user-info">
             Logged in as <strong id="user-email-display">...</strong>
@@ -214,13 +165,12 @@
         </div>
     </header>
 
-    <!-- Main Content (Always Visible) -->
     <main id="main-interface">
         <div id="timer" class="timer-display">00:00:00</div>
-        <div id="status-text" class="status-message">Connecting...</div>
+        <div id="status-text" class="status-message">Loading...</div>
 
         <div class="action-area">
-            <!-- Menu Button -->
+            <!-- Menu Button (Center) -->
             <a href="men.html" class="btn btn-menu">Menu</a>
 
             <!-- Awaiting State Buttons -->
@@ -229,10 +179,6 @@
         </div>
     </main>
 
-    <!-- Toast -->
-    <div id="toast" class="toast">Notification</div>
-
-    <!-- Firebase Modules -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -245,7 +191,6 @@
             runTransaction
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // ── CONFIGURATION ──
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
             authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -255,116 +200,106 @@
             appId: "1:167159607898:web:23ca11366b88868b085e63"
         };
 
-        // ── CONSTANTS & STATE ──
         const THREE_MINUTES_MS = 3 * 60 * 1000;
         const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
         const tabId = crypto.randomUUID();
-        let unsubscribeListener = null;
 
-        // ── DOM ELEMENTS ──
         const ui = {
             email: document.getElementById('user-email-display'),
             timer: document.getElementById('timer'),
             status: document.getElementById('status-text'),
             tabCount: document.getElementById('tab-count'),
             btnAwait: document.getElementById('btn-await'),
-            btnPay: document.getElementById('btn-pay'),
-            toast: document.getElementById('toast')
+            btnPay: document.getElementById('btn-pay')
         };
 
-        // ── INITIALIZATION ──
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // ── IMMEDIATE STARTUP LOGIC ──
-        
-        // Check Auth State
-        onAuthStateChanged(auth, async (user) => {
+        // ── AUTH CHECK & IMMEDIATE START ──
+        onAuthStateChanged(auth, (user) => {
             if (!user) {
-                window.location.href = "createfree.html"; 
+                window.location.href = "createfree.html";
                 return;
             }
-
             ui.email.textContent = user.email;
-
-            // 1. Register this tab immediately (Best effort)
-            const userRef = doc(db, "users", user.email);
-            registerTab(userRef);
-
-            // 2. Start Listening
-            unsubscribeListener = onSnapshot(userRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    handleDatabaseUpdate(docSnap.data());
-                }
-            });
+            
+            // 1. IMMEDIATELY register tab and start logic
+            // No waiting for "Verifying" text. Logic runs instantly.
+            initSession(user.email);
         });
 
-        // ── CORE FUNCTIONS ──
+        async function initSession(email) {
+            const userRef = doc(db, "users", email);
+            let unsubscribe;
 
-        async function registerTab(userRef) {
+            // 2. Force Start Transaction (Ensures 00:03:00 starts if idle)
             try {
                 await runTransaction(db, async (transaction) => {
-                    const docSnap = await transaction.get(userRef);
-                    const activeTabs = docSnap.exists() ? (docSnap.data().activeTabs || []) : [];
-                    
-                    // Add this tab ID if not present
+                    const snap = await transaction.get(userRef);
+                    const data = snap.exists() ? snap.data() : { sessionState: 'idle' };
+                    const activeTabs = data.activeTabs || [];
+
+                    // Register this tab
                     if (!activeTabs.includes(tabId)) {
                         transaction.update(userRef, {
                             activeTabs: [...activeTabs, tabId]
                         });
                     }
+
+                    // FORCE START: If not currently 'awaiting', we start/continue 'active'
+                    if (data.sessionState !== 'awaiting') {
+                        // If it's 'idle' or 'finished', we MUST set startTime to NOW
+                        // This triggers the countdown immediately upon page load.
+                        if (data.sessionState === 'idle' || data.sessionState === 'finished') {
+                            transaction.update(userRef, {
+                                sessionState: 'active',
+                                startTime: serverTimestamp()
+                            });
+                        }
+                        // If it's already 'active', we do nothing (it's already ticking)
+                    }
                 });
             } catch (e) {
-                console.warn("Tab registration conflict or error:", e);
+                console.error("Init transaction failed", e);
             }
+
+            // 3. Start Listening to update UI in real-time
+            unsubscribe = onSnapshot(userRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    handleUpdate(data);
+                }
+            });
         }
 
-        function handleDatabaseUpdate(data) {
+        // ── STATE HANDLER ──
+        function handleUpdate(data) {
             const state = data.sessionState || 'idle';
             const activeTabs = data.activeTabs || [];
             const startTime = data.startTime ? data.startTime.toDate() : null;
             const lastSessionEnd = data.lastSessionEnd ? data.lastSessionEnd.toDate() : null;
 
             // Update Rate Counter
-            ui.tabCount.textContent = state === 'awaiting' ? 1 : activeTabs.length;
+            // Constraint: Rate is tab count, but fixed at 1 if awaiting
+            ui.tabCount.textContent = (state === 'awaiting') ? 1 : activeTabs.length;
 
             if (state === 'active') {
-                renderActiveState(startTime);
+                renderActive(startTime);
             } else if (state === 'awaiting') {
-                renderAwaitingState(lastSessionEnd);
+                renderAwaiting(lastSessionEnd);
             } else {
-                // Idle or Finished - Check if we should start the 3:00 timer
-                renderIdleState(data);
+                // Should technically not happen due to Force Start above,
+                // but fallback: Show 00:03:00
+                ui.timer.textContent = "00:03:00";
+                ui.status.textContent = "Ready.";
             }
         }
 
-        // ── RENDER STATES ──
-
-        function renderIdleState(data) {
+        function renderActive(startTime) {
             ui.timer.classList.remove('awaiting');
             ui.timer.classList.add('active');
-            
-            ui.btnAwait.style.display = 'none';
-            ui.btnPay.style.display = 'none';
-
-            // If idle, we display 00:03:00 immediately (as if it's starting)
-            // or actually trigger the start logic.
-            // Per request: "start either 00:03:00 or 24:00:00 according to state"
-            
-            ui.timer.textContent = "00:03:00";
-            ui.status.textContent = "Ready to start session...";
-
-            // Initiate the actual DB transaction to move to 'active'
-            // We use a small timeout to ensure the UI renders "00:03:00" first
-            const userRef = doc(db, "users", ui.email.textContent);
-            setTimeout(() => startSessionLogic(userRef), 100);
-        }
-
-        function renderActiveState(startTime) {
-            ui.timer.classList.remove('awaiting');
-            ui.timer.classList.add('active');
-
             ui.btnAwait.style.display = 'none';
             ui.btnPay.style.display = 'none';
 
@@ -376,23 +311,22 @@
 
             if (remaining <= 0) {
                 ui.timer.textContent = "00:00:00";
-                finishSession();
+                finishSession(ui.email.textContent);
             } else {
                 ui.timer.textContent = formatTime(remaining);
-                ui.status.textContent = "Session active.";
+                ui.status.textContent = "Session in progress.";
             }
         }
 
-        function renderAwaitingState(lastSessionEnd) {
+        function renderAwaiting(lastSessionEnd) {
             ui.timer.classList.remove('active');
             ui.timer.classList.add('awaiting');
-
             ui.btnAwait.style.display = 'inline-block';
             ui.btnPay.style.display = 'inline-block';
 
             if (!lastSessionEnd) {
                 ui.timer.textContent = "24:00:00";
-                ui.status.textContent = "Awaiting reset.";
+                ui.status.textContent = "Awaiting period.";
                 return;
             }
 
@@ -401,96 +335,53 @@
             const remainingWait = TWENTY_FOUR_HOURS_MS - elapsedSinceEnd;
 
             if (remainingWait <= 0) {
-                resetSystem();
+                // Time is up! Reset to Idle, which will trigger Active immediately via initSession
+                resetSystem(ui.email.textContent);
             } else {
                 ui.timer.textContent = formatTime(remainingWait);
-                ui.status.textContent = "Awaiting period active.";
+                ui.status.textContent = "Please wait.";
             }
         }
 
-        // ── ACTIONS ──
-
-        async function startSessionLogic(userRef) {
+        async function finishSession(email) {
+            const userRef = doc(db, "users", email);
             try {
                 await runTransaction(db, async (transaction) => {
                     const snap = await transaction.get(userRef);
-                    const data = snap.exists() ? snap.data() : { sessionState: 'idle' };
-                    
-                    if (data.sessionState === 'idle' || data.sessionState === 'finished') {
-                        transaction.update(userRef, {
-                            sessionState: 'active',
-                            startTime: serverTimestamp()
-                        });
-                    }
-                });
-            } catch (e) {
-                console.error("Start session error:", e);
-            }
-        }
-
-        async function finishSession() {
-            ui.status.textContent = "Time's up! Redirecting...";
-            
-            const email = ui.email.textContent;
-            const userDocRef = doc(db, "users", email);
-
-            try {
-                await runTransaction(db, async (transaction) => {
-                    const snap = await transaction.get(userDocRef);
-                    if (!snap.exists()) return;
                     const data = snap.data();
-
+                    // Ensure we only finish if currently active (prevent double finish)
                     if (data.sessionState === 'active') {
-                        transaction.update(userDocRef, {
+                        transaction.update(userRef, {
                             sessionState: 'awaiting',
                             lastSessionEnd: serverTimestamp(),
                             activeTabs: [] // Clear tabs
                         });
                     }
                 });
-            } catch (e) {
-                console.error("Finish session error:", e);
-            }
+            } catch (e) { console.error(e); }
 
             setTimeout(() => {
                 window.location.href = "await.html";
             }, 500);
         }
 
-        async function resetSystem() {
-             // Wait for DB update listener to trigger the state change
-             // This prevents race conditions
-             const userRef = doc(db, "users", ui.email.textContent);
-             await updateDoc(userRef, {
+        async function resetSystem(email) {
+            const userRef = doc(db, "users", email);
+            await updateDoc(userRef, {
                 sessionState: 'idle',
                 startTime: null,
                 lastSessionEnd: null
-             });
+            });
         }
 
-        // ── UTILITIES ──
-
+        // ── UTILS ──
         function formatTime(ms) {
             const totalSeconds = Math.floor(ms / 1000);
             const h = Math.floor(totalSeconds / 3600);
             const m = Math.floor((totalSeconds % 3600) / 60);
             const s = totalSeconds % 60;
-            return [h, m, s]
-                .map(v => v.toString().padStart(2, '0'))
-                .join(':');
+            return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
         }
-
-        function showToast(msg) {
-            ui.toast.textContent = msg;
-            ui.toast.classList.add('visible');
-            setTimeout(() => {
-                ui.toast.classList.remove('visible');
-            }, 3000);
-        }
-
-        window.addEventListener('beforeunload', () => {
-            if (unsubscribeListener) unsubscribeListener();
-        });
 
     </script>
 </body>
