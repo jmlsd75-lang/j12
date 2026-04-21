@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchases Journal (Credit)</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            /* Orange/Warm tone for Purchases */
+            --primary: #f97316; 
+            --primary-hover: #ea580c;
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --danger: #ef4444;
+            --danger-bg: #fef2f2;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- Header --- */
+        header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        /* Container for the Back Button and Brand to align them left */
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        /* Back Button Styles */
+        .btn-back {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .btn-back:hover {
+            background-color: #f3f4f6;
+            color: var(--primary);
+            border-color: var(--border);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-info {
+            text-align: right;
+            display: none;
+        }
+
+        .user-info .name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #ffedd5;
+            color: var(--primary);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            object-fit: cover;
+            border: 2px solid var(--border);
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--border);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border-color: #fecaca;
+        }
+
+        /* --- Main Content --- */
+        main {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .page-header {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .page-title p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .add-btn {
+            background-color: var(--primary); 
+            color: white; 
+            text-decoration: none;
+            padding: 8px 16px; 
+            border-radius: 6px; 
+            font-weight: 600; 
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+        
+        .add-btn:hover { background-color: var(--primary-hover); }
+
+        /* --- Table Card --- */
+        .card {
+            background: var(--bg-card);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            min-width: 700px;
+        }
+
+        thead {
+            background-color: #fff7ed;
+            border-bottom: 2px solid var(--border);
+        }
+
+        th {
+            padding: 0.875rem 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background-color: #fcfcfc; }
+
+        .amount-cell {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--danger);
+        }
+
+        .col-actions { width: 100px; text-align: right; white-space: nowrap; }
+
+        /* --- Badges --- */
+        .badge {
+            display: inline-block; padding: 4px 10px; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+        }
+        /* We keep the credit style as that is the only one showing now */
+        .badge-credit { background-color: #fff7ed; color: #ea580c; border: 1px solid #ffedd5; }
+
+        /* --- Action Buttons --- */
+        .action-link {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 32px; height: 32px; border-radius: 6px; color: var(--text-muted);
+            text-decoration: none; transition: all 0.2s ease; margin-left: 4px;
+            background: transparent; border: 1px solid transparent;
+        }
+
+        .action-link:hover { background-color: #f3f4f6; color: var(--primary); }
+        .action-link.delete-link:hover { background-color: var(--danger-bg); color: var(--danger); }
+        .action-link svg { width: 16px; height: 16px; }
+
+        /* --- States --- */
+        .loading-container {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem;
+        }
+        
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid #e5e7eb; border-top: 4px solid var(--primary);
+            border-radius: 50%; animation: spin 0.8s linear infinite;
+        }
+
+        .empty-state {
+            padding: 4rem 2rem; text-align: center; color: var(--text-muted); display: none;
+        }
+        .empty-state.visible { display: block; }
+        .empty-state i { font-size: 2.5rem; margin-bottom: 1rem; color: #d1d5db; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- Toast --- */
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
+        .toast {
+            background: #1f2937; color: white; padding: 12px 20px; border-radius: 8px; font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px;
+            animation: slideIn 0.3s ease-out forwards; max-width: 300px;
+        }
+        .toast.error { background: var(--danger); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        @media (max-width: 640px) {
+            main { padding: 1rem; }
+            .page-header { flex-direction: column; align-items: flex-start; }
+            .user-info { display: none; }
+            .nav-left { gap: 0.5rem; }
+            .brand span { display: none; } /* Hide text on very small screens if needed, or keep */
+            .brand span { display: block; font-size: 1rem; } /* Keeping it but adjust spacing */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="nav-left">
+            <!-- Back Button added here -->
+            <button class="btn-back" onclick="window.location.href='business file.html'" aria-label="Go back">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+
+            <a href="detail.html" class="brand">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span>Purchases Journal</span>
+            </a>
+        </div>
+
+        <div class="user-menu">
+            <div class="user-info" id="userInfo">
+                <div class="name" id="userName">User Name</div>
+            </div>
+            
+            <img src="" alt="User" id="userAvatar" class="avatar">
+            <div id="userAvatarInitials" class="avatar" style="display:none;"></div>
+
+            <button class="btn-logout" id="logoutBtn" onclick="handleLogout()" title="Sign Out">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="page-header">
+            <div class="page-title">
+                <h1>Purchases Journal</h1>
+                <p>Record of goods bought on Credit (Value OUT).</p>
+            </div>
+            <!-- Add Purchase Button -->
+            <a href="add-transaction.html" class="add-btn">
+                <i class="fa-solid fa-plus"></i> New Purchase
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="table-container">
+                <table id="purchasesTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Supplier Name</th>
+                            <th>Term</th>
+                            <th>Amount</th>
+                            <th class="col-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Data injected via JS -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-container">
+                <div class="spinner"></div>
+                <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;">Fetching credit purchases...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state">
+                <i class="fa-solid fa-receipt"></i>
+                <p>No credit purchase transactions found.</p>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast-container"></div>
+
+    <!-- Firebase Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // ── Firebase Config ──
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
+
+        // ── Initialize ──
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // ── DOM Elements ──
+        const tableBody = document.getElementById('tableBody');
+        const loadingState = document.getElementById('loadingState');
+        const emptyState = document.getElementById('emptyState');
+        const purchasesTable = document.getElementById('purchasesTable');
+        const userNameEl = document.getElementById('userName');
+        const userAvatarEl = document.getElementById('userAvatar');
+        const userAvatarInitialsEl = document.getElementById('userAvatarInitials');
+        const userInfoEl = document.getElementById('userInfo');
+
+        // ── Auth State ──
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "index.html";
+                return;
+            }
+
+            // Set User UI
+            const sessionData = localStorage.getItem("userSession");
+            let displayName = "User";
+            let photoUrl = null;
+
+            if (sessionData) {
+                const parsed = JSON.parse(sessionData);
+                displayName = parsed.name || user.displayName || "User";
+                photoUrl = parsed.photo || user.photoURL;
+            } else {
+                displayName = user.displayName || "User";
+                photoUrl = user.photoURL;
+            }
+
+            userNameEl.textContent = displayName;
+            userInfoEl.style.display = "block";
+
+            if (photoUrl) {
+                userAvatarEl.src = photoUrl;
+                userAvatarEl.style.display = "flex";
+            } else {
+                userAvatarInitialsEl.textContent = displayName.charAt(0).toUpperCase();
+                userAvatarInitialsEl.style.display = "flex";
+            }
+
+            // Load Data
+            fetchPurchases(user.email);
+        });
+
+        // ── Data Fetching (Strict Filter: Purchases + Credit) ──
+        async function fetchPurchases(userEmail) {
+            try {
+                const transactionsRef = collection(db, "users", userEmail, "transactions");
+                const q = query(transactionsRef, orderBy("date", "desc")); // Ordering by Date as standard for journals
+                
+                const querySnapshot = await getDocs(q);
+
+                tableBody.innerHTML = "";
+                loadingState.style.display = "none";
+
+                let hasData = false;
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    
+                    // ── FILTER LOGIC ──
+                    // 1. Detail must start with "Purchases"
+                    // 2. Flow Type must be "OUT" (Purchases are an outflow)
+                    // 3. Method must be "CREDIT" (As requested)
+                    
+                    const flowType = (data.type || "").toUpperCase();
+                    const detail = (data.detail || "").trim();
+                    const paymentMethod = (data.method || "").toUpperCase();
+                    
+                    const isPurchase = detail.toLowerCase().startsWith("purchases");
+                    const isCredit = paymentMethod === 'CREDIT';
+                    
+                    // STRICT FILTER: Must be Purchase AND OUT AND CREDIT
+                    if (isPurchase && flowType === 'OUT' && isCredit) {
+                        hasData = true;
+                        const docId = doc.id;
+
+                        // ── DATA PREPARATION ──
+                        const dateStr = data.date || "N/A";
+                        const amount = Math.abs(parseFloat(data.amount || 0));
+                        const amountFormatted = new Intl.NumberFormat('en-US', { 
+                            style: 'currency', currency: 'TZS' 
+                        }).format(amount);
+
+                        // Extract Supplier Name from "Purchases (Supplier Name)"
+                        let supplierName = "General Credit Purchase"; 
+                        const nameMatch = detail.match(/\(([^)]+)\)$/);
+                        
+                        if (nameMatch) {
+                            supplierName = nameMatch[1];
+                        }
+
+                        // Create Row
+                        const row = document.createElement('tr');
+                        
+                        row.innerHTML = `
+                            <td style="color: var(--text-muted); font-size: 0.85rem;">${dateStr}</td>
+                            <td style="font-weight: 500;">${supplierName}</td>
+                            <td><span class="badge badge-credit">On Credit</span></td>
+                            <td class="amount-cell">${amountFormatted}</td>
+                            <td class="col-actions">
+                                <a href="businessedit.html?id=${docId}" class="action-link" title="Edit">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </a>
+                                <a href="businessdelete.html?id=${docId}" class="action-link delete-link" title="Delete">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </a>
+                            </td>
+                        `;
+                        
+                        tableBody.appendChild(row);
+                    }
+                });
+
+                // Handle Empty State Logic
+                if (!hasData) {
+                    emptyState.classList.add('visible');
+                    purchasesTable.style.display = 'none';
+                } else {
+                    emptyState.classList.remove('visible');
+                    purchasesTable.style.display = 'table';
+                }
+
+            } catch (error) {
+                console.error("Error fetching purchases:", error);
+                loadingState.style.display = "none";
+                showToast("Failed to load data: " + error.message, true);
+            }
+        }
+
+        // ── Logout ──
+        window.handleLogout = async () => {
+            try {
+                await signOut(auth);
+                localStorage.removeItem("userSession");
+                window.location.href = "index.html";
+            } catch (error) {
+                console.error("Logout error:", error);
+                showToast("Error signing out.", "error");
+            }
+        };
+
+        // ── Helper: Toast Notification ──
+        function showToast(message, isError = false) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${isError ? 'error' : ''}`;
+            toast.textContent = message;
+            
+            container.appendChild(toast);
+            
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+            });
+
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
