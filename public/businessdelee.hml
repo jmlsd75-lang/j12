@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Transactions</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- CSS Reset & Base Styles --- */
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --danger: #EF4444;
+            --danger-hover: #DC2626;
+            --bg-body: #F3F4F6;
+            --bg-card: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --border: #E5E7EB;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 100px; /* Space for floating bar */
+        }
+
+        /* --- Header --- */
+        header {
+            background: var(--bg-card);
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .header-content {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        /* --- List Container --- */
+        .list-container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* --- List Item (Row) --- */
+        .list-row {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.2s;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .list-row:hover {
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.1);
+        }
+
+        .list-row.selected {
+            background-color: #EEF2FF;
+            border-color: var(--primary);
+        }
+
+        /* Checkbox Styling */
+        .checkbox-wrapper {
+            position: relative;
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .custom-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--text-muted);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .list-row.selected .custom-checkbox {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .custom-checkbox::after {
+            content: '✓';
+            color: white;
+            font-size: 16px;
+            display: none;
+        }
+
+        .list-row.selected .custom-checkbox::after {
+            display: block;
+        }
+
+        /* Content */
+        .row-details {
+            flex: 1;
+        }
+
+        .row-title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .row-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.in { background: #D1FAE5; color: #065F46; }
+        .badge.out { background: #FEE2E2; color: #991B1B; }
+
+        /* --- Floating Action Bar --- */
+        .action-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(150%); /* Hidden by default */
+            background: var(--bg-card);
+            padding: 12px 20px;
+            border-radius: 50px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border: 1px solid var(--border);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 100;
+            max-width: 90%;
+        }
+
+        .action-bar.visible {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .selection-count {
+            font-weight: 600;
+            color: var(--text-main);
+            white-space: nowrap;
+        }
+
+        .btn-delete-bulk {
+            background-color: var(--danger);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 24px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+
+        .btn-delete-bulk:hover {
+            background-color: var(--danger-hover);
+        }
+
+        /* --- Loader --- */
+        .loader-container {
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+        }
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #E5E7EB;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- Empty State --- */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <h1>Transactions</h1>
+            <div id="select-all-btn" style="font-size:0.9rem; color:var(--primary); cursor:pointer; font-weight:600; display:none;">Select All</div>
+        </div>
+    </header>
+
+    <main id="listContainer" class="list-container">
+        <div class="loader-container">
+            <div class="spinner"></div>
+        </div>
+    </main>
+
+    <!-- Floating Action Bar for Deletion -->
+    <div id="actionBar" class="action-bar">
+        <span class="selection-count" id="countText">0 Selected</span>
+        <button id="bulkDeleteBtn" class="btn-delete-bulk">Delete Selected</button>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { 
+            getFirestore, 
+            collection, 
+            getDocs,
+            writeBatch,
+            doc
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // State
+        let transactions = []; // Store all fetched data
+        let selectedIds = new Set(); // Store IDs of selected items
+        let userPath = "";
+
+        // DOM Elements
+        const listContainer = document.getElementById('listContainer');
+        const actionBar = document.getElementById('actionBar');
+        const countText = document.getElementById('countText');
+        const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+        const selectAllBtn = document.getElementById('select-all-btn');
+
+        // 1. Auth & Load
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            userPath = user.email;
+            await loadTransactions();
+        });
+
+        // 2. Fetch Transactions
+        async function loadTransactions() {
+            try {
+                // PATH: users/{email}/transactions
+                const q = collection(db, "users", userPath, "transactions");
+                const querySnapshot = await getDocs(q);
+                
+                transactions = [];
+                querySnapshot.forEach((doc) => {
+                    transactions.push({ id: doc.id, ...doc.data() });
+                });
+
+                renderList();
+            } catch (error) {
+                console.error("Error loading list:", error);
+                listContainer.innerHTML = `<div class="empty-state">Error loading data.</div>`;
+            }
+        }
+
+        // 3. Render List
+        function renderList() {
+            listContainer.innerHTML = '';
+
+            if (transactions.length === 0) {
+                listContainer.innerHTML = `<div class="empty-state">No transactions found.</div>`;
+                return;
+            }
+
+            transactions.forEach(item => {
+                const row = document.createElement('div');
+                row.className = `list-row ${selectedIds.has(item.id) ? 'selected' : ''}`;
+                row.onclick = (e) => toggleSelection(item.id, row);
+
+                // Format Amount
+                const amount = new Intl.NumberFormat('en-US', {
+                    style: 'currency', 
+                    currency: 'USD'
+                }).format(item.amount || 0);
+
+                // Parse Detail (Handle Credit Name)
+                let title = item.detail;
+                let method = item.method || 'CASH';
+                
+                row.innerHTML = `
+                    <div class="checkbox-wrapper">
+                        <div class="custom-checkbox"></div>
+                    </div>
+                    <div class="row-details">
+                        <div class="row-title">${title}</div>
+                        <div class="row-meta">
+                            <span class="badge ${item.type === 'IN' ? 'in' : 'out'}">${item.type}</span>
+                            <span>${amount}</span>
+                            <span>• ${method}</span>
+                        </div>
+                    </div>
+                `;
+                listContainer.appendChild(row);
+            });
+
+            updateUI();
+        }
+
+        // 4. Selection Logic
+        function toggleSelection(id, rowElement) {
+            if (selectedIds.has(id)) {
+                selectedIds.delete(id);
+                rowElement.classList.remove('selected');
+            } else {
+                selectedIds.add(id);
+                rowElement.classList.add('selected');
+            }
+            updateUI();
+        }
+
+        function updateUI() {
+            const count = selectedIds.size;
+            
+            // Show/Hide Action Bar
+            if (count > 0) {
+                actionBar.classList.add('visible');
+                countText.textContent = `${count} Selected`;
+                selectAllBtn.style.display = 'block';
+                selectAllBtn.textContent = count === transactions.length ? "Deselect All" : "Select All";
+            } else {
+                actionBar.classList.remove('visible');
+                selectAllBtn.style.display = 'none';
+            }
+        }
+
+        // 5. Select All Logic
+        selectAllBtn.onclick = () => {
+            if (selectedIds.size === transactions.length) {
+                // Deselect all
+                selectedIds.clear();
+            } else {
+                // Select all
+                transactions.forEach(t => selectedIds.add(t.id));
+            }
+            renderList(); // Re-render to show visuals
+        };
+
+        // 6. Bulk Delete Logic
+        bulkDeleteBtn.onclick = async () => {
+            if (!confirm(`Are you sure you want to delete ${selectedIds.size} transaction(s)?`)) return;
+
+            // Disable button
+            bulkDeleteBtn.textContent = "Deleting...";
+            bulkDeleteBtn.disabled = true;
+
+            try {
+                // Use Batch for simultaneous deletion
+                const batch = writeBatch(db);
+                selectedIds.forEach((id) => {
+                    const docRef = doc(db, "users", userPath, "transactions", id);
+                    batch.delete(docRef);
+                });
+
+                await batch.commit();
+
+                // --- REQUESTED CHANGE ---
+                // Redirect to list.html after successful deletion
+                window.location.href = 'list.html';
+                // -------------------------
+
+                // The code below updates local state and re-renders the UI.
+                // This is kept for safety, though typically the redirect happens 
+                // immediately and this code won't execute visibly.
+                transactions = transactions.filter(t => !selectedIds.has(t.id));
+                selectedIds.clear();
+                renderList();
+
+            } catch (error) {
+                console.error("Batch delete error:", error);
+                alert("Could not delete some items.");
+            } finally {
+                // Reset button
+                bulkDeleteBtn.disabled = false;
+                bulkDeleteBtn.textContent = "Delete Selected";
+            }
+        };
+
+    </script>
+</body>
+</html>
