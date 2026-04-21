@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trading Profit and Loss Account</title>
+  <style>
+    :root {
+      --primary: #4285F4;
+      --bg-body: #f4f6f9;
+      --bg-card: #ffffff;
+      --text-main: #2c3e50;
+      --text-muted: #7f8c8d;
+      --border-color: #000;
+      --header-bg: #e8e8e8;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--bg-card);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--text-main);
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: background 0.2s;
+      border:1px solid transparent;
+    }
+    .back-btn:hover { background-color: #f0f2f5; }
+    .back-btn svg { width: 20px; height: 20px; }
+
+    .user-info { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--text-muted); }
+    .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); }
+
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .page-title {
+      text-align: center;
+      font-size:1.8rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      color: var(--text-main);
+      text-transform: uppercase;
+      text-decoration: underline;
+      text-underline-offset: 6px;
+    }
+
+    .report-wrapper {
+      background: var(--bg-card);
+      padding: 30px;
+      border-radius: 4px;
+      box-shadow: var(--shadow);
+      border: 2px solid var(--border-color);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border-color);
+      padding: 10px 12px;
+      vertical-align: middle;
+    }
+
+    thead th {
+      background-color: var(--header-bg);
+      font-weight: bold;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .col-op { width: 18%; }
+    .col-detail { width: 42%; }
+    .col-dr { width: 14%; text-align: right; font-family: 'Courier New', monospace; }
+    .col-cr { width: 14%; text-align: right; font-family: 'Courier New', monospace; }
+    .col-amt { width: 12%; text-align: right; font-weight: bold; font-family: 'Courier New', monospace; }
+
+    /* Section Divider Row */
+    .section-row td {
+      background-color: #f0f2f5;
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 1rem;
+      text-align: center;
+      border-top: 2px solid var(--border-color);
+      border-bottom: 2px solid var(--border-color);
+      padding: 15px;
+      letter-spacing: 1px;
+    }
+
+    /* Subtotal / Total styling */
+    .sub-total td {
+      background-color: #fafafa;
+      font-weight: 600;
+    }
+    
+    .grand-total td {
+      background-color: #e8e8e8;
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .loading-msg, .empty-msg {
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    #status-msg {
+      text-align: center;
+      margin-bottom: 1rem;
+      padding: 10px;
+      border-radius: 4px;
+      font-weight: bold;
+      display: none;
+    }
+    .msg-error { color: #c0392b; background: #fadbd8; display: block !important; }
+    .msg-loading { color: var(--primary); background: #e8f0fe; display: block !important; }
+
+    @media print {
+      body { background-color: white; }
+      header, #status-msg { display: none; }
+      main { padding: 0; }
+      .report-wrapper { box-shadow: none; border: none; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="business.html" class="back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Menu
+    </a>
+    
+    <div class="user-info" id="userInfoDisplay"></div>
+  </header>
+
+  <main>
+    <div id="status-msg"></div>
+    <h1 class="page-title">Income Statement</h1>
+
+    <div class="report-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-op">Operation</th>
+            <th class="col-detail">Details</th>
+            <th class="col-dr">Dr (TZS)</th>
+            <th class="col-cr">Cr (TZS)</th>
+            <th class="col-amt">Amount (TZS)</th>
+          </tr>
+        </thead>
+        <tbody id="statementBody">
+          <tr><td colspan="5" class="loading-msg">Calculating Financials...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+      authDomain: "my-project-66803-95cb3.firebaseapp.com",
+      projectId: "my-project-66803-95cb3",
+      storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+      messagingSenderId: "167159607898",
+      appId: "1:167159607898:web:23ca11366b88868b085e63"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const tableBody = document.getElementById('statementBody');
+    const statusMsg = document.getElementById('status-msg');
+    const userInfoDisplay = document.getElementById('userInfoDisplay');
+
+    const formatCurrency = (amount) => {
+      return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
+    };
+
+    // --- ROW BUILDERS ---
+
+    const createRow = (op, detail, dr, cr, amt, isTotal = false) => {
+      const drStr = dr > 0 ? formatCurrency(dr) : "";
+      const crStr = cr > 0 ? formatCurrency(cr) : "";
+      const amtStr = amt !== null && amt !== undefined ? formatCurrency(amt) : '-';
+      const cssClass = isTotal ? 'grand-total' : (amt !== null ? 'sub-total' : '');
+      
+      return `<tr class="${cssClass}">
+        <td>${op}</td>
+        <td>${detail}</td>
+        <td class="col-dr">${drStr}</td>
+        <td class="col-cr">${crStr}</td>
+        <td class="col-amt">${amtStr}</td>
+      </tr>`;
+    };
+
+    const createSectionHeader = (title) => {
+      return `<tr class="section-row"><td colspan="5">${title}</td></tr>`;
+    };
+
+    const createSpacer = () => {
+      return `<tr><td colspan="5" style="padding: 5px; background: #fafafa; border:none;"></td></tr>`;
+    };
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+        return;
+      }
+      const sessionData = localStorage.getItem("userSession");
+      if (sessionData) {
+        const parsed = JSON.parse(sessionData);
+        userInfoDisplay.innerHTML = `<span>${parsed.name || "User"}</span><img src="${parsed.photo || 'https://picsum.photos/seed/user/32/32'}" class="user-avatar">`;
+      }
+      generateStatement(user.email);
+    });
+
+    async function generateStatement(userEmail) {
+      showStatus("Calculating Financials...", false);
+      tableBody.innerHTML = `<tr><td colspan="5" class="loading-msg">Processing...</td></tr>`;
+      
+      try {
+        // 1. Fetch and Process Data
+        const transactionsRef = collection(db, "users", userEmail, "transactions");
+        const q = query(transactionsRef, orderBy("date", "asc"));
+        const querySnapshot = await getDocs(q);
+
+        const accounts = {};
+        let corpTaxRate = 0; // Variable to hold the fetched percentage
+        
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const amount = parseFloat(data.amount || 0);
+          const type = (data.type || "IN").toUpperCase();
+          let detail = data.detail || "General";
+
+          // Parse Detail to get Account Name
+          const nameMatch = detail.match(/\(([^)]+)\)$/);
+          if (nameMatch) {
+            detail = detail.replace(/\s*\([^)]+\)$/, "").trim();
+          }
+
+          if (!accounts[detail]) accounts[detail] = { dr: 0, cr: 0 };
+
+          // Ledger Rule: OUT = DR, IN = CR
+          if (type === 'OUT') accounts[detail].dr += amount;
+          else accounts[detail].cr += amount;
+
+          // Fetch Corporation Tax Rate if found
+          if (detail === "Corporation Tax" && data.taxPercentage) {
+            corpTaxRate = parseFloat(data.taxPercentage);
+          }
+        });
+
+        // Helper: Get Absolute Balance
+        const getAbsBal = (name) => {
+          const acc = accounts[name] || { dr: 0, cr: 0 };
+          return Math.abs(acc.dr - acc.cr);
+        };
+
+        // --- 2. Collect Data Values ---
+        
+        // Trading Data
+        const sales = getAbsBal("Sales");
+        const salesReturns = getAbsBal("Sales Returns");
+        const openingStock = getAbsBal("Opening Stock");
+        const purchases = getAbsBal("Purchases");
+        const returnsOut = getAbsBal("Returns Outwards");
+        const carriageIn = getAbsBal("Carriage Inwards");
+        const closingStock = getAbsBal("Closing Stock");
+
+        // Income Data
+        const incomeItems = [
+          "Discount Received", "Commission Received", "Rent Received", 
+          "Interest Received", "Dividend Income", "Bad Debts Recovered", 
+          "Gain on Sale of Asset", "Sundry Income"
+        ];
+
+        // Expense Data
+        const expenseItems = [
+          "Wages & Salaries", "Rent & Rates", "Lighting & Heating", "Electricity & Gas",
+          "Water Charges", "Telephone & Internet", "Stationery", "Postage & Courier",
+          "Advertising Expenses", "Carriage Outwards", "Repairs & Maintenance", "Depreciation",
+          "Insurance", "Motor Vehicle Expenses", "Fuel & Transport", "Office Expenses",
+          "General Expenses", "Sundry Expenses", "Charges", "Bad Debts",
+          "Provision for Doubtful Debts", "Directors’ Remuneration", "Debenture Interest",
+          "Warehouse Rent", "Security Expenses", "Legal & Professional Fees", "Audit Fees",
+          "Subscriptions", "Training Expenses", "Travel & Accommodation", "Entertainment Expenses"
+        ];
+
+        // Appropriation Data
+        const genRes = getAbsBal("General Reserve");
+        const goodwill = getAbsBal("Goodwill Written off");
+        const prefDiv = getAbsBal("Preference Dividends");
+        const ordDiv = getAbsBal("Ordinary Dividends");
+        const retainedBF = getAbsBal("Retained Profit");
+
+        // --- 3. Build HTML String ---
+
+        let html = "";
+
+        // === TRADING ACCOUNT ===
+        html += createSectionHeader("Trading Account");
+
+        const netSales = sales - salesReturns;
+        html += createRow("", "Sales", 0, sales, null);
+        html += createRow("Less", "Sales Returns", salesReturns, 0, null);
+        html += createRow("", "<strong>Net Sales</strong>", 0, 0, netSales);
+        html += createSpacer();
+
+        const purchasesNet = purchases - returnsOut;
+        html += createRow("", "Opening Stock", openingStock, 0, null);
+        html += createRow("Add", "Purchases", purchases, 0, null);
+        html += createRow("Less", "Returns Outwards", 0, returnsOut, null);
+        html += createRow("Add", "Carriage Inwards", carriageIn, 0, null);
+        html += createRow("Less", "Closing Stock", 0, closingStock, null);
+        
+        const cogs = openingStock + purchasesNet + carriageIn - closingStock;
+        html += createRow("", "<strong>Cost of Goods Sold</strong>", 0, 0, cogs);
+        html += createSpacer();
+
+        const grossProfit = netSales - cogs;
+        
+        let grossLabel = "Gross Profit";
+        let grossVal = grossProfit;
+        if (grossProfit < 0) {
+          grossLabel = "Gross Loss";
+          grossVal = Math.abs(grossProfit);
+        }
+        
+        html += createRow("", `<strong>${grossLabel}</strong>`, 0, grossVal, grossVal, true);
+        html += createSpacer();
+
+        // === PROFIT & LOSS ACCOUNT ===
+        html += createSectionHeader("Profit & Loss Account");
+
+        let totalIncome = 0;
+        html += createRow("Add", "<strong>Income:</strong>", 0, 0, null);
+        
+        incomeItems.forEach(inc => {
+          const val = getAbsBal(inc);
+          if (val > 0) {
+            totalIncome += val;
+            html += createRow("", inc, 0, val, null);
+          }
+        });
+        html += createRow("", "<strong>Total Income</strong>", 0, 0, totalIncome);
+        html += createSpacer();
+
+        let totalExp = 0;
+        html += createRow("Less", "<strong>Expenses:</strong>", 0, 0, null);
+        
+        expenseItems.forEach(exp => {
+          const val = getAbsBal(exp);
+          if (val > 0) {
+            totalExp += val;
+            html += createRow("", exp, val, 0, null);
+          }
+        });
+        html += createRow("", "<strong>Total Expenses</strong>", 0, 0, totalExp);
+        html += createSpacer();
+
+        // Calculate Net Profit
+        const netProfit = grossProfit + totalIncome - totalExp;
+        
+        let netLabel = "Net Profit for the Year";
+        let netVal = netProfit;
+        if (netProfit < 0) {
+          netLabel = "Net Loss for the Year";
+          netVal = Math.abs(netProfit);
+        }
+
+        html += createRow("", `<strong>${netLabel}</strong>`, 0, 0, netVal, true);
+        html += createSpacer();
+
+        // === APPROPRIATION ACCOUNT ===
+        html += createSectionHeader("Appropriation Account");
+
+        html += createRow("Add", "Retained Profit b/f", 0, retainedBF, null);
+        
+        // --- CALCULATION LOGIC FOR CORPORATION TAX ---
+        let calculatedCorpTax = 0;
+
+        // Only calculate if there is a Net Profit (not a loss) and a rate exists
+        if (netProfit > 0 && corpTaxRate > 0) {
+          calculatedCorpTax = netProfit * (corpTaxRate / 100);
+        }
+        
+        html += createRow("Less", "Corporation Tax", calculatedCorpTax, 0, null);
+        
+        html += createRow("Less", "Transfer to General Reserve", genRes, 0, null);
+        html += createRow("Less", "Goodwill Written off", goodwill, 0, null);
+        html += createRow("Less", "Preference Dividends", prefDiv, 0, null);
+        html += createRow("Less", "Ordinary Dividends", ordDiv, 0, null);
+        
+        const retainedCF = retainedBF + netProfit - (calculatedCorpTax + genRes + goodwill + prefDiv + ordDiv);
+        
+        let retLabel = "Retained Profit c/f";
+        let retVal = retainedCF;
+        if (retainedCF < 0) {
+          retLabel = "Retained Loss c/f";
+          retVal = Math.abs(retainedCF);
+        }
+
+        html += createRow("", `<strong>${retLabel}</strong>`, 0, 0, retVal, true);
+
+        // Render
+        tableBody.innerHTML = html;
+        hideStatus();
+
+      } catch (error) {
+        console.error(error);
+        showStatus("Error generating statement: " + error.message, true);
+        tableBody.innerHTML = `<tr><td colspan="5" class="empty-msg" style="color:red">Error loading data.</td></tr>`;
+      }
+    }
+
+    function showStatus(msg, isError) {
+      statusMsg.textContent = msg;
+      statusMsg.className = isError ? 'msg-error' : 'msg-loading';
+    }
+    function hideStatus() { statusMsg.style.display = 'none'; }
+
+  </script>
+</body>
+</html>
