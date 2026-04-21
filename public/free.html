@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Session Timer</title>
+    <title>Free Session</title>
     <style>
         :root {
             --bg-color: #121212;
@@ -39,7 +39,6 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #333;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         .user-info {
@@ -167,15 +166,15 @@
     </header>
 
     <main id="main-interface">
-        <!-- Default to 00:03:00 visually to satisfy "immediate start" request -->
+        <!-- Default visual to prevent blank flash -->
         <div id="timer" class="timer-display">00:03:00</div>
         <div id="status-text" class="status-message">Initializing...</div>
 
         <div class="action-area">
-            <!-- Menu Button (Center) -->
+            <!-- Constraint: Menu Button -->
             <a href="menu.html" class="btn btn-menu">Menu</a>
 
-            <!-- Awaiting State Buttons -->
+            <!-- Constraint: Awaiting State Buttons -->
             <button id="btn-await" class="btn btn-await" style="display: none;" disabled>Await</button>
             <a id="btn-pay" href="pay.html" class="btn btn-pay" style="display: none;">Pay</a>
         </div>
@@ -202,11 +201,18 @@
             appId: "1:167159607898:web:23ca11366b88868b085e63"
         };
 
-        const THREE_MINUTES_MS = 3 * 60 * 1000;
-        const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
-        
-        // Generate a unique ID for THIS specific tab instance
+        // Total "Work" required = 3 minutes in seconds
+        const TOTAL_WORK_SECONDS = 3 * 60; 
+        // Cooldown = 24 hours in ms
+        const AWAIT_TIME_MS = 24 * 60 * 60 * 1000;
+
         const tabId = crypto.randomUUID();
+
+        // Global State Variables
+        let sessionState = 'idle'; 
+        let dbStartTime = null; // Date object
+        let dbEndTime = null;   // Date object
+        let currentRate = 1;     // The multiplier (Tabs count)
 
         const ui = {
             email: document.getElementById('user-email-display'),
@@ -221,32 +227,91 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // ── IMMEDIATE START & AUTH CHECK ──
+        // ── 1. AUTH CHECK ──
         onAuthStateChanged(auth, (user) => {
             if (!user) {
-                window.location.href = "createfree.html";
+                window.location.href = "createfree.html"; 
                 return;
             }
             ui.email.textContent = user.email;
-            
-            // Immediately initialize session logic
+            // Start Logic Immediately (No Loading Screen)
             initSession(user.email);
         });
 
+        // ── 2. VISUAL TIMER LOOP (Runs every second) ──
+        setInterval(() => {
+            updateVisualTimer();
+        }, 1000);
+
+        function updateVisualTimer() {
+            const now = new Date();
+
+            // --- ACTIVE PHASE LOGIC ---
+            if (sessionState === 'active' && dbStartTime) {
+                
+                // A. Calculate Real Elapsed Time
+                const elapsedMs = now - dbStartTime;
+                const elapsedSeconds = elapsedMs / 1000;
+
+                // B. Calculate "Work Done" based on Current Rate
+                // Formula: Work = Time × Rate
+                const workDone = elapsedSeconds * currentRate;
+
+                // C. Calculate Remaining Work
+                let remainingWork = TOTAL_WORK_SECONDS - workDone;
+
+                if (remainingWork <= 0) {
+                    ui.timer.textContent = "00:00:00";
+                    finishSession(); 
+                } else {
+                    // D. Convert Remaining Work back to Display Time
+                    // Formula: Time = Work / Rate
+                    // We show the user how much "clock time" is left at the current speed
+                    const displaySeconds = remainingWork / currentRate;
+                    
+                    ui.timer.textContent = formatTime(displaySeconds * 1000);
+                    ui.status.textContent = `Active (Speed: ${currentRate}x)`;
+                }
+            } 
+            
+            // --- AWAITING PHASE LOGIC ---
+            else if (sessionState === 'awaiting' && dbEndTime) {
+                const elapsedMs = now - dbEndTime;
+                const remainingMs = AWAIT_TIME_MS - elapsedMs;
+
+                if (remainingMs <= 0) {
+                    ui.timer.textContent = "00:00:00";
+                    resetSystem();
+                } else {
+                    ui.timer.textContent = formatTime(remainingMs);
+                    ui.status.textContent = "Please wait.";
+                }
+            } 
+            
+            // --- IDLE PHASE LOGIC ---
+            else {
+                if (sessionState === 'idle') {
+                    ui.timer.textContent = "00:03:00";
+                }
+            }
+        }
+
+        // ── 3. DATABASE INITIALIZATION & SYNC ──
         async function initSession(email) {
             const userRef = doc(db, "users", email);
 
-            // 1. Register Tab & Deduplicate (Fixes Rate: 3 issue)
+            // A. Transaction to Register Tab and Start Session
             try {
                 await runTransaction(db, async (transaction) => {
                     const snap = await transaction.get(userRef);
                     
                     if (!snap.exists()) {
-                        // Create user if doesn't exist
+                        // New User: Start Immediately
                         transaction.set(userRef, {
                             email: email,
+                            sessionState: 'active',
+                            startTime: serverTimestamp(),
                             activeTabs: [tabId],
-                            sessionState: 'idle', // Will become active immediately
                             createdAt: serverTimestamp()
                         });
                         return;
@@ -254,24 +319,18 @@
 
                     const data = snap.data();
                     let activeTabs = data.activeTabs || [];
-                    let sessionState = data.sessionState || 'idle';
+                    let state = data.sessionState || 'idle';
 
-                    // --- FIX START: DEDUPLICATION ---
-                    // Remove the current tabId if it exists (prevents duplicates on refresh)
+                    // Deduplicate: Remove existing instance of this tab ID
                     activeTabs = activeTabs.filter(id => id !== tabId);
-                    // Ensure all IDs are unique (removes any accidental duplicates from other tabs)
-                    activeTabs = [...new Set(activeTabs)];
-                    // Add current tab back
+                    // Add this tab back
                     activeTabs.push(tabId);
-                    // --- FIX END ---
 
-                    transaction.update(userRef, {
-                        activeTabs: activeTabs
-                    });
+                    transaction.update(userRef, { activeTabs: activeTabs });
 
-                    // Force Start Logic: If not awaiting, ensure we are Active
-                    if (sessionState !== 'awaiting') {
-                        if (sessionState === 'idle' || sessionState === 'finished') {
+                    // If not currently waiting, force start active if idle
+                    if (state !== 'awaiting') {
+                        if (state === 'idle' || state === 'finished') {
                             transaction.update(userRef, {
                                 sessionState: 'active',
                                 startTime: serverTimestamp()
@@ -280,130 +339,110 @@
                     }
                 });
             } catch (e) {
-                console.error("Init transaction failed", e);
-                ui.status.textContent = "Connection error";
+                console.error("Init failed:", e);
+                ui.status.textContent = "Connection Error";
             }
 
-            // 2. Listen for updates
+            // B. Real-time Listener
             onSnapshot(userRef, (docSnap) => {
                 if (docSnap.exists()) {
-                    handleUpdate(docSnap.data());
+                    handleDatabaseUpdate(docSnap.data());
                 }
             });
         }
 
-        // ── STATE HANDLER ──
-        function handleUpdate(data) {
-            const state = data.sessionState || 'idle';
-            // Use the cleaned array from the DB
-            const activeTabs = data.activeTabs || []; 
-            const startTime = data.startTime ? data.startTime.toDate() : null;
-            const lastSessionEnd = data.lastSessionEnd ? data.lastSessionEnd.toDate() : null;
-
-            // Update Rate Counter
-            // Constraint: Rate is tab count, but fixed at 1 if awaiting
-            ui.tabCount.textContent = (state === 'awaiting') ? 1 : activeTabs.length;
-
-            if (state === 'active') {
-                renderActive(startTime);
-            } else if (state === 'awaiting') {
-                renderAwaiting(lastSessionEnd);
+        // ── 4. UPDATE STATE FROM DATABASE ──
+        function handleDatabaseUpdate(data) {
+            // Update Global State
+            sessionState = data.sessionState || 'idle';
+            dbStartTime = data.startTime ? data.startTime.toDate() : null;
+            dbEndTime = data.lastSessionEnd ? data.lastSessionEnd.toDate() : null;
+            
+            const activeTabs = data.activeTabs || [];
+            
+            // Calculate Rate
+            // In awaiting phase, rate is fixed at 1. In active, it's tab count.
+            if (sessionState === 'awaiting') {
+                currentRate = 1;
             } else {
-                // Should transition to active instantly, but default to 00:03:00
+                // Prevent division by zero, default to 1 if 0 tabs
+                currentRate = activeTabs.length > 0 ? activeTabs.length : 1;
+            }
+
+            // Update UI Counter
+            ui.tabCount.textContent = currentRate;
+
+            // Update UI Styles & Buttons
+            if (sessionState === 'awaiting') {
+                ui.timer.classList.remove('active');
+                ui.timer.classList.add('awaiting');
+                ui.btnAwait.style.display = 'inline-block';
+                ui.btnPay.style.display = 'inline-block';
+            } else {
                 ui.timer.classList.remove('awaiting');
                 ui.timer.classList.add('active');
-                ui.timer.textContent = "00:03:00";
-                ui.status.textContent = "Starting...";
                 ui.btnAwait.style.display = 'none';
                 ui.btnPay.style.display = 'none';
             }
+
+            // Force immediate visual update
+            updateVisualTimer();
         }
 
-        function renderActive(startTime) {
-            ui.timer.classList.remove('awaiting');
-            ui.timer.classList.add('active');
-            ui.btnAwait.style.display = 'none';
-            ui.btnPay.style.display = 'none';
+        // ── 5. ACTIONS ──
+        async function finishSession() {
+            // Guard against multiple calls
+            if (sessionState !== 'active') return; 
 
-            if (!startTime) return;
-
-            const now = new Date();
-            const elapsed = now - startTime;
-            const remaining = THREE_MINUTES_MS - elapsed;
-
-            if (remaining <= 0) {
-                ui.timer.textContent = "00:00:00";
-                finishSession(ui.email.textContent);
-            } else {
-                ui.timer.textContent = formatTime(remaining);
-                ui.status.textContent = "Session in progress.";
-            }
-        }
-
-        function renderAwaiting(lastSessionEnd) {
-            ui.timer.classList.remove('active');
-            ui.timer.classList.add('awaiting');
-            ui.btnAwait.style.display = 'inline-block';
-            ui.btnPay.style.display = 'inline-block';
-
-            if (!lastSessionEnd) {
-                ui.timer.textContent = "24:00:00";
-                ui.status.textContent = "Awaiting period.";
-                return;
-            }
-
-            const now = new Date();
-            const elapsedSinceEnd = now - lastSessionEnd;
-            const remainingWait = TWENTY_FOUR_HOURS_MS - elapsedSinceEnd;
-
-            if (remainingWait <= 0) {
-                // Time is up! Reset to Idle
-                resetSystem(ui.email.textContent);
-            } else {
-                ui.timer.textContent = formatTime(remainingWait);
-                ui.status.textContent = "Please wait.";
-            }
-        }
-
-        async function finishSession(email) {
+            const email = ui.email.textContent;
             const userRef = doc(db, "users", email);
+
             try {
                 await runTransaction(db, async (transaction) => {
                     const snap = await transaction.get(userRef);
                     if (!snap.exists()) return;
                     const data = snap.data();
 
-                    // Prevent double finish
+                    // Only finish if we are actually active
                     if (data.sessionState === 'active') {
                         transaction.update(userRef, {
                             sessionState: 'awaiting',
                             lastSessionEnd: serverTimestamp(),
-                            activeTabs: [] // Clear tabs to reset rate
+                            activeTabs: [] // Clear tabs for the penalty phase
                         });
                     }
                 });
             } catch (e) { console.error(e); }
 
+            // Redirect to Penalty Page
             setTimeout(() => {
                 window.location.href = "await.html";
-            }, 500);
+            }, 1000);
         }
 
-        async function resetSystem(email) {
+        async function resetSystem() {
+            // Guard
+            if (sessionState !== 'awaiting') return;
+
+            const email = ui.email.textContent;
             const userRef = doc(db, "users", email);
-            await updateDoc(userRef, {
-                sessionState: 'idle',
-                startTime: null,
-                lastSessionEnd: null
-            });
+
+            try {
+                await updateDoc(userRef, {
+                    sessionState: 'idle',
+                    startTime: null,
+                    lastSessionEnd: null
+                });
+                // The snapshot listener will catch this change and restart the cycle
+            } catch (e) { console.error(e); }
         }
 
         // ── UTILS ──
         function formatTime(ms) {
-            const totalSeconds = Math.floor(ms / 1000);
+            const totalSeconds = Math.max(0, ms / 1000);
             const h = Math.floor(totalSeconds / 3600);
             const m = Math.floor((totalSeconds % 3600) / 60);
-            const s = totalSeconds % 60;
+            const s = Math.floor(totalSeconds % 60);
             return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
         }
 
