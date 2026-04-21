@@ -10,8 +10,8 @@
             margin: 0;
             height: 100vh;
             display: flex;
-            justify-content: center; /* horizontal center */
-            align-items: center;     /* vertical center */
+            justify-content: center;
+            align-items: center;
             font-family: Arial, sans-serif;
             background: #f4f4f4;
         }
@@ -33,14 +33,10 @@
 </head>
 <body>
 
-    <!-- Centered Login Button -->
-    <button id="loginBtn">Login</button>
+    <button onclick="startLogin()">Login</button>
 
-    <script>
-        document.getElementById("loginBtn").onclick = function () {
-            window.location.href = "login.html";
-        };
-    </script>
+    <!-- Link your JS file -->
+    <script src="login.js"></script>
 
 </body>
 </html>
