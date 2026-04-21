@@ -39,6 +39,7 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #333;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         .user-info {
@@ -161,17 +162,18 @@
         </div>
         <div class="rate-counter">
             <span>Rate:</span>
-            <div id="tab-count">Loading...</div>
+            <div id="tab-count">...</div>
         </div>
     </header>
 
     <main id="main-interface">
-        <div id="timer" class="timer-display">00:00:00</div>
-        <div id="status-text" class="status-message">Loading...</div>
+        <!-- Default to 00:03:00 visually to satisfy "immediate start" request -->
+        <div id="timer" class="timer-display">00:03:00</div>
+        <div id="status-text" class="status-message">Initializing...</div>
 
         <div class="action-area">
             <!-- Menu Button (Center) -->
-            <a href="men.html" class="btn btn-menu">Menu</a>
+            <a href="menu.html" class="btn btn-menu">Menu</a>
 
             <!-- Awaiting State Buttons -->
             <button id="btn-await" class="btn btn-await" style="display: none;" disabled>Await</button>
@@ -202,6 +204,8 @@
 
         const THREE_MINUTES_MS = 3 * 60 * 1000;
         const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
+        
+        // Generate a unique ID for THIS specific tab instance
         const tabId = crypto.randomUUID();
 
         const ui = {
@@ -217,7 +221,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // ── AUTH CHECK & IMMEDIATE START ──
+        // ── IMMEDIATE START & AUTH CHECK ──
         onAuthStateChanged(auth, (user) => {
             if (!user) {
                 window.location.href = "createfree.html";
@@ -225,51 +229,65 @@
             }
             ui.email.textContent = user.email;
             
-            // 1. IMMEDIATELY register tab and start logic
-            // No waiting for "Verifying" text. Logic runs instantly.
+            // Immediately initialize session logic
             initSession(user.email);
         });
 
         async function initSession(email) {
             const userRef = doc(db, "users", email);
-            let unsubscribe;
 
-            // 2. Force Start Transaction (Ensures 00:03:00 starts if idle)
+            // 1. Register Tab & Deduplicate (Fixes Rate: 3 issue)
             try {
                 await runTransaction(db, async (transaction) => {
                     const snap = await transaction.get(userRef);
-                    const data = snap.exists() ? snap.data() : { sessionState: 'idle' };
-                    const activeTabs = data.activeTabs || [];
-
-                    // Register this tab
-                    if (!activeTabs.includes(tabId)) {
-                        transaction.update(userRef, {
-                            activeTabs: [...activeTabs, tabId]
+                    
+                    if (!snap.exists()) {
+                        // Create user if doesn't exist
+                        transaction.set(userRef, {
+                            email: email,
+                            activeTabs: [tabId],
+                            sessionState: 'idle', // Will become active immediately
+                            createdAt: serverTimestamp()
                         });
+                        return;
                     }
 
-                    // FORCE START: If not currently 'awaiting', we start/continue 'active'
-                    if (data.sessionState !== 'awaiting') {
-                        // If it's 'idle' or 'finished', we MUST set startTime to NOW
-                        // This triggers the countdown immediately upon page load.
-                        if (data.sessionState === 'idle' || data.sessionState === 'finished') {
+                    const data = snap.data();
+                    let activeTabs = data.activeTabs || [];
+                    let sessionState = data.sessionState || 'idle';
+
+                    // --- FIX START: DEDUPLICATION ---
+                    // Remove the current tabId if it exists (prevents duplicates on refresh)
+                    activeTabs = activeTabs.filter(id => id !== tabId);
+                    // Ensure all IDs are unique (removes any accidental duplicates from other tabs)
+                    activeTabs = [...new Set(activeTabs)];
+                    // Add current tab back
+                    activeTabs.push(tabId);
+                    // --- FIX END ---
+
+                    transaction.update(userRef, {
+                        activeTabs: activeTabs
+                    });
+
+                    // Force Start Logic: If not awaiting, ensure we are Active
+                    if (sessionState !== 'awaiting') {
+                        if (sessionState === 'idle' || sessionState === 'finished') {
                             transaction.update(userRef, {
                                 sessionState: 'active',
                                 startTime: serverTimestamp()
                             });
                         }
-                        // If it's already 'active', we do nothing (it's already ticking)
                     }
                 });
             } catch (e) {
                 console.error("Init transaction failed", e);
+                ui.status.textContent = "Connection error";
             }
 
-            // 3. Start Listening to update UI in real-time
-            unsubscribe = onSnapshot(userRef, (docSnap) => {
+            // 2. Listen for updates
+            onSnapshot(userRef, (docSnap) => {
                 if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    handleUpdate(data);
+                    handleUpdate(docSnap.data());
                 }
             });
         }
@@ -277,7 +295,8 @@
         // ── STATE HANDLER ──
         function handleUpdate(data) {
             const state = data.sessionState || 'idle';
-            const activeTabs = data.activeTabs || [];
+            // Use the cleaned array from the DB
+            const activeTabs = data.activeTabs || []; 
             const startTime = data.startTime ? data.startTime.toDate() : null;
             const lastSessionEnd = data.lastSessionEnd ? data.lastSessionEnd.toDate() : null;
 
@@ -290,10 +309,13 @@
             } else if (state === 'awaiting') {
                 renderAwaiting(lastSessionEnd);
             } else {
-                // Should technically not happen due to Force Start above,
-                // but fallback: Show 00:03:00
+                // Should transition to active instantly, but default to 00:03:00
+                ui.timer.classList.remove('awaiting');
+                ui.timer.classList.add('active');
                 ui.timer.textContent = "00:03:00";
-                ui.status.textContent = "Ready.";
+                ui.status.textContent = "Starting...";
+                ui.btnAwait.style.display = 'none';
+                ui.btnPay.style.display = 'none';
             }
         }
 
@@ -335,7 +357,7 @@
             const remainingWait = TWENTY_FOUR_HOURS_MS - elapsedSinceEnd;
 
             if (remainingWait <= 0) {
-                // Time is up! Reset to Idle, which will trigger Active immediately via initSession
+                // Time is up! Reset to Idle
                 resetSystem(ui.email.textContent);
             } else {
                 ui.timer.textContent = formatTime(remainingWait);
@@ -348,13 +370,15 @@
             try {
                 await runTransaction(db, async (transaction) => {
                     const snap = await transaction.get(userRef);
+                    if (!snap.exists()) return;
                     const data = snap.data();
-                    // Ensure we only finish if currently active (prevent double finish)
+
+                    // Prevent double finish
                     if (data.sessionState === 'active') {
                         transaction.update(userRef, {
                             sessionState: 'awaiting',
                             lastSessionEnd: serverTimestamp(),
-                            activeTabs: [] // Clear tabs
+                            activeTabs: [] // Clear tabs to reset rate
                         });
                     }
                 });
