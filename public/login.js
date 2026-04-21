@@ -5,7 +5,8 @@ import {
     GoogleAuthProvider,
     signInWithPopup,
     setPersistence,
-    browserLocalPersistence
+    browserLocalPersistence,
+    onAuthStateChanged // <--- Added this import
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
     getFirestore,
@@ -37,14 +38,21 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
-setPersistence(auth, browserLocalPersistence);
+// ── PERSISTENCE ──
+// Keeps user logged in even after closing the browser
+setPersistence(auth, browserLocalPersistence)
+    .then(() => {
+        console.log("Persistence set to Local");
+    })
+    .catch((err) => {
+        console.error("Persistence error:", err);
+    });
 
-// ── CHECK ADMIN ──
+// ─── HELPERS ───
 function isAdmin(email) {
     return ADMIN_EMAILS.includes(email);
 }
 
-// ── FIRESTORE USER SYNC ──
 async function syncUser(user) {
     const ref = doc(db, "users", user.email);
     const snap = await getDoc(ref);
@@ -65,20 +73,21 @@ async function syncUser(user) {
     }
 }
 
-// ── LOGIN BUTTON ──
-document.getElementById("googleLoginBtn").addEventListener("click", async () => {
+// ─── LOGIN LOGIC (CENTRALIZED) ───
+// Lock to prevent double-execution when login popup closes and observer fires
+let isRedirecting = false;
+
+async function processLogin(user) {
+    if (isRedirecting) return;
+    isRedirecting = true;
+
     const btn = document.getElementById("googleLoginBtn");
 
-    const old = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = `<span class="spinner"></span> Signing in...`;
-
     try {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-
+        // 1. Sync Data with Firestore
         const dbData = await syncUser(user);
 
+        // 2. Create Session Object
         const session = {
             email: user.email,
             name: user.displayName,
@@ -86,22 +95,68 @@ document.getElementById("googleLoginBtn").addEventListener("click", async () => 
             db: dbData
         };
 
+        // 3. Save to LocalStorage (Your original requirement)
         localStorage.setItem("session", JSON.stringify(session));
 
-        btn.innerHTML = "✓ Success";
+        // 4. UI Feedback
+        if (btn) {
+            btn.innerHTML = "✓ Success";
+            btn.disabled = true;
+        }
 
+        // 5. Redirect
         setTimeout(() => {
-            if (isAdmin(user.email)) {
-                window.location.href = "admin.html";
-            } else {
-                window.location.href = "free.html";
-            }
+            const destination = isAdmin(user.email) ? "admin.html" : "free.html";
+            window.location.href = destination;
         }, 800);
 
+    } catch (error) {
+        console.error("Login processing error:", error);
+        isRedirecting = false; // Unlock on failure so they can try again
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = "Sign in with Google";
+        }
+        alert("Error preparing session: " + error.message);
+    }
+}
+
+// ─── AUTH STATE OBSERVER ───
+// This runs automatically when the page loads to check saved state
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        // User is already logged in, restore state and redirect
+        processLogin(user);
+    } else {
+        // User is signed out, ensure button is ready
+        isRedirecting = false;
+        const btn = document.getElementById("googleLoginBtn");
+        if (btn) {
+            btn.disabled = false;
+        }
+    }
+});
+
+// ─── BUTTON CLICK HANDLER ───
+document.getElementById("googleLoginBtn").addEventListener("click", async () => {
+    const btn = document.getElementById("googleLoginBtn");
+    const oldContent = btn.innerHTML;
+
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner"></span> Signing in...`;
+
+    try {
+        // Trigger Google Popup
+        await signInWithPopup(auth, provider);
+        
+        // Note: We do NOT need to manually call processLogin here.
+        // The 'onAuthStateChanged' listener above will detect the login 
+        // automatically and trigger processLogin for us.
+        
     } catch (err) {
         console.error(err);
         btn.disabled = false;
-        btn.innerHTML = old;
+        btn.innerHTML = oldContent;
         alert("Login failed: " + err.message);
     }
 });
