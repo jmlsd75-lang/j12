@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Login</title>
 
     <style>
         body {
@@ -12,30 +12,29 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: Arial, sans-serif;
             background: #f4f4f4;
+            font-family: Arial, sans-serif;
         }
 
-        button {
+        #loginBtn {
             padding: 15px 30px;
             font-size: 18px;
-            cursor: pointer;
             border: none;
             border-radius: 8px;
-            background: #007bff;
+            background: #dc3545; /* RED */
             color: white;
+            cursor: pointer;
         }
 
-        button:hover {
-            background: #0056b3;
+        #loginBtn:hover {
+            background: #a71d2a; /* darker red on hover */
         }
     </style>
 </head>
 <body>
 
-    <button onclick="startLogin()">Login</button>
+    <button id="loginBtn">Login</button>
 
-    <!-- Link your JS file -->
     <script src="login.js"></script>
 
 </body>
