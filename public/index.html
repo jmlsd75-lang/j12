@@ -1,82 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>JAMALI SAIDI KAZEMBE MULTISYSTEM MANAGEMENT</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>JAMALI SAIDI KAZEMBE MULTISYSTEM MANAGEMENT</title>
 
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        background: #f4f7f6;
-        text-align: center;
-    }
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f4f7f6;
+            text-align: center;
+        }
 
-    header {
-        background: #007bff;
-        color: white;
-        padding: 20px;
-    }
+        header {
+            background: #007bff;
+            color: white;
+            padding: 20px;
+        }
 
-    h1 {
-        font-size: 20px;
-        margin: 0;
-    }
+        h1 {
+            font-size: 20px;
+            margin: 0;
+        }
 
-    .top-buttons {
-        margin-top: 10px;
-    }
+        .top-buttons {
+            margin-top: 10px;
+        }
 
-    button {
-        padding: 10px 15px;
-        margin: 5px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-    }
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
 
-    .instruction {
-        background: #28a745;
-        color: white;
-    }
+        .instruction {
+            background: #28a745;
+            color: white;
+        }
 
-    .whatsapp {
-        background: #25D366;
-        color: white;
-    }
+        .whatsapp {
+            background: #25D366;
+            color: white;
+        }
 
-    .login-box {
-        margin-top: 60px;
-    }
+        .login-box {
+            margin-top: 60px;
+        }
 
-    .msg {
-        margin-bottom: 15px;
-        font-size: 15px;
-        color: #333;
-    }
+        .msg {
+            margin-bottom: 15px;
+            font-size: 15px;
+            color: #333;
+        }
 
-    .login-btn {
-        background: #db4437;
-        color: white;
-        font-size: 16px;
-    }
+        .login-btn {
+            background: #db4437;
+            color: white;
+            font-size: 16px;
+        }
 
-    .spinner {
-        width: 16px;
-        height: 16px;
-        border: 2px solid #ddd;
-        border-top: 2px solid #4285F4;
-        border-radius: 50%;
-        display: inline-block;
-        animation: spin 1s linear infinite;
-    }
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ddd;
+            border-top: 2px solid #4285F4;
+            border-radius: 50%;
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
 
-    @keyframes spin {
-        100% { transform: rotate(360deg); }
-    }
-</style>
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 
 <body>
@@ -107,117 +107,8 @@
 
 </div>
 
-<!-- Firebase (MODULAR CDN) -->
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-    getAuth,
-    GoogleAuthProvider,
-    signInWithPopup,
-    setPersistence,
-    browserLocalPersistence
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {
-    getFirestore,
-    doc,
-    getDoc,
-    setDoc,
-    updateDoc,
-    serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-// ── CONFIG ──
-const firebaseConfig = {
-    apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
-    authDomain: "my-project-66803-95cb3.firebaseapp.com",
-    projectId: "my-project-66803-95cb3",
-    storageBucket: "my-project-66803-95cb3.firebasestorage.app",
-    messagingSenderId: "167159607898",
-    appId: "1:167159607898:web:23ca11366b88868b085e63"
-};
-
-const ADMIN_EMAILS = [
-    "jmlsd75@gmail.com",
-    "mohd.khamis18.mk@gmail.com"
-];
-
-// ── INIT ──
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const provider = new GoogleAuthProvider();
-
-setPersistence(auth, browserLocalPersistence);
-
-// ── CHECK ADMIN ──
-function isAdmin(email) {
-    return ADMIN_EMAILS.includes(email);
-}
-
-// ── FIRESTORE USER SYNC ──
-async function syncUser(user) {
-    const ref = doc(db, "users", user.email);
-    const snap = await getDoc(ref);
-
-    if (snap.exists()) {
-        await updateDoc(ref, { lastVisit: serverTimestamp() });
-        return snap.data();
-    } else {
-        const data = {
-            email: user.email,
-            name: user.displayName || "User",
-            createdAt: serverTimestamp(),
-            lastVisit: serverTimestamp(),
-            lastPayment: null
-        };
-        await setDoc(ref, data);
-        return data;
-    }
-}
-
-// ── LOGIN BUTTON ──
-document.getElementById("googleLoginBtn").addEventListener("click", async () => {
-    const btn = document.getElementById("googleLoginBtn");
-
-    const old = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = `<span class="spinner"></span> Signing in...`;
-
-    try {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-
-        const dbData = await syncUser(user);
-
-        const session = {
-            email: user.email,
-            name: user.displayName,
-            isAdmin: isAdmin(user.email),
-            db: dbData
-        };
-
-        localStorage.setItem("session", JSON.stringify(session));
-
-        btn.innerHTML = "✓ Success";
-
-        setTimeout(() => {
-            if (isAdmin(user.email)) {
-                window.location.href = "admin.html";
-            } else {
-                window.location.href = "free.html";
-            }
-        }, 800);
-
-    } catch (err) {
-        console.error(err);
-        btn.disabled = false;
-        btn.innerHTML = old;
-        alert("Login failed: " + err.message);
-    }
-});
-
-</script>
+<!-- Connect the external JavaScript file -->
+<script type="module" src="login.js"></script>
 
 </body>
 </html>
