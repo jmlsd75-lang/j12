@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bundle Purchase</title>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --danger-color: #dc3545;
+            --success-color: #28a745;
+            --bg-color: #f4f7f6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+        }
+
+        h2, h3 {
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+        }
+
+        /* Step Management */
+        .step {
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            gap: 15px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .step.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Bundle Cards */
+        .bundle-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        .bundle-card {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .bundle-card:hover {
+            background: #dbe2ef;
+            border-color: var(--primary-color);
+        }
+
+        /* Forms */
+        input {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            width: 90%;
+        }
+
+        .info-box {
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn-submit { background-color: var(--success-color); color: white; }
+        .btn-submit:hover { background-color: #218838; }
+
+        .btn-cancel { background-color: var(--danger-color); color: white; }
+        .btn-cancel:hover { background-color: #c82333; }
+
+        /* Timer Styles */
+        .timer-display {
+            font-size: 3rem;
+            font-weight: bold;
+            font-family: monospace;
+            color: var(--primary-color);
+            margin: 20px 0;
+        }
+
+        .status-msg {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- STEP 1: Bundle Selection -->
+    <div id="step1" class="step active">
+        <h3>Select a Bundle</h3>
+        <div class="bundle-grid">
+            <div class="bundle-card" onclick="selectBundle(300)">
+                <h4>300/=</h4>
+                <small>Basic</small>
+            </div>
+            <div class="bundle-card" onclick="selectBundle(500)">
+                <h4>500/=</h4>
+                <small>Standard</small>
+            </div>
+            <div class="bundle-card" onclick="selectBundle(1000)">
+                <h4>1000/=</h4>
+                <small>Premium</small>
+            </div>
+        </div>
+        <div class="btn-group">
+            <button class="btn-cancel" onclick="handleCancel()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- STEP 2: Phone Number Entry -->
+    <div id="step2" class="step">
+        <h3>Payment Info</h3>
+        <p>Please enter the phone number to use for payment.</p>
+        <input type="tel" id="phoneNumber" placeholder="07XXXXXXXX">
+        <div class="btn-group">
+            <button class="btn-submit" onclick="submitPhone()">Submit</button>
+            <button class="btn-cancel" onclick="handleCancel()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- STEP 3: Secret Number & Instructions -->
+    <div id="step3" class="step">
+        <h3>Confirm Payment</h3>
+        <div class="info-box">
+            Send money to: <strong>0780526437</strong>
+        </div>
+        <p>To confirm your selected package of <strong><span id="selectedAmountDisplay"></span>/=</strong>, please enter the secret number you received.</p>
+        <input type="password" id="secretNumber" placeholder="Enter Secret Number">
+        <div class="btn-group">
+            <button class="btn-submit" onclick="submitSecret()">Confirm</button>
+        </div>
+    </div>
+
+    <!-- STEP 4: Active Timer Session -->
+    <div id="step4" class="step">
+        <h3>Session Active</h3>
+        <p class="status-msg">Access Granted</p>
+        <div class="timer-display" id="timer">00:00:00</div>
+        <p>Time remaining until redirection.</p>
+        <!-- No cancel button here, per logic flow, but can be added for testing -->
+    </div>
+
+</div>
+
+<script>
+    // State Variables
+    let selectedAmount = 0;
+    let timerInterval = null;
+    
+    // --- Navigation Functions ---
+
+    function showStep(stepId) {
+        // Hide all steps
+        document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+        // Show requested step
+        document.getElementById(stepId).classList.add('active');
+    }
+
+    function handleCancel() {
+        // Requirements state: "redirect the user back to free.html"
+        window.location.href = 'free.html';
+    }
+
+    // --- Step 1: Select Bundle ---
+
+    function selectBundle(amount) {
+        selectedAmount = amount;
+        showStep('step2');
+    }
+
+    // --- Step 2: Phone Number ---
+
+    function submitPhone() {
+        const phone = document.getElementById('phoneNumber').value;
+        if (phone.length < 10) {
+            alert("Please enter a valid phone number.");
+            return;
+        }
+        
+        // Update display for next step
+        document.getElementById('selectedAmountDisplay').innerText = selectedAmount;
+        showStep('step3');
+    }
+
+    // --- Step 3: Secret Number ---
+
+    function submitSecret() {
+        const secret = document.getElementById('secretNumber').value;
+        
+        if (!secret) {
+            alert("Please enter the secret number.");
+            return;
+        }
+
+        // Note: In a real app, you would verify the secret code with a server here.
+        // For this coding-only request, we assume success if entered.
+
+        startSession();
+    }
+
+    // --- Step 4: Timer Logic ---
+
+    function startSession() {
+        showStep('step4');
+
+        // Formula: (Paid Amount ÷ 250) × 3600 seconds
+        // Example: 500 / 250 * 3600 = 2 * 3600 = 7200 seconds (2 hours)
+        const totalSeconds = Math.floor((selectedAmount / 250) * 3600);
+        
+        startCountdown(totalSeconds);
+    }
+
+    function startCountdown(duration) {
+        let timer = duration, hours, minutes, seconds;
+        const display = document.getElementById('timer');
+
+        timerInterval = setInterval(function () {
+            hours = parseInt(timer / 3600, 10);
+            minutes = parseInt((timer % 3600) / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+
+            // Add leading zeros
+            hours = hours < 10 ? "0" + hours : hours;
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            display.textContent = hours + ":" + minutes + ":" + seconds;
+
+            if (--timer < 0) {
+                endSession();
+            }
+        }, 1000);
+    }
+
+    function endSession() {
+        clearInterval(timerInterval);
+        alert("Session expired.");
+        // Requirement: Automatically redirect back to free.html
+        window.location.href = 'free.html';
+    }
+</script>
+
+</body>
+</html>
