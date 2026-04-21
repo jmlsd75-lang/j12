@@ -112,6 +112,7 @@
             text-decoration: none;
             display: inline-block;
             cursor: pointer;
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
         .btn-menu {
@@ -122,6 +123,11 @@
 
         .btn-menu:hover {
             border-color: var(--text-color);
+        }
+
+        /* Class to hide elements smoothly */
+        .hidden {
+            display: none !important;
         }
 
         .btn-await {
@@ -172,11 +178,12 @@
 
         <div class="action-area">
             <!-- Constraint: Menu Button -->
-            <a href="menu.html" class="btn btn-menu">Menu</a>
+            <!-- Added ID for JS control -->
+            <a id="btn-menu" href="menu.html" class="btn btn-menu">Menu</a>
 
             <!-- Constraint: Awaiting State Buttons -->
-            <button id="btn-await" class="btn btn-await" style="display: none;" disabled>Await</button>
-            <a id="btn-pay" href="pay.html" class="btn btn-pay" style="display: none;">Pay</a>
+            <button id="btn-await" class="btn btn-await hidden" disabled>Await</button>
+            <a id="btn-pay" href="pay.html" class="btn btn-pay hidden">Pay</a>
         </div>
     </main>
 
@@ -219,6 +226,7 @@
             timer: document.getElementById('timer'),
             status: document.getElementById('status-text'),
             tabCount: document.getElementById('tab-count'),
+            btnMenu: document.getElementById('btn-menu'),
             btnAwait: document.getElementById('btn-await'),
             btnPay: document.getElementById('btn-pay')
         };
@@ -376,13 +384,24 @@
             if (sessionState === 'awaiting') {
                 ui.timer.classList.remove('active');
                 ui.timer.classList.add('awaiting');
-                ui.btnAwait.style.display = 'inline-block';
-                ui.btnPay.style.display = 'inline-block';
+                
+                // SHOW Await and Pay buttons
+                ui.btnAwait.classList.remove('hidden');
+                ui.btnPay.classList.remove('hidden');
+                
+                // HIDE Menu Button
+                ui.btnMenu.classList.add('hidden');
+
             } else {
                 ui.timer.classList.remove('awaiting');
                 ui.timer.classList.add('active');
-                ui.btnAwait.style.display = 'none';
-                ui.btnPay.style.display = 'none';
+                
+                // HIDE Await and Pay buttons
+                ui.btnAwait.classList.add('hidden');
+                ui.btnPay.classList.add('hidden');
+                
+                // SHOW Menu Button
+                ui.btnMenu.classList.remove('hidden');
             }
 
             // Force immediate visual update
