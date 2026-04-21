@@ -6,215 +6,75 @@
     <title>JAMALI SAIDI KAZEMBE MULTISYSTEM MANAGEMENT</title>
 
     <style>
-        /* --- CSS Variables for Theme Management --- */
-        :root {
-            --primary-color: #007bff;
-            --primary-dark: #0056b3;
-            --success-color: #28a745;
-            --whatsapp-color: #25D366;
-            --google-bg: #ffffff;
-            --google-text: #757575;
-            --google-hover: #f8faff;
-            --bg-color: #f0f2f5;
-            --card-bg: #ffffff;
-            --text-main: #333333;
-            --text-secondary: #666666;
-            --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
-            --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
-            --radius: 12px;
-            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-
-        /* --- Global Reset & Body --- */
         body {
-            font-family: var(--font-family);
+            font-family: Arial, sans-serif;
             margin: 0;
-            background: var(--bg-color);
-            /* Subtle pattern background */
-            background-image: radial-gradient(#dfe3e8 1px, transparent 1px);
-            background-size: 20px 20px;
-            color: var(--text-main);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            background: #f4f7f6;
+            text-align: center;
         }
 
-        /* --- Header Navigation --- */
         header {
-            background: var(--card-bg);
-            color: var(--text-main);
-            padding: 15px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border-bottom: 1px solid #e1e4e8;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            position: relative;
-            z-index: 10;
-        }
-
-        h1 {
-            font-size: 18px;
-            font-weight: 700;
-            margin: 0 0 10px 0;
-            letter-spacing: -0.5px;
-            color: var(--primary-dark);
-        }
-
-        .top-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        /* --- Button Base Styles --- */
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 50px; /* Pill shape */
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            font-family: inherit;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-
-        button:active {
-            transform: scale(0.98);
-        }
-
-        /* --- Specific Header Buttons --- */
-        .instruction {
-            background: transparent;
-            color: var(--text-secondary);
-            border: 1px solid #ccc;
-        }
-
-        .instruction:hover {
-            background: #f8f9fa;
-            border-color: #bbb;
-            color: var(--text-main);
-        }
-
-        .whatsapp {
-            background: rgba(37, 211, 102, 0.1); /* Light transparent green */
-            color: var(--whatsapp-color);
-            border: 1px solid transparent;
-        }
-
-        .whatsapp:hover {
-            background: rgba(37, 211, 102, 0.2);
-        }
-
-        /* --- Main Layout --- */
-        main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            background: #007bff;
+            color: white;
             padding: 20px;
         }
 
-        /* --- Login Card Container --- */
-        .login-card {
-            background: var(--card-bg);
-            padding: 40px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-soft);
-            width: 100%;
-            max-width: 420px;
-            text-align: center;
-            animation: fadeIn 0.6s ease-out;
+        h1 {
+            font-size: 20px;
+            margin: 0;
         }
 
-        /* --- Illustration or Icon Area (Optional visual flair) --- */
-        .brand-icon {
-            width: 60px;
-            height: 60px;
-            background: var(--primary-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px auto;
+        .top-buttons {
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .instruction {
+            background: #28a745;
             color: white;
-            font-size: 24px;
-            font-weight: bold;
+        }
+
+        .whatsapp {
+            background: #25D366;
+            color: white;
+        }
+
+        .login-box {
+            margin-top: 60px;
         }
 
         .msg {
-            margin-bottom: 30px;
+            margin-bottom: 15px;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .login-btn {
+            background: #db4437;
+            color: white;
             font-size: 16px;
-            line-height: 1.5;
-            color: var(--text-secondary);
         }
 
-        /* --- Google Login Button Specifics --- */
-        #googleLoginBtn {
-            width: 100%;
-            justify-content: center;
-            background: var(--google-bg);
-            color: var(--text-main);
-            border: 1px solid #dadce0;
-            padding: 12px;
-            position: relative;
-            box-shadow: 0 1px 2px rgba(60,64,67,0.3);
-        }
-
-        #googleLoginBtn:hover {
-            background: var(--google-hover);
-            box-shadow: 0 2px 4px rgba(60,64,67,0.2);
-            border-color: #d2e3fc;
-        }
-
-        .google-icon {
-            width: 18px;
-            height: 18px;
-        }
-
-        /* --- Loading State --- */
         .spinner {
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(0,0,0,0.1);
-            border-left-color: var(--primary-color);
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ddd;
+            border-top: 2px solid #4285F4;
             border-radius: 50%;
-            display: none; /* Hidden by default */
-            animation: spin 0.8s linear infinite;
-        }
-
-        /* When button is loading, hide text and show spinner */
-        #googleLoginBtn.loading .btn-text {
-            display: none;
-        }
-        #googleLoginBtn.loading .spinner {
             display: inline-block;
-        }
-        #googleLoginBtn.loading {
-            pointer-events: none;
-            opacity: 0.8;
+            animation: spin 1s linear infinite;
         }
 
-        /* --- Animations --- */
         @keyframes spin {
             100% { transform: rotate(360deg); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* --- Responsive Tweaks --- */
-        @media (max-width: 600px) {
-            h1 { font-size: 16px; }
-            .top-buttons { width: 100%; justify-content: center; }
-            button { font-size: 13px; padding: 8px 16px; }
-            .login-card { padding: 30px 20px; }
         }
     </style>
 </head>
@@ -222,72 +82,33 @@
 <body>
 
 <header>
-    <h1>JAMALI SAIDI KAZEMBE<br>MULTISYSTEM MANAGEMENT</h1>
+    <h1>JAMALI SAIDI KAZEMBE MULTISYSTEM MANAGEMENT</h1>
 
     <div class="top-buttons">
         <button class="instruction" onclick="location.href='instruction.html'">
-            📄 Instruction
+            Instruction
         </button>
 
         <button class="whatsapp" onclick="location.href='whatsapp.html'">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c1.016.575 1.932.874 3.026.874 3.183 0 5.768-2.586 5.769-5.766.001-3.181-2.586-5.767-5.768-5.767zm6.527 11.349c-.789.79-1.827 1.229-2.925 1.229h-.013c-3.329 0-6.038-2.708-6.038-6.037 0-3.329 2.709-6.038 6.038-6.038 3.329 0 6.038 2.709 6.038 6.038 0 1.114-.312 2.179-.903 3.112l.566 2.065-2.065-.566c-.882.544-1.899.831-2.969.831l-1.169-.264z"/></svg>
-            WhatsApp
+            📱 Contact us for more help
         </button>
     </div>
 </header>
 
-<main>
-    <div class="login-card">
-        <!-- A decorative visual element for the card -->
-        <div class="brand-icon">JSK</div>
+<div class="login-box">
 
-        <div class="msg">
-            Please log in to start using the system and to save and secure your information.
-        </div>
-
-        <!-- Google Button with SVG Icon -->
-        <button id="googleLoginBtn" class="login-btn">
-            <span class="btn-text">
-                <svg class="google-icon" viewBox="0 0 48 48">
-                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
-                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
-                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
-                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
-                </svg>
-                Sign in with Google
-            </span>
-            <div class="spinner"></div>
-        </button>
+    <div class="msg">
+        Please log in to start using the system and to save and secure your information.
     </div>
-</main>
 
-<!-- 
-    NOTE: Since I cannot see your external 'login.js' file, 
-    I have added a small simulation script below to demonstrate 
-    the styling interactions (loading spinner). 
-    You can remove this script and keep your external reference. 
--->
-<script type="module">
-    const loginBtn = document.getElementById('googleLoginBtn');
+    <button id="googleLoginBtn" class="login-btn">
+        🔐 Login with Google
+    </button>
 
-    // Simulation of the login click behavior
-    if(loginBtn) {
-        loginBtn.addEventListener('click', function() {
-            // Add loading class
-            loginBtn.classList.add('loading');
-            
-            // Simulate network request delay
-            setTimeout(() => {
-                // Reset (in real app, this would redirect)
-                loginBtn.classList.remove('loading');
-                console.log("Redirecting to auth...");
-            }, 2000);
-        });
-    }
-</script>
+</div>
 
-<!-- Your Original Script Reference -->
-<!-- <script type="module" src="login.js"></script> -->
+<!-- Connect the external JavaScript file -->
+<script type="module" src="login.js"></script>
 
 </body>
 </html>
