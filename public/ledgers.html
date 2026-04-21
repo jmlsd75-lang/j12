@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>General Ledger</title>
+  <style>
+    :root {
+      --primary: #4285F4;
+      --bg-body: #f4f6f9;
+      --bg-card: #ffffff;
+      --text-main: #2c3e50;
+      --text-muted: #7f8c8d;
+      --border-color: #000; /* Ledger uses black borders usually */
+      --header-bg: #e8e8e8;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--bg-card);
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--text-main);
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: background 0.2s;
+      border: 1px solid transparent;
+    }
+    .back-btn:hover { background-color: #f0f2f5; }
+    .back-btn svg { width: 20px; height: 20px; }
+
+    .user-info { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--text-muted); }
+    .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); }
+
+    main {
+      flex: 1;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .page-header { margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; }
+    .page-title { font-size: 1.5rem; font-weight: 700; color: var(--text-main); }
+
+    #ledger-container {
+      display: flex;
+      flex-direction: column;
+      gap: 50px; /* Space between ledgers */
+      padding-bottom: 50px;
+    }
+
+    .ledger-section {
+      background: white;
+      padding: 20px;
+      border-radius: 4px; /* Slightly less rounded for formal ledger look */
+      box-shadow: var(--shadow);
+      page-break-inside: avoid;
+      border: 1px solid #ddd;
+    }
+
+    .account-title {
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 6px;
+      color: #000;
+    }
+
+    table.ledger-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 2px solid var(--border-color);
+      font-size: 14px;
+    }
+
+    .ledger-table th, .ledger-table td {
+      border: 1px solid var(--border-color);
+      padding: 10px 12px;
+    }
+
+    .col-date { width: 15%; }
+    .col-particulars { width: 35%; }
+    .col-folio { width: 10%; text-align: center; }
+    .col-amount { width: 20%; text-align: right; font-family: 'Courier New', monospace; }
+
+    .ledger-table th {
+      background-color: var(--header-bg);
+      font-weight: bold;
+      text-align: center;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+
+    .ledger-table td { vertical-align: top; }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+
+    .row-total td {
+      font-weight: bold;
+      border-top: 2px solid var(--border-color);
+      background-color: #fafafa;
+    }
+
+    .row-balance-cd td { font-style: italic; background-color: #fdfdfd; }
+    .row-balance-bd td { font-weight: bold; background-color: #fff; }
+
+    #status-msg {
+      text-align: center;
+      margin-top: 20px;
+      font-weight: bold;
+      padding: 10px;
+      border-radius: 4px;
+      display: none;
+    }
+    .msg-error { color: #c0392b; background: #fadbd8; display: block !important; }
+    .msg-loading { color: var(--primary); background: #e8f0fe; display: block !important; }
+
+    .empty-ledger {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-muted);
+        font-style: italic;
+    }
+
+    @media print {
+      body { background-color: white; padding: 0; }
+      header, .page-header, #status-msg { display: none; }
+      main { padding: 0; max-width: 100%; }
+      #ledger-container { gap: 30px; }
+      .ledger-section { box-shadow: none; border: none; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="business.html" class="back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Back
+    </a>
+    
+    <div class="user-info" id="userInfoDisplay"></div>
+  </header>
+
+  <main>
+    <div class="page-header">
+      <h1 class="page-title">General Ledger</h1>
+    </div>
+
+    <div id="status-msg"></div>
+
+    <div id="ledger-container">
+      <div class="empty-ledger">Loading ledger data from Firestore...</div>
+    </div>
+  </main>
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // ── Firebase Config (Identical to list.html) ──
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+      authDomain: "my-project-66803-95cb3.firebaseapp.com",
+      projectId: "my-project-66803-95cb3",
+      storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+      messagingSenderId: "167159607898",
+      appId: "1:167159607898:web:23ca11366b88868b085e63"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const statusMsg = document.getElementById('status-msg');
+    const ledgerContainer = document.getElementById('ledger-container');
+    const userInfoDisplay = document.getElementById('userInfoDisplay');
+
+    // ── Auth Check ──
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+        return;
+      }
+
+      // Display User Info
+      const sessionData = localStorage.getItem("userSession");
+      if (sessionData) {
+        const parsed = JSON.parse(sessionData);
+        userInfoDisplay.innerHTML = `
+          <span>${parsed.name || user.displayName || "User"}</span>
+          <img src="${parsed.photo || user.photoURL || 'https://picsum.photos/seed/user/32/32'}" alt="Avatar" class="user-avatar">
+        `;
+      } else {
+        userInfoDisplay.innerHTML = `
+          <span>${user.displayName || "User"}</span>
+          <img src="${user.photoURL || 'https://picsum.photos/seed/user/32/32'}" alt="Avatar" class="user-avatar">
+        `;
+      }
+
+      // Start Fetching
+      fetchLedgerData(user.email);
+    });
+
+    // ── Fetch Data from Firestore ──
+    async function fetchLedgerData(userEmail) {
+      showStatus("Loading transactions...", false);
+
+      try {
+        // Path: users/{email}/transactions
+        const transactionsRef = collection(db, "users", userEmail, "transactions");
+        const q = query(transactionsRef, orderBy("date", "asc")); // Order by date for ledgers
+        const querySnapshot = await getDocs(q);
+
+        const transactions = [];
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          
+          // --- PARSING LOGIC ---
+          // We need to extract Account Name and Particulars from the 'detail' field
+          // Format expected in DB: "Account Name (Person Name)"
+          
+          let accountName = data.detail || "General";
+          let particularName = data.method || "Unknown"; // Fallback
+
+          // Regex to find content inside parentheses
+          const nameMatch = data.detail ? data.detail.match(/\(([^)]+)\)$/) : null;
+          
+          if (nameMatch) {
+            // If parentheses exist:
+            // "Salary (John)" -> Account: Salary, Particular: John
+            accountName = data.detail.replace(/\s*\([^)]+\)$/, "").trim();
+            particularName = nameMatch[1].trim();
+          } else {
+            // If no parentheses:
+            // "Sales" -> Account: Sales, Particular: Cash/Bank (from method field)
+            particularName = data.method || "Cash"; 
+          }
+
+          transactions.push({
+            date: data.date,
+            detail: accountName,      // Used for grouping
+            name: particularName,     // Used for Particulars column
+            flowType: data.type,      // IN or OUT
+            flowForm: data.method,    // CASH, BANK, etc.
+            amount: parseFloat(data.amount || 0)
+          });
+        });
+
+        if (transactions.length === 0) {
+          ledgerContainer.innerHTML = '<div class="empty-ledger">No transactions found to generate ledgers.</div>';
+          hideStatus();
+          return;
+        }
+
+        // Process and Render
+        processLedgerData(transactions);
+        hideStatus();
+
+      } catch (error) {
+        console.error("Firestore Error:", error);
+        showStatus("Error loading data: " + error.message, true);
+      }
+    }
+
+    // ── Core Ledger Processing Logic ──
+    function processLedgerData(allTransactions) {
+      ledgerContainer.innerHTML = ''; // Clear loading message
+      
+      const accounts = {};
+      
+      // 1. Group by Detail (Account Name)
+      allTransactions.forEach(tx => {
+        if (!accounts[tx.detail]) accounts[tx.detail] = [];
+        accounts[tx.detail].push(tx);
+      });
+
+      const accountNames = Object.keys(accounts).sort();
+
+      accountNames.forEach(accName => {
+        const transactions = accounts[accName];
+        
+        // 2. Classify IN/OUT to DR/CR
+        // Rule: IN -> CREDIT, OUT -> DEBIT
+        let drEntries = [];
+        let crEntries = [];
+        let totalDr = 0;
+        let totalCr = 0;
+
+        transactions.forEach(tx => {
+          // Rule 5: Use Name (extracted) OR Flow Form
+          let particulars = (tx.name && tx.name !== '') ? tx.name : tx.flowForm;
+          
+          const entry = { 
+            date: tx.date, 
+            particulars: particulars, 
+            folio: '', 
+            amount: tx.amount 
+          };
+
+          if (tx.flowType === 'OUT') {
+            drEntries.push(entry);
+            totalDr += tx.amount;
+          } else if (tx.flowType === 'IN') {
+            crEntries.push(entry);
+            totalCr += tx.amount;
+          }
+        });
+
+        // Filter: If no transactions, skip (Safety check)
+        if (drEntries.length === 0 && crEntries.length === 0) return;
+
+        // 3. Build Render List (Aligning Debit and Credit columns)
+        let renderList = [];
+        let maxLen = Math.max(drEntries.length, crEntries.length);
+
+        // Add Transactions
+        for (let i = 0; i < maxLen; i++) {
+          let dr = drEntries[i] || null;
+          let cr = crEntries[i] || null;
+          renderList.push({ type: 'tx', dr, cr });
+        }
+
+        // 4. Balancing Logic (c/d)
+        const diff = Math.abs(totalDr - totalCr);
+        let finalTotal = 0;
+        let balanceSide = null; 
+
+        if (totalDr > totalCr) {
+          finalTotal = totalDr;
+          balanceSide = 'cr'; // Put c/d on Credit side
+          renderList.push({ 
+            type: 'balance_cd', 
+            dr: null, 
+            cr: { date: '', particulars: 'Balance', folio: 'c/d', amount: diff } 
+          });
+        } else if (totalCr > totalDr) {
+          finalTotal = totalCr;
+          balanceSide = 'dr'; // Put c/d on Debit side
+          renderList.push({ 
+            type: 'balance_cd', 
+            dr: { date: '', particulars: 'Balance', folio: 'c/d', amount: diff }, 
+            cr: null 
+          });
+        } else {
+          finalTotal = totalDr;
+          balanceSide = 'equal';
+        }
+
+        // 5. Add Total Row
+        renderList.push({
+          type: 'total',
+          dr: { date: '', particulars: 'Total', folio: '', amount: finalTotal },
+          cr: { date: '', particulars: 'Total', folio: '', amount: finalTotal }
+        });
+
+        // 6. Add Balance b/d (Opposite side of c/d)
+        if (balanceSide === 'cr') {
+          renderList.push({ 
+            type: 'balance_bd', 
+            dr: { date: '', particulars: 'Balance', folio: 'b/d', amount: diff }, 
+            cr: null 
+          });
+        } else if (balanceSide === 'dr') {
+          renderList.push({ 
+            type: 'balance_bd', 
+            dr: null, 
+            cr: { date: '', particulars: 'Balance', folio: 'b/d', amount: diff } 
+          });
+        }
+
+        // 7. Render HTML
+        const section = document.createElement('div');
+        section.className = 'ledger-section';
+        section.innerHTML = buildTableHTML(accName, renderList);
+        ledgerContainer.appendChild(section);
+      });
+    }
+
+    function buildTableHTML(accountName, rows) {
+      let html = `
+        <div class="account-title">${accountName} Account</div>
+        <table class="ledger-table">
+          <thead>
+            <tr>
+              <th colspan="4" style="border-right:2px solid black;">Debit (DR)</th>
+              <th colspan="4">Credit (CR)</th>
+            </tr>
+            <tr>
+              <th class="col-date">Date</th>
+              <th class="col-particulars">Particulars</th>
+              <th class="col-folio">Folio</th>
+              <th class="col-amount">Amount</th>
+              
+              <th class="col-date">Date</th>
+              <th class="col-particulars">Particulars</th>
+              <th class="col-folio">Folio</th>
+              <th class="col-amount">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      rows.forEach(row => {
+        html += '<tr>';
+        
+        // Debit Cells
+        if (row.dr) {
+          let rowClass = row.type === 'total' ? 'row-total' : (row.type.includes('balance') ? 'row-'+row.type : '');
+          html += `
+            <td class="${rowClass}">${row.dr.date}</td>
+            <td class="${rowClass}">${row.dr.particulars}</td>
+            <td class="${rowClass} text-center">${row.dr.folio}</td>
+            <td class="${rowClass} text-right">${formatMoney(row.dr.amount)}</td>
+          `;
+        } else {
+          html += '<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>';
+        }
+
+        // Credit Cells
+        if (row.cr) {
+          let rowClass = row.type === 'total' ? 'row-total' : (row.type.includes('balance') ? 'row-'+row.type : '');
+          html += `
+            <td class="${rowClass}">${row.cr.date}</td>
+            <td class="${rowClass}">${row.cr.particulars}</td>
+            <td class="${rowClass} text-center">${row.cr.folio}</td>
+            <td class="${rowClass} text-right">${formatMoney(row.cr.amount)}</td>
+          `;
+        } else {
+          html += '<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>';
+        }
+
+        html += '</tr>';
+      });
+
+      html += `</tbody></table>`;
+      return html;
+    }
+
+    function formatMoney(amount) {
+      return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function showStatus(msg, isError) {
+      statusMsg.textContent = msg;
+      statusMsg.className = isError ? 'msg-error' : 'msg-loading';
+    }
+
+    function hideStatus() {
+      statusMsg.style.display = 'none';
+    }
+  </script>
+</body>
+</html>
