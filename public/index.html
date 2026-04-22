@@ -6,7 +6,7 @@
     <title>Login System</title>
     <style>
         /* ========================================
-           CSS STYLING (Same as before)
+           CSS STYLING
            ======================================== */
         :root {
             --primary-color: #4285F4; /* Google Blue */
@@ -15,6 +15,7 @@
             --card-bg: #ffffff;
             --text-color: #333333;
             --error-color: #d93025;
+            --success-color: #1e8e3e;
         }
 
         * {
@@ -39,28 +40,58 @@
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
             text-align: center;
             transition: transform 0.3s ease;
         }
 
         .login-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-2px);
         }
 
         h1 {
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             color: #202124;
             font-size: 1.8rem;
         }
 
         p {
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             color: #5f6368;
             font-size: 0.95rem;
             line-height: 1.5;
         }
 
+        /* Input Styling */
+        .input-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #5f6368;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #dadce0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+        }
+
+        /* Button Styling */
         #googleLoginBtn {
             display: inline-flex;
             align-items: center;
@@ -74,44 +105,57 @@
             font-weight: 500;
             border-radius: 6px;
             cursor: pointer;
-            transition: background-color 0.2s, opacity 0.2s;
-            position: relative;
+            transition: background-color 0.2s, opacity 0.2s, transform 0.1s;
         }
 
         #googleLoginBtn:hover {
             background-color: var(--primary-hover);
         }
 
+        #googleLoginBtn:active {
+            transform: scale(0.98);
+        }
+
         #googleLoginBtn:disabled {
             background-color: #a0c3f7;
             cursor: not-allowed;
             opacity: 0.7;
-            pointer-events: none;
         }
 
         .google-icon {
             width: 20px;
             height: 20px;
             margin-right: 12px;
-            fill: white;
+        }
+
+        /* Messages */
+        #errorMsg, #successMsg {
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            display: none;
+            text-align: left;
         }
 
         #errorMsg {
             background-color: #fce8e6;
             color: var(--error-color);
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-            display: none;
             border: 1px solid #f5c6cb;
         }
 
-        #errorMsg.visible {
-            display: block;
+        #successMsg {
+            background-color: #e6f4ea;
+            color: var(--success-color);
+            border: 1px solid #ceead6;
+        }
+
+        .visible {
+            display: block !important;
             animation: fadeIn 0.3s ease-in-out;
         }
 
+        /* Loading Overlay */
         #loadingOverlay {
             position: fixed;
             top: 0;
@@ -157,8 +201,17 @@
 
     <main class="login-card">
         <h1>Welcome Back</h1>
-        <p>Please sign in with your Google account to access the system.</p>
+        <p>Enter your email to sign in.</p>
+        
+        <!-- New Email Input -->
+        <div class="input-group">
+            <label for="userEmail">Email Address</label>
+            <input type="email" id="userEmail" placeholder="name@example.com" autocomplete="email">
+        </div>
+
         <div id="errorMsg" role="alert"></div>
+        <div id="successMsg" role="status"></div>
+        
         <button id="googleLoginBtn">
             <svg class="google-icon" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -172,7 +225,7 @@
 
     <div id="loadingOverlay">
         <div class="spinner"></div>
-        <div id="loadingText">Loading...</div>
+        <div id="loadingText">Authenticating...</div>
     </div>
 
     <!-- ========================================
@@ -183,8 +236,7 @@
         import {
             getAuth,
             GoogleAuthProvider,
-            signInWithRedirect,
-            getRedirectResult,
+            signInWithPopup, // Changed from Redirect to Popup for reliability
             onAuthStateChanged
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import {
@@ -195,7 +247,7 @@
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // ========================================
-        // YOUR EXACT FIREBASE CONFIG
+        // FIREBASE CONFIG
         // ========================================
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
@@ -207,7 +259,7 @@
         };
 
         // ========================================
-        // UPDATED ADMIN EMAIL
+        // ADMIN SETTINGS
         // ========================================
         const ADMIN_EMAIL = "jmlsd75@gmail.com";
 
@@ -219,10 +271,17 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
+        // Add scopes to request email access
+        provider.addScope('email');
+        provider.addScope('profile');
+
         // ========================================
-        // DOM
+        // DOM ELEMENTS
         // ========================================
+        const emailInput = document.getElementById("userEmail");
+        const googleBtn = document.getElementById("googleLoginBtn");
         const errorMsg = document.getElementById("errorMsg");
+        const successMsg = document.getElementById("successMsg");
         const loadingOverlay = document.getElementById("loadingOverlay");
         const loadingText = document.getElementById("loadingText");
 
@@ -230,13 +289,20 @@
         // HELPERS
         // ========================================
         function showError(msg) {
+            hideMessages();
             errorMsg.textContent = msg;
-            errorMsg.classList.remove("hidden");
             errorMsg.classList.add("visible");
-            setTimeout(() => {
-                errorMsg.classList.remove("visible");
-                errorMsg.classList.add("hidden");
-            }, 5000);
+        }
+
+        function showSuccess(msg) {
+            hideMessages();
+            successMsg.textContent = msg;
+            successMsg.classList.add("visible");
+        }
+
+        function hideMessages() {
+            errorMsg.classList.remove("visible");
+            successMsg.classList.remove("visible");
         }
 
         function showLoading(text) {
@@ -263,126 +329,122 @@
                 console.log("Login saved:", user.email);
             } catch (e) {
                 console.error("Save login error:", e);
+                // We don't stop the flow if logging fails
             }
         }
 
         // ========================================
-        // MAIN FLOW — sequential, no race condition
+        // HANDLE LOGIN LOGIC
         // ========================================
-        (async () => {
+        async function handleLoginSuccess(user) {
+            console.log("User logged in:", user.email);
 
-            // ── STEP 1: Wait for redirect result COMPLETELY ──
-            let redirectResult = null;
-            try {
-                redirectResult = await getRedirectResult(auth);
-            } catch (error) {
-                hideLoading();
-                console.error("Redirect result error:", error.code, error.message);
+            // 1. Save to DB
+            await saveLogin(user);
 
-                switch (error.code) {
-                    case "auth/redirect-cancelled-by-user":
-                        showError("You cancelled the login. Please try again.");
-                        break;
-                    case "auth/credential-already-in-use":
-                        showError("This account is already linked. Try again.");
-                        break;
-                    case "auth/network-request-failed":
-                        showError("Network error. Check your connection.");
-                        break;
-                    case "auth/too-many-requests":
-                        showError("Too many attempts. Wait a moment.");
-                        break;
-                    default:
-                        showError("Login failed. Please try again.");
-                }
-                return; 
+            // 2. Flag for other pages
+            sessionStorage.setItem("justLoggedIn", "1");
+
+            // 3. Determine Destination
+            let destination = "free.html"; // Default
+            let successText = "Login successful! Redirecting...";
+
+            if (user.email === ADMIN_EMAIL) {
+                destination = "admin.html";
+                successText = "Welcome Admin! Redirecting...";
             }
 
-            // ── STEP 2: User just came back from Google ──
-            if (redirectResult && redirectResult.user) {
-                showLoading("Verifying login...");
+            // 4. Update UI
+            showLoading(successText);
+            showSuccess(successText);
 
-                const user = redirectResult.user;
-                console.log("Returned from Google:", user.email);
-                
-                // Save to Firestore
-                await saveLogin(user);
+            // 5. Wait briefly then Redirect
+            setTimeout(() => {
+                window.location.href = destination;
+            }, 1500);
+        }
 
-                // ★ Flag so index.html knows this is a FRESH login ★
-                sessionStorage.setItem("justLoggedIn", "1");
+        // ========================================
+        // MAIN EXECUTION
+        // ========================================
 
-                // Brief pause so user sees "Verifying login..."
-                await new Promise(r => setTimeout(r, 800));
-
-                // ============================================
-                // CHECK EMAIL AND REDIRECT (Fresh Login)
-                // ============================================
-                if (user.email === ADMIN_EMAIL) {
-                    console.log("Redirecting Admin...");
-                    window.location.href = "admin.html";
-                } else {
-                    console.log("Redirecting Free User...");
-                    window.location.href = "free.html";
-                }
-                return; // Done
+        // 1. Check if user is already logged in on load
+        showLoading("Checking session...");
+        onAuthStateChanged(auth, (user) => {
+            hideLoading();
+            if (user) {
+                console.log("User already logged in:", user.email);
+                // If already logged in, we process immediately
+                handleLoginSuccess(user);
+            } else {
+                // User is not logged in, enable the card
+                console.log("No active session.");
             }
+        });
 
-            // ── STEP 3: No redirect result — check if already logged in ──
-            await new Promise((resolve) => {
-                const unsubscribe = onAuthStateChanged(auth, (user) => {
-                    unsubscribe(); 
+        // 2. Button Click Listener
+        googleBtn.addEventListener("click", async () => {
+            const typedEmail = emailInput.value.trim();
 
-                    if (user) {
-                        // ============================================
-                        // CHECK EMAIL AND REDIRECT (Returning User)
-                        // ============================================
-                        showLoading("Welcome back!");
-                        
-                        if (user.email === ADMIN_EMAIL) {
-                            console.log("Admin already logged in.");
-                            setTimeout(() => {
-                                window.location.href = "admin.html";
-                            }, 1000);
-                        } else {
-                            console.log("User already logged in.");
-                            setTimeout(() => {
-                                window.location.href = "free.html";
-                            }, 1000);
-                        }
-                    } else {
-                        // User is NOT logged in, hide loading
-                        hideLoading();
-                    }
-
-                    resolve();
-                });
-            });
-
-        })();
-
-        // ========================================
-        // BUTTON CLICK → SEND TO GOOGLE
-        // ========================================
-        window.addEventListener("DOMContentLoaded", () => {
-            const googleBtn = document.getElementById("googleLoginBtn");
-
-            if (!googleBtn) {
-                console.error("googleLoginBtn not found in HTML");
+            // Simple Validation
+            if (!typedEmail || !typedEmail.includes("@")) {
+                showError("Please enter a valid email address first.");
+                emailInput.focus();
                 return;
             }
 
-            googleBtn.addEventListener("click", () => {
-                console.log("CLICK WORKING");
+            // Prepare UI
+            hideMessages();
+            googleBtn.disabled = true;
+            showLoading("Connecting to Google...");
 
-                googleBtn.disabled = true;
-                googleBtn.style.opacity = "0.5";
-                googleBtn.style.pointerEvents = "none";
+            try {
+                // Sign in with Popup (better for single page tools)
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
 
-                showLoading("Redirecting to Google...");
+                // Check if the Google email matches the typed email (Optional security check)
+                if (user.email.toLowerCase() !== typedEmail.toLowerCase()) {
+                    console.warn(`Typed email (${typedEmail}) differs from Google email (${user.email})`);
+                }
 
-                signInWithRedirect(auth, provider);
-            });
+                // Handle the successful login
+                await handleLoginSuccess(user);
+
+            } catch (error) {
+                hideLoading();
+                googleBtn.disabled = false;
+                
+                console.error("Auth Error:", error.code, error.message);
+                
+                switch (error.code) {
+                    case "auth/popup-closed-by-user":
+                        showError("Sign-in popup was closed. Please try again.");
+                        break;
+                    case "auth/cancelled-popup-request":
+                        // Ignore if multiple popups were triggered accidentally
+                        break;
+                    case "auth/network-request-failed":
+                        showError("Network error. Please check your internet connection.");
+                        break;
+                    case "auth/invalid-email":
+                    case "auth/user-not-found":
+                    case "auth/wrong-password":
+                        showError("Authentication failed. Please check your credentials.");
+                        break;
+                    default:
+                        showError("Login failed: " + error.message);
+                }
+            }
         });
+
+        // Add "Enter" key support for the input field
+        emailInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                googleBtn.click();
+            }
+        });
+
     </script>
 </body>
 </html>
