@@ -4,39 +4,98 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
-
     <style>
+        /* CSS Reset and Basic Styling */
         body {
             margin: 0;
-            height: 100vh;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #f4f4f4;
-            font-family: Arial, sans-serif;
+            height: 100vh;
         }
 
-        .login-btn {
-            background-color: blue;
+        /* Container for the button to center it nicely */
+        .login-container {
+            text-align: center;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Login Button Styling */
+        .btn-login {
+            background-color: #007bff; /* Blue color */
             color: white;
             border: none;
-            padding: 15px 30px;
-            font-size: 18px;
-            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 4px;
             cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            outline: none;
         }
 
-        .login-btn:hover {
-            background-color: darkblue;
+        /* Hover Effect */
+        .btn-login:hover {
+            background-color: #0056b3;
+        }
+
+        /* Active (Click) Effect */
+        .btn-login:active {
+            transform: scale(0.98);
+            background-color: #004494;
+        }
+
+        /* Loading State (optional, handled via JS) */
+        .btn-login.loading {
+            background-color: #ccc;
+            cursor: not-allowed;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
 
-    <button id="loginBtn" class="login-btn">Login</button>
+    <main class="login-container">
+        <!-- The Login Button -->
+        <!-- The id is used to attach the event listener -->
+        <button id="loginBtn" class="btn-login">Login</button>
+    </main>
 
-    <!-- ✅ CORRECT LINK TO login.js -->
-    <script src="login.js"></script>
+    <!-- Script to handle the connection -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginBtn = document.getElementById('loginBtn');
 
+            loginBtn.addEventListener('click', () => {
+                // Optional: Add visual feedback that the click happened
+                loginBtn.innerText = 'Connecting...';
+                loginBtn.classList.add('loading');
+
+                // Simulate loading or preparation time
+                setTimeout(() => {
+                    // Dynamically import the login.js file
+                    import('./login.js')
+                        .then(module => {
+                            console.log('login.js connected successfully');
+                            // If login.js exports a function, you could call it here:
+                            // if (module.handleLogin) module.handleLogin();
+                        })
+                        .catch(error => {
+                            console.error('Error connecting to login.js:', error);
+                            alert('Could not connect to login script. Check console for details.');
+                            // Reset button state on error
+                            loginBtn.innerText = 'Login';
+                            loginBtn.classList.remove('loading');
+                        });
+                }, 500);
+            });
+        });
+    </script>
 </body>
 </html>
