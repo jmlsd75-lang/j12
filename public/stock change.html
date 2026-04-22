@@ -1,34 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Loading...</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Actions</title>
 
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #000;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      font-size: 28px;
-      text-align: center;
-    }
-  </style>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f4f4f4;
+            text-align: center;
+        }
+
+        /* Top bar */
+        .top-bar {
+            width: 100%;
+            padding: 15px;
+            background: #333;
+            color: white;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .back-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .back-btn:hover {
+            background: darkred;
+        }
+
+        /* Buttons container */
+        .container {
+            margin-top: 50px;
+        }
+
+        .btn {
+            display: block;
+            width: 200px;
+            margin: 10px auto;
+            padding: 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #0056b3;
+        }
+    </style>
 </head>
 <body>
 
-  PROGRAM IN PROGRESS...
+    <!-- Top Right Back Button -->
+    <div class="top-bar">
+        <button class="back-btn" onclick="goBack()">Back</button>
+    </div>
 
-  <script>
-    setTimeout(function () {
-      window.location.href = "stock.html";
-    }, 3000); // 3000ms = 3 seconds
-  </script>
+    <!-- Main Buttons -->
+    <div class="container">
+        <button class="btn" onclick="goToProducts()">Sell</button>
+        <button class="btn" onclick="goToProducts()">Buy</button>
+        <button class="btn" onclick="goToProducts()">Damage</button>
+        <button class="btn" onclick="goToProducts()">Drawings</button>
+        <button class="btn" onclick="goToProducts()">Sales Return</button>
+        <button class="btn" onclick="goToProducts()">Purchase Return</button>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = "stock.html";
+        }
+
+        function goToProducts() {
+            window.location.href = "products.html";
+        }
+    </script>
 
 </body>
 </html>
