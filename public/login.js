@@ -28,7 +28,12 @@ const firebaseConfig = {
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
+// ========================================
+// REDIRECT LOGIC CONFIG
+// ========================================
 const ADMIN_EMAIL = "camelkazembe1@gmail.com";
+const ADMIN_PAGE = "index.html"; // Page for Admin
+const FREE_PAGE = "free.html";   // Page for other users
 
 // ========================================
 // INITIALIZATION
@@ -40,17 +45,11 @@ const provider = new GoogleAuthProvider();
 
 // ========================================
 // DOM ELEMENT REFERENCES
-// (Must match IDs in index.html)
 // ========================================
 const googleBtn = document.getElementById("googleLoginBtn");
 const errorMsg = document.getElementById("errorMsg");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
-
-// Check if elements exist (Safety Check)
-if (!googleBtn || !errorMsg || !loadingOverlay || !loadingText) {
-  console.error("FATAL: One or more required HTML elements are missing.");
-}
 
 // ========================================
 // HELPER FUNCTIONS
@@ -59,9 +58,7 @@ if (!googleBtn || !errorMsg || !loadingOverlay || !loadingText) {
 function showError(message) {
   if (!errorMsg) return;
   errorMsg.textContent = message;
-  errorMsg.style.display = "block"; // Make visible
-  
-  // Hide after 5 seconds
+  errorMsg.style.display = "block";
   setTimeout(() => {
     errorMsg.style.display = "none";
   }, 5000);
@@ -88,79 +85,90 @@ async function saveLogin(user) {
       name: user.displayName,
       email: user.email,
       userId: user.uid,
+      isAdmin: user.email === ADMIN_EMAIL, // Store role for reference
       createdAt: serverTimestamp()
     });
-    console.log("✅ Login saved to Firestore:", user.email);
+    console.log("✅ Login saved:", user.email);
   } catch (e) {
-    console.error("❌ Error saving login:", e);
+    console.error("❌ Firestore Save Error:", e);
   }
 }
 
 // ========================================
-// AUTHENTICATION FLOW
+// ROUTING FUNCTION
+// ========================================
+function redirectToPage(userEmail) {
+  // Trim whitespace and lowercase for safety comparison
+  const email = (userEmail || "").trim().toLowerCase();
+
+  if (email === ADMIN_EMAIL.toLowerCase()) {
+    console.log("🔑 Redirecting Admin to:", ADMIN_PAGE);
+    window.location.href = ADMIN_PAGE;
+  } else {
+    console.log("👤 Redirecting User to:", FREE_PAGE);
+    window.location.href = FREE_PAGE;
+  }
+}
+
+// ========================================
+// MAIN AUTHENTICATION FLOW
 // ========================================
 (async function runAuthFlow() {
   
-  // --- STEP 1: Check Redirect Result (Did user just come back from Google?) ---
+  // --- STEP 1: Check Redirect Result (Fresh Login) ---
   try {
     const result = await getRedirectResult(auth);
     
     if (result && result.user) {
-      // SUCCESS: User just logged in via Redirect
-      showLoading("Verifying login...");
+      // User just successfully logged in
+      const user = result.user;
+      showLoading("Verifying user...");
       
-      console.log("User returned from Google:", result.user.email);
-      console.log("Is Admin:", result.user.email === ADMIN_EMAIL);
-      
-      // Save to Database
-      await saveLogin(result.user);
+      console.log("Logged in as:", user.email);
+      console.log("Role:", user.email === ADMIN_EMAIL ? "Admin" : "Free User");
 
-      // Set flag so index.html knows it's a fresh login
+      // Save data to Firestore first
+      await saveLogin(user);
+
+      // Mark session
       sessionStorage.setItem("justLoggedIn", "1");
 
       // Small delay for UX
       await new Promise(r => setTimeout(r, 800));
 
-      // Redirect to main app
-      window.location.href = "index.html";
-      return; // Stop execution here
+      // --- REDIRECT LOGIC HERE ---
+      redirectToPage(user.email);
+      return; 
     }
   } catch (error) {
-    // ERROR: Something went wrong with the redirect
     hideLoading();
-    console.error("Redirect Error:", error.code, error.message);
+    console.error("Auth Error:", error);
     
-    // Handle specific errors
     switch (error.code) {
       case "auth/redirect-cancelled-by-user":
-        showError("You cancelled the login.");
-        break;
-      case "auth/popup-closed-by-user": // Fallback for popup usage
-        showError("Login popup closed.");
+        showError("Login cancelled.");
         break;
       case "auth/network-request-failed":
-        showError("Network error. Check connection.");
-        break;
-      case "auth/too-many-requests":
-        showError("Too many attempts. Please wait.");
+        showError("Network error.");
         break;
       default:
         showError("Login failed: " + error.message);
     }
   }
 
-  // --- STEP 2: Check Current Session (Is user already logged in?) ---
+  // --- STEP 2: Check Existing Session (Reload) ---
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      // User is already logged in, but didn't just come from a redirect
-      console.log("User already authenticated:", user.email);
+      // User is already logged in from a previous session
+      console.log("Existing session found for:", user.email);
       showLoading("Welcome back...");
-      
+
       setTimeout(() => {
-        window.location.href = "index.html";
+        // --- REDIRECT LOGIC HERE ---
+        redirectToPage(user.email);
       }, 1000);
     } else {
-      // User is NOT logged in. Ensure loading screen is hidden.
+      // No session, show login screen
       hideLoading();
     }
   });
@@ -172,22 +180,23 @@ async function saveLogin(user) {
 // ========================================
 if (googleBtn) {
   googleBtn.addEventListener("click", () => {
-    console.log("🔵 Google Button Clicked");
-
-    // Visual Feedback
+    console.log("🔵 Button Clicked");
+    
+    // Disable button
     googleBtn.disabled = true;
     googleBtn.style.opacity = "0.7";
     googleBtn.style.cursor = "not-allowed";
 
-    showLoading("Redirecting to Google...");
+    showLoading("Connecting to Google...");
 
-    // Initiate Login
+    // Trigger Sign In
     signInWithRedirect(auth, provider)
-      .catch((error) => {
-        console.error("Redirect Init Error:", error);
-        showError("Failed to start login process.");
+      .catch((err) => {
+        console.error("Redirect Error:", err);
+        showError("Could not start Google Login.");
         hideLoading();
-        // Reset button
+        
+        // Re-enable button if it fails immediately
         googleBtn.disabled = false;
         googleBtn.style.opacity = "1";
         googleBtn.style.cursor = "pointer";
