@@ -40,7 +40,6 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #333;
-            position: relative;
         }
 
         .user-info {
@@ -60,7 +59,7 @@
             gap: 8px;
         }
 
-        /* Logout Button Styling */
+        /* Logout Button Styling (Updated for Main Position) */
         #logout-btn {
             background-color: transparent;
             color: var(--danger-color);
@@ -73,11 +72,8 @@
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            /* Hidden by default */
-            display: none; 
-            position: absolute;
-            top: 20px;
-            left: 20px;
+            display: none; /* Hidden by default */
+            margin-bottom: 20px; /* Space between button and timer */
         }
 
         #logout-btn:hover {
@@ -183,20 +179,14 @@
             .timer-display { font-size: 3.5rem; }
             .action-area { flex-direction: column; width: 100%; }
             .btn { width: 100%; }
-            #logout-btn {
-                position: static; /* On mobile, let it sit in flow if needed, or keep absolute but adjust padding */
-                margin-bottom: 10px;
-                width: 100%;
-            }
+            /* No specific media query needed for logout anymore 
+               as it flows naturally in the main flex column */
         }
     </style>
 </head>
 <body>
 
     <header>
-        <!-- Added Logout Button (Top Left) -->
-        <button id="logout-btn" type="button">Logout</button>
-
         <div class="user-info">
             Logged in as <strong id="user-email-display">...</strong>
         </div>
@@ -208,6 +198,9 @@
     </header>
 
     <main id="main-interface">
+        <!-- MOVED LOGOUT BUTTON HERE (Above Timer) -->
+        <button id="logout-btn" type="button">Logout</button>
+
         <!-- Default visual to prevent blank flash -->
         <div id="timer" class="timer-display">00:03:00</div>
         <div id="status-text" class="status-message">Initializing...</div>
@@ -264,7 +257,7 @@
             btnMenu: document.getElementById('btn-menu'),
             btnAwait: document.getElementById('btn-await'),
             btnPay: document.getElementById('btn-pay'),
-            logoutBtn: document.getElementById('logout-btn') // Added to UI object
+            logoutBtn: document.getElementById('logout-btn')
         };
 
         const app = initializeApp(firebaseConfig);
@@ -441,7 +434,7 @@
                 // HIDE Menu Button
                 ui.btnMenu.classList.add('hidden');
 
-                // ★ SHOW Logout Button (Top Left) ★
+                // ★ SHOW Logout Button (Now above timer) ★
                 ui.logoutBtn.style.display = 'block';
 
             } else {
