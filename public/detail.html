@@ -2,559 +2,317 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Transaction Entry</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Details</title>
     <style>
-        /* --- Base Styles --- */
+        /* ========================================
+           BASE CSS (From your provided file)
+           ======================================== */
         :root {
-            --primary: #4F46E5;
-            --primary-hover: #4338CA;
-            --danger: #EF4444;
-            --success: #10B981;
-            --warning: #F59E0B;
-            --bg-body: #F3F4F6;
-            --bg-card: #FFFFFF;
-            --text-main: #1F2937;
-            --text-muted: #6B7280;
-            --border: #E5E7EB;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --radius: 16px;
+            --primary-color: #4285F4;
+            --primary-hover: #357ae8;
+            --whatsapp-color: #25D366;
+            --whatsapp-hover: #1ebc57;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --error-color: #d93025;
+            --success-color: #1e8e3e;
+            --secondary-border: #dadce0;
+            --secondary-bg: #f8f9fa;
+            --secondary-text: #3c4043;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
             min-height: 100vh;
-            padding: 20px;
         }
 
-        .app-container {
-            background: var(--bg-card);
-            width: 100%;
-            max-width: 480px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            min-height: 500px;
-            position: relative;
-        }
-
-        /* Header */
-        header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-            background: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        
-        .back-btn {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            font-weight: 600;
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 8px;
-            border-radius: 8px;
-            transition: background 0.2s;
-        }
-        .back-btn:hover { background: #F3F4F6; color: var(--text-main); }
-
-        header h1 { font-size: 1.25rem; font-weight: 600; color: var(--text-main); }
-
-        /* Steps & Animations */
-        .step-content {
-            padding: 24px;
-            flex: 1;
-            display: none; 
-            flex-direction: column;
-            animation: slideUp 0.3s ease-out;
-            overflow-y: auto; 
-        }
-        .step-content.active { display: flex; }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .trail-container {
-            display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; justify-content: flex-start;
-        }
-        .trail-btn {
-            background: #F9FAFB; border: 1px solid #D1D5DB; color: var(--text-main);
-            padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 500;
-        }
-        .trail-label { color: var(--text-muted); font-size: 0.65rem; text-transform: uppercase; margin-right: 6px; }
-
-        /* --- SELECTION SCREEN STYLES --- */
-        
-        /* Search Bar */
-        .search-container {
-            width: 100%;
-            margin-bottom: 20px;
-            position: sticky;
-            top: 0;
-            background: var(--bg-card);
-            z-index: 10;
-            padding-bottom: 10px;
-        }
-        #searchInput {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #D1D5DB;
+        /* Layout */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
             border-radius: 12px;
-            outline: none;
-            background: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 2rem;
         }
-        #searchInput:focus { border-color: var(--primary); }
 
-        /* Section Headers */
-        .section-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #E5E7EB;
-            width: 100%;
-            position: sticky;
-            top: 0;
-            background: var(--bg-card);
-            z-index: 9;
-        }
-        .section-header h2 {
-            font-size: 1rem;
-            margin: 0;
-            color: #374151;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            color: white;
-            margin-right: 10px;
-            min-width: 30px;
+        h1 {
             text-align: center;
+            margin-bottom: 1.5rem;
+            color: #202124;
+            font-size: 1.5rem;
         }
-        .badge.in { background-color: var(--success); }
-        .badge.out { background-color: var(--danger); }
-        .badge.contra { background-color: var(--warning); }
-        .badge.tax { background-color: #8B5CF6; } /* Purple for Tax */
 
-        /* Grid - 6 COLUMNS (Default for Categories) */
-        .selection-grid {
+        /* Product Grid */
+        .product-grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr); 
-            gap: 8px;
-            width: 100%;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 2rem;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
         }
 
-        /* OVERRIDE FOR STEP 1-5 (Contra) to be 2 Columns & Large */
-        #step-1-5 .selection-grid {
-            grid-template-columns: 1fr 1fr; 
-            gap: 16px;
-        }
-        
-        /* OVERRIDE FOR STEP 1-TAX (Tax Options) */
-        #step-1-tax .selection-grid {
-            grid-template-columns: 1fr 1fr; 
-            gap: 16px;
-        }
-
-        .btn-cat {
-            appearance: none;
-            border: none;
-            outline: none;
+        .product-btn {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--secondary-border);
+            padding: 15px;
+            border-radius: 8px;
             cursor: pointer;
-            background: white;
-            border-radius: 10px; 
-            padding: 12px 4px; 
+            transition: all 0.2s;
             display: flex;
-            flex-direction: column; 
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            height: 100%;
-            min-height: 80px; 
-            width: 100%;
-            border: 2px solid transparent;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
 
-        .btn-cat:active { transform: scale(0.96); }
-        .btn-cat:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .product-btn:hover {
+            background-color: #e8eaed;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
 
-        /* Icon Wrapper */
-        .icon-box {
-            width: 28px; 
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 6px;
+        .product-btn.active {
+            background-color: var(--primary-color);
             color: white;
-            flex-shrink: 0;
+            border-color: var(--primary-color);
         }
-        .btn-text { 
-            font-size: 0.7rem; 
-            font-weight: 600; 
-            color: #374151; 
-            line-height: 1.2;
-            display: -webkit-box;
-            -webkit-line-clamp: 2; 
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        } 
-        .icon-box svg { width: 16px; height: 16px; stroke-width: 2; stroke: currentColor; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
-        /* Large Button Overrides for Step 1.5 */
-        #step-1-5 .btn-cat {
-            min-height: 130px;
-            padding: 24px;
-            border-radius: 16px;
+        /* Transaction Form Section */
+        #transactionForm {
+            display: none; /* Hidden until product selected */
+            border-top: 1px solid #eee;
+            padding-top: 1.5rem;
+            animation: fadeIn 0.4s ease;
         }
-        #step-1-5 .icon-box {
-            width: 56px;
-            height: 56px;
-            margin-bottom: 12px;
+
+        .info-display {
+            background-color: var(--secondary-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
         }
-        #step-1-5 .icon-box svg {
-            width: 28px;
-            height: 28px;
-        }
-        #step-1-5 .btn-text {
-            font-size: 1.1rem;
-            -webkit-line-clamp: 1;
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
         }
         
-        /* Large Button Overrides for Step 1-Tax */
-        #step-1-tax .btn-cat {
-            min-height: 130px;
-            padding: 24px;
-            border-radius: 16px;
-        }
-        #step-1-tax .icon-box {
-            width: 56px;
-            height: 56px;
-            margin-bottom: 12px;
-        }
-        #step-1-tax .icon-box svg {
-            width: 28px;
-            height: 28px;
-        }
-        #step-1-tax .btn-text {
-            font-size: 1.1rem;
-            -webkit-line-clamp: 1;
+        .info-row:last-child {
+            margin-bottom: 0;
         }
 
-        /* Button Colors */
-        .c-sales .icon-box { background: linear-gradient(135deg, #10B981, #059669); }
-        .c-purchase .icon-box { background: linear-gradient(135deg, #EF4444, #DC2626); }
-        .c-capital .icon-box { background: linear-gradient(135deg, #8B5CF6, #7C3AED); }
-        .c-contra .icon-box { background: linear-gradient(135deg, #F59E0B, #D97706); }
-        .c-tax .icon-box { background: linear-gradient(135deg, #8B5CF6, #6D28D9); } /* Purple for Tax */
+        .info-label { color: #5f6368; }
+        .info-value { font-weight: 600; }
 
-        /* Generic styles for dynamically generated lists */
-        .c-generic-in .icon-box { background: linear-gradient(135deg, #10B981, #059669); }
-        .c-generic-in:hover { border-color: #10B981; }
-        
-        .c-generic-out .icon-box { background: linear-gradient(135deg, #EF4444, #DC2626); }
-        .c-generic-out:hover { border-color: #EF4444; }
+        .input-group {
+            margin-bottom: 1.2rem;
+        }
 
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #5f6368;
+        }
 
-        /* --- FORM STYLES --- */
-        
-        label { display: block; font-size: 0.95rem; font-weight: 600; margin-bottom: 12px; color: var(--text-main); }
-        
-        input[type="text"], input[type="number"] {
-            width: 100%; padding: 16px; border: 2px solid var(--border);
-            border-radius: 12px; font-size: 1.25rem; transition: all 0.2s;
-            font-family: inherit; -moz-appearance: textfield;
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #dadce0;
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            background-color: #fff;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+        }
+
+        /* Buttons */
+        .btn-save {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 14px 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-save:hover {
+            background-color: #137333;
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: #5f6368;
+            border: 1px solid #dadce0;
+            margin-top: 10px;
+        }
+        .btn-secondary:hover {
+            background-color: #f1f3f4;
+        }
+
+        /* Messages & Loading */
+        #errorMsg, #successMsg {
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            display: none;
             text-align: center;
         }
-        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
-        .hint { font-size: 0.85rem; color: var(--text-muted); margin-top: 12px; text-align: center; }
 
-        .grid-options {
-            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 10px;
-        }
-        .grid-options-2 {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px;
+        #errorMsg {
+            background-color: #fce8e6;
+            color: var(--error-color);
+            border: 1px solid #f5c6cb;
         }
 
-        .option-btn {
-            background: #F9FAFB; border: 2px solid var(--border); border-radius: 12px;
-            padding: 20px 10px; text-align: center; cursor: pointer; transition: all 0.2s;
-            font-weight: 600; font-size: 1rem; color: var(--text-main);
+        #successMsg {
+            background-color: #e6f4ea;
+            color: var(--success-color);
+            border: 1px solid #ceead6;
         }
-        .option-btn:hover { border-color: var(--primary); background: #EEF2FF; color: var(--primary); }
-        .option-btn.selected { border-color: var(--primary); background: var(--primary); color: #fff; }
 
-        /* Footer Actions */
-        .action-bar {
-            padding: 16px 24px 24px 24px; margin-top: auto; display: flex;
-            justify-content: space-between; align-items: center;
-            border-top: 1px solid var(--border); background: #F9FAFB;
+        #loadingOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
-        .action-cancel { background: transparent; color: var(--text-muted); font-weight: 600; border: none; cursor: pointer; padding: 10px; font-size: 0.95rem; }
-        .action-cancel:hover { color: var(--danger); }
-        
-        .action-primary {
-            background: var(--primary); color: white; border: none; padding: 14px 28px;
-            border-radius: 10px; cursor: pointer; font-weight: 600; flex: 1; margin-left: 12px;
-            font-size: 1rem; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
-        }
-        .action-primary:hover:not(:disabled) { background: var(--primary-hover); }
-        .action-primary:disabled { background: #C7D2FE; cursor: not-allowed; box-shadow: none; }
-        .hidden { display: none !important; }
 
-        /* Success View */
-        .success-view { text-align: center; padding-top: 40px; }
-        .success-icon {
-            width: 80px; height: 80px; background: #D1FAE5; color: var(--success);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 24px auto; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .spinner {
+            width: 40px; height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
         }
-        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
 
-        /* Toast */
-        #toast {
-            visibility: hidden; min-width: 280px; background-color: #1F2937; color: #fff;
-            text-align: center; border-radius: 12px; padding: 16px; position: fixed;
-            z-index: 1000; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(20px);
-            font-size: 0.95rem; opacity: 0; transition: all 0.3s;
-        }
-        #toast.show { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Hidden inputs */
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <!-- Header with Back Button -->
-        <header>
-            <button class="back-btn" onclick="goBack()">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="19" y1="12" x2="5" y2="12"></line>
-                    <polyline points="12 19 5 12 12 5"></polyline>
-                </svg>
-                Back
-            </button>
-            <h1 id="headerTitle">New Transaction</h1>
-        </header>
+    <main class="container">
+        <!-- Header: Transaction Type -->
+        <h1 id="headerTitle">Transaction</h1>
+        <div id="errorMsg"></div>
+        <div id="successMsg"></div>
 
-        <main>
-            <!-- STEP 1: Select Transaction Type -->
-            <section id="step-1" class="step-content active">
-                
-                <!-- Search Filter -->
-                <div class="search-container">
-                    <input type="text" id="searchInput" placeholder="Search transactions..." autocomplete="off">
+        <!-- Step 1: Product Selection -->
+        <div id="productSelection">
+            <p style="margin-bottom: 10px; color: #5f6368;">Select a product:</p>
+            <div id="productGrid" class="product-grid">
+                <!-- Products injected here by JS -->
+                <div class="product-btn" style="opacity: 0.7; cursor: default;">Loading products...</div>
+            </div>
+        </div>
+
+        <!-- Step 2: Transaction Details Form -->
+        <div id="transactionForm">
+            <div class="info-display">
+                <div class="info-row">
+                    <span class="info-label">Product Name:</span>
+                    <span class="info-value" id="dispProductName">-</span>
                 </div>
-
-                <!-- 1. INCOME SECTION -->
-                <div class="section-header income-section">
-                    <span class="badge in">IN</span>
-                    <h2>Income</h2>
+                <div class="info-row">
+                    <span class="info-label">Buying Price (BP):</span>
+                    <span class="info-value" id="dispBP">0</span>
                 </div>
-                <div class="grid-container selection-grid income-grid">
-                    <!-- Dynamic Income Buttons -->
+                <div class="info-row">
+                    <span class="info-label">Selling Price (SP):</span>
+                    <span class="info-value" id="dispSP">0</span>
                 </div>
-
-                <!-- 2. EXPENSES SECTION -->
-                <div class="section-header expense-section">
-                    <span class="badge out">OUT</span>
-                    <h2>Expenses</h2>
+                <div class="info-row">
+                    <span class="info-label">Current Stock:</span>
+                    <span class="info-value" id="dispStock">0</span>
                 </div>
-                <div class="grid-container selection-grid expense-grid">
-                    <!-- Dynamic Expense Buttons -->
+                <div class="info-row" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #ddd;">
+                    <span class="info-label">Estimated Total:</span>
+                    <span class="info-value" id="dispTotal" style="color: var(--primary-color);">0</span>
                 </div>
+            </div>
 
-                <!-- 3. CONTRA SECTION -->
-                <div class="section-header contra-section">
-                    <span class="badge contra">CN</span>
-                    <h2>Contra</h2>
-                </div>
-                <div class="grid-container selection-grid contra-grid">
-                    <!-- Dynamic Contra Buttons -->
-                </div>
-            </section>
+            <!-- Inputs -->
+            <div class="input-group">
+                <label for="unitsInput">Enter Units</label>
+                <input type="number" id="unitsInput" placeholder="0" min="1">
+            </div>
 
-            <!-- STEP 1-TAX: Tax Options -->
-            <section id="step-1-tax" class="step-content">
-                <div class="trail-container" id="trail-1-tax"></div>
-                <label style="text-align: center; margin-bottom: 20px;">Select Tax Type</label>
-                
-                <!-- Styled as Main Category Buttons -->
-                <div class="selection-grid">
-                    <button class="btn-cat c-tax" onclick="handleTaxType('Normal Tax', this)">
-                        <div class="icon-box">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                <polyline points="14 2 14 8 20 8"></polyline>
-                                <line x1="12" y1="18" x2="12" y2="12"></line>
-                                <line x1="9" y1="15" x2="15" y2="15"></line>
-                            </svg>
-                        </div>
-                        <span class="btn-text">Normal Tax</span>
-                    </button>
+            <div class="input-group">
+                <label for="flowType">Flow Type</label>
+                <select id="flowType">
+                    <option value="Cash">Cash</option>
+                    <option value="Bank">Bank</option>
+                    <option value="Credit">Credit</option>
+                </select>
+            </div>
 
-                    <button class="btn-cat c-tax" onclick="handleTaxType('Corporation Tax', this)">
-                        <div class="icon-box">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M3 21h18"/>
-                                <path d="M5 21V7l8-4 8 4v14"/>
-                                <path d="M17 21v-8.5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0-.5.5V21"/>
-                            </svg>
-                        </div>
-                        <span class="btn-text">Corporation Tax</span>
-                    </button>
-                </div>
-            </section>
+            <!-- Credit Name Input (Hidden by default) -->
+            <div class="input-group hidden" id="creditNameGroup">
+                <label for="creditName">Enter Name (Credit)</label>
+                <input type="text" id="creditName" placeholder="Customer Name">
+            </div>
 
-            <!-- STEP 1.5: Contra Options -->
-            <section id="step-1-5" class="step-content">
-                <div class="trail-container" id="trail-1-5"></div>
-                <label style="text-align: center; margin-bottom: 20px;">Select Contra Type</label>
-                
-                <div class="selection-grid">
-                    <button class="btn-cat c-contra" onclick="handleContraType('Withdraw', this)">
-                        <div class="icon-box">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="12" y1="19" x2="12" y2="5"></line>
-                                <polyline points="5 12 12 5 19 12"></polyline>
-                            </svg>
-                        </div>
-                        <span class="btn-text">Withdraw</span>
-                    </button>
+            <button id="saveBtn" class="btn-save">Save Transaction</button>
+            <button id="cancelBtn" class="btn-save btn-secondary">Cancel</button>
+        </div>
+    </main>
 
-                    <button class="btn-cat c-contra" onclick="handleContraType('Deposit', this)">
-                        <div class="icon-box">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <polyline points="19 12 12 19 5 12"></polyline>
-                            </svg>
-                        </div>
-                        <span class="btn-text">Deposit</span>
-                    </button>
-                </div>
-            </section>
-
-            <!-- STEP 2: Amount -->
-            <section id="step-2" class="step-content">
-                <div class="trail-container" id="trail-2"></div>
-                <label for="amountInput">Enter Amount</label>
-                <input type="number" id="amountInput" placeholder="0.00" inputmode="decimal">
-                <div class="hint">Press <b>Enter</b> to continue</div>
-            </section>
-
-            <!-- STEP 2-TAX: Tax Percentage (Only for Corporation Tax) -->
-            <section id="step-2-tax" class="step-content">
-                <div class="trail-container" id="trail-2-tax"></div>
-                <label for="taxPercentageInput">Enter Tax Percentage (%)</label>
-                <input type="number" id="taxPercentageInput" placeholder="e.g. 18" inputmode="decimal">
-                <div class="hint">Press <b>Enter</b> to calculate and save</div>
-            </section>
-
-            <!-- STEP 3: Form (Payment Method) -->
-            <section id="step-3" class="step-content">
-                <div class="trail-container" id="trail-3"></div>
-                <label>Payment Method</label>
-                <div class="grid-options">
-                    <div class="option-btn" onclick="selectForm('Cash', this)">Cash</div>
-                    <div class="option-btn" onclick="selectForm('Credit', this)">Credit</div>
-                    <div class="option-btn" onclick="selectForm('Bank', this)">Bank</div>
-                </div>
-            </section>
-
-            <!-- STEP 4: Credit Name -->
-            <section id="step-4" class="step-content">
-                <div class="trail-container" id="trail-4"></div>
-                <label for="creditNameInput">Credit Name / Lender</label>
-                <input type="text" id="creditNameInput" placeholder="e.g. Supplier A" autocomplete="off">
-                <div class="hint">Press <b>Enter</b> to continue</div>
-            </section>
-
-            <!-- STEP 5: Charges (Conditional for OUT + Bank) OR Contra Charges -->
-            <section id="step-5" class="step-content">
-                <div class="trail-container" id="trail-5"></div>
-                <label id="chargesLabel">Bank Charges?</label>
-                <div class="grid-options-2">
-                    <div class="option-btn" onclick="handleChargesOption(false, this)">Without Charges</div>
-                    <div class="option-btn" onclick="handleChargesOption(true, this)">With Charges</div>
-                </div>
-            </section>
-
-            <!-- STEP 6: Enter Charges Amount -->
-            <section id="step-6" class="step-content">
-                <div class="trail-container" id="trail-6"></div>
-                <label for="chargesInput">Enter Charges Amount</label>
-                <input type="number" id="chargesInput" placeholder="0.00" inputmode="decimal">
-                <div class="hint">Press <b>Enter</b> to continue</div>
-            </section>
-
-            <!-- STEP 7: Confirmation -->
-            <section id="step-7" class="step-content">
-                <div class="trail-container" id="trail-7" style="justify-content: center; margin-bottom: 30px;"></div>
-                <div style="text-align: center; color: var(--text-muted); font-size: 0.95rem;">
-                    Please verify the transaction details above before saving.
-                </div>
-            </section>
-
-            <!-- STEP 8: Success -->
-            <section id="step-8" class="step-content">
-                <div class="success-view">
-                    <div class="success-icon">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                    </div>
-                    <h2 style="font-size: 1.5rem; margin-bottom: 8px;">Saved!</h2>
-                    <p style="color:var(--text-muted)">Redirecting to dashboard...</p>
-                </div>
-            </section>
-        </main>
-
-        <footer class="action-bar">
-            <button class="action-cancel" onclick="handleCancel()">Cancel</button>
-            <button id="mainActionBtn" class="action-primary hidden" onclick="saveTransaction()">Save</button>
-        </footer>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <div id="loadingText">Processing...</div>
     </div>
 
-    <div id="toast"></div>
-
+    <!-- ========================================
+         FIREBASE & LOGIC
+         ======================================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, getDocs, addDoc, query, where, updateDoc, doc, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+        // ========================================
+        // CONFIGURATION
+        // ========================================
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
             authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -564,571 +322,278 @@
             appId: "1:167159607898:web:23ca11366b88868b085e63"
         };
 
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const auth = getAuth(app);
 
-        // --- DATA LISTS ---
-        const incomeList = [
-            "Discount Received", "Commission Received", "Rent Received", 
-            "Interest Received", "Dividend Income", "Bad Debts Recovered", 
-            "Gain on Sale of Asset", "Sundry Income"
-        ];
+        // State Variables
+        let selectedTransactionType = "";
+        let selectedProduct = null; // Stores full product doc {id, name, bp, sp, stock...}
+        let allProducts = [];
 
-        const expenseList = [
-            "Wages & Salaries", "Rent & Rates", "Lighting & Heating", "Electricity & Gas",
-            "Water Charges", "Telephone & Internet", "Stationery", "Postage & Courier",
-            "Advertising Expenses", "Carriage Outwards", "Repairs & Maintenance", "Depreciation",
-            "Insurance", "Motor Vehicle Expenses", "Fuel & Transport", "Office Expenses",
-            "General Expenses", "Sundry Expenses", "Charges", "Bad Debts",
-            "Provision for Doubtful Debts", "Directors’ Remuneration", "Debenture Interest",
-            "Warehouse Rent", "Security Expenses", "Legal & Professional Fees", "Audit Fees",
-            "Subscriptions", "Training Expenses", "Travel & Accommodation", "Entertainment Expenses"
-        ];
-
-        // Separate List for Contra Group
-        const contraList = [
-            "Contra Transaction"
-        ];
-
-        // --- ICONS (SVG Strings) ---
-        const icons = {
-            dollar: `<svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>`,
-            trendingUp: `<svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>`,
-            trendingDown: `<svg viewBox="0 0 24 24"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline></svg>`,
-            swap: `<svg viewBox="0 0 24 24"><path d="M7 16V4M7 4L3 8M7 4L11 8M17 8v12M17 20l-4-4M17 20l4-4"></path></svg>`,
-            file: `<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`,
-            percent: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"></line><circle cx="6.5" cy="6.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg>`
-        };
-
-        const state = {
-            step: 1,
-            data: {
-                flowType: '',   
-                detail: '',     
-                amount: 0,
-                flowForm: '', 
-                creditName: '',
-                hasCharges: false, 
-                chargesAmount: 0,
-                contraType: '',
-                isContra: false,
-                isTax: false,
-                taxType: '',
-                taxPercentage: 0
-            }
-        };
-
-        const inputs = {
-            amount: document.getElementById('amountInput'),
-            creditName: document.getElementById('creditNameInput'),
-            search: document.getElementById('searchInput'),
-            charges: document.getElementById('chargesInput'),
-            taxPercentage: document.getElementById('taxPercentageInput')
-        };
-        const mainActionBtn = document.getElementById('mainActionBtn');
-        const headerTitle = document.getElementById('headerTitle');
-
-        // --- CATEGORY GENERATION ---
-        function generateCategoryButtons() {
-            const incomeGrid = document.querySelector('.income-grid');
-            const expenseGrid = document.querySelector('.expense-grid');
-            const contraGrid = document.querySelector('.contra-grid');
-
-            // Helper to create button
-            const createBtn = (name, type, iconSvg, customClass = '') => {
-                const btn = document.createElement('button');
-                btn.className = `btn-cat ${customClass}`;
-                btn.setAttribute('data-type', type);
-                btn.setAttribute('data-detail', name);
-                btn.onclick = function() { selectType(type, name, this); };
-
-                btn.innerHTML = `
-                    <div class="icon-box">${iconSvg}</div>
-                    <span class="btn-text">${name}</span>
-                `;
-                return btn;
-            };
-
-            // 1. Generate Income Buttons
-            incomeGrid.appendChild(createBtn("Capital", "IN", icons.dollar, "c-capital"));
-            incomeGrid.appendChild(createBtn("Sales", "IN", icons.trendingUp, "c-sales"));
-            incomeList.forEach(item => {
-                incomeGrid.appendChild(createBtn(item, "IN", icons.file, "c-generic-in"));
-            });
-
-            // 2. Generate Expense Buttons
-            // PLACED TAX BUTTON FIRST TO ENSURE IT IS SEEN
-            expenseGrid.appendChild(createBtn("Tax", "OUT", icons.percent, "c-tax"));
-            expenseGrid.appendChild(createBtn("Purchases", "OUT", icons.trendingDown, "c-purchase"));
-            expenseList.forEach(item => {
-                expenseGrid.appendChild(createBtn(item, "OUT", icons.file, "c-generic-out"));
-            });
-
-            // 3. Generate Contra Buttons
-            contraList.forEach(item => {
-                contraGrid.appendChild(createBtn(item, "CONTRA", icons.swap, "c-contra"));
-            });
-        }
-
-        // --- Initialization ---
-        window.addEventListener('DOMContentLoaded', () => {
-            generateCategoryButtons(); 
-            goToStep(1); 
-        });
-
-        function goToStep(stepNumber) {
-            document.querySelector('.step-content.active')?.classList.remove('active');
-            const next = document.getElementById(`step-${stepNumber}`);
-            if(next) {
-                next.classList.add('active');
-                state.step = stepNumber;
-                updateUI();
-                
-                if(stepNumber === 2) setTimeout(() => inputs.amount.focus(), 50);
-                if(stepNumber === '2-tax') setTimeout(() => inputs.taxPercentage.focus(), 50);
-                if(stepNumber === 4) setTimeout(() => inputs.creditName.focus(), 50);
-                if(stepNumber === 6) setTimeout(() => inputs.charges.focus(), 50);
-            }
-        }
-
-        function updateUI() {
-            if(state.step === 1) {
-                headerTitle.innerText = "Select Type";
-                mainActionBtn.classList.add('hidden');
-            } else if(state.step === 7) { 
-                headerTitle.innerText = "Confirm Details";
-                mainActionBtn.classList.remove('hidden');
-                mainActionBtn.textContent = "Save Transaction";
-                mainActionBtn.disabled = false;
-            } else {
-                headerTitle.innerText = state.data.detail || "Transaction";
-                mainActionBtn.classList.add('hidden');
-            }
-            renderHistory();
-        }
-
-        window.selectType = function(flow, detail, btnEl) {
-            state.data.flowType = flow;
-            state.data.detail = detail;
-            state.data.hasCharges = false;
-            state.data.chargesAmount = 0;
-            
-            // Check if it's Tax
-            if (detail === "Tax") {
-                state.data.isTax = true;
-                state.data.isContra = false;
-                state.data.taxType = '';
-                document.querySelectorAll('.btn-cat').forEach(b => b.style.borderColor = 'transparent');
-                btnEl.style.borderColor = 'var(--primary)';
-                
-                setTimeout(() => goToStep('1-tax'), 200);
-            } 
-            // Check if it's Contra
-            else if (detail === "Contra Transaction") {
-                state.data.isContra = true;
-                state.data.isTax = false;
-                state.data.contraType = '';
-                document.querySelectorAll('.btn-cat').forEach(b => b.style.borderColor = 'transparent');
-                btnEl.style.borderColor = 'var(--primary)';
-                
-                setTimeout(() => goToStep('1-5'), 200);
-            } else {
-                // Normal Flow
-                state.data.isContra = false;
-                state.data.isTax = false;
-                document.querySelectorAll('.btn-cat').forEach(b => b.style.borderColor = 'transparent');
-                btnEl.style.borderColor = 'var(--primary)';
-                
-                setTimeout(() => goToStep(2), 200);
-            }
-        };
-
-        window.handleTaxType = function(taxType, btnEl) {
-            state.data.taxType = taxType;
-            
-            document.querySelectorAll('.btn-cat').forEach(b => {
-                b.style.borderColor = 'transparent'; 
-                b.style.backgroundColor = 'white';
-            });
-            btnEl.style.borderColor = 'var(--primary)';
-
-            if (taxType === 'Corporation Tax') {
-                // Jump to percentage step
-                setTimeout(() => goToStep('2-tax'), 150);
-            } else {
-                // Normal Tax - Go to Amount
-                setTimeout(() => goToStep(2), 150);
-            }
-        }
+        // DOM Elements
+        const headerTitle = document.getElementById("headerTitle");
+        const productGrid = document.getElementById("productGrid");
+        const productSelection = document.getElementById("productSelection");
+        const transactionForm = document.getElementById("transactionForm");
+        const unitsInput = document.getElementById("unitsInput");
+        const flowTypeSelect = document.getElementById("flowType");
+        const creditNameGroup = document.getElementById("creditNameGroup");
+        const creditNameInput = document.getElementById("creditName");
+        const saveBtn = document.getElementById("saveBtn");
+        const cancelBtn = document.getElementById("cancelBtn");
         
-        inputs.taxPercentage.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const val = parseFloat(inputs.taxPercentage.value);
-                if (!val || val <= 0) return showToast("Please enter a valid percentage.");
-                state.data.taxPercentage = val.toFixed(2);
-                
-                // Go to confirmation to save
-                goToStep(7);
-            }
-        });
+        const dispProductName = document.getElementById("dispProductName");
+        const dispBP = document.getElementById("dispBP");
+        const dispSP = document.getElementById("dispSP");
+        const dispStock = document.getElementById("dispStock");
+        const dispTotal = document.getElementById("dispTotal");
 
-        window.handleContraType = function(contraType, btnEl) {
-            state.data.contraType = contraType;
-            
-            document.querySelectorAll('.btn-cat').forEach(b => {
-                b.style.borderColor = 'transparent'; 
-                b.style.backgroundColor = 'white';
-            });
-            btnEl.style.borderColor = 'var(--primary)';
+        const errorMsg = document.getElementById("errorMsg");
+        const successMsg = document.getElementById("successMsg");
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        const loadingText = document.getElementById("loadingText");
 
-            setTimeout(() => {
-                goToStep(2);
-            }, 150);
-        }
+        // ========================================
+        // INITIALIZATION
+        // ========================================
+        window.addEventListener('DOMContentLoaded', async () => {
+            // 1. Get Transaction Type from URL params (e.g., ?type=Sales)
+            const urlParams = new URLSearchParams(window.location.search);
+            selectedTransactionType = urlParams.get('type');
 
-        inputs.search.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase().trim();
-            const buttons = document.querySelectorAll('.btn-cat');
-            
-            // Selectors for all groups
-            const incomeHeader = document.querySelector('.income-section');
-            const incomeGrid = document.querySelector('.income-grid');
-            const expenseHeader = document.querySelector('.expense-section');
-            const expenseGrid = document.querySelector('.expense-grid');
-            const contraHeader = document.querySelector('.contra-section');
-            const contraGrid = document.querySelector('.contra-grid');
-
-            buttons.forEach(btn => {
-                const text = btn.querySelector('.btn-text').textContent.toLowerCase();
-                if(text.includes(query)) {
-                    btn.style.display = 'flex';
-                } else {
-                    btn.style.display = 'none';
-                }
-            });
-
-            const checkAndHide = (header, grid) => {
-                const visibleButtons = Array.from(grid.querySelectorAll('.btn-cat')).filter(btn => btn.style.display !== 'none');
-                if (visibleButtons.length === 0) {
-                    header.style.display = 'none';
-                    grid.style.display = 'none';
-                } else {
-                    header.style.display = 'flex';
-                    grid.style.display = 'grid';
-                }
-            };
-
-            checkAndHide(incomeHeader, incomeGrid);
-            checkAndHide(expenseHeader, expenseGrid);
-            checkAndHide(contraHeader, contraGrid);
-        });
-
-        function createHistoryButton(label, value) {
-            return `<div class="trail-btn"><span class="trail-label">${label}</span> ${value}</div>`;
-        }
-
-        function renderHistory() {
-            let typePill = '';
-            
-            if (state.data.isTax) {
-                typePill = createHistoryButton('Type', state.data.taxType || state.data.detail);
-            } else {
-                typePill = createHistoryButton('Type', state.data.detail + (state.data.isContra ? ` (${state.data.contraType})` : ''));
-            }
-
-            const amountPill = state.data.amount ? createHistoryButton('Amount', state.data.amount) : '';
-            const formPill = state.data.flowForm ? createHistoryButton('Method', state.data.flowForm) : '';
-            const creditPill = (state.data.flowForm === 'Credit' && state.data.creditName) ? createHistoryButton('Lender', state.data.creditName) : '';
-            const chargePill = (state.data.hasCharges && state.data.chargesAmount) ? createHistoryButton('Charges', state.data.chargesAmount) : '';
-            const percentPill = (state.data.isTax && state.data.taxType === 'Corporation Tax' && state.data.taxPercentage) ? createHistoryButton('Percentage', state.data.taxPercentage + '%') : '';
-
-            const trail1_5 = document.getElementById('trail-1-5');
-            const trail1_tax = document.getElementById('trail-1-tax');
-            const trail2 = document.getElementById('trail-2');
-            const trail2_tax = document.getElementById('trail-2-tax');
-            const trail3 = document.getElementById('trail-3');
-            const trail4 = document.getElementById('trail-4');
-            const trail5 = document.getElementById('trail-5');
-            const trail6 = document.getElementById('trail-6');
-            const trail7 = document.getElementById('trail-7');
-
-            if(trail1_5 && state.step >= 1.5) trail1_5.innerHTML = typePill;
-            if(trail1_tax && state.step >= '1-tax') trail1_tax.innerHTML = typePill;
-            
-            if(state.step >= 2 || state.step === '2-tax') {
-                if(trail2) trail2.innerHTML = typePill;
-                if(trail2_tax) trail2_tax.innerHTML = typePill + percentPill;
-            }
-            if(state.step >= 3) trail3.innerHTML = typePill + amountPill;
-            if(state.step >= 4) trail4.innerHTML = typePill + amountPill + formPill;
-            if(state.step >= 5) trail5.innerHTML = typePill + amountPill + formPill + creditPill;
-            if(state.step >= 6) trail6.innerHTML = typePill + amountPill + formPill + creditPill;
-            if(state.step >= 7) {
-                trail7.innerHTML = typePill + amountPill + formPill + creditPill + chargePill + percentPill;
-            }
-        }
-
-        inputs.amount.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const val = parseFloat(inputs.amount.value);
-                if (!val || val <= 0) return showToast("Please enter a valid amount greater than 0.");
-                state.data.amount = val.toFixed(2);
-                
-                if (state.data.isContra && state.data.contraType === 'Withdraw') {
-                    goToStep(5); 
-                } else {
-                    goToStep(3); 
-                }
-            }
-        });
-
-        window.selectForm = function(form, btnEl) {
-            state.data.flowForm = form;
-            
-            const container = document.getElementById('step-3');
-            container.querySelectorAll('.option-btn').forEach(b => {
-                b.classList.remove('selected');
-                b.style.borderColor = 'var(--border)'; b.style.background = '#F9FAFB'; b.style.color = 'var(--text-main)';
-            });
-            btnEl.classList.add('selected');
-            btnEl.style.borderColor = 'var(--primary)'; 
-            btnEl.style.background = 'var(--primary)'; 
-            btnEl.style.color = '#fff';
-
-            setTimeout(() => {
-                if (form === 'Credit') {
-                    goToStep(4);
-                } else {
-                    if (form === 'Bank' && state.data.flowType === 'OUT' && !state.data.isContra) {
-                        goToStep(5); 
-                    } else {
-                        goToStep(7); 
-                    }
-                }
-            }, 150);
-        };
-
-        inputs.creditName.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const val = inputs.creditName.value.trim();
-                if (!val) return showToast("Please enter a name for credit.");
-                state.data.creditName = val;
-                goToStep(7);
-            }
-        });
-
-        window.handleChargesOption = function(hasCharges, btnEl) {
-            state.data.hasCharges = hasCharges;
-
-            const container = document.getElementById('step-5');
-            container.querySelectorAll('.option-btn').forEach(b => {
-                b.classList.remove('selected');
-                b.style.borderColor = 'var(--border)'; b.style.background = '#F9FAFB'; b.style.color = 'var(--text-main)';
-            });
-            btnEl.classList.add('selected');
-            btnEl.style.borderColor = 'var(--primary)'; btnEl.style.background = 'var(--primary)'; btnEl.style.color = '#fff';
-
-            setTimeout(() => {
-                if (hasCharges) {
-                    goToStep(6);
-                } else {
-                    goToStep(7);
-                }
-            }, 150);
-        };
-
-        inputs.charges.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const val = parseFloat(inputs.charges.value);
-                if (!val || val <= 0) return showToast("Please enter a valid charge amount.");
-                state.data.chargesAmount = val.toFixed(2);
-                goToStep(7);
-            }
-        });
-
-        let isSaving = false;
-        window.saveTransaction = async function() {
-            if (isSaving) return;
-            isSaving = true;
-            mainActionBtn.disabled = true;
-            mainActionBtn.textContent = "Saving...";
-
-            const user = auth.currentUser;
-            if (!user) {
-                showToast("Session expired. Redirecting to login...");
-                setTimeout(() => window.location.href = 'index.html', 1500);
+            if (!selectedTransactionType) {
+                showError("Transaction type missing. Redirecting...");
+                setTimeout(() => window.location.href = "stock.html", 2000);
                 return;
             }
 
-            const now = new Date();
-            const timestamp = Date.now();
-            const userEmail = user.email;
-            const txCollection = collection(db, "users", userEmail, "transactions");
-            const userRef = doc(db, "users", userEmail);
+            // Set Header Title
+            headerTitle.textContent = selectedTransactionType;
 
-            // Helper function to create consistent transaction objects
-            const createTransaction = (detail, type, amount, method, name = "") => ({
-                date: now.toLocaleString(),
-                detail: detail,
-                type: type,       
-                displayType: type === 'IN' ? 'Income' : 'Expense',  
-                method: method, 
-                amount: Number(amount),
-                name: name, 
-                createdAt: timestamp
-            });
-            
-            // Helper for Corporation Tax (Special Record)
-            const createCorporationTaxTx = (percentage) => ({
-                date: now.toLocaleString(),
-                detail: 'Corporation Tax',
-                type: 'PERCENTAGE',
-                displayType: 'Tax',
-                method: '',
-                amount: 0, 
-                taxPercentage: Number(percentage),
-                name: '',
-                createdAt: timestamp
-            });
+            // 2. Fetch Products
+            await fetchProducts();
+        });
 
+        // ========================================
+        // FETCH PRODUCTS
+        // ========================================
+        async function fetchProducts() {
+            showLoading("Fetching products...");
             try {
-                const promises = [];
-                let incrementValue = 0;
-
-                // 1. CORPORATION TAX LOGIC
-                if (state.data.isTax && state.data.taxType === 'Corporation Tax') {
-                     const taxRef = doc(txCollection);
-                     const taxTx = createCorporationTaxTx(state.data.taxPercentage);
-                     promises.push(setDoc(taxRef, taxTx));
-                     incrementValue++;
-                }
-                // 2. NORMAL TAX LOGIC (Follows standard flow)
-                else if (state.data.isTax && state.data.taxType === 'Normal Tax') {
-                    let finalDetail = "Normal Tax";
-                    if (state.data.flowForm === 'Credit' && state.data.creditName) {
-                        finalDetail += ` (${state.data.creditName})`;
-                    }
-                    const mainRef = doc(txCollection);
-                    const mainTx = createTransaction(finalDetail, state.data.flowType, state.data.amount, state.data.flowForm.toUpperCase(), "");
-                    promises.push(setDoc(mainRef, mainTx));
-                    incrementValue++;
-                }
-                // 3. CONTRA LOGIC
-                else if (state.data.isContra) {
-                    
-                    if (state.data.contraType === 'Withdraw') {
-                        // 1. CASH ENTRY: Cash Increases (IN)
-                        const cashRef = doc(txCollection);
-                        const cashTx = createTransaction('Contra', 'IN', state.data.amount, 'CASH', 'C'); 
-                        promises.push(setDoc(cashRef, cashTx));
-                        incrementValue++;
-
-                        // 2. BANK ENTRY: Bank Decreases (OUT)
-                        const bankRef = doc(txCollection);
-                        const bankTx = createTransaction('Contra', 'OUT', state.data.amount, 'BANK', 'C'); 
-                        promises.push(setDoc(bankRef, bankTx));
-                        incrementValue++;
-
-                        // 3. CHARGES ENTRY (If applicable)
-                        if (state.data.hasCharges) {
-                            const chargesRef = doc(txCollection);
-                            const chargesTx = createTransaction('Charges', 'OUT', state.data.chargesAmount, 'BANK', '');
-                            promises.push(setDoc(chargesRef, chargesTx));
-                            incrementValue++;
-                        }
-
-                    } else if (state.data.contraType === 'Deposit') {
-                        // 1. BANK ENTRY: Bank Increases (IN)
-                        const bankRef = doc(txCollection);
-                        const bankTx = createTransaction('Contra', 'IN', state.data.amount, 'BANK', 'C'); 
-                        promises.push(setDoc(bankRef, bankTx));
-                        incrementValue++;
-
-                        // 2. CASH ENTRY: Cash Decreases (OUT)
-                        const cashRef = doc(txCollection);
-                        const cashTx = createTransaction('Contra', 'OUT', state.data.amount, 'CASH', 'C'); 
-                        promises.push(setDoc(cashRef, cashTx));
-                        incrementValue++;
-                    }
-                } else {
-                    // --- STANDARD LOGIC ---
-                    let finalDetail = state.data.detail;
-                    if (state.data.flowForm === 'Credit' && state.data.creditName) {
-                        finalDetail += ` (${state.data.creditName})`;
-                    }
-
-                    const mainRef = doc(txCollection);
-                    const mainTx = createTransaction(finalDetail, state.data.flowType, state.data.amount, state.data.flowForm.toUpperCase(), "");
-                    promises.push(setDoc(mainRef, mainTx));
-                    incrementValue++;
-
-                    if (state.data.flowType === 'OUT' && state.data.flowForm === 'Bank' && state.data.hasCharges) {
-                        const chargesRef = doc(txCollection);
-                        const chargesTx = createTransaction('Charges', 'OUT', state.data.chargesAmount, 'BANK', state.data.detail);
-                        promises.push(setDoc(chargesRef, chargesTx));
-                        incrementValue++;
-                    }
-                }
-
-                // Add stats update to same batch of promises
-                if (incrementValue > 0) {
-                    promises.push(updateDoc(userRef, { spaceUsed: increment(incrementValue) }));
-                }
-
-                // Execute all writes in parallel
-                await Promise.all(promises);
-
-                console.log("Transaction Saved");
-                goToStep(8);
+                const productsRef = collection(db, "products");
+                const snapshot = await getDocs(productsRef);
                 
-                setTimeout(() => { window.location.href = 'business.html'; }, 1500);
+                productGrid.innerHTML = ""; // Clear loading text
+
+                if (snapshot.empty) {
+                    productGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: #666;">No products found.</p>`;
+                    hideLoading();
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    allProducts.push({ id: doc.id, ...data });
+
+                    // Create Button
+                    const btn = document.createElement("button");
+                    btn.className = "product-btn";
+                    btn.textContent = data.name || "Unnamed Product";
+                    btn.onclick = () => selectProduct(doc.id);
+                    productGrid.appendChild(btn);
+                });
 
             } catch (error) {
-                console.error("Error:", error);
-                showToast("Error saving: " + error.message);
-                isSaving = false;
-                mainActionBtn.disabled = false;
-                mainActionBtn.textContent = "Save";
+                console.error("Error fetching products:", error);
+                showError("Failed to load products. Check console.");
+            } finally {
+                hideLoading();
             }
-        };
-
-        window.goBack = function() {
-            if(state.step === 1) {
-                window.location.href = 'business.html';
-            } else if(state.step === '1-tax') {
-                goToStep(1);
-            } else if(state.step === '1-5') {
-                goToStep(1);
-            } else {
-                if(state.step === '2-tax') {
-                    goToStep('1-tax');
-                } else if(state.step === 2 && state.data.isContra && state.data.contraType === 'Withdraw') {
-                    goToStep('1-5');
-                } else if (state.step === 5) {
-                     if(state.data.isContra) goToStep(2);
-                     else goToStep(3);
-                } else {
-                    goToStep(state.step - 1);
-                }
-            }
-        };
-
-        window.handleCancel = function() {
-            if(confirm("Cancel this transaction? Unsaved data will be lost.")) {
-                window.location.href = 'business.html';
-            }
-        };
-
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg; t.className = 'show';
-            setTimeout(() => t.className = t.className.replace('show', ''), 3000);
         }
 
-        onAuthStateChanged(auth, (user) => {
-            if (!user) window.location.href = 'index.html';
+        // ========================================
+        // SELECT PRODUCT & DISPLAY DETAILS
+        // ========================================
+        function selectProduct(id) {
+            selectedProduct = allProducts.find(p => p.id === id);
+            if (!selectedProduct) return;
+
+            // Visual Feedback
+            document.querySelectorAll('.product-btn').forEach(b => b.classList.remove('active'));
+            const activeBtn = Array.from(productGrid.children).find(b => b.textContent === selectedProduct.name);
+            if(activeBtn) activeBtn.classList.add('active');
+
+            // Display Details
+            dispProductName.textContent = selectedProduct.name;
+            dispBP.textContent = selectedProduct.bp || 0;
+            dispSP.textContent = selectedProduct.sp || 0;
+            dispStock.textContent = selectedProduct.stock || 0;
+            dispTotal.textContent = "0";
+            unitsInput.value = "";
+
+            // Show Form
+            productSelection.style.display = "none";
+            transactionForm.style.display = "block";
+            unitsInput.focus();
+        }
+
+        // ========================================
+        // INTERACTION LOGIC
+        // ========================================
+        
+        // Toggle Credit Name Input
+        flowTypeSelect.addEventListener("change", () => {
+            if (flowTypeSelect.value === "Credit") {
+                creditNameGroup.classList.remove("hidden");
+                creditNameInput.setAttribute("required", "true");
+            } else {
+                creditNameGroup.classList.add("hidden");
+                creditNameInput.removeAttribute("required");
+                creditNameInput.value = "";
+            }
+            calculateTotal();
         });
+
+        // Calculate Total Real-time
+        unitsInput.addEventListener("input", calculateTotal);
+
+        function calculateTotal() {
+            const units = parseFloat(unitsInput.value) || 0;
+            if (!selectedProduct || units <= 0) {
+                dispTotal.textContent = "0";
+                return;
+            }
+
+            let amount = 0;
+            // Logic: Sales = IN (Use SP). Others = OUT (Use BP).
+            if (selectedTransactionType === "Sales") {
+                amount = units * (selectedProduct.sp || 0);
+            } else {
+                // Purchases, Damage, Sales Return, Purchase Return
+                amount = units * (selectedProduct.bp || 0);
+            }
+            dispTotal.textContent = amount.toFixed(2);
+        }
+
+        // Cancel / Back to Product List
+        cancelBtn.addEventListener("click", () => {
+            transactionForm.style.display = "none";
+            productSelection.style.display = "block";
+            selectedProduct = null;
+            // Clear active class
+            document.querySelectorAll('.product-btn').forEach(b => b.classList.remove('active'));
+        });
+
+        // ========================================
+        // SAVE TRANSACTION
+        // ========================================
+        saveBtn.addEventListener("click", async () => {
+            // Validation
+            const units = parseFloat(unitsInput.value);
+            if (!units || units <= 0) {
+                showError("Please enter a valid number of units.");
+                return;
+            }
+
+            if (flowTypeSelect.value === "Credit" && (!creditNameInput.value.trim())) {
+                showError("Please enter a name for Credit transactions.");
+                creditNameInput.focus();
+                return;
+            }
+
+            showLoading("Saving Transaction...");
+
+            try {
+                // 1. Determine Flow Form and Stock Change
+                let flowForm = "";
+                let newStock = 0;
+
+                if (selectedTransactionType === "Sales") {
+                    flowForm = "IN"; 
+                    // Requirement: "Stock increases: Current Units + Entered Units"
+                    newStock = (selectedProduct.stock || 0) + units;
+                } else {
+                    flowForm = "OUT"; 
+                    // Requirement: "Stock decreases: Current Units − Entered Units"
+                    // (Optional: Check for negative stock, though not explicitly asked to block it)
+                    newStock = (selectedProduct.stock || 0) - units;
+                }
+
+                // 2. Determine Amount
+                let amount = 0;
+                if (selectedTransactionType === "Sales") {
+                    amount = units * (selectedProduct.sp || 0);
+                } else {
+                    amount = units * (selectedProduct.bp || 0);
+                }
+
+                // 3. Set Name
+                const customerName = flowTypeSelect.value === "Credit" ? creditNameInput.value.trim() : "-";
+
+                // 4. Database Transaction (Atomic Write)
+                await runTransaction(db, async (transaction) => {
+                    const productRef = doc(db, "products", selectedProduct.id);
+                    const historyRef = collection(db, "history"); // Assuming collection name 'history'
+
+                    // Update Stock
+                    transaction.update(productRef, { stock: newStock });
+
+                    // Add History Record
+                    const newDocRef = doc(historyRef);
+                    transaction.set(newDocRef, {
+                        date: new Date(), // Current timestamp
+                        detail: selectedTransactionType,
+                        flowType: flowTypeSelect.value, // Cash / Credit / Bank
+                        flowForm: flowForm, // IN / OUT
+                        name: customerName,
+                        amount: amount,
+                        productName: selectedProduct.name, // Helpful for history lists
+                        units: units,
+                        productId: selectedProduct.id
+                    });
+                });
+
+                // 5. Success
+                showSuccess("Transaction Saved!");
+                
+                // 6. Redirect
+                setTimeout(() => {
+                    window.location.href = "stock.html";
+                }, 1000);
+
+            } catch (error) {
+                console.error("Transaction failed:", error);
+                showError("Error saving: " + error.message);
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // ========================================
+        // HELPERS
+        // ========================================
+        function showLoading(text) {
+            loadingText.textContent = text;
+            loadingOverlay.style.display = "flex";
+        }
+
+        function hideLoading() {
+            loadingOverlay.style.display = "none";
+        }
+
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.style.display = "block";
+            successMsg.style.display = "none";
+        }
+
+        function showSuccess(msg) {
+            successMsg.textContent = msg;
+            successMsg.style.display = "block";
+            errorMsg.style.display = "none";
+        }
+
     </script>
 </body>
 </html>
