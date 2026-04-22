@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* --- Base Styles (Matching Transaction App Look) --- */
+        /* --- Base Styles --- */
         :root {
             --primary: #4F46E5;
             --primary-hover: #4338CA;
@@ -51,7 +51,6 @@
         h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main); }
         p.subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
 
-        /* Container for Steps */
         #stepsContainer {
             width: 100%;
             display: flex;
@@ -195,10 +194,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        // Keeping Auth import if you need it later, but strictly following your demand to not enforce login here
         import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-        // --- CONFIGURATION (Same as Transaction App) ---
+        // --- CONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
             authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -249,7 +247,7 @@
                 btn.onclick = () => editStep(i); 
                 
                 let displayValue = value;
-                if(field.type === 'number' && (field.key.includes('Price') || field.key === 'units')) {
+                if(field.type === 'number') {
                     displayValue = parseFloat(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 }
 
@@ -287,18 +285,14 @@
                 input.value = productData[field.key]; 
                 if(field.step) input.step = field.step;
                 
-                // Auto-focus
                 setTimeout(() => input.focus(), 50);
 
                 const helper = document.createElement('div');
                 helper.className = 'helper-text';
                 helper.textContent = 'Press Enter ↵ to continue';
 
-                // Enter Key Handler
                 input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        handleNext(input);
-                    }
+                    if (e.key === 'Enter') handleNext(input);
                 });
                 
                 inputGroup.appendChild(input);
@@ -317,7 +311,9 @@
                 saveBtn.className = 'btn-primary';
                 saveBtn.innerHTML = `SAVE PRODUCT <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>`;
                 
+                // THIS IS THE ONCLICK SAVE
                 saveBtn.addEventListener('click', saveToFirestore);
+                
                 saveArea.appendChild(saveBtn);
                 container.appendChild(saveArea);
             }
@@ -329,7 +325,6 @@
             const field = FIELDS[currentStep];
             const val = inputElement.value.trim();
 
-            // Validation
             if (!val) {
                 showToast(`Please enter a valid ${field.label}.`);
                 inputElement.focus();
@@ -341,16 +336,12 @@
                 return;
             }
 
-            // Save data to state
             productData[field.key] = val;
-
-            // Move to next step automatically
             currentStep++;
             render();
         }
 
         function editStep(index) {
-            // Revert state back to the clicked step index
             currentStep = index;
             render();
         }
@@ -361,23 +352,17 @@
             setTimeout(() => toast.className = toast.className.replace('show', ''), 3000);
         }
 
-        // --- FIREBASE SAVE LOGIC (Matching Transaction Code Pattern) ---
+        // --- FIREBASE SAVE LOGIC ---
 
         async function saveToFirestore() {
             if (isSaving) return;
             isSaving = true;
 
             const user = auth.currentUser;
-            // If not logged in, we default to a demo user string or handle error.
-            // Per instruction "no need to login", we try to use the current user if available, 
-            // otherwise we might fail gracefully or save to a specific path if you want anonymous.
-            // Assuming user is logged in from the transaction app flow.
             
             if (!user) {
                 showToast("Error: User not authenticated.");
                 isSaving = false;
-                // Optional: Redirect to index.html or specific error handling
-                // window.location.href = 'index.html';
                 return;
             }
 
@@ -385,41 +370,44 @@
             const now = new Date();
             const timestamp = Date.now();
             
-            // 1. Product Collection Reference
-            const productCollection = collection(db, "users", userEmail, "products");
-            const productRef = doc(productCollection); // Auto-gen ID
-
-            // 2. User Stats Reference (To increment space used)
-            const userRef = doc(db, "users", userEmail);
-
             try {
-                // Prepare Data Object (Matching Transaction Style)
+                // 1. Prepare Data for Main Product
                 const docData = {
                     name: productData.name,
                     buyingPrice: parseFloat(productData.buyPrice),
                     sellingPrice: parseFloat(productData.sellPrice),
                     unitsPresent: parseInt(productData.units),
-                    // Adding standard metadata fields from Transaction code
                     date: now.toLocaleString(),
                     createdAt: timestamp
                 };
 
-                // Execute Writes (Parallel like the Transaction code)
+                // 2. Prepare Data for Product Name
+                const nameDocData = {
+                    name: productData.name,
+                    createdAt: timestamp
+                };
+
+                // 3. References
+                const productCollection = collection(db, "users", userEmail, "products");
+                const productRef = doc(productCollection);
+
+                const namesCollection = collection(db, "users", userEmail, "productnames");
+                const nameRef = doc(namesCollection);
+
+                const userRef = doc(db, "users", userEmail);
+
+                // 4. Execute Writes (Main Product + Product Name + Stats)
                 const promises = [];
+                
+                promises.push(setDoc(productRef, docData));        // Save Full Info
+                promises.push(setDoc(nameRef, nameDocData));        // Save Name Only
+                promises.push(updateDoc(userRef, { spaceUsed: increment(1) })); // Update Stats
 
-                // A. Save the Product
-                promises.push(setDoc(productRef, docData));
-
-                // B. Update User Stats
-                promises.push(updateDoc(userRef, { spaceUsed: increment(1) }));
-
-                // Wait for completion
                 await Promise.all(promises);
 
-                console.log("Product Saved");
+                console.log("Product and Name Saved");
                 showToast("Product saved successfully!");
                 
-                // Disable Save Button to prevent double submit
                 const saveBtn = document.querySelector('.btn-primary');
                 if(saveBtn) {
                     saveBtn.disabled = true;
@@ -427,7 +415,7 @@
                     saveBtn.style.backgroundColor = "var(--success)";
                 }
 
-                // Optional: Redirect after delay
+                // Optional: Redirect
                 // setTimeout(() => window.location.href = 'business.html', 1500);
 
             } catch (error) {
@@ -435,7 +423,6 @@
                 showToast("Error saving product: " + error.message);
                 isSaving = false;
                 
-                // Re-enable button logic if needed
                 const saveBtn = document.querySelector('.btn-primary');
                 if(saveBtn) {
                     saveBtn.disabled = false;
@@ -448,7 +435,7 @@
 
         btnBack.addEventListener('click', () => {
             if(confirm("Are you sure you want to cancel? Data will be lost.")) {
-                window.location.href = 'business.html'; // Or wherever your dashboard is
+                window.location.href = 'business.html'; 
             }
         });
 
