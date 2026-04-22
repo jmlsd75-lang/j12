@@ -778,7 +778,27 @@
 
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
-  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
+  // ── Persistence Strategy ──
+  // Setting LOCAL ensures the user stays signed in even after closing the browser,
+  // until they explicitly click the Sign Out button.
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+    .then(() => {
+      // Sign in observer (optional, here just for console logging or future logic)
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          console.log("User is active:", user.email);
+          // We do NOT redirect away. The page stays active.
+        } else {
+          console.log("No user signed in.");
+          // Even if no user, we stay on this page as per request.
+          // The only way to leave is the Logout button redirecting to index.html.
+        }
+      });
+    })
+    .catch((error) => {
+      console.error("Persistence error:", error);
+    });
 
   // ── Real Google Sign-Out ──
   async function handleLogout() {
@@ -789,8 +809,14 @@
 
     try {
       await auth.signOut();
-      localStorage.removeItem('userSession');
+      // Note: We are NOT removing localStorage items here to keep the session 
+      // available if they decide to come back without logging in again immediately, 
+      // BUT if you want a "fresh start" on logout, uncomment the next line:
+      // localStorage.removeItem('userSession');
+      
       showToast('Signed out successfully');
+      
+      // Wait a moment for the user to see the toast, then redirect to login
       setTimeout(() => {
         window.location.href = 'index.html';
       }, 800);
@@ -962,17 +988,11 @@
     }
   })();
 
-  // ── Session check: redirect if not logged in ──
-  (function checkSession() {
-    const session = localStorage.getItem('userSession');
-    if (!session) {
-      // No session found, redirect to login
-      showToast('Session expired. Redirecting to login...');
-      setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 1500);
-    }
-  })();
+  // ── Session Check Logic REMOVED ──
+  // The logic that previously redirected users to 'index.html' when session was missing
+  // has been completely removed. The page will now stay active and visible 
+  // regardless of login state, unless the user manually clicks "Sign out".
+  
 </script>
 
 </body>
