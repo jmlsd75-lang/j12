@@ -2,78 +2,71 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Register New Product</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        /* ========================================
-           CSS STYLING (Matching Sample Code)
-           ======================================== */
+        /* --- Base Styles (Matching Transaction App Look) --- */
         :root {
-            --primary-color: #4285F4; /* Google Blue */
-            --primary-hover: #357ae8;
-            --bg-color: #f0f2f5;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --secondary-border: #dadce0;
-            --secondary-bg: #f8f9fa;
-            --success-color: #1e8e3e;
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --success: #10B981;
+            --bg-body: #F3F4F6;
+            --bg-card: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --border: #E5E7EB;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --radius: 16px;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
         body {
-            background-color: var(--bg-color);
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            color: var(--text-color);
             padding: 20px;
         }
 
         .card {
-            background-color: var(--card-bg);
-            padding: 2.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background: var(--bg-card);
             width: 100%;
-            max-width: 450px;
-            text-align: center;
-            animation: slideUp 0.4s ease-out;
-        }
-
-        h1 {
-            margin-bottom: 0.5rem;
-            color: #202124;
-            font-size: 1.5rem;
-        }
-
-        p.subtitle {
-            margin-bottom: 2rem;
-            color: #5f6368;
-            font-size: 0.9rem;
-        }
-
-        /* Step Containers */
-        #stepsContainer {
+            max-width: 480px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            align-items: center;
+            position: relative;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main); }
+        p.subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+        /* Container for Steps */
+        #stepsContainer {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
             margin-bottom: 20px;
         }
 
-        /* The "Converted" Buttons (Completed Steps) */
+        /* Completed Step Buttons */
         .step-btn {
-            background-color: var(--secondary-bg);
-            border: 1px solid var(--secondary-border);
-            color: var(--text-color);
-            padding: 12px 15px;
-            border-radius: 8px;
+            background: #F9FAFB;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 12px 16px;
+            border-radius: 12px;
             width: 100%;
             text-align: left;
             cursor: pointer;
@@ -81,55 +74,29 @@
             justify-content: space-between;
             align-items: center;
             transition: all 0.2s;
-            font-size: 1rem;
         }
+        .step-btn:hover { border-color: var(--primary); background: #EEF2FF; transform: translateY(-1px); }
+        
+        .step-btn .content { display: flex; flex-direction: column; overflow: hidden; }
+        .step-btn .label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+        .step-btn .value { font-weight: 600; color: var(--primary); font-size: 1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        
+        .edit-icon { opacity: 0.3; width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .step-btn:hover .edit-icon { opacity: 1; color: var(--primary); }
 
-        .step-btn:hover {
-            background-color: #e8eaed;
-            border-color: #d2d3d5;
-            transform: translateY(-1px);
-        }
-
-        .step-btn .label {
-            font-size: 0.75rem;
-            color: #5f6368;
-            text-transform: uppercase;
-            font-weight: 700;
-            margin-right: 10px;
-        }
-
-        .step-btn .value {
-            font-weight: 500;
-            color: var(--primary-color);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .step-btn .edit-icon {
-            opacity: 0.3;
-            width: 16px;
-            height: 16px;
-        }
-
-        .step-btn:hover .edit-icon {
-            opacity: 1;
-        }
-
-        /* Current Input Area */
+        /* Active Input Area */
         .input-area {
+            width: 100%;
             text-align: left;
-            padding: 15px;
+            padding: 16px;
             background: #fff;
-            border: 1px solid transparent;
-            border-radius: 8px;
+            border: 2px solid transparent;
+            border-radius: 12px;
             transition: all 0.3s;
         }
-        
-        /* Highlight active input area */
         .input-area.active {
-            border: 1px solid var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
         }
 
         .input-area label {
@@ -137,39 +104,37 @@
             margin-bottom: 8px;
             font-size: 0.85rem;
             font-weight: 600;
-            color: var(--primary-color);
+            color: var(--primary);
         }
 
         .input-group input {
             width: 100%;
             padding: 12px;
-            border: 1px solid var(--secondary-border);
-            border-radius: 6px;
-            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 1.1rem;
             outline: none;
-            transition: border 0.2s;
+            font-family: inherit;
+            -moz-appearance: textfield;
         }
-
-        .input-group input:focus {
-            border-color: var(--primary-color);
-        }
+        .input-group input:focus { border-color: var(--primary); }
 
         .helper-text {
             font-size: 0.75rem;
-            color: #9aa0a6;
-            margin-top: 5px;
+            color: var(--text-muted);
+            margin-top: 8px;
             text-align: right;
-            font-style: italic;
+            font-weight: 500;
         }
 
-        /* Action Buttons */
+        /* Action Button */
         .btn-primary {
             width: 100%;
-            background-color: var(--success-color);
+            background-color: var(--primary);
             color: white;
             border: none;
             padding: 14px;
-            border-radius: 6px;
+            border-radius: 12px;
             font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
@@ -179,109 +144,61 @@
             align-items: center;
             gap: 8px;
             transition: background 0.2s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
         }
-
-        .btn-primary:hover {
-            background-color: #137333;
-            transform: translateY(-1px);
-        }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-primary:disabled { background-color: #C7D2FE; cursor: not-allowed; box-shadow: none; }
 
         .btn-secondary {
             background: transparent;
-            color: #5f6368;
-            border: 1px solid transparent;
+            color: var(--text-muted);
+            border: none;
             width: 100%;
             padding: 10px;
-            margin-top: 10px;
+            margin-top: 5px;
             cursor: pointer;
             font-size: 0.9rem;
+            font-weight: 500;
         }
-        .btn-secondary:hover {
-            text-decoration: underline;
-        }
+        .btn-secondary:hover { color: var(--danger); text-decoration: underline; }
 
-        /* Feedback Message */
-        #feedbackMsg {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            display: none;
-            text-align: center;
+        /* Toast */
+        #toast {
+            visibility: hidden; min-width: 280px; background-color: #1F2937; color: #fff;
+            text-align: center; border-radius: 12px; padding: 16px; position: fixed;
+            z-index: 1000; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(20px);
+            font-size: 0.95rem; opacity: 0; transition: all 0.3s;
         }
-        .success { background-color: #e6f4ea; color: var(--success-color); }
-        .error { background-color: #fce8e6; color: #d93025; }
+        #toast.show { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
 
-        /* Loading Overlay */
-        #loadingOverlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.9);
-            z-index: 1000;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        .spinner {
-            width: 30px; height: 30px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        /* Animations */
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
         .fade-in { animation: fadeIn 0.3s ease-in; }
-
-        /* Icons */
-        svg { fill: currentColor; }
     </style>
 </head>
 <body>
 
     <div class="card">
         <h1>New Product</h1>
-        <p class="subtitle">Type details and press Enter</p>
+        <p class="subtitle">Type details and press Enter ↵</p>
 
-        <!-- Container for Steps -->
         <div id="stepsContainer">
-            <!-- Dynamic Content (Buttons and Inputs) will appear here -->
+            <!-- Dynamic Content will appear here -->
         </div>
 
-        <!-- Feedback Area -->
-        <div id="feedbackMsg"></div>
-        
-        <!-- Navigation Links -->
         <button id="btnBack" class="btn-secondary">Cancel</button>
     </div>
 
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay">
-        <div class="spinner"></div>
-        <p style="margin-top:10px; font-weight:500;">Saving Product...</p>
-    </div>
+    <div id="toast"></div>
 
-    <!-- ========================================
-         FIREBASE & LOGIC
-         ======================================== -->
+    <!-- FIREBASE & LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import {
-            getFirestore,
-            collection,
-            addDoc,
-            serverTimestamp
-        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        // Keeping Auth import if you need it later, but strictly following your demand to not enforce login here
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-        // ========================================
-        // CONFIGURATION
-        // ========================================
+        // --- CONFIGURATION (Same as Transaction App) ---
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
             authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -291,15 +208,12 @@
             appId: "1:167159607898:web:23ca11366b88868b085e63"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
 
-        // ========================================
-        // STATE MANAGEMENT
-        // ========================================
+        // --- STATE MANAGEMENT ---
         
-        // The fields configuration for Register Product
         const FIELDS = [
             { key: 'name', label: 'Product Name', type: 'text', placeholder: 'e.g. Wireless Mouse' },
             { key: 'buyPrice', label: 'Buying Price', type: 'number', placeholder: '0.00', step: '0.01' },
@@ -307,8 +221,7 @@
             { key: 'units', label: 'Units Present', type: 'number', placeholder: '0' }
         ];
 
-        // Application State
-        let currentStep = 0; // 0 to 3
+        let currentStep = 0; 
         let productData = {
             name: '',
             buyPrice: '',
@@ -317,49 +230,43 @@
         };
         let isSaving = false;
 
-        // DOM Elements
+        // --- DOM ELEMENTS ---
         const container = document.getElementById('stepsContainer');
-        const feedbackMsg = document.getElementById('feedbackMsg');
-        const loadingOverlay = document.getElementById('loadingOverlay');
         const btnBack = document.getElementById('btnBack');
+        const toast = document.getElementById('toast');
 
-        // ========================================
-        // RENDER LOGIC
-        // ========================================
-
+        // --- RENDER LOGIC ---
         function render() {
-            container.innerHTML = ''; // Clear current view
+            container.innerHTML = ''; 
 
-            // 1. Render Completed Steps (as Buttons)
+            // 1. Render Completed Steps (as Editable Buttons)
             for (let i = 0; i < currentStep; i++) {
                 const field = FIELDS[i];
                 const value = productData[field.key];
                 
                 const btn = document.createElement('div');
                 btn.className = 'step-btn fade-in';
-                btn.onclick = () => editStep(i); // Click to edit
+                btn.onclick = () => editStep(i); 
                 
-                // Format value display
                 let displayValue = value;
-                if(field.type === 'number' && field.key.includes('Price')) {
-                    displayValue = parseFloat(value).toFixed(2);
+                if(field.type === 'number' && (field.key.includes('Price') || field.key === 'units')) {
+                    displayValue = parseFloat(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 }
 
                 btn.innerHTML = `
-                    <div style="display:flex; flex-direction:column; overflow:hidden;">
+                    <div class="content">
                         <span class="label">${field.label}</span>
                         <span class="value">${displayValue}</span>
                     </div>
                     <svg class="edit-icon" viewBox="0 0 24 24">
-                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                     </svg>
                 `;
                 container.appendChild(btn);
             }
 
-            // 2. Render Active Step (Input)
-            // If currentStep is less than total fields, we are still inputting
-            // If currentStep == FIELDS.length, we show the Save summary
+            // 2. Render Active Step (Input) or Summary
             if (currentStep < FIELDS.length) {
                 const field = FIELDS[currentStep];
                 
@@ -377,28 +284,25 @@
                 input.id = `input-${field.key}`;
                 input.type = field.type;
                 input.placeholder = field.placeholder;
-                input.value = productData[field.key]; // Pre-fill if editing
+                input.value = productData[field.key]; 
                 if(field.step) input.step = field.step;
                 
                 // Auto-focus
                 setTimeout(() => input.focus(), 50);
 
-                // Helper Text
                 const helper = document.createElement('div');
                 helper.className = 'helper-text';
-                helper.textContent = 'Press Enter ↵';
+                helper.textContent = 'Press Enter ↵ to continue';
 
-                // Event Listener for ENTER KEY (No button click needed)
+                // Enter Key Handler
                 input.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
-                        e.preventDefault(); // Prevent form submission behavior
                         handleNext(input);
                     }
                 });
                 
-                // Assemble
                 inputGroup.appendChild(input);
-                inputGroup.appendChild(helper); // Add helper text
+                inputGroup.appendChild(helper);
                 inputArea.appendChild(label);
                 inputArea.appendChild(inputGroup);
                 container.appendChild(inputArea);
@@ -407,10 +311,11 @@
                 // ALL STEPS DONE - SHOW SAVE BUTTON
                 const saveArea = document.createElement('div');
                 saveArea.className = 'fade-in';
+                saveArea.style.width = '100%';
                 
                 const saveBtn = document.createElement('button');
                 saveBtn.className = 'btn-primary';
-                saveBtn.innerHTML = `SAVE PRODUCT <svg style="width:20px;height:20px" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>`;
+                saveBtn.innerHTML = `SAVE PRODUCT <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>`;
                 
                 saveBtn.addEventListener('click', saveToFirestore);
                 saveArea.appendChild(saveBtn);
@@ -418,9 +323,7 @@
             }
         }
 
-        // ========================================
-        // INTERACTION HANDLERS
-        // ========================================
+        // --- INTERACTION LOGIC ---
 
         function handleNext(inputElement) {
             const field = FIELDS[currentStep];
@@ -428,19 +331,18 @@
 
             // Validation
             if (!val) {
-                showFeedback(`Please enter a valid ${field.label}.`, 'error');
+                showToast(`Please enter a valid ${field.label}.`);
                 inputElement.focus();
                 return;
             }
 
             if (field.type === 'number' && parseFloat(val) < 0) {
-                showFeedback(`${field.label} cannot be negative.`, 'error');
+                showToast(`${field.label} cannot be negative.`);
                 return;
             }
 
             // Save data to state
             productData[field.key] = val;
-            hideFeedback();
 
             // Move to next step automatically
             currentStep++;
@@ -453,79 +355,100 @@
             render();
         }
 
-        function showFeedback(msg, type) {
-            feedbackMsg.textContent = msg;
-            feedbackMsg.className = type;
-            feedbackMsg.style.display = 'block';
+        function showToast(msg) {
+            toast.textContent = msg; 
+            toast.className = 'show';
+            setTimeout(() => toast.className = toast.className.replace('show', ''), 3000);
         }
 
-        function hideFeedback() {
-            feedbackMsg.style.display = 'none';
-        }
-
-        function toggleLoading(show) {
-            loadingOverlay.style.display = show ? 'flex' : 'none';
-        }
-
-        // ========================================
-        // FIREBASE SAVE
-        // ========================================
+        // --- FIREBASE SAVE LOGIC (Matching Transaction Code Pattern) ---
 
         async function saveToFirestore() {
             if (isSaving) return;
             isSaving = true;
-            toggleLoading(true);
+
+            const user = auth.currentUser;
+            // If not logged in, we default to a demo user string or handle error.
+            // Per instruction "no need to login", we try to use the current user if available, 
+            // otherwise we might fail gracefully or save to a specific path if you want anonymous.
+            // Assuming user is logged in from the transaction app flow.
+            
+            if (!user) {
+                showToast("Error: User not authenticated.");
+                isSaving = false;
+                // Optional: Redirect to index.html or specific error handling
+                // window.location.href = 'index.html';
+                return;
+            }
+
+            const userEmail = user.email;
+            const now = new Date();
+            const timestamp = Date.now();
+            
+            // 1. Product Collection Reference
+            const productCollection = collection(db, "users", userEmail, "products");
+            const productRef = doc(productCollection); // Auto-gen ID
+
+            // 2. User Stats Reference (To increment space used)
+            const userRef = doc(db, "users", userEmail);
 
             try {
-                // Prepare data
+                // Prepare Data Object (Matching Transaction Style)
                 const docData = {
                     name: productData.name,
                     buyingPrice: parseFloat(productData.buyPrice),
                     sellingPrice: parseFloat(productData.sellPrice),
                     unitsPresent: parseInt(productData.units),
-                    createdAt: serverTimestamp(),
-                    updatedAt: serverTimestamp()
+                    // Adding standard metadata fields from Transaction code
+                    date: now.toLocaleString(),
+                    createdAt: timestamp
                 };
 
-                // Add to Firestore collection "products"
-                await addDoc(collection(db, "products"), docData);
+                // Execute Writes (Parallel like the Transaction code)
+                const promises = [];
 
-                // Success UI
-                toggleLoading(false);
-                showFeedback("Product saved successfully!", "success");
+                // A. Save the Product
+                promises.push(setDoc(productRef, docData));
+
+                // B. Update User Stats
+                promises.push(updateDoc(userRef, { spaceUsed: increment(1) }));
+
+                // Wait for completion
+                await Promise.all(promises);
+
+                console.log("Product Saved");
+                showToast("Product saved successfully!");
                 
-                // Disable Save Button
+                // Disable Save Button to prevent double submit
                 const saveBtn = document.querySelector('.btn-primary');
                 if(saveBtn) {
                     saveBtn.disabled = true;
-                    saveBtn.textContent = "Saved Successfully";
-                    saveBtn.style.backgroundColor = "#ccc";
+                    saveBtn.textContent = "Saved!";
+                    saveBtn.style.backgroundColor = "var(--success)";
                 }
 
-                // Optional: Redirect logic here if needed
-                // setTimeout(() => window.location.href = "dashboard.html", 2000);
+                // Optional: Redirect after delay
+                // setTimeout(() => window.location.href = 'business.html', 1500);
 
             } catch (error) {
-                console.error("Error adding document: ", error);
-                toggleLoading(false);
-                showFeedback("Error saving product: " + error.message, "error");
+                console.error("Error:", error);
+                showToast("Error saving product: " + error.message);
                 isSaving = false;
                 
-                // Re-enable editing if failed
-                currentStep = FIELDS.length - 1; // Go back to review step
-                render();
+                // Re-enable button logic if needed
+                const saveBtn = document.querySelector('.btn-primary');
+                if(saveBtn) {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = `SAVE PRODUCT <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>`;
+                }
             }
         }
 
-        // ========================================
-        // INIT
-        // ========================================
-        
-        // Back button logic
+        // --- INIT & EVENTS ---
+
         btnBack.addEventListener('click', () => {
             if(confirm("Are you sure you want to cancel? Data will be lost.")) {
-                // window.location.href = "dashboard.html";
-                console.log("User cancelled");
+                window.location.href = 'business.html'; // Or wherever your dashboard is
             }
         });
 
