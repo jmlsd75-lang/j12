@@ -203,7 +203,7 @@
         <h1>Welcome Back</h1>
         <p>Enter your email to sign in.</p>
         
-        <!-- New Email Input -->
+        <!-- Email Input -->
         <div class="input-group">
             <label for="userEmail">Email Address</label>
             <input type="email" id="userEmail" placeholder="name@example.com" autocomplete="email">
@@ -229,14 +229,14 @@
     </div>
 
     <!-- ========================================
-         FIREBASE — ALL FROM CLOUD CDN
+         FIREBASE & LOGIC
          ======================================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import {
             getAuth,
             GoogleAuthProvider,
-            signInWithPopup, // Changed from Redirect to Popup for reliability
+            signInWithPopup,
             onAuthStateChanged
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import {
@@ -247,7 +247,7 @@
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // ========================================
-        // FIREBASE CONFIG
+        // CONFIGURATION
         // ========================================
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
@@ -258,51 +258,56 @@
             appId: "1:167159607898:web:23ca11366b88868b085e63"
         };
 
-        // ========================================
-        // ADMIN SETTINGS
-        // ========================================
         const ADMIN_EMAIL = "jmlsd75@gmail.com";
 
-        // ========================================
-        // INITIALIZE
-        // ========================================
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
-
-        // Add scopes to request email access
         provider.addScope('email');
         provider.addScope('profile');
 
-        // ========================================
-        // DOM ELEMENTS
-        // ========================================
+        // DOM Elements
         const emailInput = document.getElementById("userEmail");
         const googleBtn = document.getElementById("googleLoginBtn");
         const errorMsg = document.getElementById("errorMsg");
-        const successMsg = document.getElementById("successMsg");
         const loadingOverlay = document.getElementById("loadingOverlay");
         const loadingText = document.getElementById("loadingText");
+
+        // ========================================
+        // CORRECTED FUNCTION: LOOKUP & REDIRECT
+        // ========================================
+        function checkEmailAndRedirect(user) {
+            if (!user || !user.email) {
+                console.error("User object is invalid.");
+                return;
+            }
+
+            // Normalize emails to lowercase to ensure matching works
+            const userEmail = user.email.toLowerCase().trim();
+            const adminEmail = ADMIN_EMAIL.toLowerCase();
+
+            // Set session flag
+            sessionStorage.setItem("justLoggedIn", "1");
+
+            // Logic: Admin vs Free User
+            if (userEmail === adminEmail) {
+                console.log(`✅ Admin detected: ${userEmail}`);
+                window.location.href = "admin.html";
+            } else {
+                console.log(`✅ User detected: ${userEmail}`);
+                window.location.href = "free.html";
+            }
+        }
 
         // ========================================
         // HELPERS
         // ========================================
         function showError(msg) {
-            hideMessages();
             errorMsg.textContent = msg;
             errorMsg.classList.add("visible");
-        }
-
-        function showSuccess(msg) {
-            hideMessages();
-            successMsg.textContent = msg;
-            successMsg.classList.add("visible");
-        }
-
-        function hideMessages() {
-            errorMsg.classList.remove("visible");
-            successMsg.classList.remove("visible");
+            setTimeout(() => errorMsg.classList.remove("visible"), 5000);
         }
 
         function showLoading(text) {
@@ -314,9 +319,6 @@
             loadingOverlay.style.display = "none";
         }
 
-        // ========================================
-        // SAVE LOGIN TO FIRESTORE
-        // ========================================
         async function saveLogin(user) {
             if (!user) return;
             try {
@@ -326,111 +328,66 @@
                     userId: user.uid,
                     createdAt: serverTimestamp()
                 });
-                console.log("Login saved:", user.email);
             } catch (e) {
-                console.error("Save login error:", e);
-                // We don't stop the flow if logging fails
+                console.error("Database save failed:", e);
             }
         }
 
         // ========================================
-        // HANDLE LOGIN LOGIC
-        // ========================================
-        async function handleLoginSuccess(user) {
-            console.log("User logged in:", user.email);
-
-            // 1. Save to DB
-            await saveLogin(user);
-
-            // 2. Flag for other pages
-            sessionStorage.setItem("justLoggedIn", "1");
-
-            // 3. Determine Destination
-            let destination = "free.html"; // Default
-            let successText = "Login successful! Redirecting...";
-
-            if (user.email === ADMIN_EMAIL) {
-                destination = "admin.html";
-                successText = "Welcome Admin! Redirecting...";
-            }
-
-            // 4. Update UI
-            showLoading(successText);
-            showSuccess(successText);
-
-            // 5. Wait briefly then Redirect
-            setTimeout(() => {
-                window.location.href = destination;
-            }, 1500);
-        }
-
-        // ========================================
-        // MAIN EXECUTION
+        // APP LOGIC
         // ========================================
 
-        // 1. Check if user is already logged in on load
+        // 1. Check if already logged in on load
         showLoading("Checking session...");
         onAuthStateChanged(auth, (user) => {
             hideLoading();
             if (user) {
-                console.log("User already logged in:", user.email);
-                // If already logged in, we process immediately
-                handleLoginSuccess(user);
-            } else {
-                // User is not logged in, enable the card
-                console.log("No active session.");
+                // If already logged in, run the redirect function immediately
+                checkEmailAndRedirect(user);
             }
         });
 
-        // 2. Button Click Listener
+        // 2. Handle Button Click
         googleBtn.addEventListener("click", async () => {
             const typedEmail = emailInput.value.trim();
 
-            // Simple Validation
+            // Validation
             if (!typedEmail || !typedEmail.includes("@")) {
-                showError("Please enter a valid email address first.");
-                emailInput.focus();
+                showError("Please enter a valid email address.");
                 return;
             }
 
-            // Prepare UI
-            hideMessages();
+            // UI Updates
             googleBtn.disabled = true;
-            showLoading("Connecting to Google...");
+            showLoading("Verifying with Google...");
 
             try {
-                // Sign in with Popup (better for single page tools)
+                // Authenticate
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
 
-                // Check if the Google email matches the typed email (Optional security check)
+                // Optional: Check if typed email matches Google account email
                 if (user.email.toLowerCase() !== typedEmail.toLowerCase()) {
-                    console.warn(`Typed email (${typedEmail}) differs from Google email (${user.email})`);
+                    console.warn("Warning: Email entered does not match Google account.");
                 }
 
-                // Handle the successful login
-                await handleLoginSuccess(user);
+                // Save to DB
+                await saveLogin(user);
+
+                // ★ RUN THE REDIRECT FUNCTION ★
+                checkEmailAndRedirect(user);
 
             } catch (error) {
                 hideLoading();
                 googleBtn.disabled = false;
-                
-                console.error("Auth Error:", error.code, error.message);
+                console.error(error);
                 
                 switch (error.code) {
                     case "auth/popup-closed-by-user":
-                        showError("Sign-in popup was closed. Please try again.");
+                        showError("Sign-in cancelled.");
                         break;
-                    case "auth/cancelled-popup-request":
-                        // Ignore if multiple popups were triggered accidentally
-                        break;
-                    case "auth/network-request-failed":
-                        showError("Network error. Please check your internet connection.");
-                        break;
-                    case "auth/invalid-email":
-                    case "auth/user-not-found":
-                    case "auth/wrong-password":
-                        showError("Authentication failed. Please check your credentials.");
+                    case "auth/popup-blocked":
+                        showError("Popup was blocked by browser. Please allow popups.");
                         break;
                     default:
                         showError("Login failed: " + error.message);
@@ -438,11 +395,9 @@
             }
         });
 
-        // Add "Enter" key support for the input field
+        // Allow pressing Enter in input
         emailInput.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") {
-                googleBtn.click();
-            }
+            if (e.key === "Enter") googleBtn.click();
         });
 
     </script>
