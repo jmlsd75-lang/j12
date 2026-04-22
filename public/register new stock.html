@@ -415,8 +415,10 @@
                     saveBtn.style.backgroundColor = "var(--success)";
                 }
 
-                // Optional: Redirect
-                // setTimeout(() => window.location.href = 'business.html', 1500);
+                // REDIRECT TO STOCK.HTML AFTER SUCCESS
+                setTimeout(() => {
+                    window.location.href = 'stock.html';
+                }, 1500);
 
             } catch (error) {
                 console.error("Error:", error);
@@ -435,7 +437,7 @@
 
         btnBack.addEventListener('click', () => {
             if(confirm("Are you sure you want to cancel? Data will be lost.")) {
-                window.location.href = 'business.html'; 
+                window.location.href = 'stock.html'; // Changed Cancel link to stock.html as well for consistency
             }
         });
 
