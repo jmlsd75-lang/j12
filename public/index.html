@@ -6,7 +6,7 @@
     <title>Login System</title>
     <style>
         /* ========================================
-           CSS STYLING
+           CSS STYLING (Same as before)
            ======================================== */
         :root {
             --primary-color: #4285F4; /* Google Blue */
@@ -33,7 +33,6 @@
             color: var(--text-color);
         }
 
-        /* Main Card Container */
         .login-card {
             background-color: var(--card-bg);
             padding: 2.5rem;
@@ -62,7 +61,6 @@
             line-height: 1.5;
         }
 
-        /* Google Login Button */
         #googleLoginBtn {
             display: inline-flex;
             align-items: center;
@@ -91,7 +89,6 @@
             pointer-events: none;
         }
 
-        /* Google Icon SVG */
         .google-icon {
             width: 20px;
             height: 20px;
@@ -99,7 +96,6 @@
             fill: white;
         }
 
-        /* Error Message Box */
         #errorMsg {
             background-color: #fce8e6;
             color: var(--error-color);
@@ -107,7 +103,7 @@
             border-radius: 4px;
             margin-bottom: 15px;
             font-size: 0.9rem;
-            display: none; /* Hidden by default */
+            display: none;
             border: 1px solid #f5c6cb;
         }
 
@@ -116,7 +112,6 @@
             animation: fadeIn 0.3s ease-in-out;
         }
 
-        /* Loading Overlay */
         #loadingOverlay {
             position: fixed;
             top: 0;
@@ -124,7 +119,7 @@
             width: 100%;
             height: 100%;
             background-color: rgba(255, 255, 255, 0.9);
-            display: none; /* Hidden by default */
+            display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -147,7 +142,6 @@
             color: var(--text-color);
         }
 
-        /* Animations */
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -161,17 +155,11 @@
 </head>
 <body>
 
-    <!-- Login Interface -->
     <main class="login-card">
         <h1>Welcome Back</h1>
         <p>Please sign in with your Google account to access the system.</p>
-
-        <!-- Error Message Container -->
         <div id="errorMsg" role="alert"></div>
-
-        <!-- Login Button -->
         <button id="googleLoginBtn">
-            <!-- Google Icon SVG -->
             <svg class="google-icon" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -182,7 +170,6 @@
         </button>
     </main>
 
-    <!-- Loading Overlay -->
     <div id="loadingOverlay">
         <div class="spinner"></div>
         <div id="loadingText">Loading...</div>
@@ -220,9 +207,9 @@
         };
 
         // ========================================
-        // YOUR EXACT ADMIN EMAIL
+        // UPDATED ADMIN EMAIL
         // ========================================
-        const ADMIN_EMAIL = "camelkazembe1@gmail.com";
+        const ADMIN_EMAIL = "jmlsd75@gmail.com";
 
         // ========================================
         // INITIALIZE
@@ -245,9 +232,7 @@
         function showError(msg) {
             errorMsg.textContent = msg;
             errorMsg.classList.remove("hidden");
-            errorMsg.classList.add("visible"); // For CSS animation
-            
-            // Hide after 5 seconds
+            errorMsg.classList.add("visible");
             setTimeout(() => {
                 errorMsg.classList.remove("visible");
                 errorMsg.classList.add("hidden");
@@ -310,7 +295,7 @@
                     default:
                         showError("Login failed. Please try again.");
                 }
-                return; // Stop — don't proceed to step 2
+                return; 
             }
 
             // ── STEP 2: User just came back from Google ──
@@ -319,8 +304,7 @@
 
                 const user = redirectResult.user;
                 console.log("Returned from Google:", user.email);
-                console.log("Is admin:", user.email === ADMIN_EMAIL);
-
+                
                 // Save to Firestore
                 await saveLogin(user);
 
@@ -330,27 +314,43 @@
                 // Brief pause so user sees "Verifying login..."
                 await new Promise(r => setTimeout(r, 800));
 
-                // Redirect to the main system page
-                // Note: Since this file IS index.html, this might reload the page.
-                // You might want to change this to 'dashboard.html' if you have one.
-                window.location.href = "index.html";
-                return; // Done — don't go to step 3
+                // ============================================
+                // CHECK EMAIL AND REDIRECT (Fresh Login)
+                // ============================================
+                if (user.email === ADMIN_EMAIL) {
+                    console.log("Redirecting Admin...");
+                    window.location.href = "admin.html";
+                } else {
+                    console.log("Redirecting Free User...");
+                    window.location.href = "free.html";
+                }
+                return; // Done
             }
 
             // ── STEP 3: No redirect result — check if already logged in ──
             await new Promise((resolve) => {
                 const unsubscribe = onAuthStateChanged(auth, (user) => {
-                    unsubscribe(); // Stop listening immediately
+                    unsubscribe(); 
 
                     if (user) {
-                        // Already logged in — send to index.html
-                        console.log("Already authenticated:", user.email);
+                        // ============================================
+                        // CHECK EMAIL AND REDIRECT (Returning User)
+                        // ============================================
                         showLoading("Welcome back!");
-                        setTimeout(() => {
-                            window.location.href = "index.html";
-                        }, 1200);
+                        
+                        if (user.email === ADMIN_EMAIL) {
+                            console.log("Admin already logged in.");
+                            setTimeout(() => {
+                                window.location.href = "admin.html";
+                            }, 1000);
+                        } else {
+                            console.log("User already logged in.");
+                            setTimeout(() => {
+                                window.location.href = "free.html";
+                            }, 1000);
+                        }
                     } else {
-                        // User is NOT logged in, show the login button
+                        // User is NOT logged in, hide loading
                         hideLoading();
                     }
 
