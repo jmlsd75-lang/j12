@@ -1,34 +1,541 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Loading...</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register New Product</title>
+    <style>
+        /* ========================================
+           CSS STYLING (Matching Login System)
+           ======================================== */
+        :root {
+            --primary-color: #4285F4; /* Google Blue */
+            --primary-hover: #357ae8;
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --secondary-border: #dadce0;
+            --secondary-bg: #f8f9fa;
+            --success-color: #1e8e3e;
+        }
 
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #000;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      font-size: 28px;
-      text-align: center;
-    }
-  </style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-color);
+            padding: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        h1 {
+            margin-bottom: 0.5rem;
+            color: #202124;
+            font-size: 1.5rem;
+        }
+
+        p.subtitle {
+            margin-bottom: 2rem;
+            color: #5f6368;
+            font-size: 0.9rem;
+        }
+
+        /* Step Containers */
+        #stepsContainer {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* The "Converted" Buttons (Completed Steps) */
+        .step-btn {
+            background-color: var(--secondary-bg);
+            border: 1px solid var(--secondary-border);
+            color: var(--text-color);
+            padding: 12px 15px;
+            border-radius: 8px;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .step-btn:hover {
+            background-color: #e8eaed;
+            border-color: #d2d3d5;
+            transform: translateY(-1px);
+        }
+
+        .step-btn .label {
+            font-size: 0.75rem;
+            color: #5f6368;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-right: 10px;
+        }
+
+        .step-btn .value {
+            font-weight: 500;
+            color: var(--primary-color);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .step-btn .edit-icon {
+            opacity: 0.3;
+            width: 16px;
+            height: 16px;
+        }
+
+        .step-btn:hover .edit-icon {
+            opacity: 1;
+        }
+
+        /* Current Input Area */
+        .input-area {
+            text-align: left;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            /* border: 1px solid var(--primary-color); */
+            /* box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1); */
+            transition: all 0.3s;
+        }
+        
+        /* Highlight active input area */
+        .input-area.active {
+            border: 1px solid var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
+        }
+
+        .input-area label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--secondary-border);
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary-color);
+        }
+
+        /* Action Buttons */
+        .btn-primary {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-primary:disabled {
+            background-color: #a0c3f7;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #5f6368;
+            border: 1px solid transparent;
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .btn-secondary:hover {
+            text-decoration: underline;
+        }
+
+        /* Feedback Message */
+        #feedbackMsg {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+            text-align: center;
+        }
+        .success { background-color: #e6f4ea; color: var(--success-color); }
+        .error { background-color: #fce8e6; color: #d93025; }
+
+        /* Loading Overlay */
+        #loadingOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .spinner {
+            width: 30px; height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Animations */
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+
+        /* Icons */
+        svg { fill: currentColor; }
+    </style>
 </head>
 <body>
 
-  PROGRAM IN PROGRESS...
+    <div class="card">
+        <h1>New Product</h1>
+        <p class="subtitle">Enter details step by step</p>
 
-  <script>
-    setTimeout(function () {
-      window.location.href = "stock.html";
-    }, 3000); // 3000ms = 3 seconds
-  </script>
+        <!-- Container for Steps -->
+        <div id="stepsContainer">
+            <!-- Dynamic Content (Buttons and Inputs) will appear here -->
+        </div>
 
+        <!-- Feedback Area -->
+        <div id="feedbackMsg"></div>
+        
+        <!-- Navigation Links -->
+        <button id="btnBack" class="btn-secondary">Cancel / Back to Dashboard</button>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <p style="margin-top:10px; font-weight:500;">Saving Product...</p>
+    </div>
+
+    <!-- ========================================
+         FIREBASE & LOGIC
+         ======================================== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import {
+            getFirestore,
+            collection,
+            addDoc,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // ========================================
+        // CONFIGURATION
+        // ========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // ========================================
+        // STATE MANAGEMENT
+        // ========================================
+        
+        // The fields configuration
+        const FIELDS = [
+            { key: 'name', label: 'Product Name', type: 'text', placeholder: 'e.g. Wireless Mouse' },
+            { key: 'buyPrice', label: 'Buying Price', type: 'number', placeholder: '0.00', step: '0.01' },
+            { key: 'sellPrice', label: 'Selling Price', type: 'number', placeholder: '0.00', step: '0.01' },
+            { key: 'units', label: 'Units Present', type: 'number', placeholder: '0' }
+        ];
+
+        // Application State
+        let currentStep = 0; // 0 to 3
+        let productData = {
+            name: '',
+            buyPrice: '',
+            sellPrice: '',
+            units: ''
+        };
+        let isSaving = false;
+
+        // DOM Elements
+        const container = document.getElementById('stepsContainer');
+        const feedbackMsg = document.getElementById('feedbackMsg');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const btnBack = document.getElementById('btnBack');
+
+        // ========================================
+        // RENDER LOGIC
+        // ========================================
+
+        function render() {
+            container.innerHTML = ''; // Clear current view
+
+            // 1. Render Completed Steps (as Buttons)
+            for (let i = 0; i < currentStep; i++) {
+                const field = FIELDS[i];
+                const value = productData[field.key];
+                
+                const btn = document.createElement('div');
+                btn.className = 'step-btn fade-in';
+                btn.onclick = () => editStep(i); // Click to edit
+                
+                // Format value display
+                let displayValue = value;
+                if(field.type === 'number' && field.key.includes('Price')) {
+                    displayValue = parseFloat(value).toFixed(2);
+                }
+
+                btn.innerHTML = `
+                    <div style="display:flex; flex-direction:column; overflow:hidden;">
+                        <span class="label">${field.label}</span>
+                        <span class="value">${displayValue}</span>
+                    </div>
+                    <svg class="edit-icon" viewBox="0 0 24 24">
+                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                    </svg>
+                `;
+                container.appendChild(btn);
+            }
+
+            // 2. Render Active Step (Input)
+            // If currentStep is less than total fields, we are still inputting
+            // If currentStep == FIELDS.length, we show the Save summary
+            if (currentStep < FIELDS.length) {
+                const field = FIELDS[currentStep];
+                
+                const inputArea = document.createElement('div');
+                inputArea.className = 'input-area active fade-in';
+                
+                const label = document.createElement('label');
+                label.textContent = `Enter ${field.label}`;
+                label.setAttribute('for', `input-${field.key}`);
+                
+                const inputGroup = document.createElement('div');
+                inputGroup.className = 'input-group';
+
+                const input = document.createElement('input');
+                input.id = `input-${field.key}`;
+                input.type = field.type;
+                input.placeholder = field.placeholder;
+                input.value = productData[field.key]; // Pre-fill if editing
+                if(field.step) input.step = field.step;
+                
+                // Auto-focus
+                setTimeout(() => input.focus(), 50);
+
+                // Next/Action Button
+                const actionBtn = document.createElement('button');
+                actionBtn.className = 'btn-primary';
+                // Determine button text based on step
+                const isLastStep = currentStep === FIELDS.length - 1;
+                actionBtn.innerHTML = isLastStep 
+                    ? `Review & Save <svg style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>` 
+                    : `Next <svg style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>`;
+
+                // Events
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') actionBtn.click();
+                });
+                
+                actionBtn.addEventListener('click', () => handleNext(input));
+
+                // Assemble
+                inputGroup.appendChild(input);
+                inputArea.appendChild(label);
+                inputArea.appendChild(inputGroup);
+                inputArea.appendChild(actionBtn);
+                container.appendChild(inputArea);
+
+            } else {
+                // ALL STEPS DONE - SHOW SAVE CONFIRMATION
+                const saveArea = document.createElement('div');
+                saveArea.className = 'fade-in';
+                
+                const saveBtn = document.createElement('button');
+                saveBtn.className = 'btn-primary';
+                saveBtn.style.backgroundColor = 'var(--success-color)';
+                saveBtn.innerHTML = `SAVE PRODUCT TO DATABASE <svg style="width:18px;height:18px" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>`;
+                
+                saveBtn.addEventListener('click', saveToFirestore);
+                saveArea.appendChild(saveBtn);
+                container.appendChild(saveArea);
+            }
+        }
+
+        // ========================================
+        // INTERACTION HANDLERS
+        // ========================================
+
+        function handleNext(inputElement) {
+            const field = FIELDS[currentStep];
+            const val = inputElement.value.trim();
+
+            // Validation
+            if (!val) {
+                showFeedback(`Please enter a valid ${field.label}.`, 'error');
+                inputElement.focus();
+                return;
+            }
+
+            if (field.type === 'number' && parseFloat(val) < 0) {
+                showFeedback(`${field.label} cannot be negative.`, 'error');
+                return;
+            }
+
+            // Save data to state
+            productData[field.key] = val;
+            hideFeedback();
+
+            // Move to next step
+            currentStep++;
+            render();
+        }
+
+        function editStep(index) {
+            // Revert state back to the clicked step index
+            currentStep = index;
+            render();
+        }
+
+        function showFeedback(msg, type) {
+            feedbackMsg.textContent = msg;
+            feedbackMsg.className = type;
+            feedbackMsg.style.display = 'block';
+        }
+
+        function hideFeedback() {
+            feedbackMsg.style.display = 'none';
+        }
+
+        function toggleLoading(show) {
+            loadingOverlay.style.display = show ? 'flex' : 'none';
+        }
+
+        // ========================================
+        // FIREBASE SAVE
+        // ========================================
+
+        async function saveToFirestore() {
+            if (isSaving) return;
+            isSaving = true;
+            toggleLoading(true);
+
+            try {
+                // Prepare data
+                const docData = {
+                    name: productData.name,
+                    buyingPrice: parseFloat(productData.buyPrice),
+                    sellingPrice: parseFloat(productData.sellPrice),
+                    unitsPresent: parseInt(productData.units),
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                };
+
+                // Add to Firestore collection "products"
+                await addDoc(collection(db, "products"), docData);
+
+                // Success UI
+                toggleLoading(false);
+                showFeedback("Product saved successfully!", "success");
+                
+                // Optional: Disable inputs to prevent double save
+                const btns = document.querySelectorAll('.btn-primary');
+                btns.forEach(b => {
+                    b.disabled = true;
+                    b.textContent = "Saved";
+                    b.style.backgroundColor = "#ccc";
+                });
+
+                // Redirect after delay (Optional)
+                setTimeout(() => {
+                    // window.location.href = "dashboard.html"; // Assuming you have a dashboard
+                    console.log("Redirect logic would go here");
+                }, 2000);
+
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                toggleLoading(false);
+                showFeedback("Error saving product: " + error.message, "error");
+                isSaving = false;
+                
+                // Re-enable editing if failed
+                currentStep = FIELDS.length - 1; // Go back to review step
+                render();
+            }
+        }
+
+        // ========================================
+        // INIT
+        // ========================================
+        
+        // Back button logic
+        btnBack.addEventListener('click', () => {
+            if(confirm("Are you sure you want to cancel? Data will be lost.")) {
+                // window.location.href = "dashboard.html";
+                console.log("User cancelled");
+            }
+        });
+
+        // Initial Render
+        render();
+
+    </script>
 </body>
 </html>
