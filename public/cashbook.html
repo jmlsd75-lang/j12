@@ -17,14 +17,6 @@
       --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       --row-height: 45px;
-
-      /* ── COLUMN WIDTHS (Strict Sizing) ── */
-      /* We define widths as a percentage relative to their HALF (50%) of the table */
-      /* Left Side (Debit) Totals 100% */
-      --w-date: 30%; 
-      --w-detail: 40%; 
-      --w-folio: 15%;
-      --w-amount: 15%;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -74,7 +66,7 @@
     main {
       flex: 1;
       padding: 2rem;
-      max-width: 1400px; /* Increased max width for better viewing */
+      max-width: 1400px;
       margin: 0 auto;
       width: 100%;
     }
@@ -107,9 +99,12 @@
     }
 
     /* 
-      IMPORTANT: table-layout: fixed is crucial here.
-      It forces the browser to follow the exact widths we define below,
-      ensuring Debit and Credit are perfectly 50/50.
+      ── TABLE LAYOUT ──
+      1. table-layout: fixed forces the table to obey the exact widths defined below.
+      2. We use direct percentages.
+         TOTAL TABLE = 100%
+         LEFT SIDE (DR)  = 50%
+         RIGHT SIDE (CR) = 50%
     */
     table {
       width: 100%;
@@ -118,7 +113,23 @@
       table-layout: fixed;
     }
 
-    /* ── Header Rows ── */
+    /* ── COLUMN WIDTHS (Strict Equality) ── */
+    
+    /* --- DEBIT SIDE (First 4 Columns) --- */
+    /* Col 1: Date */       th:nth-child(1), td:nth-child(1) { width: 15%; }
+    /* Col 2: Particulars */ th:nth-child(2), td:nth-child(2) { width: 27.5%; }
+    /* Col 3: Folio */       th:nth-child(3), td:nth-child(3) { width: 2.5%; text-align: center; }
+    /* Col 4: Amount */      th:nth-child(4), td:nth-child(4) { width: 5%; text-align: right; }
+    /* Sum Left: 15 + 27.5 + 2.5 + 5 = 50% */
+
+    /* --- CREDIT SIDE (Last 4 Columns) --- */
+    /* Col 5: Date */       th:nth-child(5), td:nth-child(5) { width: 15%; border-left: 2px solid var(--border-color); }
+    /* Col 6: Particulars */ th:nth-child(6), td:nth-child(6) { width: 27.5%; border-left: 2px solid var(--border-color); }
+    /* Col 7: Folio */       th:nth-child(7), td:nth-child(7) { width: 2.5%; text-align: center; border-left: 2px solid var(--border-color); }
+    /* Col 8: Amount */      th:nth-child(8), td:nth-child(8) { width: 5%; text-align: right; border-left: 2px solid var(--border-color); }
+    /* Sum Right: 15 + 27.5 + 2.5 + 5 = 50% */
+
+    /* ── Headers ── */
     th {
       border-bottom: 1px solid var(--border-color);
       padding: 0;
@@ -132,8 +143,8 @@
       text-align: center;
     }
     
-    .main-header.dr-side { color: var(--success); border-right: 2px solid var(--border-color); }
-    .main-header.cr-side { color: var(--danger); }
+    .main-header.dr-side { color: var(--success); }
+    .main-header.cr-side { color: var(--danger); border-left: 2px solid var(--border-color); }
 
     .sub-header th {
       padding: 10px 12px;
@@ -143,53 +154,22 @@
       background-color: #fcfcfc;
     }
 
-    /* 
-       ── COLUMNS SIZING LOGIC ──
-       The table is split in half (Dr / Cr). 
-       Each half is 50% of the table width.
-       We apply widths to columns based on their half.
-    */
-
-    /* --- DEBIT SIDE (First 4 columns) --- */
-    /* Column 1: Date */
-    th:nth-child(1), td:nth-child(1) { width: calc(50% * var(--w-date)); }
-    /* Column 2: Particulars */
-    th:nth-child(2), td:nth-child(2) { width: calc(50% * var(--w-detail)); }
-    /* Column 3: Folio */
-    th:nth-child(3), td:nth-child(3) { width: calc(50% * var(--w-folio)); text-align: center; }
-    /* Column 4: Amount */
-    th:nth-child(4), td:nth-child(4) { width: calc(50% * var(--w-amount)); text-align: right; }
-
-    /* --- CREDIT SIDE (Last 4 columns) --- */
-    /* Column 5: Date */
-    th:nth-child(5), td:nth-child(5) { width: calc(50% * var(--w-date)); }
-    /* Column 6: Particulars */
-    th:nth-child(6), td:nth-child(6) { width: calc(50% * var(--w-detail)); }
-    /* Column 7: Folio */
-    th:nth-child(7), td:nth-child(7) { width: calc(50% * var(--w-folio)); text-align: center; }
-    /* Column 8: Amount */
-    th:nth-child(8), td:nth-child(8) { width: calc(50% * var(--w-amount)); text-align: right; }
-
-    /* Vertical Divider Line (Between Col 4 and 5) */
-    .divider-col {
-      border-left: 2px solid var(--border-color);
-    }
-
     /* ── Table Cells ── */
     td {
       padding: 8px 12px;
       border-bottom: 1px solid #f0f0f0;
       vertical-align: middle;
       height: var(--row-height);
-      overflow: hidden; /* Prevent text from breaking layout */
+      overflow: hidden;
       white-space: nowrap;
-      text-overflow: ellipsis; /* Add ... if text is too long */
+      text-overflow: ellipsis;
     }
 
-    /* Ensure right-aligned text isn't cut off */
-    td[style*="text-align: right"], td.col-amount {
-      white-space: nowrap;
-    }
+    /* Center content for Folio */
+    td:nth-child(3), td:nth-child(7) { text-align: center; }
+
+    /* Right align content for Amount */
+    td:nth-child(4), td:nth-child(8) { text-align: right; white-space: nowrap; }
 
     /* ── Special Rows ── */
     .row-balance { 
@@ -220,12 +200,6 @@
       header { padding: 1rem; }
       main { padding: 1rem; }
       .page-title { font-size: 1.5rem; }
-      
-      /* On very small screens, allow horizontal scroll but keep layout fixed */
-      .cash-book-wrapper { 
-        overflow-x: scroll; 
-        -webkit-overflow-scrolling: touch;
-      }
     }
   </style>
 </head>
@@ -266,10 +240,10 @@
             <th>Amount</th>
             
             <!-- Middle Column -->
-            <th class="divider-col">Date</th>
-            <th class="divider-col">Particulars</th>
-            <th class="divider-col">Folio</th>
-            <th class="divider-col">Amount</th>
+            <th>Date</th>
+            <th>Particulars</th>
+            <th>Folio</th>
+            <th>Amount</th>
           </tr>
         </thead>
         <tbody id="cashBookBody">
@@ -476,13 +450,13 @@
           const isBal = (r.type === 'bal_cd');
           const cellClass = isBal ? 'row-balance' : '';
           rowHTML += `
-            <td class="divider-col ${cellClass}">${r.date}</td>
-            <td class="divider-col ${cellClass}" title="${r.detail}">${r.detail}</td>
-            <td class="divider-col ${cellClass}">${r.folio}</td>
-            <td class="divider-col ${cellClass}">${formatCurrency(r.amount)}</td>
+            <td class="${cellClass}">${r.date}</td>
+            <td class="${cellClass}" title="${r.detail}">${r.detail}</td>
+            <td class="${cellClass}">${r.folio}</td>
+            <td class="${cellClass}">${formatCurrency(r.amount)}</td>
           `;
         } else {
-          rowHTML += `<td class="divider-col"></td><td class="divider-col"></td><td class="divider-col"></td><td class="divider-col"></td>`;
+          rowHTML += `<td></td><td></td><td></td><td></td>`;
         }
 
         rowHTML += "</tr>";
@@ -498,10 +472,10 @@
           <td></td>
           <td>${finalTotal}</td>
           
-          <td class="divider-col"></td>
-          <td class="divider-col">Total</td>
-          <td class="divider-col"></td>
-          <td class="divider-col">${finalTotal}</td>
+          <td></td>
+          <td>Total</td>
+          <td></td>
+          <td>${finalTotal}</td>
         </tr>
       `;
       tableBody.insertAdjacentHTML('beforeend', totalRowHTML);
@@ -517,10 +491,10 @@
             <td>Balance</td>
             <td>b/d</td>
             <td>${formatCurrency(diff)}</td>
-            <td class="divider-col"></td>
-            <td class="divider-col"></td>
-            <td class="divider-col"></td>
-            <td class="divider-col"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
           `;
         } else {
           bdRowHTML += `
@@ -528,10 +502,10 @@
             <td></td>
             <td></td>
             <td></td>
-            <td class="divider-col">${today}</td>
-            <td class="divider-col">Balance</td>
-            <td class="divider-col">b/d</td>
-            <td class="divider-col">${formatCurrency(diff)}</td>
+            <td>${today}</td>
+            <td>Balance</td>
+            <td>b/d</td>
+            <td>${formatCurrency(diff)}</td>
           `;
         }
         bdRowHTML += "</tr>";
