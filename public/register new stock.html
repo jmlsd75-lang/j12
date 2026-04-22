@@ -210,22 +210,26 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // --- STATE MANAGEMENT ---
-        
+        // --- FORM FIELDS CONFIGURATION ---
+        // This defines all required fields to be saved
         const FIELDS = [
-            { key: 'name', label: 'Product Name', type: 'text', placeholder: 'e.g. Wireless Mouse' },
-            { key: 'buyPrice', label: 'Buying Price', type: 'number', placeholder: '0.00', step: '0.01' },
-            { key: 'sellPrice', label: 'Selling Price', type: 'number', placeholder: '0.00', step: '0.01' },
-            { key: 'units', label: 'Units Present', type: 'number', placeholder: '0' }
+            { key: 'productName', label: 'Product Name', type: 'text', placeholder: 'e.g. Wireless Mouse' },
+            { key: 'buyingPrice', label: 'Buying Price', type: 'number', placeholder: '0.00', step: '0.01' },
+            { key: 'sellingPrice', label: 'Selling Price', type: 'number', placeholder: '0.00', step: '0.01' },
+            { key: 'stock', label: 'Units Present', type: 'number', placeholder: '0' }
         ];
 
+        // --- STATE MANAGEMENT ---
         let currentStep = 0; 
-        let productData = {
-            name: '',
-            buyPrice: '',
-            sellPrice: '',
-            units: ''
+        
+        // Initialize state with empty strings for all fields
+        let formData = {
+            productName: '',
+            buyingPrice: '',
+            sellingPrice: '',
+            stock: ''
         };
+        
         let isSaving = false;
 
         // --- DOM ELEMENTS ---
@@ -240,14 +244,15 @@
             // 1. Render Completed Steps (as Editable Buttons)
             for (let i = 0; i < currentStep; i++) {
                 const field = FIELDS[i];
-                const value = productData[field.key];
+                const value = formData[field.key];
                 
                 const btn = document.createElement('div');
                 btn.className = 'step-btn fade-in';
                 btn.onclick = () => editStep(i); 
                 
                 let displayValue = value;
-                if(field.type === 'number') {
+                if(field.type === 'number' && value !== '') {
+                    // Format numbers nicely
                     displayValue = parseFloat(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 }
 
@@ -282,15 +287,17 @@
                 input.id = `input-${field.key}`;
                 input.type = field.type;
                 input.placeholder = field.placeholder;
-                input.value = productData[field.key]; 
+                input.value = formData[field.key]; // Pre-fill if editing
                 if(field.step) input.step = field.step;
                 
+                // Auto focus logic
                 setTimeout(() => input.focus(), 50);
 
                 const helper = document.createElement('div');
                 helper.className = 'helper-text';
                 helper.textContent = 'Press Enter ↵ to continue';
 
+                // Handle Enter Key
                 input.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') handleNext(input);
                 });
@@ -311,7 +318,6 @@
                 saveBtn.className = 'btn-primary';
                 saveBtn.innerHTML = `SAVE PRODUCT <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>`;
                 
-                // THIS IS THE ONCLICK SAVE
                 saveBtn.addEventListener('click', saveToFirestore);
                 
                 saveArea.appendChild(saveBtn);
@@ -325,18 +331,22 @@
             const field = FIELDS[currentStep];
             const val = inputElement.value.trim();
 
+            // Validation
             if (!val) {
                 showToast(`Please enter a valid ${field.label}.`);
                 inputElement.focus();
                 return;
             }
 
-            if (field.type === 'number' && parseFloat(val) < 0) {
-                showToast(`${field.label} cannot be negative.`);
+            if (field.type === 'number' && (isNaN(val) || parseFloat(val) < 0)) {
+                showToast(`${field.label} must be a positive number.`);
                 return;
             }
 
-            productData[field.key] = val;
+            // Update State
+            formData[field.key] = val;
+            
+            // Move to next step
             currentStep++;
             render();
         }
@@ -371,43 +381,45 @@
             const timestamp = Date.now();
             
             try {
-                // 1. Prepare Data for Main Product
-                const docData = {
-                    name: productData.name,
-                    buyingPrice: parseFloat(productData.buyPrice),
-                    sellingPrice: parseFloat(productData.sellPrice),
-                    unitsPresent: parseInt(productData.units),
-                    date: now.toLocaleString(),
-                    createdAt: timestamp
+                // 1. Prepare the Product Data Object
+                // We ensure all fields required are mapped correctly here
+                const productDocData = {
+                    name: formData.productName,          // Saving Name
+                    buyingPrice: Number(formData.buyingPrice),  // Saving Buying Price
+                    sellingPrice: Number(formData.sellingPrice),// Saving Selling Price
+                    stock: parseInt(formData.stock),    // Saving Stock Units
+                    createdAt: timestamp,
+                    dateString: now.toLocaleString()
                 };
 
-                // 2. Prepare Data for Product Name
+                // 2. Prepare Data for Product Names Collection (for dropdowns/search)
                 const nameDocData = {
-                    name: productData.name,
+                    name: formData.productName,
                     createdAt: timestamp
                 };
 
-                // 3. References
+                // 3. Define Firestore References
                 const productCollection = collection(db, "users", userEmail, "products");
-                const productRef = doc(productCollection);
+                const productRef = doc(productCollection); // Auto-generate ID
 
                 const namesCollection = collection(db, "users", userEmail, "productnames");
-                const nameRef = doc(namesCollection);
+                const nameRef = doc(namesCollection); // Auto-generate ID
 
                 const userRef = doc(db, "users", userEmail);
 
-                // 4. Execute Writes (Main Product + Product Name + Stats)
+                // 4. Execute Writes (Main Product + Name Index + Stats Update)
                 const promises = [];
                 
-                promises.push(setDoc(productRef, docData));        // Save Full Info
-                promises.push(setDoc(nameRef, nameDocData));        // Save Name Only
-                promises.push(updateDoc(userRef, { spaceUsed: increment(1) })); // Update Stats
+                promises.push(setDoc(productRef, productDocData)); // Save Full Product
+                promises.push(setDoc(nameRef, nameDocData));        // Save Name Index
+                promises.push(updateDoc(userRef, { spaceUsed: increment(1) })); // Update Usage Stats
 
                 await Promise.all(promises);
 
-                console.log("Product and Name Saved");
+                console.log("Product successfully saved to Firestore");
                 showToast("Product saved successfully!");
                 
+                // Update UI Button State
                 const saveBtn = document.querySelector('.btn-primary');
                 if(saveBtn) {
                     saveBtn.disabled = true;
@@ -415,16 +427,17 @@
                     saveBtn.style.backgroundColor = "var(--success)";
                 }
 
-                // REDIRECT TO STOCK.HTML AFTER SUCCESS
+                // Redirect to Stock Page
                 setTimeout(() => {
                     window.location.href = 'stock.html';
                 }, 1500);
 
             } catch (error) {
-                console.error("Error:", error);
+                console.error("Firestore Save Error:", error);
                 showToast("Error saving product: " + error.message);
                 isSaving = false;
                 
+                // Reset UI Button State on Error
                 const saveBtn = document.querySelector('.btn-primary');
                 if(saveBtn) {
                     saveBtn.disabled = false;
@@ -433,15 +446,15 @@
             }
         }
 
-        // --- INIT & EVENTS ---
+        // --- INITIALIZATION ---
 
         btnBack.addEventListener('click', () => {
             if(confirm("Are you sure you want to cancel? Data will be lost.")) {
-                window.location.href = 'stock.html'; // Changed Cancel link to stock.html as well for consistency
+                window.location.href = 'stock.html';
             }
         });
 
-        // Initial Render
+        // Start the app
         render();
 
     </script>
