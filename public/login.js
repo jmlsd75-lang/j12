@@ -17,7 +17,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // ========================================
-// YOUR EXACT FIREBASE CONFIG
+// CONFIGURATION
 // ========================================
 const firebaseConfig = {
   apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
@@ -28,13 +28,10 @@ const firebaseConfig = {
   appId: "1:167159607898:web:23ca11366b88868b085e63"
 };
 
-// ========================================
-// YOUR EXACT ADMIN EMAIL
-// ========================================
 const ADMIN_EMAIL = "camelkazembe1@gmail.com";
 
 // ========================================
-// INITIALIZE
+// INITIALIZATION
 // ========================================
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -42,32 +39,47 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 // ========================================
-// DOM
+// DOM ELEMENT REFERENCES
+// (Must match IDs in index.html)
 // ========================================
+const googleBtn = document.getElementById("googleLoginBtn");
 const errorMsg = document.getElementById("errorMsg");
 const loadingOverlay = document.getElementById("loadingOverlay");
 const loadingText = document.getElementById("loadingText");
 
-// ========================================
-// HELPERS
-// ========================================
-function showError(msg) {
-  errorMsg.textContent = msg;
-  errorMsg.classList.remove("hidden");
-  setTimeout(() => errorMsg.classList.add("hidden"), 5000);
+// Check if elements exist (Safety Check)
+if (!googleBtn || !errorMsg || !loadingOverlay || !loadingText) {
+  console.error("FATAL: One or more required HTML elements are missing.");
 }
 
-function showLoading(text) {
-  loadingText.textContent = text;
+// ========================================
+// HELPER FUNCTIONS
+// ========================================
+
+function showError(message) {
+  if (!errorMsg) return;
+  errorMsg.textContent = message;
+  errorMsg.style.display = "block"; // Make visible
+  
+  // Hide after 5 seconds
+  setTimeout(() => {
+    errorMsg.style.display = "none";
+  }, 5000);
+}
+
+function showLoading(message) {
+  if (!loadingOverlay || !loadingText) return;
+  loadingText.textContent = message;
   loadingOverlay.style.display = "flex";
 }
 
 function hideLoading() {
+  if (!loadingOverlay) return;
   loadingOverlay.style.display = "none";
 }
 
 // ========================================
-// SAVE LOGIN TO FIRESTORE
+// DATABASE LOGGING
 // ========================================
 async function saveLogin(user) {
   if (!user) return;
@@ -78,105 +90,107 @@ async function saveLogin(user) {
       userId: user.uid,
       createdAt: serverTimestamp()
     });
-    console.log("Login saved:", user.email);
+    console.log("✅ Login saved to Firestore:", user.email);
   } catch (e) {
-    console.error("Save login error:", e);
+    console.error("❌ Error saving login:", e);
   }
 }
 
 // ========================================
-// MAIN FLOW — sequential, no race condition
+// AUTHENTICATION FLOW
 // ========================================
-(async () => {
-
-  // ── STEP 1: Wait for redirect result COMPLETELY ──
-  let redirectResult = null;
+(async function runAuthFlow() {
+  
+  // --- STEP 1: Check Redirect Result (Did user just come back from Google?) ---
   try {
-    redirectResult = await getRedirectResult(auth);
-  } catch (error) {
-    hideLoading();
-    console.error("Redirect result error:", error.code, error.message);
+    const result = await getRedirectResult(auth);
+    
+    if (result && result.user) {
+      // SUCCESS: User just logged in via Redirect
+      showLoading("Verifying login...");
+      
+      console.log("User returned from Google:", result.user.email);
+      console.log("Is Admin:", result.user.email === ADMIN_EMAIL);
+      
+      // Save to Database
+      await saveLogin(result.user);
 
+      // Set flag so index.html knows it's a fresh login
+      sessionStorage.setItem("justLoggedIn", "1");
+
+      // Small delay for UX
+      await new Promise(r => setTimeout(r, 800));
+
+      // Redirect to main app
+      window.location.href = "index.html";
+      return; // Stop execution here
+    }
+  } catch (error) {
+    // ERROR: Something went wrong with the redirect
+    hideLoading();
+    console.error("Redirect Error:", error.code, error.message);
+    
+    // Handle specific errors
     switch (error.code) {
       case "auth/redirect-cancelled-by-user":
-        showError("You cancelled the login. Please try again.");
+        showError("You cancelled the login.");
         break;
-      case "auth/credential-already-in-use":
-        showError("This account is already linked. Try again.");
+      case "auth/popup-closed-by-user": // Fallback for popup usage
+        showError("Login popup closed.");
         break;
       case "auth/network-request-failed":
-        showError("Network error. Check your connection.");
+        showError("Network error. Check connection.");
         break;
       case "auth/too-many-requests":
-        showError("Too many attempts. Wait a moment.");
+        showError("Too many attempts. Please wait.");
         break;
       default:
-        showError("Login failed. Please try again.");
+        showError("Login failed: " + error.message);
     }
-    return; // Stop — don't proceed to step 2
   }
 
-  // ── STEP 2: User just came back from Google ──
-  if (redirectResult && redirectResult.user) {
-    showLoading("Verifying login...");
-
-    const user = redirectResult.user;
-    console.log("Returned from Google:", user.email);
-    console.log("Is admin:", user.email === ADMIN_EMAIL);
-
-    // Save to Firestore
-    await saveLogin(user);
-
-    // ★ Flag so index.html knows this is a FRESH login ★
-    sessionStorage.setItem("justLoggedIn", "1");
-
-    // Brief pause so user sees "Verifying login..."
-    await new Promise(r => setTimeout(r, 800));
-
-    // Redirect to the main system page
-    window.location.href = "index.html";
-    return; // Done — don't go to step 3
-  }
-
-  // ── STEP 3: No redirect result — check if already logged in ──
-  await new Promise((resolve) => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      unsubscribe(); // Stop listening immediately
-
-      if (user) {
-        // Already logged in — send to index.html
-        console.log("Already authenticated:", user.email);
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 1200);
-      }
-
-      resolve();
-    });
+  // --- STEP 2: Check Current Session (Is user already logged in?) ---
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // User is already logged in, but didn't just come from a redirect
+      console.log("User already authenticated:", user.email);
+      showLoading("Welcome back...");
+      
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 1000);
+    } else {
+      // User is NOT logged in. Ensure loading screen is hidden.
+      hideLoading();
+    }
   });
 
 })();
 
 // ========================================
-// BUTTON CLICK → SEND TO GOOGLE
+// BUTTON EVENT LISTENER
 // ========================================
-window.addEventListener("DOMContentLoaded", () => {
-  const googleBtn = document.getElementById("googleLoginBtn");
-
-  if (!googleBtn) {
-    console.error("googleLoginBtn not found in HTML");
-    return;
-  }
-
+if (googleBtn) {
   googleBtn.addEventListener("click", () => {
-    console.log("CLICK WORKING");
+    console.log("🔵 Google Button Clicked");
 
+    // Visual Feedback
     googleBtn.disabled = true;
-    googleBtn.style.opacity = "0.5";
-    googleBtn.style.pointerEvents = "none";
+    googleBtn.style.opacity = "0.7";
+    googleBtn.style.cursor = "not-allowed";
 
     showLoading("Redirecting to Google...");
 
-    signInWithRedirect(auth, provider);
+    // Initiate Login
+    signInWithRedirect(auth, provider)
+      .catch((error) => {
+        console.error("Redirect Init Error:", error);
+        showError("Failed to start login process.");
+        hideLoading();
+        // Reset button
+        googleBtn.disabled = false;
+        googleBtn.style.opacity = "1";
+        googleBtn.style.cursor = "pointer";
+      });
   });
-});
+}
