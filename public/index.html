@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login Page</title>
 
     <style>
         body {
@@ -16,25 +16,26 @@
             font-family: Arial, sans-serif;
         }
 
-        #loginBtn {
+        .login-btn {
+            background-color: blue;
+            color: white;
+            border: none;
             padding: 15px 30px;
             font-size: 18px;
-            border: none;
             border-radius: 8px;
-            background: #dc3545; /* RED */
-            color: white;
             cursor: pointer;
         }
 
-        #loginBtn:hover {
-            background: #a71d2a; /* darker red on hover */
+        .login-btn:hover {
+            background-color: darkblue;
         }
     </style>
 </head>
 <body>
 
-    <button id="loginBtn">Login</button>
+    <button id="loginBtn" class="login-btn">Login</button>
 
+    <!-- ✅ CORRECT LINK TO login.js -->
     <script src="login.js"></script>
 
 </body>
