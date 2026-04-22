@@ -10,13 +10,12 @@
 
         :root {
             /* Color Palette */
-            --sky-top: #fff0f5;
-            --sky-bottom: #e3f2fd;
+            --sky-top: #fff0f5; /* Light pink tint */
+            --sky-bottom: #e3f2fd; /* Light blue tint */
             --primary-green: #66bb6a;
             --dark-green: #2e7d32;
             --accent-pink: #f48fb1;
             --accent-purple: #ce93d8;
-            --accent-orange: #ffcc80;
             --text-main: #263238;
             --glass-bg: rgba(255, 255, 255, 0.75);
             --glass-border: rgba(255, 255, 255, 0.9);
@@ -44,7 +43,7 @@
             color: var(--text-main);
         }
 
-        /* --- Background Pattern --- */
+        /* --- The Whole Layer: 🌸 Background Pattern --- */
         .flower-layer {
             position: absolute;
             top: 0;
@@ -54,7 +53,7 @@
             z-index: 0;
             pointer-events: none;
             overflow: hidden;
-            opacity: 0.25;
+            opacity: 0.25; /* Subtle background */
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
@@ -69,6 +68,7 @@
             filter: blur(1px);
         }
 
+        /* Stagger animations for natural feel */
         .flower-bg-item:nth-child(2n) { font-size: 5rem; animation-delay: 1s; }
         .flower-bg-item:nth-child(3n) { font-size: 3rem; animation-delay: 2s; }
         .flower-bg-item:nth-child(5n) { font-size: 6rem; animation-delay: 0.5s; }
@@ -80,6 +80,7 @@
 
         /* --- UI Layout --- */
 
+        /* Top Navigation (Back Button) */
         .top-nav {
             position: absolute;
             top: 0;
@@ -120,6 +121,7 @@
             fill: currentColor;
         }
 
+        /* Main Container */
         .main-container {
             z-index: 10;
             width: 85%;
@@ -144,6 +146,7 @@
             100% { opacity: 1; transform: scale(1) translateY(0); }
         }
 
+        /* Central Big Emoji */
         .center-icon {
             font-size: 5rem;
             margin-bottom: 2.5rem;
@@ -158,21 +161,23 @@
             50% { transform: scale(1.1); }
         }
 
+        /* Buttons Grid */
         .action-grid {
             width: 100%;
             display: grid;
-            gap: 1rem;
+            gap: 1.25rem;
         }
 
+        /* Button Base Styles */
         .action-btn {
             text-decoration: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1rem;
+            padding: 1.1rem;
             border-radius: 20px;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 1.05rem;
             transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
             overflow: hidden;
@@ -182,8 +187,8 @@
         }
 
         .action-btn svg {
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             margin-right: 10px;
             fill: currentColor;
             transition: transform 0.3s ease;
@@ -198,24 +203,21 @@
             transform: scale(1.1) rotate(-10deg);
         }
 
+        /* Button 1: Add Transaction (Green Theme) */
         .btn-add {
             background: linear-gradient(135deg, #a5d6a7 0%, #66bb6a 100%);
             color: #1b5e20;
             border-radius: 25px;
         }
 
+        /* Button 2: View Files (Purple Theme) */
         .btn-view {
             background: linear-gradient(135deg, #e1bee7 0%, #ba68c8 100%);
             color: #4a148c;
             border-radius: 25px;
         }
 
-        .btn-stock {
-            background: linear-gradient(135deg, #ffe0b2 0%, #ffb74d 100%);
-            color: #e65100;
-            border-radius: 25px;
-        }
-
+        /* Mobile Adjustments */
         @media (max-width: 600px) {
             .center-icon { font-size: 4.5rem; margin-bottom: 2rem; }
             .main-container { padding: 2rem 1.5rem; }
@@ -224,8 +226,9 @@
 </head>
 <body>
 
-    <!-- Background Layer -->
+    <!-- Background Layer: 🌸 Pattern -->
     <div class="flower-layer">
+        <!-- Repeating emojis to create the "layer" effect -->
         <span class="flower-bg-item">🌸</span>
         <span class="flower-bg-item">🌸</span>
         <span class="flower-bg-item">🌸</span>
@@ -250,71 +253,28 @@
         </a>
     </nav>
 
-    <!-- Main Interface -->
+    <!-- Main Interface (Text Removed, Only Icon and Buttons) -->
     <main class="main-container">
         
         <!-- Central Visual Anchor -->
         <div class="center-icon">🌸</div>
 
         <div class="action-grid">
-            
-            <!-- Script for Add New Transaction: click add new transaction to start save transactions info -->
-            <script>
-                const btnAdd = document.getElementById('btnAdd');
-                btnAdd.addEventListener('click', () => {
-                    // Initialize storage to save transactions info
-                    let transactions = JSON.parse(localStorage.getItem('businessTransactions')) || [];
-                    localStorage.setItem('businessTransactions', JSON.stringify(transactions));
-                    
-                    window.location.href = 'detail.html';
-                });
-            </script>
-
-            <!-- Add New Transaction Button -->
-            <button id="btnAdd" class="action-btn btn-add">
+            <!-- Add New Transaction -->
+            <a href="detail.html" class="action-btn btn-add">
                 <svg viewBox="0 0 24 24">
                     <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
                 </svg>
                 Add New Transaction
-            </button>
-
-            <!-- Script for View Files: click the file to start visit your business progress -->
-            <script>
-                const btnView = document.getElementById('btnView');
-                btnView.addEventListener('click', () => {
-                    // Start visit your business progress
-                    window.location.href = 'business file.html';
-                });
-            </script>
+            </a>
             
-            <!-- View the Files Button -->
-            <button id="btnView" class="action-btn btn-view">
+            <!-- View the Files -->
+            <a href="business file.html" class="action-btn btn-view">
                 <svg viewBox="0 0 24 24">
                     <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/>
                 </svg>
                 View the Files
-            </button>
-
-            <!-- Script for Stock Management: click stock management to get know stock progress -->
-            <script>
-                const btnStock = document.getElementById('btnStock');
-                btnStock.addEventListener('click', () => {
-                    // Get know stock progress
-                    let stockData = JSON.parse(localStorage.getItem('stockData')) || [];
-                    localStorage.setItem('stockData', JSON.stringify(stockData));
-
-                    window.location.href = 'stock manageement.html';
-                });
-            </script>
-
-            <!-- Stock Management Button -->
-            <button id="btnStock" class="action-btn btn-stock">
-                <svg viewBox="0 0 24 24">
-                    <path d="M20 2H4c-1 0-2 .9-2 2v3.01c0 .72.43 1.34 1 1.69V20c0 1.1 1.1 2 2 2h14c.9 0 2-.9 2-2V8.7c.57-.35 1-.97 1-1.69V4c0-1.1-1-2-2-2zm-1 18H5V9h14v11zm1-13H4V4h16v3zM9 12h6v2H9z"/>
-                </svg>
-                Stock Management
-            </button>
-
+            </a>
         </div>
     </main>
 
