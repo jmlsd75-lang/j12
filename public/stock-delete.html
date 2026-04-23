@@ -35,7 +35,7 @@
         /* --- Header Area --- */
         .header-section {
             background: var(--bg-card);
-            padding: 20px;
+            padding: 16px 20px;
             position: sticky;
             top: 0;
             z-index: 10;
@@ -45,8 +45,31 @@
             align-items: center;
         }
 
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Back Button Styling */
+        .btn-back {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 6px 10px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .btn-back:hover { background-color: #F3F4F6; }
+        .btn-back svg { width: 20px; height: 20px; }
+
         .header-title h2 { font-size: 1.25rem; font-weight: 700; }
-        .header-title p { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+        .header-title p { display: none; } /* Hide subtitle on small screens if space is tight, or keep it */
+        @media (min-width: 400px) { .header-title p { display: block; font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; } }
 
         .btn-select-all {
             background: white;
@@ -54,10 +77,11 @@
             color: var(--primary);
             padding: 8px 16px;
             border-radius: 8px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
+            white-space: nowrap;
         }
         .btn-select-all:active { transform: scale(0.98); }
 
@@ -94,6 +118,7 @@
             position: relative;
             width: 24px;
             height: 24px;
+            flex-shrink: 0;
         }
         .custom-checkbox {
             width: 24px;
@@ -118,8 +143,8 @@
         .product-item.selected .checkmark { display: block; }
 
         /* Product Info */
-        .item-details { flex: 1; }
-        .item-name { font-weight: 600; font-size: 1rem; margin-bottom: 4px; }
+        .item-details { flex: 1; min-width: 0; } /* min-width: 0 for text truncation fix */
+        .item-name { font-weight: 600; font-size: 1rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .item-meta { font-size: 0.85rem; color: var(--text-muted); }
 
         /* --- Fixed Bottom Bar --- */
@@ -202,10 +227,19 @@
 
     <!-- Header -->
     <div class="header-section">
-        <div class="header-title">
-            <h2>Delete Products</h2>
-            <p>Select items to remove from inventory</p>
+        <div class="header-left">
+            <!-- Back Button -->
+            <a href="product.html" class="btn-back">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                <span>Back</span>
+            </a>
+
+            <div class="header-title">
+                <h2>Delete Products</h2>
+                <p>Select items to remove</p>
+            </div>
         </div>
+        
         <!-- Select All / Deselect All Toggle -->
         <button id="toggleSelectBtn" class="btn-select-all">Select All</button>
     </div>
