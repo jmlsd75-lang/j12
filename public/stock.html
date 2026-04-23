@@ -30,7 +30,7 @@
       position: relative;
     }
 
-    /* Top Left Back Button */
+    /* Back Button */
     .back-btn-container {
       position: absolute;
       top: 20px;
@@ -61,7 +61,7 @@
     .container {
       text-align: center;
       background: var(--card-bg);
-      padding: 50px 40px; /* Increased padding for better spacing without the dropdown */
+      padding: 50px 40px;
       border-radius: var(--border-radius);
       box-shadow: 0 10px 25px rgba(0,0,0,0.08);
       max-width: 500px;
@@ -71,12 +71,10 @@
 
     h2 {
       margin-top: 0;
-      margin-bottom: 40px; /* Space between title and buttons */
-      color: var(--text-color);
+      margin-bottom: 40px;
       font-weight: 600;
     }
 
-    /* Action Buttons Grid */
     .action-buttons {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -109,11 +107,9 @@
 
     .action-btn i {
       font-size: 24px;
-      margin-bottom: 5px;
-      font-style: normal;
     }
 
-    /* Toast Notification */
+    /* Toast */
     #toast {
       visibility: hidden;
       min-width: 250px;
@@ -123,12 +119,12 @@
       border-radius: 8px;
       padding: 16px;
       position: fixed;
-      z-index: 100;
       bottom: 30px;
       left: 50%;
       transform: translateX(-50%);
       opacity: 0;
-      transition: opacity 0.5s, bottom 0.5s;
+      transition: 0.5s;
+      z-index: 100;
     }
 
     #toast.show {
@@ -142,14 +138,9 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Mobile Responsiveness */
     @media (max-width: 480px) {
       .action-buttons {
         grid-template-columns: 1fr;
-      }
-      .back-btn-container {
-        top: 10px;
-        left: 10px;
       }
     }
   </style>
@@ -157,7 +148,7 @@
 
 <body>
 
-  <!-- Top Left Back Button -->
+  <!-- Back Button -->
   <div class="back-btn-container">
     <button class="back-btn" onclick="location.href='business.html'">
       <span>&#8592;</span> Back
@@ -167,50 +158,47 @@
   <div class="container">
     <h2>Stock Management</h2>
 
-    <!-- Process Selection Buttons -->
     <div class="action-buttons">
-      <!-- Calling chooseProcess script with parameters -->
+
       <button class="action-btn" onclick="chooseProcess('Register New Stock', 'register new stock.html')">
         <i>+</i>
         <span>Register New</span>
       </button>
-      
+
       <button class="action-btn" onclick="chooseProcess('Stock Change', 'stock change.html')">
         <i>&#8635;</i>
         <span>Stock Change</span>
       </button>
+
+      <!-- NEW BUTTON -->
+      <button class="action-btn" onclick="chooseProcess('Stock Present', 'stock progress.html')">
+        <i>📊</i>
+        <span>Stock Present</span>
+      </button>
+
     </div>
   </div>
 
-  <!-- Toast Notification Element -->
+  <!-- Toast -->
   <div id="toast"></div>
 
   <script>
-    /**
-     * Script to handle the process choice.
-     * It logs the selection, shows feedback, and navigates.
-     */
     function chooseProcess(processName, url) {
-      
-      // 1. Log the choice (Simulation of "Choosing" a process)
-      console.log("User selected process: " + processName);
-      
-      // 2. Show feedback to the user
+      console.log("Selected: " + processName);
       showToast("Opening " + processName + "...");
 
-      // 3. Simulate a slight delay for UX before navigation
       setTimeout(() => {
         location.href = url;
       }, 800);
     }
 
-    // Helper function to show toast notifications
     function showToast(message) {
       const toast = document.getElementById("toast");
       toast.textContent = message;
       toast.className = "show";
-      setTimeout(function(){ 
-        toast.className = toast.className.replace("show", ""); 
+
+      setTimeout(() => {
+        toast.className = toast.className.replace("show", "");
       }, 3000);
     }
   </script>
