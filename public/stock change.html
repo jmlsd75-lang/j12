@@ -155,7 +155,7 @@
         </div>
     </div>
 
-    <!-- STEP 2: Product List -->
+    <!-- STEP 2: Product List (Mandatory for all types) -->
     <div id="step2" class="step">
         <div class="step-nav">
             <button onclick="goToStep('step1')" class="btn-text-back">← Back</button>
@@ -356,6 +356,7 @@
         document.getElementById('selectedCauseLabel').innerText = type;
         
         // Move to Step 2 (Product List)
+        // THIS ENSURES PRODUCT SELECTION IS MANDATORY FOR ALL TYPES
         goToStep('step2');
     };
 
