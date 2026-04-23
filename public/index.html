@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login System</title>
+    <title>Quick Login System</title>
     <style>
         /* ========================================
            CSS STYLING
@@ -62,39 +62,10 @@
         }
 
         p {
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem; /* Increased margin since input is gone */
             color: #5f6368;
             font-size: 0.95rem;
             line-height: 1.5;
-        }
-
-        /* Input Styling */
-        .input-group {
-            margin-bottom: 1.5rem;
-            text-align: left;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #5f6368;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #dadce0;
-            border-radius: 6px;
-            font-size: 1rem;
-            transition: border 0.2s, box-shadow 0.2s;
-            outline: none;
-        }
-
-        .input-group input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
         }
 
         /* Primary Button Styling (Google) */
@@ -106,17 +77,19 @@
             color: white;
             border: none;
             width: 100%;
-            padding: 12px 20px;
+            padding: 14px 20px; /* Slightly taller for better touch target */
             font-size: 1rem;
             font-weight: 500;
             border-radius: 6px;
             cursor: pointer;
             transition: background-color 0.2s, opacity 0.2s, transform 0.1s;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .btn-primary:hover {
             background-color: var(--primary-hover);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         .btn-primary:active {
@@ -127,6 +100,7 @@
             background-color: #a0c3f7;
             cursor: not-allowed;
             opacity: 0.7;
+            box-shadow: none;
         }
 
         .google-icon {
@@ -196,7 +170,7 @@
         #errorMsg, #successMsg {
             padding: 12px;
             border-radius: 4px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             font-size: 0.9rem;
             display: none;
             text-align: left;
@@ -226,8 +200,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.9);
-            display: none;
+            background-color: rgba(255, 255, 255, 0.95);
+            display: none; /* Flex when active */
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -250,6 +224,12 @@
             color: var(--text-color);
         }
 
+        /* Hide main content while checking session/loading to prevent flicker */
+        body.loading .login-card {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -263,20 +243,15 @@
 </head>
 <body>
 
+    <!-- Main Content -->
     <main class="login-card">
-        <h1>Welcome Back</h1>
-        <p>Enter your email to sign in.</p>
+        <h1>Welcome</h1>
+        <p>Click below to sign in securely with your Google account.</p>
         
-        <!-- Email Input -->
-        <div class="input-group">
-            <label for="userEmail">Email Address</label>
-            <input type="email" id="userEmail" placeholder="name@example.com" autocomplete="email">
-        </div>
-
         <div id="errorMsg" role="alert"></div>
         <div id="successMsg" role="status"></div>
         
-        <!-- Primary Login Button -->
+        <!-- Primary Login Button (No input required) -->
         <button id="googleLoginBtn" class="btn-primary">
             <svg class="google-icon" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -307,6 +282,7 @@
         </div>
     </main>
 
+    <!-- Loading Overlay -->
     <div id="loadingOverlay">
         <div class="spinner"></div>
         <div id="loadingText">Authenticating...</div>
@@ -348,12 +324,16 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
+        
+        // Set Persistence to LOCAL so the user stays logged in even if they close the browser
+        // Note: The browser default persistence is usually LOCAL, but this ensures it.
+        // signInWithPopup will automatically handle the session persistence.
+
         const provider = new GoogleAuthProvider();
         provider.addScope('email');
         provider.addScope('profile');
 
         // DOM Elements
-        const emailInput = document.getElementById("userEmail");
         const googleBtn = document.getElementById("googleLoginBtn");
         const btnContact = document.getElementById("btnContact");
         const btnInstructions = document.getElementById("btnInstructions");
@@ -365,23 +345,18 @@
         // NAVIGATION SCRIPTS
         // ========================================
         
-        // Contact Us Redirect
         btnContact.addEventListener("click", () => {
-            // Optional: Add analytics or logging here before redirect
             console.log("Redirecting to Contact page...");
             window.location.href = "contact.html";
         });
 
-        // Instructions Redirect
         btnInstructions.addEventListener("click", () => {
-            // Optional: Add analytics or logging here before redirect
             console.log("Redirecting to Rules/Instructions page...");
             window.location.href = "rules.html";
         });
 
-
         // ========================================
-        // CORRECTED FUNCTION: LOOKUP & REDIRECT
+        // LOGIC: LOOKUP & REDIRECT
         // ========================================
         function checkEmailAndRedirect(user) {
             if (!user || !user.email) {
@@ -389,14 +364,12 @@
                 return;
             }
 
-            // Normalize emails to lowercase to ensure matching works
             const userEmail = user.email.toLowerCase().trim();
             const adminEmail = ADMIN_EMAIL.toLowerCase();
 
             // Set session flag
             sessionStorage.setItem("justLoggedIn", "1");
 
-            // Logic: Admin vs Free User
             if (userEmail === adminEmail) {
                 console.log(`✅ Admin detected: ${userEmail}`);
                 window.location.href = "admin.html";
@@ -412,21 +385,25 @@
         function showError(msg) {
             errorMsg.textContent = msg;
             errorMsg.classList.add("visible");
+            // Hide error after 5 seconds
             setTimeout(() => errorMsg.classList.remove("visible"), 5000);
         }
 
         function showLoading(text) {
             loadingText.textContent = text;
             loadingOverlay.style.display = "flex";
+            document.body.classList.add("loading");
         }
 
         function hideLoading() {
             loadingOverlay.style.display = "none";
+            document.body.classList.remove("loading");
         }
 
         async function saveLogin(user) {
             if (!user) return;
             try {
+                // Save login attempt to Firestore for tracking
                 await addDoc(collection(db, "users", user.uid, "logins"), {
                     name: user.displayName,
                     email: user.email,
@@ -435,6 +412,7 @@
                 });
             } catch (e) {
                 console.error("Database save failed:", e);
+                // We don't block the user if the database save fails
             }
         }
 
@@ -442,44 +420,42 @@
         // APP LOGIC
         // ========================================
 
-        // 1. Check if already logged in on load
+        // 1. AUTOMATIC LOGIN CHECK (Persistence)
+        // This runs immediately when the page loads. If Firebase detects a user
+        // is already logged in from a previous session, it redirects immediately.
         showLoading("Checking session...");
-        onAuthStateChanged(auth, (user) => {
+        
+        onAuthStateChanged(auth, async (user) => {
             hideLoading();
+            
             if (user) {
-                // If already logged in, run the redirect function immediately
+                // User is already logged in (Persistent Session)
+                console.log("User already logged in. Redirecting...");
+                // Optional: You might want to call saveLogin here too if you want to track every page visit,
+                // but usually we only save on explicit sign-in actions. 
+                // For this requirement, we just redirect.
                 checkEmailAndRedirect(user);
+            } else {
+                // No user logged in, enable the UI
+                console.log("No active session. Ready to sign in.");
             }
         });
 
-        // 2. Handle Button Click
+        // 2. HANDLE MANUAL LOGIN BUTTON CLICK
         googleBtn.addEventListener("click", async () => {
-            const typedEmail = emailInput.value.trim();
-
-            // Validation
-            if (!typedEmail || !typedEmail.includes("@")) {
-                showError("Please enter a valid email address.");
-                return;
-            }
-
             // UI Updates
             googleBtn.disabled = true;
-            showLoading("Verifying with Google...");
+            showLoading("Connecting to Google...");
 
             try {
-                // Authenticate
+                // Authenticate immediately via Popup
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
 
-                // Optional: Check if typed email matches Google account email
-                if (user.email.toLowerCase() !== typedEmail.toLowerCase()) {
-                    console.warn("Warning: Email entered does not match Google account.");
-                }
-
-                // Save to DB
+                // Save login info to Firestore
                 await saveLogin(user);
 
-                // ★ RUN THE REDIRECT FUNCTION ★
+                // Redirect
                 checkEmailAndRedirect(user);
 
             } catch (error) {
@@ -487,22 +463,15 @@
                 googleBtn.disabled = false;
                 console.error(error);
                 
-                switch (error.code) {
-                    case "auth/popup-closed-by-user":
-                        showError("Sign-in cancelled.");
-                        break;
-                    case "auth/popup-blocked":
-                        showError("Popup was blocked by browser. Please allow popups.");
-                        break;
-                    default:
-                        showError("Login failed: " + error.message);
+                // Handle specific errors
+                if (error.code === "auth/popup-closed-by-user") {
+                    showError("Sign-in cancelled by user.");
+                } else if (error.code === "auth/popup-blocked") {
+                    showError("Popup blocked. Please allow popups for this site.");
+                } else {
+                    showError("Authentication failed: " + error.message);
                 }
             }
-        });
-
-        // Allow pressing Enter in input
-        emailInput.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") googleBtn.click();
         });
 
     </script>
