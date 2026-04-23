@@ -155,7 +155,7 @@
         </div>
     </div>
 
-    <!-- STEP 2: Product List (Mandatory for all types) -->
+    <!-- STEP 2: Product List -->
     <div id="step2" class="step">
         <div class="step-nav">
             <button onclick="goToStep('step1')" class="btn-text-back">← Back</button>
@@ -343,7 +343,7 @@
         // Set Data
         transactionData.type = type;
 
-        // Determine Flow Type (IN or OUT) for Financials
+        // Determine Flow Type
         if (type === 'Sales' || type === 'Purchases Return') {
             transactionData.flowType = 'IN';
         } else if (type === 'Purchases' || type === 'Sales Return' || type === 'Damage') {
@@ -356,7 +356,6 @@
         document.getElementById('selectedCauseLabel').innerText = type;
         
         // Move to Step 2 (Product List)
-        // THIS ENSURES PRODUCT SELECTION IS MANDATORY FOR ALL TYPES
         goToStep('step2');
     };
 
@@ -458,18 +457,18 @@
 
             // 1. CALCULATE NEW STOCK
             // Logic: 
-            // Sales, Purchases Return, Stock Received -> Increase (+)
-            // Everything else (Sales Return, Purchases, Damage) -> Decrease (-)
+            // Sales Return / Stock Received -> Increase (+)
+            // Purchases / Sales / Damage -> Decrease (-)
             let newStock = transactionData.product.stock;
 
             if (
-                transactionData.type === 'Sales' || 
-                transactionData.type === 'Purchases Return' || 
-                transactionData.type === 'Stock Received'
+                transactionData.type === 'Sales Return' || 
+                transactionData.type === 'Stock Received' ||
+                transactionData.type === 'Purchases Return' // Return purchases means goods come back in
             ) {
                 newStock += units;
             } else {
-                // Sales Return, Purchases, Damage
+                // Sales, Purchases, Damage
                 newStock -= units;
             }
 
