@@ -50,7 +50,7 @@
         }
         .btn-back:hover { background-color: #F9FAFB; }
 
-        /* Step 1: Transaction Cause Grid (Now First) */
+        /* Step 1: Transaction Cause Grid */
         .type-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .type-btn {
             background: var(--bg-card);
@@ -66,14 +66,14 @@
         .type-btn:hover { border-color: var(--primary); color: var(--primary); background: #EEF2FF; }
         .type-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* Step 2: Product List (Now Second) */
+        /* Step 2: Product List */
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .btn-add-small { background: var(--primary); color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 0.85rem; font-weight: 600; }
         
         .search-bar { margin-bottom: 16px; }
         .search-input { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius); outline: none; }
         
-        /* List Layout to display full names clearly */
+        /* List Layout */
         .product-list { display: flex; flex-direction: column; gap: 12px; }
         
         .product-card {
@@ -91,7 +91,7 @@
         .product-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         
         .product-info { flex: 1; }
-        .p-name { font-weight: 600; font-size: 1rem; line-height: 1.4; color: var(--text-main); display: block; /* Display full name */ }
+        .p-name { font-weight: 600; font-size: 1rem; line-height: 1.4; color: var(--text-main); display: block; }
         .p-stock { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; display: block; }
 
         /* Step 3: Input Forms */
@@ -142,7 +142,7 @@
         </a>
     </div>
 
-    <!-- STEP 1: Transaction Cause (Now First) -->
+    <!-- STEP 1: Transaction Cause -->
     <div id="step1" class="step active">
         <h2 style="margin-bottom: 16px;">Select Transaction Cause</h2>
         <div class="type-grid">
@@ -155,20 +155,18 @@
         </div>
     </div>
 
-    <!-- STEP 2: Product List (Now Second) -->
+    <!-- STEP 2: Product List -->
     <div id="step2" class="step">
         <div class="step-nav">
             <button onclick="goToStep('step1')" class="btn-text-back">← Back</button>
             <h2 style="font-size: 1.25rem; margin:0;">Select Product</h2>
         </div>
         
-        <!-- Context Header showing what cause is selected -->
         <div style="background: #EEF2FF; padding: 10px; border-radius: 8px; margin-bottom: 16px; color: var(--primary); font-weight: 600; text-align: center;" id="step2Context">
             For: <span id="selectedCauseLabel">--</span>
         </div>
 
         <div class="top-bar">
-            <!-- Add new button remains available -->
             <a href="register new stock.html" class="btn-add-small">+ Add New Product</a>
         </div>
         
@@ -329,13 +327,13 @@
         // Set Data
         transactionData.type = type;
 
-        // Determine Flow Type
+        // Determine Flow Type (IN or OUT) for Financials
         if (type === 'Sales' || type === 'Purchases Return') {
             transactionData.flowType = 'IN';
         } else if (type === 'Purchases' || type === 'Sales Return' || type === 'Damage') {
             transactionData.flowType = 'OUT';
         } else {
-            transactionData.flowType = 'NEITHER';
+            transactionData.flowType = 'NEITHER'; // Stock Received
         }
 
         // Update Step 2 Header
@@ -351,11 +349,11 @@
         
         // Store prices for calculation
         document.getElementById('displayProductName').innerText = product.name;
-        document.getElementById('displayCause').innerText = transactionData.type; // Already selected in Step 1
+        document.getElementById('displayCause').innerText = transactionData.type;
         document.getElementById('displayBuyPrice').innerText = formatMoney(product.buyingPricePerUnit);
         document.getElementById('displaySellPrice').innerText = formatMoney(product.sellingPricePerUnit);
 
-        // Toggle Flow Form Visibility based on Cause selected in Step 1
+        // Toggle Flow Form Visibility based on Cause
         const flowContainer = document.getElementById('flowFormContainer');
         if (transactionData.type === 'Damage' || transactionData.type === 'Stock Received') {
             flowContainer.style.display = 'none';
@@ -448,7 +446,7 @@
                 newStock += units;
             }
 
-            // 2. Update Product Stock
+            // 2. Update Product Stock in Firestore
             const productRef = doc(db, "users", user.email, "products", transactionData.product.id);
             await updateDoc(productRef, {
                 stock: newStock,
@@ -456,11 +454,10 @@
                 totalSellingPrice: newStock * transactionData.product.sellingPricePerUnit
             });
 
-            // 3. Save Transaction
-            const sn = Date.now().toString().slice(-6); 
-
-            const transactionPayload = {
-                sn: sn,
+            // 3. Save the Internal Stock Transaction
+            // This is for the stock dashboard logic (Purchase/Sale logs)
+            const stockTransactionPayload = {
+                sn: Date.now().toString().slice(-6),
                 date: serverTimestamp(),
                 detail: transactionData.type, 
                 productName: transactionData.product.name,
@@ -473,12 +470,42 @@
                 sellingPrice: transactionData.product.sellingPricePerUnit 
             };
 
+            // Remove flow details if irrelevant (Damage/Stock Received)
             if (transactionData.type === 'Damage' || transactionData.type === 'Stock Received') {
-                delete transactionPayload.flowForm;
-                delete transactionPayload.name;
+                delete stockTransactionPayload.flowForm;
+                delete stockTransactionPayload.name;
             }
 
-            await addDoc(collection(db, "users", user.email, "transactions"), transactionPayload);
+            // Execute Stock Transaction Write
+            await addDoc(collection(db, "users", user.email, "transactions"), stockTransactionPayload);
+
+            // ---------------------------------------------------------
+            // 4. SAVE FINANCIAL RECORD (Double Entry Simulation)
+            // ---------------------------------------------------------
+            // We only save a financial record IF it is NOT "Stock Received"
+            if (transactionData.type !== 'Stock Received') {
+                
+                let financialDetail = transactionData.type;
+                // If it's a generic return, name it "Sales Return" or "Purchases Return" for ledger
+                // If it's "Damage", we log it as an expense "Damage"
+                
+                // Append product name to detail for clarity in ledger
+                financialDetail += ` (${transactionData.product.name})`;
+
+                const financialPayload = {
+                    date: serverTimestamp(),
+                    detail: financialDetail,
+                    type: transactionData.flowType, // 'IN' for Sales/Returns, 'OUT' for Purchases/Damage
+                    displayType: transactionData.flowType === 'IN' ? 'Income' : 'Expense',
+                    method: transactionData.flowForm === 'Cash' ? 'CASH' : transactionData.flowForm === 'Bank' ? 'BANK' : 'CREDIT',
+                    amount: transactionData.amount,
+                    name: transactionData.flowForm === 'Credit' ? creditName : '',
+                    createdAt: Date.now()
+                };
+
+                // Write to the main financial collection
+                await addDoc(collection(db, "users", user.email, "transactions"), financialPayload);
+            }
 
             showToast();
             setTimeout(() => {
