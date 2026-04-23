@@ -20,6 +20,7 @@
             --gradient-health: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
             --gradient-education: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%);
             --shadow-light: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            --danger-color: #ff4b5c;
         }
 
         * {
@@ -48,22 +49,19 @@
             top: 30px;
             left: 30px;
             z-index: 10;
-            
-            /* START: Hidden by default until we check the email */
             opacity: 0;
             visibility: hidden;
             pointer-events: none; 
             transition: opacity 0.5s ease, visibility 0.5s;
         }
 
-        /* Class to show it */
         .back-nav.visible {
             opacity: 1;
             visibility: visible;
             pointer-events: auto;
         }
 
-        .btn-back {
+        .btn-nav {
             background: var(--glass-bg);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
@@ -79,12 +77,33 @@
             gap: 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             text-decoration: none;
+            border: none;
+            outline: none;
         }
 
-        .btn-back:hover {
+        .btn-nav:hover {
             background: rgba(255, 255, 255, 0.2);
-            transform: translateX(-5px);
+            transform: translateY(-2px);
             box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+
+        /* --- NEW: Logout Button (Top Right) --- */
+        .logout-nav {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            z-index: 10;
+        }
+
+        .btn-logout {
+            /* Inherits .btn-nav styles but we can add specific hover color */
+            border: 1px solid rgba(255, 75, 92, 0.5);
+        }
+        
+        .btn-logout:hover {
+            background: var(--danger-color);
+            border-color: var(--danger-color);
+            box-shadow: 0 8px 15px rgba(255, 75, 92, 0.4);
         }
 
         /* --- 3. Main Card Container --- */
@@ -144,16 +163,9 @@
         }
 
         /* Specific Gradients */
-        .btn-business {
-            background: var(--gradient-business);
-        }
-        .btn-health {
-            background: var(--gradient-health);
-            color: #333;
-        }
-        .btn-education {
-            background: var(--gradient-education);
-        }
+        .btn-business { background: var(--gradient-business); }
+        .btn-health { background: var(--gradient-health); color: #333; }
+        .btn-education { background: var(--gradient-education); }
 
         /* Hover Effects */
         .card-btn:hover {
@@ -194,16 +206,24 @@
             .menu-title { font-size: 1.8rem; }
             .button-grid { grid-template-columns: 1fr; }
             .back-nav { top: 20px; left: 20px; }
+            .logout-nav { top: 20px; right: 20px; }
+            .btn-nav { padding: 10px 20px; font-size: 0.9rem; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Back Button (Hidden by default via CSS opacity) -->
+    <!-- Back Button (Top Left, Admin Only) -->
     <nav class="back-nav" id="adminBackNav">
-        <!-- Calls goBack() function below -->
-        <button class="btn-back" onclick="goBack()">
+        <button class="btn-nav" onclick="goBack()">
             <i class="fas fa-arrow-left"></i> Back
+        </button>
+    </nav>
+
+    <!-- Logout Button (Top Right, Visible for everyone logged in) -->
+    <nav class="logout-nav">
+        <button class="btn-nav btn-logout" onclick="handleLogout()">
+            <i class="fas fa-sign-out-alt"></i> Logout
         </button>
     </nav>
 
@@ -234,7 +254,7 @@
     <script type="module">
         // Import Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
         // 1. FIREBASE CONFIGURATION
         const firebaseConfig = {
@@ -252,31 +272,46 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // 2. CHECK WHO IS LOGGED IN
-        // This runs immediately on page load. If a session exists, it grabs the user info.
+        // 2. CHECK AUTH STATE & UPDATE UI
         onAuthStateChanged(auth, (user) => {
             const backNav = document.getElementById("adminBackNav");
 
             if (user) {
-                console.log("User detected:", user.email);
+                console.log("User logged in:", user.email);
 
-                // Check if the logged in email is the specific admin email
+                // Check if Admin
                 if (user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
                     console.log("Admin verified. Showing back button.");
-                    // Show the back button
                     backNav.classList.add("visible");
                 } else {
-                    console.log("Regular user. Back button remains hidden.");
-                    // Ensure it stays hidden (it is hidden by CSS default)
                     backNav.classList.remove("visible");
                 }
             } else {
                 console.log("No active session.");
+                // Optional: Redirect to login if nobody is logged in?
+                // Based on previous request, we assume they arrive logged in, 
+                // but if logged out, we might want to go to index.html
+                // window.location.href = 'index.html'; 
             }
         });
 
-        // 3. GLOBAL NAVIGATION FUNCTIONS
-        // These are attached to window so the onclick attributes in HTML work
+        // 3. LOGOUT FUNCTION
+        // Attach to window so HTML onclick can find it
+        window.handleLogout = async function() {
+            if(confirm("Are you sure you want to log out?")) {
+                try {
+                    await signOut(auth);
+                    console.log("User signed out.");
+                    // Redirect to login/home page after logout
+                    window.location.href = 'index.html'; 
+                } catch (error) {
+                    console.error("Sign out error", error);
+                    alert("Error signing out: " + error.message);
+                }
+            }
+        };
+
+        // 4. GLOBAL NAVIGATION FUNCTIONS
         window.redirectTo = function(page) {
             setTimeout(() => {
                 window.location.href = page;
@@ -284,7 +319,6 @@
         };
 
         window.goBack = function() {
-            // Redirects to admin.html as requested
             window.location.href = 'admin.html';
         };
     </script>
