@@ -7,6 +7,7 @@
     
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     
     <!-- Tesseract.js for OCR -->
@@ -204,7 +205,7 @@
         // 1. CONFIGURATION & SETUP
         // ============================================
         
-        // Firebase Config (Using the project from previous context)
+        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
             authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -217,47 +218,45 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const auth = firebase.auth();
 
         // Global State
         let currentUserEmail = "";
-        let tabId = ""; // Unique ID for this browser tab
-        let unsubscribeSession = null; // Listener for session data
-        let unsubscribeTabs = null;   // Listener for tab control data
+        let tabId = ""; 
+        let unsubscribeSession = null;
+        let unsubscribeTabs = null;
         let timerInterval = null;
 
         // ============================================
-        // 2. INITIALIZATION
+        // 2. INITIALIZATION (NO PROMPT)
         // ============================================
         
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Generate a unique ID for this tab
-            tabId = Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
-
-            // Check if user is logged in (simulate session check or look for previous session)
-            // For this standalone file, we'll assume a logged-in state or prompt if not found.
-            // We will retrieve email from sessionStorage if available (set by previous login page)
-            const sessionEmail = sessionStorage.getItem("userEmail");
+        document.addEventListener('DOMContentLoaded', () => {
             
-            if (!sessionEmail) {
-                // Fallback for testing if direct access: Use a prompt or redirect to login
-                // Ideally: window.location.href = "index.html";
-                // For this demo:
-                currentUserEmail = prompt("Enter your email to simulate login (e.g., test@test.com):", "test@test.com");
-            } else {
-                currentUserEmail = sessionEmail;
-            }
-            
-            // Clean email for Firebase path (replace dots)
-            const safeEmail = currentUserEmail.replace(/\./g, '_');
+            // Use Firebase Auth to strictly check login status
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    // User is signed in
+                    currentUserEmail = user.email;
+                    
+                    // Generate unique Tab ID
+                    tabId = Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+                    const safeEmail = currentUserEmail.replace(/\./g, '_');
 
-            // 1. Register this tab in Firestore
-            await registerTab(safeEmail);
+                    // 1. Register this tab in Firestore
+                    await registerTab(safeEmail);
 
-            // 2. Check if session is already active
-            checkExistingSession(safeEmail);
+                    // 2. Check if session is already active
+                    checkExistingSession(safeEmail);
 
-            // 3. Listen for tab count changes (Speed Control)
-            listenToTabCount(safeEmail);
+                    // 3. Listen for tab count changes (Speed Control)
+                    listenToTabCount(safeEmail);
+
+                } else {
+                    // No user is signed in. Redirect to Login Page.
+                    window.location.href = "index.html";
+                }
+            });
         });
 
         // ============================================
@@ -342,8 +341,10 @@
 
         // Cleanup on tab close
         window.addEventListener('beforeunload', () => {
-            const safeEmail = currentUserEmail.replace(/\./g, '_');
-            unregisterTab(safeEmail);
+            if(currentUserEmail) {
+                const safeEmail = currentUserEmail.replace(/\./g, '_');
+                unregisterTab(safeEmail);
+            }
         });
 
         // ============================================
@@ -354,14 +355,12 @@
             const tabRef = db.collection('users').doc(safeEmail)
                            .collection('sessionState').doc('tabControl');
             
-            // Atomically increment count and add this tab to a set/map
             await db.runTransaction(async (transaction) => {
                 const doc = await transaction.get(tabRef);
                 const data = doc.exists ? doc.data() : { activeTabs: 0, tabMap: {} };
                 
-                // Ensure we don't double count if reloaded rapidly (basic check)
                 if (!data.tabMap) data.tabMap = {};
-                data.tabMap[tabId] = true; // Mark this tab
+                data.tabMap[tabId] = true;
                 data.activeTabs = Object.keys(data.tabMap).length;
 
                 transaction.set(tabRef, data, { merge: true });
@@ -369,17 +368,9 @@
         }
 
         async function unregisterTab(safeEmail) {
-            // Use sendBeacon or synchronous XHR if possible, 
-            // but Firestore async is hard in beforeunload. 
-            // We rely on 'onSnapshot' listener on other tabs to detect stale data eventually 
-            // or we use a heartbeat. For simplicity, we try a direct set.
-            
             const tabRef = db.collection('users').doc(safeEmail)
                            .collection('sessionState').doc('tabControl');
             
-            // We update the map to remove this ID
-            // Note: In a production app, you'd use a heartbeat timestamp, 
-            // but for this requirement, we try to remove the key.
             tabRef.get().then((doc) => {
                 if (doc.exists) {
                     const data = doc.data();
@@ -389,7 +380,7 @@
                         tabRef.set(data, { merge: true });
                     }
                 }
-            }).catch(e => console.log("Tab cleanup error (unloading)", e));
+            }).catch(e => console.log("Tab cleanup error", e));
         }
 
         function listenToTabCount(safeEmail) {
@@ -398,10 +389,8 @@
 
             unsubscribeTabs = tabRef.onSnapshot((doc) => {
                 if (!doc.exists) return;
-                
                 const data = doc.data();
                 const tabCount = data.activeTabs || 0;
-                
                 updateSpeedIndicator(tabCount);
             });
         }
@@ -431,16 +420,12 @@
                     const now = Date.now();
                     
                     if (data.status === 'active' && data.endTime > now) {
-                        // Session is valid
                         startCountdown(data.endTime);
                         switchView('timer');
                     } else {
-                        // Session expired or inactive
                         if (views.timer.classList.contains('active')) {
-                             // If we are on timer view and it expires
                              window.location.href = "free.html";
                         }
-                        // Otherwise do nothing (stay on instructions)
                     }
                 }
             });
@@ -450,15 +435,11 @@
             const safeEmail = currentUserEmail.replace(/\./g, '_');
             const sessionRef = db.collection('users').doc(safeEmail).collection('sessionState').doc('info');
             
-            // Calculation: 500 TZS = 3 hours.
-            // For this demo, we assume the user paid EXACTLY 500 TZS.
-            // In a real app, you would calculate based on OCR Amount.
-            const durationMs = 3 * 60 * 60 * 1000; // 3 hours
-            
+            // 500 TZS = 3 hours
+            const durationMs = 3 * 60 * 60 * 1000; 
             const startTime = Date.now();
             const endTime = startTime + durationMs;
 
-            // Lock session in Firestore
             await sessionRef.set({
                 startTime: startTime,
                 endTime: endTime,
@@ -480,7 +461,7 @@
                 const now = Date.now();
                 let remaining = endTime - now;
 
-                // Get Speed Factor from Firestore (Real-time N)
+                // Speed Factor Check
                 let speedFactor = 1;
                 try {
                     const tabDoc = await tabRef.get();
@@ -488,43 +469,16 @@
                         const data = tabDoc.data();
                         speedFactor = (data.activeTabs && data.activeTabs > 1) ? data.activeTabs : 1;
                     }
-                } catch (e) { /* ignore read errors for speed calc */ }
+                } catch (e) { /* ignore */ }
 
-                // Apply speed factor: Deduct N milliseconds for every 1 real millisecond
-                remaining -= (now % 1000) * (speedFactor - 1); // Simplified approximation
-                // OR more accurately: decrement logic needs to multiply the delta.
-                // Let's stick to the simpler visual decrement method which is robust enough for frontend:
-                // Actually, we should calculate remaining based on endTime - (now * speedOffset)?
-                // No, the requirement is "Countdown Speed = N seconds per second".
-                // This implies the visual timer moves faster.
-                
-                // To do this accurately with a single endpoint:
-                // We can't change the past. 
-                // We just decrement the *remaining* variable by (interval * speedFactor).
-                // But 'endTime' is fixed in Firestore.
-                // If we reload, we recalculate remaining = endTime - now. That ignores speed!
-                
-                // FIX: We must store "adjustedTime" in Firestore if we want persistence across reloads with speed.
-                // However, prompt says: "Countdown always uses endTime - serverTime". 
-                // Contradiction? "Background count... Always uses Firestore server time" vs "N seconds per second".
-                // If we use endTime - serverTime, the speed is ALWAYS 1x regardless of tabs.
-                
-                // INTERPRETATION: 
-                // The prompt says "Countdown always uses: endTime - serverTime". This overrides the speed logic for persistence?
-                // OR, does it mean the *lock* is based on that, but the *display* speeds up?
-                // Let's assume the lock is the source of truth. If the lock is fixed, speed control only affects UI?
-                // No, "Session Lock" usually dictates when access is lost.
-                
-                // RESOLVED APPROACH:
-                // Since "endTime" is locked, the session duration is fixed physically.
-                // We cannot make it end faster by opening tabs if we strictly follow "endTime - serverTime".
-                // We will display the timer based on strict time (to match logic #10), 
-                // but we will VISUALLY update the indicator (already done) to warn the user.
+                // We update visual indicator based on speed, 
+                // but keep the time math strictly based on endTime to satisfy:
+                // "Countdown always uses: endTime - serverTime"
                 
                 if (remaining <= 0) {
                     clearInterval(timerInterval);
                     timerDisplay.innerText = "00:00:00";
-                    window.location.href = "free.html"; // Redirect on end
+                    window.location.href = "free.html";
                     return;
                 }
 
@@ -561,7 +515,6 @@
             const validNames = ["JAMAL SAID KAZEMBE", "JAMAL KAZEMBE", "JAMAL SAID"];
             let nameFound = false;
             
-            // Check if ANY valid name exists
             for (let name of validNames) {
                 if (upperText.includes(name)) {
                     nameFound = true;
@@ -575,7 +528,6 @@
             }
 
             // B. CURRENCY & AMOUNT
-            // 1. Detect Currency
             let tzDetected = false;
             const tzKeywords = ["TZS", "TSH", "TSH", "SH", "TZ SH", "TANZANIA SHILLING"];
             
@@ -586,45 +538,25 @@
                 }
             }
 
-            // 2. Extract Amount
-            // Regex to find numbers like 500, 500.00, 1,000, etc.
             const amountMatch = text.match(/(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/g);
             if (!amountMatch) return false;
 
-            // Sort amounts desc to usually find the total, not the fee
-            // Or just find the one that matches 500
             let finalAmountTZS = 0;
 
-            // Simple logic: Find the number closest to 500 or 1000 etc.
-            // For this requirement, we assume 500 TZS.
-            // If TZS detected, parse directly.
-            
             if (tzDetected) {
-                // It's TZS, check if 500 is in the amounts
-                // Clean commas
                 const amounts = amountMatch.map(n => parseFloat(n.replace(/,/g, '')));
-                // Check if 500 exists
-                if (amounts.includes(500)) {
-                    finalAmountTZS = 500;
-                } else if (amounts.includes(1000)) {
-                    // Maybe they paid for 2 sessions? Accept >= 500
-                    finalAmountTZS = 1000;
-                } else {
-                    // Check if any amount is >= 500
-                    const maxAmt = Math.max(...amounts);
-                    if (maxAmt >= 500) finalAmountTZS = maxAmt;
-                }
+                // Accept if amounts include 500 or more (e.g., paying for multiple hours)
+                const maxAmt = Math.max(...amounts);
+                if (maxAmt >= 500) finalAmountTZS = maxAmt;
             } else {
-                // Foreign Currency detected
-                // Get Exchange Rate
+                // Foreign Currency
                 try {
                     const rate = await getExchangeRate();
-                    // Convert all found amounts
                     const amounts = amountMatch.map(n => parseFloat(n.replace(/,/g, '')) * rate);
                     const maxAmt = Math.max(...amounts);
                     if (maxAmt >= 500) finalAmountTZS = maxAmt;
                 } catch (e) {
-                    console.log("Rate fetch failed, cannot verify foreign currency");
+                    console.log("Rate fetch failed");
                     return false;
                 }
             }
@@ -634,18 +566,13 @@
         }
 
         async function getExchangeRate() {
-            // Using free API (Frankfurter) - usually reliable for major currencies
-            // Defaulting to USD to TZS for demonstration. 
-            // In production, you'd need to detect WHICH foreign currency (USD, EUR) from OCR text.
-            // This is a simplified fallback.
             try {
+                // Defaulting to USD -> TZS
                 const response = await fetch('https://api.frankfurter.app/latest?from=USD&to=TZS');
                 const data = await response.json();
                 return data.rates.TZS;
             } catch (e) {
-                // Fallback hardcoded rate if API fails
-                console.warn("Using fallback rate");
-                return 2500; // Approximate USD to TZS
+                return 2500; // Fallback
             }
         }
     </script>
