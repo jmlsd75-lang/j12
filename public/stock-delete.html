@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Delete Stock</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --danger: #EF4444;
+            --danger-hover: #dc2626;
+            --bg-body: #F3F4F6;
+            --bg-card: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --border: #E5E7EB;
+            --selected-bg: #FEF2F2;
+            --selected-border: #FCA5A5;
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Header Area --- */
+        .header-section {
+            background: var(--bg-card);
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title h2 { font-size: 1.25rem; font-weight: 700; }
+        .header-title p { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+
+        .btn-select-all {
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-select-all:active { transform: scale(0.98); }
+
+        /* --- List Container --- */
+        .list-container {
+            flex: 1;
+            padding: 20px;
+            padding-bottom: 100px; /* Space for fixed bottom bar */
+            overflow-y: auto;
+        }
+
+        .product-item {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        /* Selected State */
+        .product-item.selected {
+            background-color: var(--selected-bg);
+            border-color: var(--danger);
+        }
+
+        /* Checkbox Styling */
+        .checkbox-wrapper {
+            position: relative;
+            width: 24px;
+            height: 24px;
+        }
+        .custom-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--text-muted);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .product-item.selected .custom-checkbox {
+            background-color: var(--danger);
+            border-color: var(--danger);
+        }
+        .checkmark {
+            color: white;
+            display: none;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .product-item.selected .checkmark { display: block; }
+
+        /* Product Info */
+        .item-details { flex: 1; }
+        .item-name { font-weight: 600; font-size: 1rem; margin-bottom: 4px; }
+        .item-meta { font-size: 0.85rem; color: var(--text-muted); }
+
+        /* --- Fixed Bottom Bar --- */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: var(--bg-card);
+            padding: 16px 20px;
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);
+            display: flex;
+            gap: 12px;
+            z-index: 20;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .btn-cancel {
+            background-color: white;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+        .btn-cancel:hover { background-color: #F9FAFB; }
+
+        .btn-delete {
+            background-color: var(--danger);
+            color: white;
+            opacity: 0.5;
+            pointer-events: none; /* Disabled by default */
+        }
+        .btn-delete.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .btn-delete.active:hover { background-color: var(--danger-hover); }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-muted);
+            margin-top: 40px;
+        }
+        
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255,255,255,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header-section">
+        <div class="header-title">
+            <h2>Delete Products</h2>
+            <p>Select items to remove from inventory</p>
+        </div>
+        <!-- Select All / Deselect All Toggle -->
+        <button id="toggleSelectBtn" class="btn-select-all">Select All</button>
+    </div>
+
+    <!-- List -->
+    <div class="list-container" id="listContainer">
+        <!-- Items injected by JS -->
+        <div class="empty-state">Loading products...</div>
+    </div>
+
+    <!-- Bottom Actions -->
+    <div class="bottom-bar">
+        <a href="stock progress.html" class="btn btn-cancel">Cancel</a>
+        <button id="deleteBtn" class="btn btn-delete">Delete (0)</button>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>Deleting...</p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, query, onSnapshot, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // --- CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // --- STATE ---
+        let allProducts = [];
+        const selectedIds = new Set();
+        
+        // --- DOM ELEMENTS ---
+        const listContainer = document.getElementById('listContainer');
+        const toggleSelectBtn = document.getElementById('toggleSelectBtn');
+        const deleteBtn = document.getElementById('deleteBtn');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
+        // --- UTILS ---
+        const formatMoney = (num) => {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+        };
+
+        // --- RENDER FUNCTION ---
+        function renderList() {
+            listContainer.innerHTML = '';
+
+            if (allProducts.length === 0) {
+                listContainer.innerHTML = `<div class="empty-state">No products found to delete.</div>`;
+                return;
+            }
+
+            allProducts.forEach(p => {
+                const isSelected = selectedIds.has(p.id);
+                
+                const item = document.createElement('div');
+                item.className = `product-item ${isSelected ? 'selected' : ''}`;
+                // Clicking the item toggles selection
+                item.onclick = () => toggleSelection(p.id);
+
+                item.innerHTML = `
+                    <div class="checkbox-wrapper">
+                        <div class="custom-checkbox">
+                            <span class="checkmark">✓</span>
+                        </div>
+                    </div>
+                    <div class="item-details">
+                        <div class="item-name">${p.name}</div>
+                        <div class="item-meta">
+                            Stock: ${p.stock} • ${formatMoney(p.sellingPricePerUnit)}/unit
+                        </div>
+                    </div>
+                `;
+                listContainer.appendChild(item);
+            });
+
+            updateFooterState();
+        }
+
+        // --- LOGIC ---
+
+        function updateFooterState() {
+            // Update Delete Button Text and State
+            deleteBtn.innerText = `Delete (${selectedIds.size})`;
+            if (selectedIds.size > 0) {
+                deleteBtn.classList.add('active');
+            } else {
+                deleteBtn.classList.remove('active');
+            }
+
+            // Update "Select All" Button Text
+            if (selectedIds.size === allProducts.length && allProducts.length > 0) {
+                toggleSelectBtn.innerText = "Deselect All";
+            } else {
+                toggleSelectBtn.innerText = "Select All";
+            }
+        }
+
+        function toggleSelection(id) {
+            if (selectedIds.has(id)) {
+                selectedIds.delete(id);
+            } else {
+                selectedIds.add(id);
+            }
+            renderList(); // Re-render to update visuals
+        }
+
+        function toggleSelectAll() {
+            if (selectedIds.size === allProducts.length) {
+                // If currently all selected, deselect all
+                selectedIds.clear();
+            } else {
+                // Otherwise, select all
+                allProducts.forEach(p => selectedIds.add(p.id));
+            }
+            renderList();
+        }
+
+        async function handleDelete() {
+            if (selectedIds.size === 0) return;
+
+            const user = auth.currentUser;
+            if (!user) return;
+
+            // Show loading
+            loadingOverlay.style.display = 'flex';
+
+            try {
+                // Create an array of delete promises
+                const deletePromises = [];
+                selectedIds.forEach(id => {
+                    const docRef = doc(db, "users", user.email, "products", id);
+                    deletePromises.push(deleteDoc(docRef));
+                });
+
+                // Execute all deletes in parallel
+                await Promise.all(deletePromises);
+
+                // Redirect after completion
+                window.location.href = "stock progress.html";
+
+            } catch (error) {
+                console.error("Error deleting documents: ", error);
+                alert("An error occurred while deleting. Please try again.");
+                loadingOverlay.style.display = 'none';
+            }
+        }
+
+        // --- EVENTS ---
+        toggleSelectBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent triggering item click if bubbled
+            toggleSelectAll();
+        });
+
+        deleteBtn.addEventListener('click', handleDelete);
+
+        // --- FIREBASE LISTENER ---
+        function initListener() {
+            const user = auth.currentUser;
+            if(!user) return;
+
+            const q = query(collection(db, "users", user.email, "products"), orderBy("createdAt", "desc"));
+
+            onSnapshot(q, (snapshot) => {
+                allProducts = [];
+                snapshot.forEach(doc => {
+                    allProducts.push({ id: doc.id, ...doc.data() });
+                });
+                // Initial render
+                renderList();
+            });
+        }
+
+        // Check auth on load
+        auth.onAuthStateChanged(user => {
+            if(user) initListener();
+        });
+
+    </script>
+</body>
+</html>
