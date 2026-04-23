@@ -72,7 +72,6 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             display: none;
-            margin-bottom: 20px;
         }
 
         #logout-btn:hover {
@@ -198,11 +197,11 @@
         <button id="logout-btn" type="button">Logout</button>
 
         <div id="timer" class="timer-display">00:03:00</div>
-        <div id="status-text" class="status-message">Starting...</div>
+        <div id="status-text" class="status-message">Syncing...</div>
 
         <div class="action-area">
-            <!-- Menu Button -->
-            <a id="btn-menu" href="menu.html" class="btn btn-menu">Menu</a>
+            <!-- Menu Button: Initially Hidden (Only shows if 00:03:00 Active) -->
+            <a id="btn-menu" href="menu.html" class="btn btn-menu hidden">Menu</a>
             
             <button id="btn-await" class="btn btn-await hidden" disabled>Await</button>
             <a id="btn-pay" href="pay.html" class="btn btn-pay hidden">Pay</a>
@@ -215,12 +214,12 @@
         import {
             getFirestore,
             doc,
-            updateDoc,
             onSnapshot,
             serverTimestamp,
             runTransaction
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+        // ── CONFIGURATION ──
         const firebaseConfig = {
             apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
             authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -230,17 +229,20 @@
             appId: "1:167159607898:web:23ca11366b88868b085e63"
         };
 
-        const TOTAL_WORK_SECONDS = 3 * 60; 
-        const AWAIT_TIME_MS = 24 * 60 * 60 * 1000;
+        // Session Settings
+        const TOTAL_WORK_SECONDS = 3 * 60; // 3 minutes
+        const AWAIT_TIME_MS = 24 * 60 * 60 * 1000; // 24 hours
         const tabId = crypto.randomUUID();
 
+        // State Variables
         let sessionState = 'idle'; 
         let dbStartTime = null; 
         let dbEndTime = null;   
         let currentRate = 1;     
         let activeTabsList = [];
         let isFinishing = false; 
-
+        
+        // UI Cache
         const ui = {
             email: document.getElementById('user-email-display'),
             timer: document.getElementById('timer'),
@@ -252,6 +254,7 @@
             logoutBtn: document.getElementById('logout-btn')
         };
 
+        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
@@ -263,7 +266,6 @@
                 window.location.href = "index.html";
             } catch (error) {
                 console.error("Sign out error", error);
-                alert("Error signing out");
             }
         });
 
@@ -288,35 +290,38 @@
             if (sessionState === 'active' && dbStartTime) {
                 const elapsedMs = now - dbStartTime;
                 const elapsedSeconds = elapsedMs / 1000;
-
                 const workDone = elapsedSeconds * currentRate;
+                
                 let remainingWork = TOTAL_WORK_SECONDS - workDone;
 
                 if (remainingWork <= 0) {
                     ui.timer.textContent = "00:00:00";
-                    finishSession(); 
+                    ui.status.textContent = "Time Limit Reached";
+                    
+                    if (!isFinishing) {
+                        finishSession();
+                    }
                 } else {
                     const displaySeconds = remainingWork / currentRate;
                     ui.timer.textContent = formatTime(displaySeconds * 1000);
                     ui.status.textContent = `Active (Speed: ${currentRate}x)`;
                 }
+
             } else if (sessionState === 'awaiting' && dbEndTime) {
                 const elapsedMs = now - dbEndTime;
                 const remainingMs = AWAIT_TIME_MS - elapsedMs;
 
                 if (remainingMs <= 0) {
                     ui.timer.textContent = "00:00:00";
-                    ui.status.textContent = "Session Reset.";
-                    resetSystem();
+                    ui.status.textContent = "Cooldown Complete";
                 } else {
                     ui.timer.textContent = formatTime(remainingMs);
-                    ui.status.textContent = "Awaiting Reset (24h)";
+                    ui.status.textContent = "System Locked (Awaiting)";
                 }
+
             } else {
-                if (sessionState === 'idle') {
-                    ui.timer.textContent = "00:03:00";
-                    ui.status.textContent = "Ready";
-                }
+                ui.timer.textContent = formatTime(TOTAL_WORK_SECONDS * 1000);
+                ui.status.textContent = "Ready";
             }
         }
 
@@ -329,6 +334,7 @@
                     const snap = await transaction.get(userRef);
                     
                     if (!snap.exists()) {
+                        // New User
                         transaction.set(userRef, {
                             email: email,
                             sessionState: 'active',
@@ -343,21 +349,20 @@
                     let activeTabs = data.activeTabs || [];
                     let state = data.sessionState || 'idle';
 
-                    // Force reset tab list if starting new session (fixes old tab count bug)
+                    // Tab Management
                     if (state !== 'awaiting') {
-                        activeTabs = [tabId];
+                        if (!activeTabs.includes(tabId)) {
+                            activeTabs.push(tabId);
+                        }
+                        transaction.update(userRef, { activeTabs: activeTabs });
+                        
+                        if (state !== 'active') {
+                             transaction.update(userRef, { sessionState: 'active', startTime: serverTimestamp() });
+                        }
                     } else {
-                        activeTabs = activeTabs.filter(id => id !== tabId);
-                        activeTabs.push(tabId);
-                    }
-
-                    transaction.update(userRef, { activeTabs: activeTabs });
-
-                    if (state !== 'awaiting') {
-                        transaction.update(userRef, {
-                            sessionState: 'active',
-                            startTime: serverTimestamp()
-                        });
+                        if (activeTabs.length > 0) {
+                             transaction.update(userRef, { activeTabs: [] });
+                        }
                     }
                 });
             } catch (e) {
@@ -365,6 +370,7 @@
                 ui.status.textContent = "Connection Error";
             }
 
+            // ── REAL-TIME LISTENER ──
             onSnapshot(userRef, (docSnap) => {
                 if (docSnap.exists()) {
                     handleDatabaseUpdate(docSnap.data());
@@ -372,36 +378,40 @@
             });
         }
 
-        // ── 4. UPDATE STATE FROM DATABASE (UPDATED: HIDE MENU IN AWAITING) ──
+        // ── 4. UPDATE STATE FROM DATABASE (Menu Logic Here) ──
         function handleDatabaseUpdate(data) {
             sessionState = data.sessionState || 'idle';
             dbStartTime = data.startTime ? data.startTime.toDate() : null;
             dbEndTime = data.lastSessionEnd ? data.lastSessionEnd.toDate() : null;
             activeTabsList = data.activeTabs || [];
             
+            currentRate = (activeTabsList.length > 0) ? activeTabsList.length : 1;
+            ui.tabCount.textContent = currentRate;
+
+            // ── VISIBILITY LOGIC ──
+            
             if (sessionState === 'awaiting') {
+                // AWAITING STATE: Lock System
                 isFinishing = true;
-                currentRate = 0; 
                 
                 ui.timer.classList.remove('active');
                 ui.timer.classList.add('awaiting');
                 
-                // AWAITING STATE: Hide Menu, Show Await/Pay/Logout
-                ui.btnMenu.classList.add('hidden'); // HIDE MENU
+                // LOGIC: Hide Menu, Show Await/Pay
+                ui.btnMenu.classList.add('hidden'); // <--- HIDE MENU
                 ui.btnAwait.classList.remove('hidden');
                 ui.btnPay.classList.remove('hidden');
                 ui.logoutBtn.style.display = 'block';
 
             } else {
+                // ACTIVE STATE: Open System
                 isFinishing = false;
-                currentRate = activeTabsList.length > 0 ? activeTabsList.length : 1;
-                ui.tabCount.textContent = currentRate;
-
+                
                 ui.timer.classList.add('active');
                 ui.timer.classList.remove('awaiting');
 
-                // ACTIVE STATE: Show Menu, Hide others
-                ui.btnMenu.classList.remove('hidden'); // SHOW MENU
+                // LOGIC: Show Menu, Hide Await/Pay
+                ui.btnMenu.classList.remove('hidden'); // <--- SHOW MENU
                 ui.btnAwait.classList.add('hidden');
                 ui.btnPay.classList.add('hidden');
                 ui.logoutBtn.style.display = 'none';
@@ -435,21 +445,6 @@
             } catch (e) { 
                 console.error("Finish Session Error:", e); 
             }
-        }
-
-        async function resetSystem() {
-            if (sessionState !== 'awaiting') return;
-
-            const email = ui.email.textContent;
-            const userRef = doc(db, "users", email);
-
-            try {
-                await updateDoc(userRef, {
-                    sessionState: 'idle',
-                    startTime: null,
-                    lastSessionEnd: null
-                });
-            } catch (e) { console.error(e); }
         }
 
         function formatTime(ms) {
