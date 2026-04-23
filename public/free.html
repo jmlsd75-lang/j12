@@ -13,6 +13,7 @@
             --text-color: #ffffff;
             --text-secondary: #b0b0b0;
             --danger-color: #cf6679;
+            --await-color: #ff9800; /* Orange for waiting */
             --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
@@ -99,14 +100,17 @@
             transition: color 0.3s ease;
         }
 
+        /* Active State (Green) */
         .timer-display.active {
             color: var(--secondary-color);
             animation: pulse 2s infinite;
         }
 
+        /* Awaiting State (Orange/Gray) */
         .timer-display.awaiting {
-            color: var(--text-secondary);
-            font-size: 4rem;
+            color: var(--await-color);
+            font-size: 5rem; /* Keep big for 24h timer */
+            animation: none;
         }
 
         .status-message {
@@ -227,7 +231,7 @@
         };
 
         const TOTAL_WORK_SECONDS = 3 * 60; 
-        const AWAIT_TIME_MS = 24 * 60 * 60 * 1000;
+        const AWAIT_TIME_MS = 24 * 60 * 60 * 1000; // 24 Hours
         const tabId = crypto.randomUUID();
 
         let sessionState = 'idle'; 
@@ -235,6 +239,7 @@
         let dbEndTime = null;   
         let currentRate = 1;     
         let activeTabsList = [];
+        let isFinishing = false; 
 
         const ui = {
             email: document.getElementById('user-email-display'),
@@ -280,6 +285,7 @@
         function updateVisualTimer() {
             const now = new Date();
 
+            // --- ACTIVE PHASE (3 Minutes) ---
             if (sessionState === 'active' && dbStartTime) {
                 const elapsedMs = now - dbStartTime;
                 const elapsedSeconds = elapsedMs / 1000;
@@ -288,29 +294,37 @@
                 let remainingWork = TOTAL_WORK_SECONDS - workDone;
 
                 if (remainingWork <= 0) {
+                    // Timer hit 0
                     ui.timer.textContent = "00:00:00";
-                    ui.status.textContent = "Session Complete. Closing...";
-                    finishSession(); // Triggers Close
+                    finishSession(); 
                 } else {
                     const displaySeconds = remainingWork / currentRate;
                     ui.timer.textContent = formatTime(displaySeconds * 1000);
                     ui.status.textContent = `Active (Speed: ${currentRate}x)`;
                 }
-            } else if (sessionState === 'awaiting' && dbEndTime) {
+            } 
+            
+            // --- AWAITING PHASE (24 Hours) ---
+            else if (sessionState === 'awaiting' && dbEndTime) {
                 const elapsedMs = now - dbEndTime;
                 const remainingMs = AWAIT_TIME_MS - elapsedMs;
 
                 if (remainingMs <= 0) {
                     ui.timer.textContent = "00:00:00";
+                    ui.status.textContent = "Session Reset.";
                     resetSystem();
                 } else {
+                    // Display the 24 hour countdown
                     ui.timer.textContent = formatTime(remainingMs);
-                    ui.status.textContent = "Please wait.";
+                    ui.status.textContent = "Awaiting Reset (24h)";
                 }
-            } else {
+            } 
+            
+            // --- IDLE PHASE ---
+            else {
                 if (sessionState === 'idle') {
                     ui.timer.textContent = "00:03:00";
-                    ui.status.textContent = "Initializing...";
+                    ui.status.textContent = "Ready";
                 }
             }
         }
@@ -324,6 +338,7 @@
                     const snap = await transaction.get(userRef);
                     
                     if (!snap.exists()) {
+                        // New User: Start Immediately
                         transaction.set(userRef, {
                             email: email,
                             sessionState: 'active',
@@ -342,6 +357,7 @@
                     activeTabs.push(tabId);
                     transaction.update(userRef, { activeTabs: activeTabs });
 
+                    // Auto-start if not awaiting
                     if (state !== 'awaiting') {
                         transaction.update(userRef, {
                             sessionState: 'active',
@@ -354,6 +370,7 @@
                 ui.status.textContent = "Connection Error";
             }
 
+            // Real-time listener
             onSnapshot(userRef, (docSnap) => {
                 if (docSnap.exists()) {
                     handleDatabaseUpdate(docSnap.data());
@@ -368,27 +385,33 @@
             dbEndTime = data.lastSessionEnd ? data.lastSessionEnd.toDate() : null;
             activeTabsList = data.activeTabs || [];
             
+            // If we switch to Awaiting
             if (sessionState === 'awaiting') {
-                currentRate = 1;
-            } else {
-                currentRate = activeTabsList.length > 0 ? activeTabsList.length : 1;
-            }
-
-            ui.tabCount.textContent = currentRate;
-
-            if (sessionState === 'awaiting') {
+                isFinishing = true;
+                currentRate = 0; // Stop active calculation
+                
+                // Change UI Visuals
                 ui.timer.classList.remove('active');
                 ui.timer.classList.add('awaiting');
                 
+                // Show/Hide Buttons
                 ui.btnAwait.classList.remove('hidden');
                 ui.btnPay.classList.remove('hidden');
-                ui.btnMenu.classList.add('hidden');
+                ui.btnMenu.classList.add('hidden'); // Hide menu
                 ui.logoutBtn.style.display = 'block';
 
-            } else {
-                ui.timer.classList.remove('awaiting');
+                // IMPORTANT: We DO NOT redirect here. We stay on this page
+                // to show the 24h countdown. The DB update syncs other pages.
+            } 
+            // If we are Active
+            else {
+                isFinishing = false;
+                currentRate = activeTabsList.length > 0 ? activeTabsList.length : 1;
+
+                ui.tabCount.textContent = currentRate;
                 ui.timer.classList.add('active');
-                
+                ui.timer.classList.remove('awaiting');
+
                 ui.btnAwait.classList.add('hidden');
                 ui.btnPay.classList.add('hidden');
                 ui.btnMenu.classList.remove('hidden');
@@ -398,15 +421,16 @@
             updateVisualTimer();
         }
 
-        // ── 5. ACTIONS (MODIFIED: Close on Finish) ──
+        // ── 5. ACTIONS ──
         async function finishSession() {
-            // Guard against multiple calls
-            if (sessionState !== 'active') return; 
+            if (isFinishing) return;
+            isFinishing = true;
 
             const email = ui.email.textContent;
             const userRef = doc(db, "users", email);
 
             try {
+                // Update Database to 'awaiting' state
                 await runTransaction(db, async (transaction) => {
                     const snap = await transaction.get(userRef);
                     if (!snap.exists()) return;
@@ -415,21 +439,17 @@
                     if (data.sessionState === 'active') {
                         transaction.update(userRef, {
                             sessionState: 'awaiting',
-                            lastSessionEnd: serverTimestamp(),
+                            lastSessionEnd: serverTimestamp(), // This triggers the 24h timer everywhere
                             activeTabs: [] 
                         });
                     }
                 });
-            } catch (e) { console.error(e); }
-
-            // 1. Attempt to close the window/tab immediately
-            window.close();
-
-            // 2. Fallback: If the browser blocks window.close(), redirect to await.html
-            // This ensures the user leaves this page regardless.
-            setTimeout(() => {
-                window.location.href = "await.html";
-            }, 1000);
+            } catch (e) { 
+                console.error("Finish Session Error:", e); 
+            }
+            
+            // No window.close() or window.location.href here.
+            // The onSnapshot listener will detect the DB change and switch this UI to 24h mode.
         }
 
         async function resetSystem() {
