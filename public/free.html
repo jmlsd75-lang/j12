@@ -201,7 +201,7 @@
         <div id="status-text" class="status-message">Starting...</div>
 
         <div class="action-area">
-            <!-- Menu Button is now visible by default -->
+            <!-- Menu Button -->
             <a id="btn-menu" href="menu.html" class="btn btn-menu">Menu</a>
             
             <button id="btn-await" class="btn btn-await hidden" disabled>Await</button>
@@ -320,7 +320,7 @@
             }
         }
 
-        // ── 3. DATABASE INITIALIZATION & SYNC (FIXED TAB CLEANUP) ──
+        // ── 3. DATABASE INITIALIZATION & SYNC ──
         async function initSession(email) {
             const userRef = doc(db, "users", email);
 
@@ -329,12 +329,11 @@
                     const snap = await transaction.get(userRef);
                     
                     if (!snap.exists()) {
-                        // New User: Start Immediately
                         transaction.set(userRef, {
                             email: email,
                             sessionState: 'active',
                             startTime: serverTimestamp(),
-                            activeTabs: [tabId], // Start clean with just this tab
+                            activeTabs: [tabId],
                             createdAt: serverTimestamp()
                         });
                         return;
@@ -344,22 +343,16 @@
                     let activeTabs = data.activeTabs || [];
                     let state = data.sessionState || 'idle';
 
-                    // FIX: Only keep tabs from the current session
-                    // If the user just opened this page and we are starting active,
-                    // we should clear old tabs to fix the "4 tabs" bug.
+                    // Force reset tab list if starting new session (fixes old tab count bug)
                     if (state !== 'awaiting') {
-                        // Force reset the list to just this tab when starting a new session
-                        activeTabs = [tabId]; 
+                        activeTabs = [tabId];
                     } else {
-                        // If awaiting, we can't clear tabs because we are waiting
-                        // But we still add this tab if the user reloaded
                         activeTabs = activeTabs.filter(id => id !== tabId);
                         activeTabs.push(tabId);
                     }
 
                     transaction.update(userRef, { activeTabs: activeTabs });
 
-                    // Auto-start if not awaiting
                     if (state !== 'awaiting') {
                         transaction.update(userRef, {
                             sessionState: 'active',
@@ -372,7 +365,6 @@
                 ui.status.textContent = "Connection Error";
             }
 
-            // Real-time listener
             onSnapshot(userRef, (docSnap) => {
                 if (docSnap.exists()) {
                     handleDatabaseUpdate(docSnap.data());
@@ -380,7 +372,7 @@
             });
         }
 
-        // ── 4. UPDATE STATE FROM DATABASE (FIXED MENU VISIBILITY) ──
+        // ── 4. UPDATE STATE FROM DATABASE (UPDATED: HIDE MENU IN AWAITING) ──
         function handleDatabaseUpdate(data) {
             sessionState = data.sessionState || 'idle';
             dbStartTime = data.startTime ? data.startTime.toDate() : null;
@@ -394,8 +386,8 @@
                 ui.timer.classList.remove('active');
                 ui.timer.classList.add('awaiting');
                 
-                // In Awaiting: Show Menu, Await, Pay
-                ui.btnMenu.classList.remove('hidden');
+                // AWAITING STATE: Hide Menu, Show Await/Pay/Logout
+                ui.btnMenu.classList.add('hidden'); // HIDE MENU
                 ui.btnAwait.classList.remove('hidden');
                 ui.btnPay.classList.remove('hidden');
                 ui.logoutBtn.style.display = 'block';
@@ -408,8 +400,8 @@
                 ui.timer.classList.add('active');
                 ui.timer.classList.remove('awaiting');
 
-                // In Active: Show Menu. Hide Await/Pay
-                ui.btnMenu.classList.remove('hidden'); // FIX: Always show menu in active
+                // ACTIVE STATE: Show Menu, Hide others
+                ui.btnMenu.classList.remove('hidden'); // SHOW MENU
                 ui.btnAwait.classList.add('hidden');
                 ui.btnPay.classList.add('hidden');
                 ui.logoutBtn.style.display = 'none';
