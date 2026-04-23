@@ -343,7 +343,7 @@
         // Set Data
         transactionData.type = type;
 
-        // Determine Flow Type
+        // Determine Flow Type (IN or OUT) for Financials
         if (type === 'Sales' || type === 'Purchases Return') {
             transactionData.flowType = 'IN';
         } else if (type === 'Purchases' || type === 'Sales Return' || type === 'Damage') {
@@ -457,18 +457,18 @@
 
             // 1. CALCULATE NEW STOCK
             // Logic: 
-            // Sales Return / Stock Received -> Increase (+)
-            // Purchases / Sales / Damage -> Decrease (-)
+            // Sales, Purchases Return, Stock Received -> Increase (+)
+            // Everything else (Sales Return, Purchases, Damage) -> Decrease (-)
             let newStock = transactionData.product.stock;
 
             if (
-                transactionData.type === 'Sales Return' || 
-                transactionData.type === 'Stock Received' ||
-                transactionData.type === 'Purchases Return' // Return purchases means goods come back in
+                transactionData.type === 'Sales' || 
+                transactionData.type === 'Purchases Return' || 
+                transactionData.type === 'Stock Received'
             ) {
                 newStock += units;
             } else {
-                // Sales, Purchases, Damage
+                // Sales Return, Purchases, Damage
                 newStock -= units;
             }
 
