@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Delete Stock</title>
+    <title>Stock Progress</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --primary: #4F46E5;
+            --primary-hover: #4338ca;
+            --success: #10B981;
             --danger: #EF4444;
             --danger-hover: #dc2626;
             --bg-body: #F3F4F6;
@@ -16,8 +18,7 @@
             --text-main: #1F2937;
             --text-muted: #6B7280;
             --border: #E5E7EB;
-            --selected-bg: #FEF2F2;
-            --selected-border: #FCA5A5;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             --radius: 12px;
         }
 
@@ -28,243 +29,211 @@
             background-color: var(--bg-body);
             color: var(--text-main);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            padding: 20px;
+            padding-bottom: 80px;
         }
 
-        /* --- Header Area --- */
-        .header-section {
-            background: var(--bg-card);
-            padding: 16px 20px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        /* --- Header --- */
+        .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 20px;
         }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        /* Back Button Styling */
-        .btn-back {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: var(--text-main);
+        .header h1 { font-size: 1.5rem; font-weight: 700; }
+        
+        .btn-add {
+            background-color: var(--primary);
+            color: white;
             text-decoration: none;
-            font-weight: 500;
-            font-size: 0.9rem;
-            padding: 6px 10px;
+            padding: 10px 20px;
             border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);
             transition: background 0.2s;
         }
-        .btn-back:hover { background-color: #F3F4F6; }
-        .btn-back svg { width: 20px; height: 20px; }
+        .btn-add:hover { background-color: var(--primary-hover); }
 
-        .header-title h2 { font-size: 1.25rem; font-weight: 700; }
-        .header-title p { display: none; } /* Hide subtitle on small screens if space is tight, or keep it */
-        @media (min-width: 400px) { .header-title p { display: block; font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; } }
-
-        .btn-select-all {
-            background: white;
+        /* --- Search --- */
+        .search-wrapper {
+            margin-bottom: 20px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
             border: 1px solid var(--border);
-            color: var(--primary);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            white-space: nowrap;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            outline: none;
+            background: #fff;
         }
-        .btn-select-all:active { transform: scale(0.98); }
+        .search-input:focus { border-color: var(--primary); }
 
-        /* --- List Container --- */
-        .list-container {
-            flex: 1;
-            padding: 20px;
-            padding-bottom: 100px; /* Space for fixed bottom bar */
-            overflow-y: auto;
-        }
-
-        .product-item {
+        /* --- Table --- */
+        .table-container {
             background: var(--bg-card);
             border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            overflow-x: auto; /* Scrollable on mobile */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            /* Increased min-width to accommodate the new Action column */
+            min-width: 900px; 
+        }
+
+        thead {
+            background-color: #F9FAFB;
+            border-bottom: 2px solid var(--border);
+        }
+
+        th {
+            text-align: left;
             padding: 16px;
-            margin-bottom: 12px;
-            border: 2px solid transparent;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Specific width for the Action column */
+        th.col-action {
+            width: 100px; 
+            text-align: center;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+        
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: #F9FAFB; }
+
+        /* Column Styles */
+        .col-name { font-weight: 600; color: var(--primary); min-width: 180px; }
+        .col-num { font-family: 'Inter', monospace; font-variant-numeric: tabular-nums; }
+        
+        .stock-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .stock-ok { background-color: #D1FAE5; color: #065F46; }
+        .stock-low { background-color: #FEE2E2; color: #991B1B; }
+
+        /* Action Buttons Styling */
+        .action-cell {
             display: flex;
-            align-items: center;
-            gap: 16px;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
             cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-
-        /* Selected State */
-        .product-item.selected {
-            background-color: var(--selected-bg);
-            border-color: var(--danger);
-        }
-
-        /* Checkbox Styling */
-        .checkbox-wrapper {
-            position: relative;
-            width: 24px;
-            height: 24px;
-            flex-shrink: 0;
-        }
-        .custom-checkbox {
-            width: 24px;
-            height: 24px;
-            border: 2px solid var(--text-muted);
+            padding: 6px;
             border-radius: 6px;
+            transition: background 0.2s, transform 0.1s;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
-        }
-        .product-item.selected .custom-checkbox {
-            background-color: var(--danger);
-            border-color: var(--danger);
-        }
-        .checkmark {
-            color: white;
-            display: none;
-            font-size: 16px;
-            font-weight: bold;
-        }
-        .product-item.selected .checkmark { display: block; }
-
-        /* Product Info */
-        .item-details { flex: 1; min-width: 0; } /* min-width: 0 for text truncation fix */
-        .item-name { font-weight: 600; font-size: 1rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .item-meta { font-size: 0.85rem; color: var(--text-muted); }
-
-        /* --- Fixed Bottom Bar --- */
-        .bottom-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: var(--bg-card);
-            padding: 16px 20px;
-            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);
-            display: flex;
-            gap: 12px;
-            z-index: 20;
         }
 
-        .btn {
-            flex: 1;
-            padding: 14px;
-            border-radius: var(--radius);
-            font-size: 1rem;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            transition: background 0.2s;
-        }
+        .icon-btn:hover { background-color: #E5E7EB; }
+        .icon-btn:active { transform: scale(0.95); }
 
-        .btn-cancel {
-            background-color: white;
-            border: 1px solid var(--border);
-            color: var(--text-main);
-        }
-        .btn-cancel:hover { background-color: #F9FAFB; }
+        .btn-edit { color: var(--primary); }
+        .btn-edit:hover { background-color: #E0E7FF; }
 
-        .btn-delete {
-            background-color: var(--danger);
-            color: white;
-            opacity: 0.5;
-            pointer-events: none; /* Disabled by default */
+        .btn-delete { color: var(--danger); }
+        .btn-delete:hover { background-color: #FEE2E2; }
+
+        /* Sub-row for extra info (Total Cost/Revenue) */
+        .sub-row td {
+            padding-top: 0;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.8rem;
+            color: var(--text-muted);
         }
-        .btn-delete.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .btn-delete.active:hover { background-color: var(--danger-hover); }
+        .sub-row .highlight { font-weight: 600; color: var(--text-main); }
 
         .empty-state {
             text-align: center;
+            padding: 40px;
             color: var(--text-muted);
-            margin-top: 40px;
         }
-        
-        /* Loading Overlay */
-        .loading-overlay {
+
+        /* Mobile FAB */
+        .fab {
             position: fixed;
-            inset: 0;
-            background: rgba(255,255,255,0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 50;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--border);
-            border-top: 4px solid var(--primary);
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
-            animation: spin 1s linear infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+            text-decoration: none;
+            z-index: 100;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @media (min-width: 600px) { .fab { display: none; } }
 
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <div class="header-section">
-        <div class="header-left">
-            <!-- Back Button -->
-            <a href="product.html" class="btn-back">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                <span>Back</span>
-            </a>
-
-            <div class="header-title">
-                <h2>Delete Products</h2>
-                <p>Select items to remove</p>
-            </div>
-        </div>
-        
-        <!-- Select All / Deselect All Toggle -->
-        <button id="toggleSelectBtn" class="btn-select-all">Select All</button>
+    <div class="header">
+        <h1>Stock Progress</h1>
+        <!-- UPDATED LINK: Redirects to register new stock.html -->
+        <a href="register new stock.html" class="btn-add">+ Add Product</a>
     </div>
 
-    <!-- List -->
-    <div class="list-container" id="listContainer">
-        <!-- Items injected by JS -->
-        <div class="empty-state">Loading products...</div>
+    <div class="search-wrapper">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search products...">
     </div>
 
-    <!-- Bottom Actions -->
-    <div class="bottom-bar">
-        <a href="stock progress.html" class="btn btn-cancel">Cancel</a>
-        <button id="deleteBtn" class="btn btn-delete">Delete (0)</button>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Buying Price <br><small>(Per Unit)</small></th>
+                    <th>Selling Price <br><small>(Per Unit)</small></th>
+                    <th>Units Present</th>
+                    <th class="col-action">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Rows inserted by JS -->
+            </tbody>
+        </table>
     </div>
 
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner"></div>
-        <p>Deleting...</p>
-    </div>
+    <!-- Floating Action Button for Mobile -->
+    <!-- UPDATED LINK: Redirects to register new stock.html -->
+    <a href="register new stock.html" class="fab">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+    </a>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, query, onSnapshot, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, query, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
         // --- CONFIGURATION ---
@@ -281,15 +250,10 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // --- STATE ---
+        // --- DOM ---
+        const tableBody = document.getElementById('tableBody');
+        const searchInput = document.getElementById('searchInput');
         let allProducts = [];
-        const selectedIds = new Set();
-        
-        // --- DOM ELEMENTS ---
-        const listContainer = document.getElementById('listContainer');
-        const toggleSelectBtn = document.getElementById('toggleSelectBtn');
-        const deleteBtn = document.getElementById('deleteBtn');
-        const loadingOverlay = document.getElementById('loadingOverlay');
 
         // --- UTILS ---
         const formatMoney = (num) => {
@@ -297,117 +261,68 @@
         };
 
         // --- RENDER FUNCTION ---
-        function renderList() {
-            listContainer.innerHTML = '';
+        function renderTable() {
+            const term = searchInput.value.toLowerCase();
+            tableBody.innerHTML = '';
 
-            if (allProducts.length === 0) {
-                listContainer.innerHTML = `<div class="empty-state">No products found to delete.</div>`;
+            const filtered = allProducts.filter(p => p.name && p.name.toLowerCase().includes(term));
+
+            if (filtered.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="empty-state">No products found.</td></tr>`;
                 return;
             }
 
-            allProducts.forEach(p => {
-                const isSelected = selectedIds.has(p.id);
-                
-                const item = document.createElement('div');
-                item.className = `product-item ${isSelected ? 'selected' : ''}`;
-                // Clicking the item toggles selection
-                item.onclick = () => toggleSelection(p.id);
+            filtered.forEach(p => {
+                // Determine logic for stock badge
+                let badgeClass = 'stock-ok';
+                let stockText = `${p.stock} Units`;
+                if(p.stock === 0) {
+                    badgeClass = 'stock-low';
+                    stockText = 'Out of Stock';
+                }
 
-                item.innerHTML = `
-                    <div class="checkbox-wrapper">
-                        <div class="custom-checkbox">
-                            <span class="checkmark">✓</span>
+                // Create Main Row
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="col-name">${p.name}</td>
+                    <td class="col-num">${formatMoney(p.buyingPricePerUnit)}</td>
+                    <td class="col-num">${formatMoney(p.sellingPricePerUnit)}</td>
+                    <td><span class="stock-badge ${badgeClass}">${stockText}</span></td>
+                    <td>
+                        <div class="action-cell">
+                            <!-- Edit Icon (Pen) -->
+                            <a href="stock-edit.html?id=${p.id}" class="icon-btn btn-edit" title="Edit Product">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            </a>
+                            
+                            <!-- Delete Icon (Bin) -->
+                            <a href="stock-delete.html?id=${p.id}" class="icon-btn btn-delete" title="Delete Product" onclick="return confirm('Are you sure you want to delete ${p.name}?');">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                            </a>
                         </div>
-                    </div>
-                    <div class="item-details">
-                        <div class="item-name">${p.name}</div>
-                        <div class="item-meta">
-                            Stock: ${p.stock} • ${formatMoney(p.sellingPricePerUnit)}/unit
-                        </div>
-                    </div>
+                    </td>
                 `;
-                listContainer.appendChild(item);
+                tableBody.appendChild(tr);
+
+                // Create Sub-Row (Shows Total Cost and Total Revenue as saved/derived)
+                const subTr = document.createElement('tr');
+                subTr.className = 'sub-row';
+                
+                // Calculations derived from saved data
+                const totalCost = p.totalBuyingPrice || (p.buyingPricePerUnit * p.stock);
+                const totalRevenue = p.totalSellingPrice || (p.sellingPricePerUnit * p.stock);
+
+                subTr.innerHTML = `
+                    <td colspan="2">
+                        Total Cost: <span class="highlight">${formatMoney(totalCost)}</span>
+                    </td>
+                    <td colspan="3">
+                        Potential Revenue: <span class="highlight">${formatMoney(totalRevenue)}</span>
+                    </td>
+                `;
+                tableBody.appendChild(subTr);
             });
-
-            updateFooterState();
         }
-
-        // --- LOGIC ---
-
-        function updateFooterState() {
-            // Update Delete Button Text and State
-            deleteBtn.innerText = `Delete (${selectedIds.size})`;
-            if (selectedIds.size > 0) {
-                deleteBtn.classList.add('active');
-            } else {
-                deleteBtn.classList.remove('active');
-            }
-
-            // Update "Select All" Button Text
-            if (selectedIds.size === allProducts.length && allProducts.length > 0) {
-                toggleSelectBtn.innerText = "Deselect All";
-            } else {
-                toggleSelectBtn.innerText = "Select All";
-            }
-        }
-
-        function toggleSelection(id) {
-            if (selectedIds.has(id)) {
-                selectedIds.delete(id);
-            } else {
-                selectedIds.add(id);
-            }
-            renderList(); // Re-render to update visuals
-        }
-
-        function toggleSelectAll() {
-            if (selectedIds.size === allProducts.length) {
-                // If currently all selected, deselect all
-                selectedIds.clear();
-            } else {
-                // Otherwise, select all
-                allProducts.forEach(p => selectedIds.add(p.id));
-            }
-            renderList();
-        }
-
-        async function handleDelete() {
-            if (selectedIds.size === 0) return;
-
-            const user = auth.currentUser;
-            if (!user) return;
-
-            // Show loading
-            loadingOverlay.style.display = 'flex';
-
-            try {
-                // Create an array of delete promises
-                const deletePromises = [];
-                selectedIds.forEach(id => {
-                    const docRef = doc(db, "users", user.email, "products", id);
-                    deletePromises.push(deleteDoc(docRef));
-                });
-
-                // Execute all deletes in parallel
-                await Promise.all(deletePromises);
-
-                // Redirect after completion
-                window.location.href = "stock progress.html";
-
-            } catch (error) {
-                console.error("Error deleting documents: ", error);
-                alert("An error occurred while deleting. Please try again.");
-                loadingOverlay.style.display = 'none';
-            }
-        }
-
-        // --- EVENTS ---
-        toggleSelectBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent triggering item click if bubbled
-            toggleSelectAll();
-        });
-
-        deleteBtn.addEventListener('click', handleDelete);
 
         // --- FIREBASE LISTENER ---
         function initListener() {
@@ -421,11 +336,13 @@
                 snapshot.forEach(doc => {
                     allProducts.push({ id: doc.id, ...doc.data() });
                 });
-                // Initial render
-                renderList();
+                renderTable();
             });
         }
 
+        // --- EVENTS ---
+        searchInput.addEventListener('input', renderTable);
+        
         // Check auth on load
         auth.onAuthStateChanged(user => {
             if(user) initListener();
