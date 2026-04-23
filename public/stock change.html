@@ -282,6 +282,22 @@
 
     // --- UTILS ---
     const formatMoney = (num) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+    
+    // Helper to format date to "4/23/2026, 7:50:43 PM"
+    const getFormattedDate = () => {
+        const now = new Date();
+        const month = now.getMonth() + 1;
+        const day = now.getDate();
+        const year = now.getFullYear();
+        let hours = now.getHours();
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const seconds = now.getSeconds().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; 
+        return `${month}/${day}/${year}, ${hours}:${minutes}:${seconds} ${ampm}`;
+    };
+
     window.goToStep = function(stepId) {
         document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
         document.getElementById(stepId).classList.add('active');
@@ -327,13 +343,13 @@
         // Set Data
         transactionData.type = type;
 
-        // Determine Flow Type (IN or OUT) for Financials
+        // Determine Flow Type
         if (type === 'Sales' || type === 'Purchases Return') {
             transactionData.flowType = 'IN';
         } else if (type === 'Purchases' || type === 'Sales Return' || type === 'Damage') {
             transactionData.flowType = 'OUT';
         } else {
-            transactionData.flowType = 'NEITHER'; // Stock Received
+            transactionData.flowType = 'NEITHER';
         }
 
         // Update Step 2 Header
@@ -425,6 +441,7 @@
         }
 
         // Validation for Stock Availability for OUT transactions
+        // Note: We validate against current stock before we change it
         if (transactionData.flowType === 'OUT' && units > transactionData.product.stock) {
             alert("Not enough stock available! Current stock: " + transactionData.product.stock);
             return;
@@ -438,12 +455,21 @@
             btn.disabled = true;
             btn.innerText = "Saving...";
 
-            // 1. Calculate New Stock
+            // 1. CALCULATE NEW STOCK
+            // Logic: 
+            // Sales Return / Stock Received -> Increase (+)
+            // Purchases / Sales / Damage -> Decrease (-)
             let newStock = transactionData.product.stock;
-            if (transactionData.flowType === 'OUT') {
-                newStock -= units;
-            } else if (transactionData.flowType === 'IN' || transactionData.flowType === 'NEITHER') {
+
+            if (
+                transactionData.type === 'Sales Return' || 
+                transactionData.type === 'Stock Received' ||
+                transactionData.type === 'Purchases Return' // Return purchases means goods come back in
+            ) {
                 newStock += units;
+            } else {
+                // Sales, Purchases, Damage
+                newStock -= units;
             }
 
             // 2. Update Product Stock in Firestore
@@ -454,11 +480,12 @@
                 totalSellingPrice: newStock * transactionData.product.sellingPricePerUnit
             });
 
-            // 3. Save the Internal Stock Transaction
-            // This is for the stock dashboard logic (Purchase/Sale logs)
+            // 3. Save the Stock Transaction (Internal Log)
+            const formattedDate = getFormattedDate(); // "4/23/2026, 7:50:43 PM"
+            
             const stockTransactionPayload = {
                 sn: Date.now().toString().slice(-6),
-                date: serverTimestamp(),
+                date: formattedDate, // Use formatted date string
                 detail: transactionData.type, 
                 productName: transactionData.product.name,
                 flowType: transactionData.flowType, 
@@ -470,7 +497,6 @@
                 sellingPrice: transactionData.product.sellingPricePerUnit 
             };
 
-            // Remove flow details if irrelevant (Damage/Stock Received)
             if (transactionData.type === 'Damage' || transactionData.type === 'Stock Received') {
                 delete stockTransactionPayload.flowForm;
                 delete stockTransactionPayload.name;
@@ -482,18 +508,15 @@
             // ---------------------------------------------------------
             // 4. SAVE FINANCIAL RECORD (Double Entry Simulation)
             // ---------------------------------------------------------
-            // We only save a financial record IF it is NOT "Stock Received"
+            // Only save financial record if NOT "Stock Received"
             if (transactionData.type !== 'Stock Received') {
                 
                 let financialDetail = transactionData.type;
-                // If it's a generic return, name it "Sales Return" or "Purchases Return" for ledger
-                // If it's "Damage", we log it as an expense "Damage"
-                
-                // Append product name to detail for clarity in ledger
+                // Append product name for clarity
                 financialDetail += ` (${transactionData.product.name})`;
 
                 const financialPayload = {
-                    date: serverTimestamp(),
+                    date: formattedDate, // Use formatted date string
                     detail: financialDetail,
                     type: transactionData.flowType, // 'IN' for Sales/Returns, 'OUT' for Purchases/Damage
                     displayType: transactionData.flowType === 'IN' ? 'Income' : 'Expense',
