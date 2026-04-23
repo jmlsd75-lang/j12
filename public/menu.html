@@ -48,6 +48,19 @@
             top: 30px;
             left: 30px;
             z-index: 10;
+            
+            /* START: Hidden by default until we check the email */
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none; 
+            transition: opacity 0.5s ease, visibility 0.5s;
+        }
+
+        /* Class to show it */
+        .back-nav.visible {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
         }
 
         .btn-back {
@@ -186,8 +199,8 @@
 </head>
 <body>
 
-    <!-- Back Button -->
-    <nav class="back-nav">
+    <!-- Back Button (Hidden by default via CSS opacity) -->
+    <nav class="back-nav" id="adminBackNav">
         <!-- Calls goBack() function below -->
         <button class="btn-back" onclick="goBack()">
             <i class="fas fa-arrow-left"></i> Back
@@ -215,17 +228,65 @@
         </div>
     </main>
 
-    <script>
-        function redirectTo(page) {
+    <!-- ========================================
+         FIREBASE & LOGIC
+         ======================================== -->
+    <script type="module">
+        // Import Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // 1. FIREBASE CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
+            authDomain: "my-project-66803-95cb3.firebaseapp.com",
+            projectId: "my-project-66803-95cb3",
+            storageBucket: "my-project-66803-95cb3.firebasestorage.app",
+            messagingSenderId: "167159607898",
+            appId: "1:167159607898:web:23ca11366b88868b085e63"
+        };
+
+        const ADMIN_EMAIL = "jmlsd75@gmail.com";
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // 2. CHECK WHO IS LOGGED IN
+        // This runs immediately on page load. If a session exists, it grabs the user info.
+        onAuthStateChanged(auth, (user) => {
+            const backNav = document.getElementById("adminBackNav");
+
+            if (user) {
+                console.log("User detected:", user.email);
+
+                // Check if the logged in email is the specific admin email
+                if (user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                    console.log("Admin verified. Showing back button.");
+                    // Show the back button
+                    backNav.classList.add("visible");
+                } else {
+                    console.log("Regular user. Back button remains hidden.");
+                    // Ensure it stays hidden (it is hidden by CSS default)
+                    backNav.classList.remove("visible");
+                }
+            } else {
+                console.log("No active session.");
+            }
+        });
+
+        // 3. GLOBAL NAVIGATION FUNCTIONS
+        // These are attached to window so the onclick attributes in HTML work
+        window.redirectTo = function(page) {
             setTimeout(() => {
                 window.location.href = page;
             }, 150);
-        }
+        };
 
-        // UPDATED: Redirects to admin.html
-        function goBack() {
+        window.goBack = function() {
+            // Redirects to admin.html as requested
             window.location.href = 'admin.html';
-        }
+        };
     </script>
 
 </body>
