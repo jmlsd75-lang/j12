@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Free Session</title>
+    <title>Free Session - Auto Start</title>
     <style>
         :root {
             --bg-color: #121212;
@@ -32,7 +32,6 @@
             overflow: hidden;
         }
 
-        /* Header */
         header {
             padding: 20px;
             background-color: var(--surface-color);
@@ -59,7 +58,6 @@
             gap: 8px;
         }
 
-        /* Logout Button Styling (Updated for Main Position) */
         #logout-btn {
             background-color: transparent;
             color: var(--danger-color);
@@ -72,8 +70,8 @@
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            display: none; /* Hidden by default */
-            margin-bottom: 20px; /* Space between button and timer */
+            display: none;
+            margin-bottom: 20px;
         }
 
         #logout-btn:hover {
@@ -81,7 +79,6 @@
             color: white;
         }
 
-        /* Main Content */
         main {
             flex: 1;
             display: flex;
@@ -99,6 +96,7 @@
             letter-spacing: 2px;
             margin-bottom: 40px;
             text-shadow: 0 0 20px rgba(0,0,0,0.5);
+            transition: color 0.3s ease;
         }
 
         .timer-display.active {
@@ -115,9 +113,9 @@
             margin-bottom: 30px;
             font-size: 1.2rem;
             color: var(--text-secondary);
+            min-height: 1.5em;
         }
 
-        /* Buttons */
         .action-area {
             display: flex;
             gap: 20px;
@@ -148,7 +146,6 @@
             border-color: var(--text-color);
         }
 
-        /* Class to hide elements smoothly */
         .hidden {
             display: none !important;
         }
@@ -170,17 +167,15 @@
         }
 
         @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.8; }
-            100% { opacity: 1; }
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(0.98); }
+            100% { opacity: 1; transform: scale(1); }
         }
 
         @media (max-width: 600px) {
             .timer-display { font-size: 3.5rem; }
             .action-area { flex-direction: column; width: 100%; }
             .btn { width: 100%; }
-            /* No specific media query needed for logout anymore 
-               as it flows naturally in the main flex column */
         }
     </style>
 </head>
@@ -192,24 +187,19 @@
         </div>
         
         <div class="rate-counter">
-            <span>Rate:</span>
+            <span>Active Tabs:</span>
             <div id="tab-count">...</div>
         </div>
     </header>
 
     <main id="main-interface">
-        <!-- MOVED LOGOUT BUTTON HERE (Above Timer) -->
         <button id="logout-btn" type="button">Logout</button>
 
-        <!-- Default visual to prevent blank flash -->
         <div id="timer" class="timer-display">00:03:00</div>
-        <div id="status-text" class="status-message">Initializing...</div>
+        <div id="status-text" class="status-message">Starting...</div>
 
         <div class="action-area">
-            <!-- Constraint: Menu Button -->
-            <a id="btn-menu" href="menu.html" class="btn btn-menu">Menu</a>
-
-            <!-- Constraint: Awaiting State Buttons -->
+            <a id="btn-menu" href="menu.html" class="btn btn-menu hidden">Menu</a>
             <button id="btn-await" class="btn btn-await hidden" disabled>Await</button>
             <a id="btn-pay" href="pay.html" class="btn btn-pay hidden">Pay</a>
         </div>
@@ -236,18 +226,15 @@
             appId: "1:167159607898:web:23ca11366b88868b085e63"
         };
 
-        // Total "Work" required = 3 minutes in seconds
         const TOTAL_WORK_SECONDS = 3 * 60; 
-        // Cooldown = 24 hours in ms
         const AWAIT_TIME_MS = 24 * 60 * 60 * 1000;
-
         const tabId = crypto.randomUUID();
 
-        // Global State Variables
         let sessionState = 'idle'; 
-        let dbStartTime = null; // Date object
-        let dbEndTime = null;   // Date object
-        let currentRate = 1;     // The multiplier (Tabs count)
+        let dbStartTime = null; 
+        let dbEndTime = null;   
+        let currentRate = 1;     
+        let activeTabsList = [];
 
         const ui = {
             email: document.getElementById('user-email-display'),
@@ -268,7 +255,6 @@
         ui.logoutBtn.addEventListener('click', async () => {
             try {
                 await signOut(auth);
-                // Redirect to index.html immediately after sign out
                 window.location.href = "index.html";
             } catch (error) {
                 console.error("Sign out error", error);
@@ -279,53 +265,37 @@
         // ── 1. AUTH CHECK ──
         onAuthStateChanged(auth, (user) => {
             if (!user) {
-                // If no user, redirect immediately (e.g. if they manually logged out elsewhere)
                 window.location.href = "index.html"; 
                 return;
             }
             ui.email.textContent = user.email;
-            // Start Logic Immediately (No Loading Screen)
             initSession(user.email);
         });
 
-        // ── 2. VISUAL TIMER LOOP (Runs every second) ──
+        // ── 2. VISUAL TIMER LOOP ──
         setInterval(() => {
             updateVisualTimer();
-        }, 1000);
+        }, 100);
 
         function updateVisualTimer() {
             const now = new Date();
 
-            // --- ACTIVE PHASE LOGIC ---
             if (sessionState === 'active' && dbStartTime) {
-                
-                // A. Calculate Real Elapsed Time
                 const elapsedMs = now - dbStartTime;
                 const elapsedSeconds = elapsedMs / 1000;
 
-                // B. Calculate "Work Done" based on Current Rate
-                // Formula: Work = Time × Rate
                 const workDone = elapsedSeconds * currentRate;
-
-                // C. Calculate Remaining Work
                 let remainingWork = TOTAL_WORK_SECONDS - workDone;
 
                 if (remainingWork <= 0) {
                     ui.timer.textContent = "00:00:00";
                     finishSession(); 
                 } else {
-                    // D. Convert Remaining Work back to Display Time
-                    // Formula: Time = Work / Rate
-                    // We show the user how much "clock time" is left at the current speed
                     const displaySeconds = remainingWork / currentRate;
-                    
                     ui.timer.textContent = formatTime(displaySeconds * 1000);
                     ui.status.textContent = `Active (Speed: ${currentRate}x)`;
                 }
-            } 
-            
-            // --- AWAITING PHASE LOGIC ---
-            else if (sessionState === 'awaiting' && dbEndTime) {
+            } else if (sessionState === 'awaiting' && dbEndTime) {
                 const elapsedMs = now - dbEndTime;
                 const remainingMs = AWAIT_TIME_MS - elapsedMs;
 
@@ -336,21 +306,19 @@
                     ui.timer.textContent = formatTime(remainingMs);
                     ui.status.textContent = "Please wait.";
                 }
-            } 
-            
-            // --- IDLE PHASE LOGIC ---
-            else {
+            } else {
+                // Only show 00:03:00 if truly idle, but initSession forces active immediately
                 if (sessionState === 'idle') {
                     ui.timer.textContent = "00:03:00";
+                    ui.status.textContent = "Initializing...";
                 }
             }
         }
 
-        // ── 3. DATABASE INITIALIZATION & SYNC ──
+        // ── 3. DATABASE INITIALIZATION & SYNC (MODIFIED FOR AUTO START) ──
         async function initSession(email) {
             const userRef = doc(db, "users", email);
 
-            // A. Transaction to Register Tab and Start Session
             try {
                 await runTransaction(db, async (transaction) => {
                     const snap = await transaction.get(userRef);
@@ -371,21 +339,19 @@
                     let activeTabs = data.activeTabs || [];
                     let state = data.sessionState || 'idle';
 
-                    // Deduplicate: Remove existing instance of this tab ID
+                    // Deduplicate and Add Tab
                     activeTabs = activeTabs.filter(id => id !== tabId);
-                    // Add this tab back
                     activeTabs.push(tabId);
-
                     transaction.update(userRef, { activeTabs: activeTabs });
 
-                    // If not currently waiting, force start active if idle
+                    // AUTO-START LOGIC:
+                    // If we are NOT in the 'awaiting' (penalty) state, we force the state to 'active'.
+                    // This overrides 'idle' and 'finished' states immediately upon page load.
                     if (state !== 'awaiting') {
-                        if (state === 'idle' || state === 'finished') {
-                            transaction.update(userRef, {
-                                sessionState: 'active',
-                                startTime: serverTimestamp()
-                            });
-                        }
+                        transaction.update(userRef, {
+                            sessionState: 'active',
+                            startTime: serverTimestamp() // Reset timer to start fresh now
+                        });
                     }
                 });
             } catch (e) {
@@ -393,7 +359,6 @@
                 ui.status.textContent = "Connection Error";
             }
 
-            // B. Real-time Listener
             onSnapshot(userRef, (docSnap) => {
                 if (docSnap.exists()) {
                     handleDatabaseUpdate(docSnap.data());
@@ -403,62 +368,43 @@
 
         // ── 4. UPDATE STATE FROM DATABASE ──
         function handleDatabaseUpdate(data) {
-            // Update Global State
             sessionState = data.sessionState || 'idle';
             dbStartTime = data.startTime ? data.startTime.toDate() : null;
             dbEndTime = data.lastSessionEnd ? data.lastSessionEnd.toDate() : null;
+            activeTabsList = data.activeTabs || [];
             
-            const activeTabs = data.activeTabs || [];
-            
-            // Calculate Rate
-            // In awaiting phase, rate is fixed at 1. In active, it's tab count.
             if (sessionState === 'awaiting') {
                 currentRate = 1;
             } else {
-                // Prevent division by zero, default to 1 if 0 tabs
-                currentRate = activeTabs.length > 0 ? activeTabs.length : 1;
+                currentRate = activeTabsList.length > 0 ? activeTabsList.length : 1;
             }
 
-            // Update UI Counter
             ui.tabCount.textContent = currentRate;
 
-            // Update UI Styles & Buttons
             if (sessionState === 'awaiting') {
                 ui.timer.classList.remove('active');
                 ui.timer.classList.add('awaiting');
                 
-                // SHOW Await and Pay buttons
                 ui.btnAwait.classList.remove('hidden');
                 ui.btnPay.classList.remove('hidden');
-                
-                // HIDE Menu Button
-                ui.btnmenu.classList.add('hidden');
-
-                // ★ SHOW Logout Button (Now above timer) ★
+                ui.btnMenu.classList.add('hidden');
                 ui.logoutBtn.style.display = 'block';
 
             } else {
                 ui.timer.classList.remove('awaiting');
                 ui.timer.classList.add('active');
                 
-                // HIDE Await and Pay buttons
                 ui.btnAwait.classList.add('hidden');
                 ui.btnPay.classList.add('hidden');
-                
-                // SHOW Menu Button
-                ui.btnmenu.classList.remove('hidden');
-
-                // ★ HIDE Logout Button ★
+                ui.btnMenu.classList.remove('hidden');
                 ui.logoutBtn.style.display = 'none';
             }
 
-            // Force immediate visual update
             updateVisualTimer();
         }
 
         // ── 5. ACTIONS ──
         async function finishSession() {
-            // Guard against multiple calls
             if (sessionState !== 'active') return; 
 
             const email = ui.email.textContent;
@@ -470,25 +416,22 @@
                     if (!snap.exists()) return;
                     const data = snap.data();
 
-                    // Only finish if we are actually active
                     if (data.sessionState === 'active') {
                         transaction.update(userRef, {
                             sessionState: 'awaiting',
                             lastSessionEnd: serverTimestamp(),
-                            activeTabs: [] // Clear tabs for the penalty phase
+                            activeTabs: [] 
                         });
                     }
                 });
             } catch (e) { console.error(e); }
 
-            // Redirect to Penalty Page
             setTimeout(() => {
                 window.location.href = "await.html";
             }, 1000);
         }
 
         async function resetSystem() {
-            // Guard
             if (sessionState !== 'awaiting') return;
 
             const email = ui.email.textContent;
@@ -500,11 +443,9 @@
                     startTime: null,
                     lastSessionEnd: null
                 });
-                // The snapshot listener will catch this change and restart the cycle
             } catch (e) { console.error(e); }
         }
 
-        // ── UTILS ──
         function formatTime(ms) {
             const totalSeconds = Math.max(0, ms / 1000);
             const h = Math.floor(totalSeconds / 3600);
