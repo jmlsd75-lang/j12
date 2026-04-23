@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Free Session - Auto Start</title>
+    <title>Free Session</title>
     <style>
         :root {
             --bg-color: #121212;
@@ -289,7 +289,8 @@
 
                 if (remainingWork <= 0) {
                     ui.timer.textContent = "00:00:00";
-                    finishSession(); 
+                    ui.status.textContent = "Session Complete. Closing...";
+                    finishSession(); // Triggers Close
                 } else {
                     const displaySeconds = remainingWork / currentRate;
                     ui.timer.textContent = formatTime(displaySeconds * 1000);
@@ -307,7 +308,6 @@
                     ui.status.textContent = "Please wait.";
                 }
             } else {
-                // Only show 00:03:00 if truly idle, but initSession forces active immediately
                 if (sessionState === 'idle') {
                     ui.timer.textContent = "00:03:00";
                     ui.status.textContent = "Initializing...";
@@ -315,7 +315,7 @@
             }
         }
 
-        // ── 3. DATABASE INITIALIZATION & SYNC (MODIFIED FOR AUTO START) ──
+        // ── 3. DATABASE INITIALIZATION & SYNC ──
         async function initSession(email) {
             const userRef = doc(db, "users", email);
 
@@ -324,7 +324,6 @@
                     const snap = await transaction.get(userRef);
                     
                     if (!snap.exists()) {
-                        // New User: Start Immediately
                         transaction.set(userRef, {
                             email: email,
                             sessionState: 'active',
@@ -339,18 +338,14 @@
                     let activeTabs = data.activeTabs || [];
                     let state = data.sessionState || 'idle';
 
-                    // Deduplicate and Add Tab
                     activeTabs = activeTabs.filter(id => id !== tabId);
                     activeTabs.push(tabId);
                     transaction.update(userRef, { activeTabs: activeTabs });
 
-                    // AUTO-START LOGIC:
-                    // If we are NOT in the 'awaiting' (penalty) state, we force the state to 'active'.
-                    // This overrides 'idle' and 'finished' states immediately upon page load.
                     if (state !== 'awaiting') {
                         transaction.update(userRef, {
                             sessionState: 'active',
-                            startTime: serverTimestamp() // Reset timer to start fresh now
+                            startTime: serverTimestamp()
                         });
                     }
                 });
@@ -403,8 +398,9 @@
             updateVisualTimer();
         }
 
-        // ── 5. ACTIONS ──
+        // ── 5. ACTIONS (MODIFIED: Close on Finish) ──
         async function finishSession() {
+            // Guard against multiple calls
             if (sessionState !== 'active') return; 
 
             const email = ui.email.textContent;
@@ -426,6 +422,11 @@
                 });
             } catch (e) { console.error(e); }
 
+            // 1. Attempt to close the window/tab immediately
+            window.close();
+
+            // 2. Fallback: If the browser blocks window.close(), redirect to await.html
+            // This ensures the user leaves this page regardless.
             setTimeout(() => {
                 window.location.href = "await.html";
             }, 1000);
