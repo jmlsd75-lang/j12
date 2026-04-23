@@ -1,34 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Loading...</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management</title>
 
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #000;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      font-size: 28px;
-      text-align: center;
-    }
-  </style>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 15px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            background-color: #4a90e2;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #357abd;
+        }
+    </style>
 </head>
 <body>
 
-  PROGRAM IN PROGRESS...
+    <div class="container">
+        <h1>Student Management System</h1>
 
-  <script>
-    setTimeout(function () {
-      window.location.href = "menu.html";
-    }, 3000); // 3000ms = 3 seconds
-  </script>
+        <button onclick="goToRegistration()">
+            Register Student
+        </button>
+    </div>
+
+    <script>
+        function goToRegistration() {
+            window.location.href = "studentregistration.html";
+        }
+    </script>
 
 </body>
 </html>
