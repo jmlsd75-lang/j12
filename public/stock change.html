@@ -1,133 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Actions</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loading...</title>
 
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #f0f2f5;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* Top bar */
-        .top-bar {
-            width: 100%;
-            padding: 15px 20px;
-            background: #202124;
-            color: white;
-            display: flex;
-            justify-content: flex-end;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .back-btn {
-            background: #d93025; /* Red */
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 14px;
-            cursor: pointer;
-            border-radius: 4px;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-
-        .back-btn:hover {
-            background: #b92b20;
-        }
-
-        /* Buttons container */
-        .container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 30px;
-        }
-
-        .btn {
-            display: block;
-            width: 250px;
-            margin: 12px 0;
-            padding: 18px;
-            font-size: 16px;
-            border: none;
-            border-radius: 8px;
-            background: #4285F4; /* Blue matching other pages */
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: transform 0.1s, background 0.2s, box-shadow 0.2s;
-            text-decoration: none;
-        }
-
-        .btn:hover {
-            background: #3367d6;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-            transform: translateY(-2px);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        /* Specific colors for specific actions if desired, kept uniform for now */
-    </style>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      font-size: 28px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
 
-    <!-- Top Right Back Button -->
-    <div class="top-bar">
-        <button class="back-btn" onclick="goBack()">Back to Stock</button>
-    </div>
+  PROGRAM IN PROGRESS...
 
-    <!-- Main Buttons -->
-    <div class="container">
-        <h1>Select Transaction Type</h1>
-        
-        <!-- Passes 'Sales' to detail.html -->
-        <button class="btn" onclick="goToDetail('Sales')">Sell</button>
-        
-        <!-- Passes 'Purchases' to detail.html -->
-        <button class="btn" onclick="goToDetail('Purchases')">Buy</button>
-        
-        <!-- Passes exact name -->
-        <button class="btn" onclick="goToDetail('Damage')">Damage</button>
-        
-        <!-- Passes exact name -->
-        <button class="btn" onclick="goToDetail('Drawings')">Drawings</button>
-        
-        <!-- Passes exact name -->
-        <button class="btn" onclick="goToDetail('Sales Return')">Sales Return</button>
-        
-        <!-- Passes exact name -->
-        <button class="btn" onclick="goToDetail('Purchase Return')">Purchase Return</button>
-    </div>
-
-    <script>
-        function goBack() {
-            window.location.href = "stock.html";
-        }
-
-        function goToDetail(transactionType) {
-            // Redirects to detail.html with the selected transaction type as a URL parameter
-            // Example: detail.html?type=Sales
-            window.location.href = "detail.html?type=" + encodeURIComponent(transactionType);
-        }
-    </script>
+  <script>
+    setTimeout(function () {
+      window.location.href = "stock.html";
+    }, 3000); // 3000ms = 3 seconds
+  </script>
 
 </body>
 </html>
