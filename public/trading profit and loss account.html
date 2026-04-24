@@ -123,7 +123,6 @@
       letter-spacing: 1px;
     }
 
-    /* Subtotal / Total styling */
     .sub-total td {
       background-color: #fafafa;
       font-weight: 600;
@@ -191,7 +190,7 @@
           </tr>
         </thead>
         <tbody id="statementBody">
-          <tr><td colspan="5" class="loading-msg">Calculating Financials...</td></tr>
+          <tr><td colspan="5" class="loading-msg">Loading Report...</td></tr>
         </tbody>
       </table>
     </div>
@@ -200,8 +199,9 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+    // --- FIREBASE CONFIGURATION ---
     const firebaseConfig = {
       apiKey: "AIzaSyDpNJIZoLeZUhIoTepbLb_3rRLpseu9Zdo",
       authDomain: "my-project-66803-95cb3.firebaseapp.com",
@@ -215,20 +215,28 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    // --- DOM ELEMENTS ---
     const tableBody = document.getElementById('statementBody');
     const statusMsg = document.getElementById('status-msg');
     const userInfoDisplay = document.getElementById('userInfoDisplay');
 
+    // --- UTILS ---
     const formatCurrency = (amount) => {
       return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
     };
 
-    // --- ROW BUILDERS ---
+    // Safe Getter: Returns absolute value of (Debit - Credit) for a specific account name
+    const getLedgerBalance = (ledgerMap, accountName) => {
+      const account = ledgerMap[accountName];
+      if (!account) return 0;
+      return Math.abs(account.dr - account.cr);
+    };
 
+    // --- UI BUILDERS ---
     const createRow = (op, detail, dr, cr, amt, isTotal = false) => {
       const drStr = dr > 0 ? formatCurrency(dr) : "";
       const crStr = cr > 0 ? formatCurrency(cr) : "";
-      const amtStr = amt !== null && amt !== undefined ? formatCurrency(amt) : '-';
+      const amtStr = (amt !== null && amt !== undefined) ? formatCurrency(amt) : '-';
       const cssClass = isTotal ? 'grand-total' : (amt !== null ? 'sub-total' : '');
       
       return `<tr class="${cssClass}">
@@ -248,81 +256,77 @@
       return `<tr><td colspan="5" style="padding: 5px; background: #fafafa; border:none;"></td></tr>`;
     };
 
+    // --- AUTH & INIT ---
     onAuthStateChanged(auth, (user) => {
       if (!user) {
         window.location.href = "index.html";
         return;
       }
+      
+      // Set User Info
       const sessionData = localStorage.getItem("userSession");
       if (sessionData) {
         const parsed = JSON.parse(sessionData);
         userInfoDisplay.innerHTML = `<span>${parsed.name || "User"}</span><img src="${parsed.photo || 'https://picsum.photos/seed/user/32/32'}" class="user-avatar">`;
       }
+
+      // Generate Report immediately
       generateStatement(user.email);
     });
 
+    // --- CORE LOGIC ---
     async function generateStatement(userEmail) {
-      showStatus("Calculating Financials...", false);
-      tableBody.innerHTML = `<tr><td colspan="5" class="loading-msg">Processing...</td></tr>`;
+      showStatus("Fetching Data...", false);
+      tableBody.innerHTML = `<tr><td colspan="5" class="loading-msg">Loading Financial Data...</td></tr>`;
       
       try {
-        // 1. Fetch and Process Data
+        // 1. FAST DATA FETCH
+        // Removed 'orderBy' to speed up query. Data is processed locally.
         const transactionsRef = collection(db, "users", userEmail, "transactions");
-        const q = query(transactionsRef, orderBy("date", "asc"));
-        const querySnapshot = await getDocs(q);
+        const querySnapshot = await getDocs(transactionsRef);
 
-        const accounts = {};
-        let corpTaxRate = 0; // Variable to hold the fetched percentage
+        // 2. RAPID AGGREGATION
+        // Build a simple map: { "Account Name": { dr: 0, cr: 0 } }
+        const ledger = {};
         
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          const amount = parseFloat(data.amount || 0);
+          const amount = parseFloat(data.amount) || 0;
           const type = (data.type || "IN").toUpperCase();
-          let detail = data.detail || "General";
+          
+          // Use raw detail directly, no complex regex parsing for speed
+          const detail = (data.detail || "General").trim();
 
-          // Parse Detail to get Account Name
-          const nameMatch = detail.match(/\(([^)]+)\)$/);
-          if (nameMatch) {
-            detail = detail.replace(/\s*\([^)]+\)$/, "").trim();
+          if (!ledger[detail]) {
+            ledger[detail] = { dr: 0, cr: 0 };
           }
 
-          if (!accounts[detail]) accounts[detail] = { dr: 0, cr: 0 };
-
-          // Ledger Rule: OUT = DR, IN = CR
-          if (type === 'OUT') accounts[detail].dr += amount;
-          else accounts[detail].cr += amount;
-
-          // Fetch Corporation Tax Rate if found
-          if (detail === "Corporation Tax" && data.taxPercentage) {
-            corpTaxRate = parseFloat(data.taxPercentage);
+          // Standard Ledger Rule: OUT = Debit, IN = Credit
+          if (type === 'OUT') {
+            ledger[detail].dr += amount;
+          } else {
+            ledger[detail].cr += amount;
           }
         });
 
-        // Helper: Get Absolute Balance
-        const getAbsBal = (name) => {
-          const acc = accounts[name] || { dr: 0, cr: 0 };
-          return Math.abs(acc.dr - acc.cr);
-        };
+        // 3. EXTRACT KEY VALUES
+        // Trading Account
+        const sales = getLedgerBalance(ledger, "Sales");
+        const salesReturns = getLedgerBalance(ledger, "Sales Returns");
+        const openingStock = getLedgerBalance(ledger, "Opening Stock");
+        const purchases = getLedgerBalance(ledger, "Purchases");
+        const returnsOut = getLedgerBalance(ledger, "Returns Outwards");
+        const carriageIn = getLedgerBalance(ledger, "Carriage Inwards");
+        const closingStock = getLedgerBalance(ledger, "Closing Stock");
 
-        // --- 2. Collect Data Values ---
-        
-        // Trading Data
-        const sales = getAbsBal("Sales");
-        const salesReturns = getAbsBal("Sales Returns");
-        const openingStock = getAbsBal("Opening Stock");
-        const purchases = getAbsBal("Purchases");
-        const returnsOut = getAbsBal("Returns Outwards");
-        const carriageIn = getAbsBal("Carriage Inwards");
-        const closingStock = getAbsBal("Closing Stock");
-
-        // Income Data
+        // P&L Income Items
         const incomeItems = [
           "Discount Received", "Commission Received", "Rent Received", 
           "Interest Received", "Dividend Income", "Bad Debts Recovered", 
           "Gain on Sale of Asset", "Sundry Income"
         ];
 
-        // Expense Data
+        // P&L Expense Items (Includes Corporation Tax)
         const expenseItems = [
           "Wages & Salaries", "Rent & Rates", "Lighting & Heating", "Electricity & Gas",
           "Water Charges", "Telephone & Internet", "Stationery", "Postage & Courier",
@@ -331,92 +335,91 @@
           "General Expenses", "Sundry Expenses", "Charges", "Bad Debts",
           "Provision for Doubtful Debts", "Directors’ Remuneration", "Debenture Interest",
           "Warehouse Rent", "Security Expenses", "Legal & Professional Fees", "Audit Fees",
-          "Subscriptions", "Training Expenses", "Travel & Accommodation", "Entertainment Expenses"
+          "Subscriptions", "Training Expenses", "Travel & Accommodation", "Entertainment Expenses",
+          "Corporation Tax" // Added here to be treated as a standard expense
         ];
 
-        // Appropriation Data
-        const genRes = getAbsBal("General Reserve");
-        const goodwill = getAbsBal("Goodwill Written off");
-        const prefDiv = getAbsBal("Preference Dividends");
-        const ordDiv = getAbsBal("Ordinary Dividends");
-        const retainedBF = getAbsBal("Retained Profit");
+        // Appropriation Items
+        const genRes = getLedgerBalance(ledger, "General Reserve");
+        const goodwill = getLedgerBalance(ledger, "Goodwill Written off");
+        const prefDiv = getLedgerBalance(ledger, "Preference Dividends");
+        const ordDiv = getLedgerBalance(ledger, "Ordinary Dividends");
+        const retainedBF = getLedgerBalance(ledger, "Retained Profit");
 
-        // --- 3. Build HTML String ---
+        // --- 4. CALCULATIONS ---
+        
+        // Trading Calculations
+        const netSales = sales - salesReturns;
+        const purchasesNet = purchases - returnsOut;
+        const cogs = openingStock + purchasesNet + carriageIn - closingStock;
+        const grossProfit = netSales - cogs;
+        
+        // P&L Calculations
+        let totalIncome = 0;
+        incomeItems.forEach(inc => totalIncome += getLedgerBalance(ledger, inc));
 
+        let totalExp = 0;
+        expenseItems.forEach(exp => totalExp += getLedgerBalance(ledger, exp));
+
+        const netProfit = grossProfit + totalIncome - totalExp;
+
+        // Appropriation Calculations
+        // Corporation Tax is already part of totalExp, but for the Appropriation section display:
+        const corpTaxAmount = getLedgerBalance(ledger, "Corporation Tax");
+        
+        const retainedCF = retainedBF + netProfit - (genRes + goodwill + prefDiv + ordDiv);
+        // Note: We subtract corpTax inside Net Profit calculation (as it was in totalExp), 
+        // so we don't subtract it again here to avoid double counting.
+
+        // --- 5. RENDER HTML ---
         let html = "";
 
         // === TRADING ACCOUNT ===
         html += createSectionHeader("Trading Account");
-
-        const netSales = sales - salesReturns;
         html += createRow("", "Sales", 0, sales, null);
-        html += createRow("Less", "Sales Returns", salesReturns, 0, null);
+        if (salesReturns > 0) html += createRow("Less", "Sales Returns", salesReturns, 0, null);
         html += createRow("", "<strong>Net Sales</strong>", 0, 0, netSales);
         html += createSpacer();
 
-        const purchasesNet = purchases - returnsOut;
         html += createRow("", "Opening Stock", openingStock, 0, null);
         html += createRow("Add", "Purchases", purchases, 0, null);
-        html += createRow("Less", "Returns Outwards", 0, returnsOut, null);
-        html += createRow("Add", "Carriage Inwards", carriageIn, 0, null);
+        if (returnsOut > 0) html += createRow("Less", "Returns Outwards", 0, returnsOut, null);
+        if (carriageIn > 0) html += createRow("Add", "Carriage Inwards", carriageIn, 0, null);
         html += createRow("Less", "Closing Stock", 0, closingStock, null);
-        
-        const cogs = openingStock + purchasesNet + carriageIn - closingStock;
         html += createRow("", "<strong>Cost of Goods Sold</strong>", 0, 0, cogs);
         html += createSpacer();
 
-        const grossProfit = netSales - cogs;
-        
-        let grossLabel = "Gross Profit";
-        let grossVal = grossProfit;
-        if (grossProfit < 0) {
-          grossLabel = "Gross Loss";
-          grossVal = Math.abs(grossProfit);
-        }
-        
-        html += createRow("", `<strong>${grossLabel}</strong>`, 0, grossVal, grossVal, true);
+        let gLabel = grossProfit >= 0 ? "Gross Profit" : "Gross Loss";
+        let gVal = Math.abs(grossProfit);
+        html += createRow("", `<strong>${gLabel}</strong>`, 0, gVal, gVal, true);
         html += createSpacer();
 
         // === PROFIT & LOSS ACCOUNT ===
         html += createSectionHeader("Profit & Loss Account");
 
-        let totalIncome = 0;
-        html += createRow("Add", "<strong>Income:</strong>", 0, 0, null);
-        
-        incomeItems.forEach(inc => {
-          const val = getAbsBal(inc);
-          if (val > 0) {
-            totalIncome += val;
-            html += createRow("", inc, 0, val, null);
-          }
-        });
-        html += createRow("", "<strong>Total Income</strong>", 0, 0, totalIncome);
-        html += createSpacer();
-
-        let totalExp = 0;
-        html += createRow("Less", "<strong>Expenses:</strong>", 0, 0, null);
-        
-        expenseItems.forEach(exp => {
-          const val = getAbsBal(exp);
-          if (val > 0) {
-            totalExp += val;
-            html += createRow("", exp, val, 0, null);
-          }
-        });
-        html += createRow("", "<strong>Total Expenses</strong>", 0, 0, totalExp);
-        html += createSpacer();
-
-        // Calculate Net Profit
-        const netProfit = grossProfit + totalIncome - totalExp;
-        
-        let netLabel = "Net Profit for the Year";
-        let netVal = netProfit;
-        if (netProfit < 0) {
-          netLabel = "Net Loss for the Year";
-          netVal = Math.abs(netProfit);
+        if (totalIncome > 0) {
+          html += createRow("Add", "<strong>Income:</strong>", 0, 0, null);
+          incomeItems.forEach(inc => {
+            const val = getLedgerBalance(ledger, inc);
+            if (val > 0) html += createRow("", inc, 0, val, null);
+          });
+          html += createRow("", "<strong>Total Income</strong>", 0, 0, totalIncome);
+          html += createSpacer();
         }
 
-        html += createRow("", `<strong>${netLabel}</strong>`, 0, 0, netVal, true);
+        if (totalExp > 0) {
+          html += createRow("Less", "<strong>Expenses:</strong>", 0, 0, null);
+          expenseItems.forEach(exp => {
+            const val = getLedgerBalance(ledger, exp);
+            if (val > 0) html += createRow("", exp, val, 0, null);
+          });
+          html += createRow("", "<strong>Total Expenses</strong>", 0, 0, totalExp);
+          html += createSpacer();
+        }
+
+        let nLabel = netProfit >= 0 ? "Net Profit for the Year" : "Net Loss for the Year";
+        let nVal = Math.abs(netProfit);
+        html += createRow("", `<strong>${nLabel}</strong>`, 0, 0, nVal, true);
         html += createSpacer();
 
         // === APPROPRIATION ACCOUNT ===
@@ -424,49 +427,39 @@
 
         html += createRow("Add", "Retained Profit b/f", 0, retainedBF, null);
         
-        // --- CALCULATION LOGIC FOR CORPORATION TAX ---
-        let calculatedCorpTax = 0;
-
-        // Only calculate if there is a Net Profit (not a loss) and a rate exists
-        if (netProfit > 0 && corpTaxRate > 0) {
-          calculatedCorpTax = netProfit * (corpTaxRate / 100);
-        }
-        
-        html += createRow("Less", "Corporation Tax", calculatedCorpTax, 0, null);
-        
-        html += createRow("Less", "Transfer to General Reserve", genRes, 0, null);
-        html += createRow("Less", "Goodwill Written off", goodwill, 0, null);
-        html += createRow("Less", "Preference Dividends", prefDiv, 0, null);
-        html += createRow("Less", "Ordinary Dividends", ordDiv, 0, null);
-        
-        const retainedCF = retainedBF + netProfit - (calculatedCorpTax + genRes + goodwill + prefDiv + ordDiv);
-        
-        let retLabel = "Retained Profit c/f";
-        let retVal = retainedCF;
-        if (retainedCF < 0) {
-          retLabel = "Retained Loss c/f";
-          retVal = Math.abs(retainedCF);
+        // Show Corp Tax if it exists (Note: It was already deducted in Net Profit)
+        if (corpTaxAmount > 0) {
+           // Visual representation only, as calculation is already done
+           html += createRow("Less", "Corporation Tax (Deducted Above)", corpTaxAmount, 0, null);
         }
 
-        html += createRow("", `<strong>${retLabel}</strong>`, 0, 0, retVal, true);
+        if (genRes > 0) html += createRow("Less", "Transfer to General Reserve", genRes, 0, null);
+        if (goodwill > 0) html += createRow("Less", "Goodwill Written off", goodwill, 0, null);
+        if (prefDiv > 0) html += createRow("Less", "Preference Dividends", prefDiv, 0, null);
+        if (ordDiv > 0) html += createRow("Less", "Ordinary Dividends", ordDiv, 0, null);
+        
+        let rLabel = retainedCF >= 0 ? "Retained Profit c/f" : "Retained Loss c/f";
+        let rVal = Math.abs(retainedCF);
+        html += createRow("", `<strong>${rLabel}</strong>`, 0, 0, rVal, true);
 
-        // Render
         tableBody.innerHTML = html;
         hideStatus();
 
       } catch (error) {
-        console.error(error);
-        showStatus("Error generating statement: " + error.message, true);
-        tableBody.innerHTML = `<tr><td colspan="5" class="empty-msg" style="color:red">Error loading data.</td></tr>`;
+        console.error("Error loading statement:", error);
+        showStatus("Error loading data: " + error.message, true);
+        tableBody.innerHTML = `<tr><td colspan="5" class="empty-msg" style="color:red">Failed to load financial data.</td></tr>`;
       }
     }
 
     function showStatus(msg, isError) {
       statusMsg.textContent = msg;
       statusMsg.className = isError ? 'msg-error' : 'msg-loading';
+      statusMsg.style.display = 'block';
     }
-    function hideStatus() { statusMsg.style.display = 'none'; }
-
+    function hideStatus() { 
+      statusMsg.style.display = 'none'; 
+    }
   </script>
 </body>
 </html>
